@@ -1,0 +1,95 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+    <!-- İcon List Görünümü -->
+    </ui:remove>
+    
+    <ul class="raf-item-list">
+        <ui:repeat value="#{rafController.collection.nodes}" var="node">
+        <li class="raf-item">
+            <h:link outcome="raf.xhtml">
+                <f:param name="path" value="#{node.path}" />
+            <span class="raf-item-image">
+                <i class="fa fa-folder fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                #{node.name}
+            </div>
+            </h:link>
+        </li>
+        </ui:repeat>
+            
+        <ui:remove>
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-folder fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="/dolap/raf/test/kalsor_2">Klasör 2</a>
+            </div>
+        </li>
+
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-folder fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="/dolap/raf/test/usun_isimli_bir_klasor">Uzun İsimli Bir Klasör</a>
+            </div>
+        </li>
+
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-folder fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="">Klasör 4</a>
+            </div>
+        </li>
+
+
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-file-image-o fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="">Dosya 1</a>
+            </div>
+        </li>
+
+        <li class="raf-item raf-selected">
+            <span class="raf-item-image">
+                <i class="fa fa-file-o fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="">Dosya 1</a>
+            </div>
+        </li>
+
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-file-text-o fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="">Çok Çook Çoook Uzun İsimli Bir Dosya Olsun Bu Da.xls</a>
+            </div>
+        </li>
+
+        <li class="raf-item">
+            <span class="raf-item-image">
+                <i class="fa fa-file-pdf-o fa-2x" />
+            </span>
+            <div class="raf-item-name">
+                <a href="">Usun İsimli Bir Dosya.pdf</a>
+            </div>
+        </li>
+            </ui:remove>
+    </ul>
+</ui:composition>
+

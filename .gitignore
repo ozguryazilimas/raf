@@ -1,0 +1,10 @@
+.settings
+.classpath
+.project
+*.jasper
+target
+*.jasper
+.idea
+*.iml
+nbproject
+.directory

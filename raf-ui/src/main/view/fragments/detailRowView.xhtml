@@ -1,0 +1,170 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Detail Row List Görünümü -->
+    </ui:remove>
+
+    <ul class="raf-item-row-list">
+
+        <ui:remove>
+            <li class="raf-item">
+                <div class="raf-item-content">
+                    <span class="raf-item-image">
+                        <i class="fa fa-level-up fa-2x" />
+                    </span>
+                    <div class="raf-item-name">
+                        <a href="/dolap/raf/test/kalsor_1" class="text-sm">Üst Klasör</a>
+                    </div>
+                </div>
+
+
+            </li>
+        </ui:remove>
+
+        <ui:repeat value="#{rafController.collection.nodes}" var="node">
+        <li class="raf-item">
+            <div class="raf-item-content">
+                <i class="fa fa-square-o" style="margin-right: 8px;"/>
+                
+                <span class="raf-item-image">
+                    <i class="fa #{rafController.getIcon(node.mimeType)} fa-3x" />
+                </span>
+                <div class="raf-item-name">
+                    <h:link outcome="raf.xhtml">
+                            <f:param name="path" value="#{node.path}" />
+                            #{node.name}
+                        </h:link>
+                    <span class="text-muted text-sm">
+                        Hakan Uygun | 12.12.2018
+                    </span>
+
+                    <span class="text-muted text-sm">  
+                        <ui:remove>
+                            <i class="fa fa-star" />
+                            <i class="fa fa-comments" />
+                            v1.1
+                        </ui:remove>
+                    </span>
+
+                </div>
+            </div>
+            <div class="raf-item-content">
+                <div class="raf-item-name">
+                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
+                    <span class="text-muted text-sm">Kategori</span>
+                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
+                </div>
+            </div>
+
+            <div class="raf-item-tools">
+                <a href="#" >
+                    <i class="fa fa-download" />
+                </a>
+                <a href="#" onclick="PF('props').show();">
+                    <i class="fa fa-edit" />
+                </a>
+                <p:commandLink action="#{rafController.deleteNode(node.id)}" process="@this" update="raf-view" >
+                    <i class="fa fa-trash" />
+                </p:commandLink>
+            </div>
+        </li>
+        </ui:repeat>
+        
+        <li class="raf-item">
+            <div class="raf-item-content">
+                <i class="fa fa-square-o" style="margin-right: 8px;"/>
+                
+                <span class="raf-item-image">
+                    <i class="fa fa-folder fa-3x" />
+                </span>
+                <div class="raf-item-name">
+                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Uzun İsimli Bir Klasör</a>
+                    <span class="text-muted text-sm">
+                        Hakan Uygun | 12.12.2018
+                    </span>
+
+                    <span class="text-muted text-sm">  
+                        <ui:remove>
+                            <i class="fa fa-star" />
+                            <i class="fa fa-comments" />
+                            v1.1
+                        </ui:remove>
+                    </span>
+
+                </div>
+            </div>
+            <div class="raf-item-content">
+                <div class="raf-item-name">
+                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
+                    <span class="text-muted text-sm">Kategori</span>
+                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
+                </div>
+            </div>
+
+            <div class="raf-item-tools">
+                <a href="btn" >
+                    <i class="fa fa-download" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-edit" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-trash" />
+                </a>
+            </div>
+        </li>
+
+        <li class="raf-item">
+            <div class="raf-item-content">
+                <i class="fa fa-square-o" style="margin-right: 8px;"/>
+                
+                <span class="raf-item-image">
+                    <i class="fa fa-file-pdf-o fa-3x" />
+                </span>
+                <div class="raf-item-name">
+                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Uzun İSimli Bir Dosya.pdf</a>
+                    <span class="text-muted text-sm">
+                        Hakan Uygun | 12.12.2018
+                    </span>
+
+                    <span class="text-muted text-sm">  
+                        <i class="fa fa-star" />
+                        <i class="fa fa-comments" />
+                        v1.1
+                    </span>
+
+                </div>
+            </div>
+            <div class="raf-item-content">
+                <div class="raf-item-name">
+                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
+                    <span class="text-muted text-sm">Kategori</span>
+                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
+                </div>
+            </div>
+
+            <div class="raf-item-tools">
+                <a href="btn" >
+                    <i class="fa fa-download" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-edit" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-trash" />
+                </a>
+            </div>
+        </li>
+    </ul>
+    
+    <p:dialog id="props" widgetVar="props" header="Details">
+        Burada detaylar gelecek.
+    </p:dialog>
+</ui:composition>
+

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+	
+    <groupId>com.ozguryazilim.mutfak</groupId>
+    <artifactId>raf-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version> 
+    <name>${project.groupId} : ${project.artifactId} : ${project.version}</name>
+    <description>RAF Parent POM</description>
+    <url>http://www.ozguryazilim.com.tr/</url>
+    <packaging>pom</packaging> 
+
+    <properties>
+        <app.title>RAF</app.title>
+        <project.stage>Test</project.stage>
+        <property name="hibernate.show_sql" value="false"/>
+        
+        <telve.version>4.0.0.Beta6-SNAPSHOT</telve.version>
+        <modeshape.version>5.4.1.Final</modeshape.version>
+        <jdk.debug>true</jdk.debug>
+        <jdk.optimize>false</jdk.optimize>
+        <jdk.source>1.8</jdk.source>
+        <jdk.target>1.8</jdk.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.ozguryazilim.mutfak</groupId>
+                <artifactId>telve-bom</artifactId>
+                <version>4.0.0.Beta6-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.modeshape.bom</groupId>
+                <artifactId>modeshape-bom-embedded</artifactId>
+                <version>${modeshape.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.faces</groupId>
+            <artifactId>jboss-jsf-api_2.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.enterprise.concurrent</groupId>
+            <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.transaction</groupId>
+            <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.el</groupId>
+            <artifactId>jboss-el-api_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.servlet</groupId>
+            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.batch</groupId>
+            <artifactId>jboss-batch-api_1.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>${jdk.source}</source>
+                        <target>${jdk.target}</target>
+                        <encoding>utf-8</encoding>
+                        <debug>${jdk.debug}</debug>
+                        <optimize>${jdk.optimize}</optimize>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ejb-plugin</artifactId>
+                    <version>2.3</version>
+                    <configuration>
+                        <ejbVersion>3.1</ejbVersion>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.alexnederlof</groupId>
+                    <artifactId>jasperreports-plugin</artifactId>
+                    <version>1.9</version>
+                    <executions>
+                        <execution>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>jasper</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.sf.jasperreports</groupId>
+                            <artifactId>jasperreports</artifactId>
+                            <version>6.2.0</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <!-- These are the default configurations: -->
+                    
+                        <compiler>net.sf.jasperreports.engine.design.JRJdtCompiler</compiler>
+                        <sourceDirectory>src/main/jasperreports</sourceDirectory>
+                        <outputDirectory>${project.build.directory}/classes/jasper</outputDirectory>
+                        <outputFileExt>.jasper</outputFileExt>
+                        <xmlValidation>true</xmlValidation>
+                        <verbose>true</verbose>
+                        <numberOfThreads>4</numberOfThreads>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+        
+    
+    <issueManagement>
+        <system>Redmine</system>
+        <url>https://islergucler.ozguryazilim.com.tr/projects/raf</url>
+    </issueManagement>
+	
+    <scm>
+        <connection>scm:git:ssh://git@lab.ozguryazilim.com.tr/raf</connection>
+        <developerConnection>scm:git:ssh://git@lab.ozguryazilim.com.tr/telveng</developerConnection>
+        <url>http://cgit.ozguryazilim.com.tr/cezve/</url>
+    </scm>
+	 
+    <organization>
+        <name>Özgür Yazılım A.Ş.</name>
+        <url>http://www.ozguryazilim.com.tr/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>LGPL 3</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+
+    <developers>
+        <developer>
+            <id>hakan.uygun@ozguryazilim.com.tr#no</id>
+            <name>Hakan Uygun</name>
+            <email>hakan.uygun@ozguryazilim.com.tr#no</email>
+            <organization>Özgür Yazılım A.Ş.</organization>
+            <organizationUrl>http://www.ozguryazilim.com.tr</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>GMT +3</timezone>
+        </developer>
+    </developers>
+    
+    
+    
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <name>Özgür Yazılım A.Ş. Nexus Reporsiyory</name>
+            <url>http://nexus.ozguryazilim.com.tr/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Özgür Yazılım A.Ş. Nexus Snapshots Reporsiyory</name>
+            <url>http://nexus.ozguryazilim.com.tr/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+  <modules>
+    <module>raf-core</module>
+    <module>raf-war</module>
+    <module>raf-ui</module>
+    <module>raf-repo-api</module>
+    <module>raf-repo-impl</module>
+  </modules>
+</project>

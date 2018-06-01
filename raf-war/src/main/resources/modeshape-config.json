@@ -1,0 +1,26 @@
+{
+    "name": "raf",
+    "jndiName" : "jcr/raf",
+    "storage": {
+        "persistence" : {
+            "type" : "file",
+            "path": "/home/oyas/tmp/raf_persistent_repository"
+        } 
+    },
+    "workspaces" : {
+        "default" : "default",
+        "allowCreation" : true 
+    },
+    "security" : {
+        "anonymous" : {
+            "roles" : ["admin"],
+            "useOnFailedLogin" : false
+        },
+        "providers" : [
+            {
+                "name" : "Raf Security Provider",
+                "classname" : "com.ozguryazilim.raf.repo.RafSecurityProvider"
+            }
+        ]
+    }
+}

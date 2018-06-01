@@ -1,0 +1,227 @@
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:f="http://java.sun.com/jsf/core"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:o="http://omnifaces.org/ui"
+                 xmlns:c="http://java.sun.com/jsp/jstl/core"
+                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                 xmlns:of="http://omnifaces.org/functions">
+
+
+    <header class="main-header">
+        
+        <style>
+            .nav-bar-form.nav-bar-search{
+                background: rgba(255,255,255,0.2);
+                border-color: transparent;
+            }
+        </style>
+        
+        <ui:remove>
+            <p:ajaxStatus onstart="NProgress.start();" onsuccess="NProgress.done();" />
+        </ui:remove>
+
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+            <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+        </p:dialog>
+
+        <nav class="navbar navbar-static-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <h:link outcome="/home.xhtml" styleClass="navbar-brand">
+                        <i class="#{telveConfigResolver.getProperty('app.title.icon')}" />
+                        #{telveConfigResolver.getProperty('app.title')}
+                    </h:link>
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                        <i class="fa fa-bars"/>
+                    </button>
+                </div>
+                <div id="navbar-collapse" class="navbar-collapse pull-left collapse">
+                    <ul class="nav navbar-nav">
+                        <ui:remove>
+                        <!-- Main Navigations -->
+                        <ui:repeat value="#{nagivationController.mainNavigations}" var="nav" >
+                            <li >
+                                <h:link  outcome="#{nav.viewId}" title="#{messages[nav.label]}">
+                                    <i class="#{messages[nav.icon]}"></i>
+                                </h:link>
+                            </li>
+                        </ui:repeat>
+                        <!-- /p:cache -->
+
+                        <ui:fragment rendered="#{quickRecordManager.hasQuickRecords()}">
+                            <li class="">
+                                <a href="#" class="dropdown-toggle" title="#{messages['nav.label.QuickRecors']}" onclick="quickPanelToogle();">
+                                    <i class="fa fa-plus-circle"></i>
+                                </a>
+                            </li>
+                        </ui:fragment>
+                        </ui:remove>
+                        <li >
+                            <h:link  outcome="/raf.xhtml" title="Kişisel">
+                                <i class="fa fa-archive"></i>
+                                Kişisel
+                            </h:link>
+                        </li>
+                        
+                        <li >
+                            <h:link  outcome="/raf.xhtml" title="Ortak">
+                                <i class="fa fa-archive"></i>
+                                Ortak
+                            </h:link>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-archive"></i>
+                                <span>Hepsi</span>
+                                <i class="caret"></i>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li >
+                                    <h:link  outcome="/raf.xhtml" title="Ortak">
+                                        <i class="fa fa-archive"></i>
+                                        Kişisel
+                                    </h:link>
+                                </li>
+                                <li >
+                                    <h:link  outcome="/raf.xhtml" title="Ortak">
+                                        <i class="fa fa-archive"></i>
+                                        Ortak
+                                    </h:link>
+                                </li>
+
+                                <li >
+                                    <h:link  outcome="/raf.xhtml" title="İdari">
+                                        <i class="fa fa-archive"></i>
+                                        İdari
+                                    </h:link>
+
+                                </li>
+
+                                <li >
+                                    <h:link  outcome="/raf.xhtml" title="Satış">
+                                        <i class="fa fa-archive"></i>
+                                        Satış
+                                    </h:link>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;">
+                        <div class="form-group">
+                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="Search" />
+                        </div>
+                    </h:form>
+                    <ul class="nav navbar-nav">
+                        <ui:repeat value="#{nagivationController.navigationSections}" var="section" >
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-cog"></i>
+                                    <span>#{messages[section.label]}</span>
+                                    <i class="caret"></i>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <ui:repeat value="#{nagivationController.getSectionLinks(section.label)}" var="nav" >
+                                        <li>
+                                            <h:link  outcome="#{ nav.viewId }" >
+                                                <ui:remove>
+                                                    <c:forEach items="#{action.action.params}" var="entry">
+                                                        <f:param name="#{entry.key}" value="#{entry.value}"/>
+                                                    </c:forEach>
+                                                </ui:remove>
+
+                                                <h:graphicImage value="/img/ribbon/small#{nav.icon}"  style="margin-right: 4px;" rendered="#{not nav.fontIcon}"/>
+                                                <ui:fragment rendered="#{nav.fontIcon}">
+                                                    <i class="#{ nav.bundleKey ? messages[nav.icon] : nav.icon}"></i>
+                                                </ui:fragment>
+                                                <span style="padding-right: 4px;">#{messages[nav.label]}</span> 
+                                            </h:link>
+                                        </li>
+                                    </ui:repeat>
+                                </ul>
+                            </li>
+                        </ui:repeat>
+                    </ul>
+                </div>
+                
+                <div class="navbar-custom-menu">
+                    <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;">
+                        <div class="form-group">
+                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="Search" />
+                        </div>
+                    </h:form>
+                    <ul class="nav navbar-nav">
+
+                        <ui:include src="/fragments/notiftyPopupFragment.xhtml" />
+
+                        <li class="hidden-xs">
+                            <a href="#{helpResolver.helpPath}" target="HelpWinId" onclick="openHelp();" title="#{messages['nav.label.Help']}">
+                                <i class="fa fa-question-circle"></i>
+
+                            </a>
+                        </li>
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user"/>
+                                <span class="hidden-xs">#{identity.userName}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <ui:remove>
+                                    <!-- User image -->
+                                    <li class="user-header">
+                                        <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
+                                        <p>
+                                            Alexander Pierce - Web Developer
+                                            <small>Member since Nov. 2012</small>
+                                        </p>
+                                    </li>
+                                </ui:remove>
+                                <!-- Menu Body -->
+                                <li class="user-body">
+                                    <div class="col-xs-4 text-center">
+
+                                        <p:commandLink action="#{aboutController.openDialog()}" 
+                                                       ajax="true" partialSubmit="true" process="@this" >
+                                            <i class="fa fa-question-circle" /> #{messages['general.button.About']}
+                                        </p:commandLink>
+                                    </div>
+                                    <ui:remove>
+                                        <div class="col-xs-4 text-center">
+                                            <a href="#">Sales</a>
+                                        </div>
+                                        <div class="col-xs-4 text-center">
+                                            <a href="#">Friends</a>
+                                        </div>
+                                    </ui:remove>
+                                </li>
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <h:link outcome="/options.xhtml" styleClass="btn btn-default btn-flat">
+                                            <i class="fa fa-gears" /> #{messages['module.caption.Options']}
+                                        </h:link>
+                                    </div>
+                                    <div class="pull-right">
+                                        <h:form>
+                                            <p:commandLink action="#{loginController.logout()}" ajax="false" styleClass="btn btn-default btn-flat">
+                                                <i class="fa fa-power-off" /> #{messages['general.button.Logout']}
+                                            </p:commandLink>
+                                        </h:form>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+    </header>
+
+</ui:composition>
