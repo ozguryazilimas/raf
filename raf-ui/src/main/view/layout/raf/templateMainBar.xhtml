@@ -10,14 +10,14 @@
 
 
     <header class="main-header">
-        
+
         <style>
             .nav-bar-form.nav-bar-search{
                 background: rgba(255,255,255,0.2);
                 border-color: transparent;
             }
         </style>
-        
+
         <ui:remove>
             <p:ajaxStatus onstart="NProgress.start();" onsuccess="NProgress.done();" />
         </ui:remove>
@@ -41,37 +41,41 @@
                 <div id="navbar-collapse" class="navbar-collapse pull-left collapse">
                     <ul class="nav navbar-nav">
                         <ui:remove>
-                        <!-- Main Navigations -->
-                        <ui:repeat value="#{nagivationController.mainNavigations}" var="nav" >
+                            <!-- Main Navigations -->
+                            <ui:repeat value="#{nagivationController.mainNavigations}" var="nav" >
+                                <li >
+                                    <h:link  outcome="#{nav.viewId}" title="#{messages[nav.label]}">
+                                        <i class="#{messages[nav.icon]}"></i>
+                                    </h:link>
+                                </li>
+                            </ui:repeat>
+                            <!-- /p:cache -->
+
+                            <ui:fragment rendered="#{quickRecordManager.hasQuickRecords()}">
+                                <li class="">
+                                    <a href="#" class="dropdown-toggle" title="#{messages['nav.label.QuickRecors']}" onclick="quickPanelToogle();">
+                                        <i class="fa fa-plus-circle"></i>
+                                    </a>
+                                </li>
+                            </ui:fragment>
+                        </ui:remove>
+                        <ui:fragment rendered="#{rafNavigationController.hasPersonalRaf()}">
                             <li >
-                                <h:link  outcome="#{nav.viewId}" title="#{messages[nav.label]}">
-                                    <i class="#{messages[nav.icon]}"></i>
+                                <h:link  outcome="/raf.xhtml" title="Kişisel">
+                                    <i class="fa fa-archive"></i>
+                                    Kişisel
                                 </h:link>
                             </li>
-                        </ui:repeat>
-                        <!-- /p:cache -->
+                        </ui:fragment>
 
-                        <ui:fragment rendered="#{quickRecordManager.hasQuickRecords()}">
-                            <li class="">
-                                <a href="#" class="dropdown-toggle" title="#{messages['nav.label.QuickRecors']}" onclick="quickPanelToogle();">
-                                    <i class="fa fa-plus-circle"></i>
-                                </a>
+                        <ui:fragment rendered="#{rafNavigationController.hasSharedRaf()}">
+                            <li >
+                                <h:link  outcome="/raf.xhtml" title="Ortak">
+                                    <i class="fa fa-archive"></i>
+                                    Ortak
+                                </h:link>
                             </li>
                         </ui:fragment>
-                        </ui:remove>
-                        <li >
-                            <h:link  outcome="/raf.xhtml" title="Kişisel">
-                                <i class="fa fa-archive"></i>
-                                Kişisel
-                            </h:link>
-                        </li>
-                        
-                        <li >
-                            <h:link  outcome="/raf.xhtml" title="Ortak">
-                                <i class="fa fa-archive"></i>
-                                Ortak
-                            </h:link>
-                        </li>
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -80,36 +84,17 @@
                                 <i class="caret"></i>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li >
-                                    <h:link  outcome="/raf.xhtml" title="Ortak">
-                                        <i class="fa fa-archive"></i>
-                                        Kişisel
-                                    </h:link>
-                                </li>
-                                <li >
-                                    <h:link  outcome="/raf.xhtml" title="Ortak">
-                                        <i class="fa fa-archive"></i>
-                                        Ortak
-                                    </h:link>
-                                </li>
-
-                                <li >
-                                    <h:link  outcome="/raf.xhtml" title="İdari">
-                                        <i class="fa fa-archive"></i>
-                                        İdari
-                                    </h:link>
-
-                                </li>
-
-                                <li >
-                                    <h:link  outcome="/raf.xhtml" title="Satış">
-                                        <i class="fa fa-archive"></i>
-                                        Satış
-                                    </h:link>
-                                </li>
+                                <ui:repeat value="#{rafNavigationController.rafs}" var="raf" >
+                                    <li >
+                                        <h:link  outcome="/raf.xhtml" title="#{raf.code}">
+                                            <i class="fa fa-archive"></i>
+                                            #{raf.name}
+                                        </h:link>
+                                    </li>
+                                </ui:repeat>
                             </ul>
                         </li>
-                        
+
                         <li >
                             <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
                                 <i class="fa fa-plus-circle" />
@@ -152,7 +137,7 @@
                         </ui:repeat>
                     </ul>
                 </div>
-                
+
                 <div class="navbar-custom-menu">
                     <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
