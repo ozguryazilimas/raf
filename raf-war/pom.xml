@@ -39,13 +39,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>raf-repo-api</artifactId>
+            <artifactId>raf-model</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>raf-repo-impl</artifactId>
+            <artifactId>raf-service</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>

@@ -19,7 +19,7 @@
         "providers" : [
             {
                 "name" : "Raf Security Provider",
-                "classname" : "com.ozguryazilim.raf.repo.RafSecurityProvider"
+                "classname" : "com.ozguryazilim.raf.jcr.RafSecurityProvider"
             }
         ]
     }

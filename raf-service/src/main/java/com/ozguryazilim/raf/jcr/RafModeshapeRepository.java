@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf.repo;
+package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.RafRepository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import org.modeshape.common.text.UrlEncoder;

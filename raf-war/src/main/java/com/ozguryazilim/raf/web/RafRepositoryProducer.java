@@ -6,8 +6,8 @@
 package com.ozguryazilim.raf.web;
 
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.RafRepository;
-import com.ozguryazilim.raf.repo.RafModeshapeRepository;
+import com.ozguryazilim.raf.jcr.RafRepository;
+import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;

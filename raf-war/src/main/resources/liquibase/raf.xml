@@ -4,6 +4,7 @@
 
     <include file="liquibase/telve-core.xml" />
     <include file="liquibase/telve-idm.xml" />
+    <include file="liquibase/raf-model.xml" />
     
     
         

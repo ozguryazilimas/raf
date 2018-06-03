@@ -18,6 +18,13 @@
         
         <telve.version>4.0.0.Beta6-SNAPSHOT</telve.version>
         <modeshape.version>5.4.1.Final</modeshape.version>
+        
+        <version.liquibase-hibernate4>3.5</version.liquibase-hibernate4>
+        <version.mysql-connector-java>5.1.26</version.mysql-connector-java>
+        <version.maven-processor-plugin>2.0.5</version.maven-processor-plugin>
+        <version.liquibase-maven-plugin>3.4.2</version.liquibase-maven-plugin>
+        <version.hibernate-jpamodelgen>5.2.1.Final</version.hibernate-jpamodelgen>
+        
         <jdk.debug>true</jdk.debug>
         <jdk.optimize>false</jdk.optimize>
         <jdk.source>1.8</jdk.source>
@@ -256,7 +263,7 @@
     <module>raf-core</module>
     <module>raf-war</module>
     <module>raf-ui</module>
-    <module>raf-repo-api</module>
-    <module>raf-repo-impl</module>
+    <module>raf-model</module>
+    <module>raf-service</module>
   </modules>
 </project>

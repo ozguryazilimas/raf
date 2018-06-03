@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf;
+package com.ozguryazilim.raf.jcr;
+
+import com.ozguryazilim.raf.RafException;
 
 /**
  * RAF Repository için temel API.
