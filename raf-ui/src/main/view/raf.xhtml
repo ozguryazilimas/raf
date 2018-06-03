@@ -12,10 +12,11 @@
 
     <ui:define name="metadata">
         <f:metadata>
+            <f:viewParam name="id" value="#{rafController.rafCode}" />
             <f:viewAction action="#{rafController.init()}"/>
         </f:metadata>
     </ui:define>
-    
+
 
     <ui:define name="extraHead">
         <h:outputStylesheet library="raf" name="css/raf.css" />
@@ -54,52 +55,60 @@
                         Raf
                     </div>
                     <div class="raf-header-info text-bold text-big">
-                        Kişisel
+                        #{rafController.rafDefinition.name}
                     </div>
                 </div>
             </section>
             <section class="raf-header-tools">
-                <div class="raf-header-tool-pack">
-                    <ul class="breadcrumb text-muted text-sm" style="background: transparent; padding: 0px; margin: 0px;">
-                        <li><i class="fa fa-sitemap"/></li>
-                        <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
-                        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        <ui:remove>
+                <ui:remove>
+                    <div class="raf-header-tool-pack">
+                        <ul class="breadcrumb text-muted text-sm" style="background: transparent; padding: 0px; margin: 0px;">
+                            <li><i class="fa fa-sitemap"/></li>
+                            <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
                             <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                            <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                            <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        </ui:remove>
-                        <li>Klasör 2.5</li>
-                    </ul>
-                </div>
+                            <ui:remove>
+                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
+                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
+                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
+                            </ui:remove>
+                            <li>Klasör 2.5</li>
+                        </ul>
+                    </div>
+                </ui:remove>
                 <div class="raf-header-tool-pack">
                     <div class="raf-header-btns">
-                        <p:commandLink action="#{rafController.toggleSideBar()}" update="raf-view">
-                            <i class="fa fa-sitemap" />
-                        </p:commandLink>
-                        
-                        <p:commandLink action="#{rafController.createFolder()}" update="raf-view">
+                        <ui:remove>
+                            <p:commandLink action="#{rafController.toggleSideBar()}" update="raf-view">
+                                <i class="fa fa-sitemap" />
+                            </p:commandLink>
+
+                            <p:commandLink action="#{rafController.createFolder()}" update="raf-view">
+                                <i class="fa fa-plus" />
+                            </p:commandLink>
+
+                            <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" update="raf-view">
+                                <i class="fa fa-plus" />
+                            </p:commandLink>
+                        </ui:remove>
+
+                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" >
                             <i class="fa fa-plus" />
                         </p:commandLink>
-                        
-                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" update="raf-view">
-                            <i class="fa fa-plus" />
-                        </p:commandLink>
-                                                
                     </div>
                     <div class="raf-header-btns">
-                        <p:commandLink action="#{rafController.setContentView('iconView')}" update="raf-view">
-                            <i class="fa fa-th" />
-                        </p:commandLink>
-                        
-                        <p:commandLink action="#{rafController.setContentView('simpleRowView')}" update="raf-view">
-                            <i class="fa fa-list" />
-                        </p:commandLink>
-                        
-                        <p:commandLink action="#{rafController.setContentView('detailRowView')}" update="raf-view">
-                            <i class="fa fa-th-list" />
-                        </p:commandLink>
+                        <ui:remove>
+                            <p:commandLink action="#{rafController.setContentView('iconView')}" update="raf-view">
+                                <i class="fa fa-th" />
+                            </p:commandLink>
 
+                            <p:commandLink action="#{rafController.setContentView('simpleRowView')}" update="raf-view">
+                                <i class="fa fa-list" />
+                            </p:commandLink>
+
+                            <p:commandLink action="#{rafController.setContentView('detailRowView')}" update="raf-view">
+                                <i class="fa fa-th-list" />
+                            </p:commandLink>
+                        </ui:remove>
                     </div>
                     <div class="raf-header-btns">
                         <a href="" >
@@ -118,185 +127,59 @@
     <ui:define name="body">
         <ui:include src="/layout/messages.xhtml" />
 
-        <ui:remove>
-        <p>PATH: #{rafController.path}</p>
-        </ui:remove>
 
-
-        <h:form id="rmtForm">
-            <p:remoteCommand name="selectTreeNode" action="#{rafController.selectNode}" update="raf-view-content" partialSubmit="true" process="@this" />
-        </h:form>
-
-        <ui:remove>
-            <ul class="breadcrumb" style="margin: 2px;">
-                <li><i class="fa fa-sitemap"/></li>
-                <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
-                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                <li>Klasör 2.5</li>
-            </ul>
-        </ui:remove>
-
-        
-        <p:dialog header="New Folder" id="folderDlg" widgetVar="folderDlg" >
-            <h:form id="fldForm" class="row">
-                <t:outputText label="Parent" value="#{rafController.collection.parent.name}" />
-                <t:inputText label="Folder Name" value="#{rafController.newFolder.name}" required="true" columnClass="col-xs-12"/>
-                <ui:remove>
-                <t:inputText label="Folder Title" value="" required="true" columnClass="col-xs-12"/>
-                <t:inputTextarea label="Açıklama" value="" required="false" columnClass="col-xs-12"/>
-                </ui:remove>
-                <div class="actionButtons">
-                    <p:commandButton action="#{rafController.createFolder()}" value="Sakla" icon="fa fa-save" styleClass="btn btn-primary" process="@form" 
-                                     update="raf-view"
-                                     oncomplete="PF('folderDlg').hide()">
-
-                    </p:commandButton>
-
-                    <p:commandButton value="Vazgeç" icon="fa fa-close" styleClass="btn btn-default" process="@this" oncomplete="PF('folderDlg').hide()">
-
-                    </p:commandButton>
-                </div>
-            </h:form>
-        </p:dialog>
-
-        <h:form id="uploaddialog" enctype="multipart/form-data">
-            <p:dialog header="#{messages['jcr.caption.UploadFileDialog']}" widgetVar="fdlg" showEffect="clip" hideEffect="clip">
-                <p:fileUpload fileUploadListener="#{rafController.handleFileUpload}" mode="advanced" dragDropSupport="true"
-                              update="raf-view-content" sizeLimit="10000000" allowTypes="/(\.|\/)(gif|jpe?g|png|.*)$/"  sequential="true"
-                              label="#{messages['general.label.SelectFile']}" uploadLabel="#{messages['general.button.Upload']}" cancelLabel="#{messages['general.button.Cancel']}"/>
-            </p:dialog>
-        </h:form>
-        
-        <ui:remove>
-            <div class="raf-tools">
-                <div class="raf-tools-pack-left">
-                    <div class="raf-tools-pack">
-                        <a href="" >
-                            <i class="fa fa-sitemap" /> 1
-                        </a>
-                        <a href="" >
-                            <i class="fa fa-list" />
-                        </a>
-                    </div>
-                </div>
-                <div class="raf-tools-pack-right">
-                    <div class="raf-tools-pack">
-                        <a href="" >
-                            <i class="fa fa-sitemap" /> 2
-                        </a>
-                        <a href="" >
-                            <i class="fa fa-list" />
-                        </a>
-                    </div>
-                    <div class="raf-tools-pack">
-                        <a href="" >
-                            <i class="fa fa-sitemap" /> 3
-                        </a>
-                        <a href="" >
-                            <i class="fa fa-list" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </ui:remove>
         <p:outputPanel id="raf-view" class="raf">
-
-            <ui:fragment rendered="#{rafController.sideBarType ne 'na'}">
             <div class="raf-box left" >
                 <div class="raf-box-header">
-                    <i class="fa fa-archive"/>
-                    #{rafController.selectedRaf.name}
+                    <i class="fa #{rafController.selectedSidePanel.icon}"/>
+                    #{rafController.selectedSidePanel.title}
 
                     <div class="pull-right">
-                        <p:commandLink action="#{rafController.setSideBarType('folder')}" update="raf-view">
-                            <i class="fa fa-folder" />
-                        </p:commandLink>
-                        <p:commandLink action="#{rafController.setSideBarType('category')}" update="raf-view">
-                            <i class="fa fa-sitemap" />
-                        </p:commandLink>
-                        <p:commandLink action="#{rafController.setSideBarType('tag')}" update="raf-view">
-                            <i class="fa fa-tags" />
-                        </p:commandLink>
-                        <p:commandLink action="#{rafController.setSideBarType('search')}" update="raf-view">
-                            <i class="fa fa-search" />
-                        </p:commandLink>
+                        
+                        <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
+                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="" update="raf-view">
+                                <i class="fa #{sidePanel.icon}" />
+                            </p:commandLink>
+                        </ui:repeat>
                     </div>
-
                 </div>
                 <div class="raf-box-content" style="">
-                    <ui:fragment rendered="#{rafController.sideBarType eq 'folder'}">
-                    <div id="data" />
-
-                    <script>
-                        data = [
-                            
-                            {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
-                            <ui:repeat value="#{rafController.folders}" var="node">
-                                {"id": "#{node.id}", "parent": "#{node.parentId}", "text": "#{node.name}" },
-                            </ui:repeat>
-                            <ui:remove>
-                            {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
-                            <ui:repeat value="#{rafController.folders}" var="node">
-                                {"id": "#{node.id}", "parent": "#{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}", "text": "#{node.name}" },
-                            </ui:repeat>
-                            </ui:remove>
-                            <ui:remove>
-                            #{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}
-                            {"id": "klasor1", "parent": "#", "text": "Klasör 1"},
-                            {"id": "klasor1-1", "parent": "klasor1", "text": "Klasör 2"},
-                            {"id": "klasor1-1-1", "parent": "klasor1-1", "text": "Klasör 2.5"},
-                            {"id": "klasor1-2", "parent": "klasor1", "text": "Klasör 3"},
-                            {"id": "klasor2", "parent": "#", "text": "Klasör 4"},
-                            {"id": "klasor2-1", "parent": "klasor2", "text": "Klasör 5"},
-                            {"id": "klasor2-2", "parent": "klasor2", "text": "Klasör 6"},
-                            </ui:remove>
-                        ];
-
-                        selectedNode = '#{rafController.selectedRaf.id}';
-                        buildTree();
-                    </script>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{rafController.sideBarType eq 'category'}">
-                        Buraya Kategori Listesi gelecek
-                    </ui:fragment>
-                    <ui:fragment rendered="#{rafController.sideBarType eq 'tag'}">
-                        Buraya Tag Listesi gelecek
-                    </ui:fragment>
-                    <ui:fragment rendered="#{rafController.sideBarType eq 'search'}">
-                        Buraya Search kriterleri gelecek
-                    </ui:fragment>
+                    <ui:include src="#{rafController.selectedSidePanel.fragment}" />
                 </div>
             </div>
-            </ui:fragment>
+
             <p:outputPanel id="raf-view-content" class="raf-box middle">
                 <div class="raf-box-header">
+                    Başlık
+                    <ui:remove>
                     <ui:fragment rendered="#{rafController.collection.parent.mimeType eq 'raf/folder'}">
-                    <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
+                        <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
 
-                    <div class="pull-right">
-                        <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
-                            <i class="fa fa-plus" />
-                        </p:commandLink>
-                        
-                        <a href="#" class="" onclick="PF('fdlg').show();">
-                            <i class="fa fa-upload" />
-                        </a>
-                        <a href="" class="">
-                            <i class="fa fa-cog" />
-                        </a>
-                    </div>
+                        <div class="pull-right">
+                            <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
+                                <i class="fa fa-plus" />
+                            </p:commandLink>
+
+                            <a href="#" class="" onclick="PF('fdlg').show();">
+                                <i class="fa fa-upload" />
+                            </a>
+                            <a href="" class="">
+                                <i class="fa fa-cog" />
+                            </a>
+                        </div>
 
                     </ui:fragment>
-
+                        </ui:remove>
                 </div>
                 <div class="raf-box-content" >
-
+                    İçerik
+                    <ui:remove>
                     <ui:include src="/fragments/breadcrumb.xhtml" />
 
                     <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
                         <ui:include src="/fragments/iconView.xhtml" />
                     </ui:fragment>
-                    
+
                     <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
                         <ui:include src="/fragments/simpleRowView.xhtml" />
                     </ui:fragment>
@@ -304,12 +187,13 @@
                     <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
                         <ui:include src="/fragments/detailRowView.xhtml" />
                     </ui:fragment>
-                    
+
                     <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
                         <ui:include src="/fragments/fileView.xhtml" />
                     </ui:fragment>
-                    
+
                     <ui:include src="/fragments/fileView.xhtml" />
+                    </ui:remove>
                 </div>
                 <div class="raf-box-footer" style="text-align: center">
                     <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
@@ -323,89 +207,283 @@
                     </ul>
                 </div>
             </p:outputPanel>
-            <div class="raf-box right" style="display: none;">
-                <div class="raf-box-header">Özellikler</div>
-                <div class="raf-box-content" >
-
-                    <t:outputText label="İsim" value="Dosya 1" columnClass="col-xs-12"/>
-                    <t:outputText label="Açıklama" value="Açıklama yapıyoruz ama kime?" columnClass="col-xs-12"/>
-                    <t:outputText label="Kategori" value="Şablon" columnClass="col-xs-12"/>
-                    <t:outputText label="Etiketler" value="Teklif, Özgür Yazılım A.Ş., Bişi" columnClass="col-xs-12"/>
-
-                    <h:form id="propForm">
-
-                        <t:inputText label="İsim" value="" columnClass="col-xs-12"/>
-                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
-
-                    </h:form>
-
-                </div>
-
-            </div>
         </p:outputPanel>
 
 
 
-        <script type="text/javascript">
+        <ui:remove>
 
-            function buildTree() {
+            <h:form id="rmtForm">
+                <p:remoteCommand name="selectTreeNode" action="#{rafController.selectNode}" update="raf-view-content" partialSubmit="true" process="@this" />
+            </h:form>
+
+            <ui:remove>
+                <ul class="breadcrumb" style="margin: 2px;">
+                    <li><i class="fa fa-sitemap"/></li>
+                    <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
+                    <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
+                    <li>Klasör 2.5</li>
+                </ul>
+            </ui:remove>
+
+            <ui:remove>
+                <p:dialog header="New Folder" id="folderDlg" widgetVar="folderDlg" >
+                    <h:form id="fldForm" class="row">
+                        <t:outputText label="Parent" value="#{rafController.collection.parent.name}" />
+                        <t:inputText label="Folder Name" value="#{rafController.newFolder.name}" required="true" columnClass="col-xs-12"/>
+                        <ui:remove>
+                            <t:inputText label="Folder Title" value="" required="true" columnClass="col-xs-12"/>
+                            <t:inputTextarea label="Açıklama" value="" required="false" columnClass="col-xs-12"/>
+                        </ui:remove>
+                        <div class="actionButtons">
+                            <p:commandButton action="#{rafController.createFolder()}" value="Sakla" icon="fa fa-save" styleClass="btn btn-primary" process="@form" 
+                                             update="raf-view"
+                                             oncomplete="PF('folderDlg').hide()">
+
+                            </p:commandButton>
+
+                            <p:commandButton value="Vazgeç" icon="fa fa-close" styleClass="btn btn-default" process="@this" oncomplete="PF('folderDlg').hide()">
+
+                            </p:commandButton>
+                        </div>
+                    </h:form>
+                </p:dialog>
+            </ui:remove>
+            <h:form id="uploaddialog" enctype="multipart/form-data">
+                <p:dialog header="#{messages['jcr.caption.UploadFileDialog']}" widgetVar="fdlg" showEffect="clip" hideEffect="clip">
+                    <p:fileUpload fileUploadListener="#{rafController.handleFileUpload}" mode="advanced" dragDropSupport="true"
+                                  update="raf-view-content" sizeLimit="10000000" allowTypes="/(\.|\/)(gif|jpe?g|png|.*)$/"  sequential="true"
+                                  label="#{messages['general.label.SelectFile']}" uploadLabel="#{messages['general.button.Upload']}" cancelLabel="#{messages['general.button.Cancel']}"/>
+                </p:dialog>
+            </h:form>
+
+            <ui:remove>
+                <div class="raf-tools">
+                    <div class="raf-tools-pack-left">
+                        <div class="raf-tools-pack">
+                            <a href="" >
+                                <i class="fa fa-sitemap" /> 1
+                            </a>
+                            <a href="" >
+                                <i class="fa fa-list" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="raf-tools-pack-right">
+                        <div class="raf-tools-pack">
+                            <a href="" >
+                                <i class="fa fa-sitemap" /> 2
+                            </a>
+                            <a href="" >
+                                <i class="fa fa-list" />
+                            </a>
+                        </div>
+                        <div class="raf-tools-pack">
+                            <a href="" >
+                                <i class="fa fa-sitemap" /> 3
+                            </a>
+                            <a href="" >
+                                <i class="fa fa-list" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </ui:remove>
+            <p:outputPanel id="raf-view" class="raf">
+
+                <ui:remove>
+                    <ui:fragment rendered="#{rafController.sideBarType ne 'na'}">
+                        <div class="raf-box left" >
+                            <div class="raf-box-header">
+                                <i class="fa fa-archive"/>
+                                #{rafController.selectedRaf.name}
+
+                                <div class="pull-right">
+                                    <p:commandLink action="#{rafController.setSideBarType('folder')}" update="raf-view">
+                                        <i class="fa fa-folder" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{rafController.setSideBarType('category')}" update="raf-view">
+                                        <i class="fa fa-sitemap" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{rafController.setSideBarType('tag')}" update="raf-view">
+                                        <i class="fa fa-tags" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{rafController.setSideBarType('search')}" update="raf-view">
+                                        <i class="fa fa-search" />
+                                    </p:commandLink>
+                                </div>
+
+                            </div>
+                            <div class="raf-box-content" style="">
+                                <ui:fragment rendered="#{rafController.sideBarType eq 'folder'}">
+                                    <div id="data" />
+
+                                    <script>
+                                        data = [
+
+                                        {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
+                                        <ui:repeat value="#{rafController.folders}" var="node">
+                                            {"id": "#{node.id}", "parent": "#{node.parentId}", "text": "#{node.name}" },
+                                        </ui:repeat>
+                                        <ui:remove>
+                                                {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
+                                            <ui:repeat value="#{rafController.folders}" var="node">
+                                                       {"id": "#{node.id}", "parent": "#{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}", "text": "#{node.name}" },
+                                                           </ui:repeat>
+                                            </ui:remove>
+                                            <ui:remove>
+                                                #{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}
+                        {"id": "klasor1", "parent": "#", "text": "Klasör 1"},
+                                {"id": "klasor1-1", "parent": "klasor1", "text": "Klasör 2"},
+                                    {"id": "klasor1-1-1", "parent": "klasor1-1", "text": "Klasör 2.5"},
+                                                {"id": "klasor1-2", "parent": "klasor1", "text": "Klasör 3"},
+                                                {"id": "klasor2", "parent": "#", "text": "Klasör 4"},
+                                                {"id": "klasor2-1", "parent": "klasor2", "text": "Klasör 5"},
+                                                {"id": "klasor2-2", "parent": "klasor2", "text": "Klasör 6"},
+                                            </ui:remove>
+                                        ];
+                                        selectedNode = '#{rafController.selectedRaf.id}';
+                                        buildTree();
+                                    </script>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{rafController.sideBarType eq 'category'}">
+                                    Buraya Kategori Listesi gelecek
+                                </ui:fragment>
+                                <ui:fragment rendered="#{rafController.sideBarType eq 'tag'}">
+                                    Buraya Tag Listesi gelecek
+                                </ui:fragment>
+                                <ui:fragment rendered="#{rafController.sideBarType eq 'search'}">
+                                    Buraya Search kriterleri gelecek
+                                </ui:fragment>
+                            </div>
+                        </div>
+                    </ui:fragment>
+                </ui:remove>
+                <ui:remove>
+                    <p:outputPanel id="raf-view-content" class="raf-box middle">
+                        <div class="raf-box-header">
+                            <ui:fragment rendered="#{rafController.collection.parent.mimeType eq 'raf/folder'}">
+                                <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
+
+                                <div class="pull-right">
+                                    <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
+                                        <i class="fa fa-plus" />
+                                    </p:commandLink>
+
+                                    <a href="#" class="" onclick="PF('fdlg').show();">
+                                        <i class="fa fa-upload" />
+                                    </a>
+                                    <a href="" class="">
+                                        <i class="fa fa-cog" />
+                                    </a>
+                                </div>
+
+                            </ui:fragment>
+
+                        </div>
+                        <div class="raf-box-content" >
+
+                            <ui:include src="/fragments/breadcrumb.xhtml" />
+
+                            <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
+                                <ui:include src="/fragments/iconView.xhtml" />
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
+                                <ui:include src="/fragments/simpleRowView.xhtml" />
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
+                                <ui:include src="/fragments/detailRowView.xhtml" />
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
+                                <ui:include src="/fragments/fileView.xhtml" />
+                            </ui:fragment>
+
+                            <ui:include src="/fragments/fileView.xhtml" />
+                        </div>
+                        <div class="raf-box-footer" style="text-align: center">
+                            <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
+                                <li class="active"><a href="#">1</a></li>
+                                <li><a href="#">2</a></li>
+                                <li><a href="#">3</a></li>
+                                <li><a href="#">4</a></li>
+                                <li><a href="#">5</a></li>
+                                <li><a href="#">6</a></li>
+                                <li><a href="#">7</a></li>
+                            </ul>
+                        </div>
+                    </p:outputPanel>
+                    <div class="raf-box right" style="display: none;">
+                        <div class="raf-box-header">Özellikler</div>
+                        <div class="raf-box-content" >
+
+                            <t:outputText label="İsim" value="Dosya 1" columnClass="col-xs-12"/>
+                            <t:outputText label="Açıklama" value="Açıklama yapıyoruz ama kime?" columnClass="col-xs-12"/>
+                            <t:outputText label="Kategori" value="Şablon" columnClass="col-xs-12"/>
+                            <t:outputText label="Etiketler" value="Teklif, Özgür Yazılım A.Ş., Bişi" columnClass="col-xs-12"/>
+
+                            <h:form id="propForm">
+
+                                <t:inputText label="İsim" value="" columnClass="col-xs-12"/>
+                                <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
+                                <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
+                                <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
+
+                            </h:form>
+
+                        </div>
+
+                    </div>
+                </ui:remove>
+            </p:outputPanel>
+
+
+
+            <script type="text/javascript">
+
+                function buildTree() {
                 // inline data 
                 jQuery("#data")
                         .on("activate_node.jstree", function (e, data) {
-                            //alert( data.instance.get_node(data.selected[0]).id );
-                            selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
+                        //alert( data.instance.get_node(data.selected[0]).id );
+                        selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
                         })
                         .on('loaded.jstree', function () {
-                            jQuery('#data').jstree('open_all');
-                            //setNodeSelections();
+                        jQuery('#data').jstree('open_all');
+                        //setNodeSelections();
                         })
                         .jstree({
-                            "plugins": ["wholerow", "types", "sort"],
-                            "types": {
+                        "plugins": ["wholerow", "types", "sort"],
+                                "types": {
                                 "default": {
-                                    "icon": "fa fa-folder"
+                                "icon": "fa fa-folder"
                                 }
-                            },
-                            'core': {
+                                },
+                                'core': {
                                 'data': data}
                         });
-
-            }
-            buildTree();
-
-
-            function setNodeSelections() {
-                if (jQuery('#data').length > 0) {
-                    jQuery('#data').jstree().select_node(selectedNode);
                 }
-            }
+                buildTree();
+                function setNodeSelections() {
+                if (jQuery('#data').length > 0) {
+                jQuery('#data').jstree().select_node(selectedNode);
+                }
+                }
 
-            setNodeSelections();
+                setNodeSelections();
 
-        </script>
+            </script>
 
 
-        <p:dialog id="newFolder" widgetVar="newFolder">
-            <h:form id="nff">
-                <t:inputText label="İsim" value="" />
-            </h:form>
-        </p:dialog>
-        
-    </ui:define>
+            <p:dialog id="newFolder" widgetVar="newFolder">
+                <h:form id="nff">
+                    <t:inputText label="İsim" value="" />
+                </h:form>
+            </p:dialog>
 
-    <ui:define name="context-menu">
-        <li>
-            <a href="/dolap/raf/test/aaa/bbb/ccc/abc.pdf">aaa</a>
-        </li>
-        <li>
-            <h:link  outcome="/raf.xhtml" >
-                <f:param name="path" value="qqq/qqq"/>
-                <i class="fa fa-trash"/>
-                <span>Bişi</span>
-            </h:link>
-        </li>
+        </ui:remove>
     </ui:define>
 
 

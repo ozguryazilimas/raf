@@ -63,6 +63,7 @@
                             <li >
                                 <h:link  outcome="/raf.xhtml" title="Kişisel">
                                     <i class="fa fa-archive"></i>
+                                    <f:param name="id" value="PRIVATE" />
                                     Kişisel
                                 </h:link>
                             </li>
@@ -72,6 +73,7 @@
                             <li >
                                 <h:link  outcome="/raf.xhtml" title="Ortak">
                                     <i class="fa fa-archive"></i>
+                                    <f:param name="id" value="SHARED" />
                                     Ortak
                                 </h:link>
                             </li>
@@ -88,6 +90,7 @@
                                     <li >
                                         <h:link  outcome="/raf.xhtml" title="#{raf.code}">
                                             <i class="fa fa-archive"></i>
+                                            <f:param name="id" value="#{raf.code}" />
                                             #{raf.name}
                                         </h:link>
                                     </li>
