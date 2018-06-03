@@ -13,6 +13,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.ozguryazilim.mutfak</groupId>
+            <artifactId>telve-core-model</artifactId>
+            <version>${telve.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <type>jar</type>
