@@ -8,12 +8,14 @@ package com.ozguryazilim.raf;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -43,6 +45,9 @@ public class RafController implements Serializable{
     @Inject
     private CategorySidePanel categorySidePanel;
     
+    @Inject
+    private Event<RafChangedEvent> rafChangedEvent;
+    
     private SidePanel selectedSidePanel;
     
     private String rafCode;
@@ -70,6 +75,8 @@ public class RafController implements Serializable{
         //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
         
         context.setSelectedRaf(rafDefinition);
+        
+        rafChangedEvent.fire(new RafChangedEvent());
     }
 
     public String getRafCode() {

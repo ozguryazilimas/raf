@@ -6,8 +6,56 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    
-    Buraya Klasör Ağacı Gelecek
+    <div id="data" />
+
+    <script>
+        data = [
+            <ui:repeat value="#{folderSidePanel.folders}" var="folder">
+                {"id": "#{folder.id}", "parent": "#{folder.parentId}", "text": "#{folder.name}" },
+                </ui:repeat>
+        ];
+        <ui:remove>
+        selectedNode = '#{rafController.selectedRaf.id}';
+        </ui:remove>
+        
+    </script>
+
+    <script type="text/javascript">
+
+        function buildTree() {
+            // inline data 
+            jQuery("#data")
+                    .on("activate_node.jstree", function (e, data) {
+                        //alert( data.instance.get_node(data.selected[0]).id );
+                        selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
+                    })
+                    .on('loaded.jstree', function () {
+                        jQuery('#data').jstree('open_all');
+                        //setNodeSelections();
+                    })
+                    .jstree({
+                        "plugins": ["wholerow", "types", "sort"],
+                        "types": {
+                            "default": {
+                                "icon": "fa fa-folder"
+                            }
+                        },
+                        'core': {
+                            'data': data}
+                    });
+        }
+        
+        buildTree();
+        
+        function setNodeSelections() {
+            if (jQuery('#data').length > 0) {
+                jQuery('#data').jstree().select_node(selectedNode);
+            }
+        }
+
+        //setNodeSelections();
+
+    </script>
     
 </ui:composition>
 

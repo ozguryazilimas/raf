@@ -7,8 +7,12 @@ package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafNode;
+import java.util.ArrayList;
+import java.util.List;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import org.modeshape.common.text.UrlEncoder;
@@ -61,6 +65,10 @@ public class RafModeshapeRepository implements RafRepository{
 
             RafNode result = nodeToRafNode(node);
 
+            //FIXME: şimdilik test işleri için var. Silinecek.
+            node = jcrTools.findOrCreateNode(session, fullPath + "/dene/abc/def", "nt:folder");
+            
+            session.save();
             session.logout();
 
             return result;
@@ -101,6 +109,7 @@ public class RafModeshapeRepository implements RafRepository{
 
             RafNode result = nodeToRafNode(node);
 
+            session.save();
             session.logout();
 
             return result;
@@ -122,6 +131,7 @@ public class RafModeshapeRepository implements RafRepository{
 
             RafNode result = nodeToRafNode(node);
 
+            session.save();
             session.logout();
 
             return result;
@@ -130,6 +140,41 @@ public class RafModeshapeRepository implements RafRepository{
         }
     }
 
+    @Override
+    public List<RafFolder> getFolderList(RafNode rafNode) throws RafException {
+        return getFolderList(rafNode.getName());
+    }
+
+    @Override
+    public List<RafFolder> getFolderList(String rafCode) throws RafException {
+        
+        List<RafFolder> result = new ArrayList<>();
+        
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = getEncodedPath( RAF_ROOT + rafCode );
+
+            JcrTools jcrTools = new JcrTools();
+            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+
+            //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
+            //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
+            RafFolder f =  nodeToRafFolder(node);
+            f.setParentId("#");
+            result.add( f );
+            
+            populateFolders( node, result );
+            
+            
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+        
+    }
     
     //////////////////////////////////////////
     //Util Functions
@@ -162,5 +207,28 @@ public class RafModeshapeRepository implements RafRepository{
         
         return result;
     }
+    
+    protected RafFolder nodeToRafFolder( Node node ) throws RepositoryException{
+        RafFolder result = new RafFolder();
+        
+        result.setId(node.getIdentifier());
+        result.setPath(node.getPath());
+        result.setName(node.getName());
+        result.setParentId(node.getParent().getIdentifier());
+        
+        return result;
+    }
+
+    private void populateFolders(Node node, List<RafFolder> result) throws RepositoryException {
+        NodeIterator it = node.getNodes();
+        while( it.hasNext() ){
+            Node n = it.nextNode();
+            result.add(nodeToRafFolder(n));
+            populateFolders(n, result);
+        }
+        
+    }
+
+    
     
 }

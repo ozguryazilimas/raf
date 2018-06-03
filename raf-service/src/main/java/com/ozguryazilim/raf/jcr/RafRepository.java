@@ -7,7 +7,9 @@ package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafNode;
+import java.util.List;
 
 /**
  * RAF Repository için temel API.
@@ -59,4 +61,26 @@ public interface RafRepository {
      * @return 
      */
     RafNode getSharedRafNode() throws RafException;
+    
+    /**
+     * Verilen RafNode için Folder listesini döndürür. 
+     * 
+     * Folder'lar ağaç olmasına rağmen sadece parentId ile dolu liste döner. Ağaç formunda değil.
+     * 
+     * @param rafNode
+     * @return
+     * @throws RafException 
+     */
+    List<RafFolder> getFolderList( RafNode rafNode ) throws RafException;
+    
+    /**
+     * Verilen RafNode code için Folder listesini döndürür. 
+     * 
+     * Folder'lar ağaç olmasına rağmen sadece parentId ile dolu liste döner. Ağaç formunda değil.
+     * 
+     * @param rafNode
+     * @return
+     * @throws RafException 
+     */
+    List<RafFolder> getFolderList( String rafCode ) throws RafException;
 }
