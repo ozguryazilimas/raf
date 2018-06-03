@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>raf-repo-api</artifactId>
+            <artifactId>raf-service</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

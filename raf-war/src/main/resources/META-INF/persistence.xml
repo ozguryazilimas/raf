@@ -10,6 +10,7 @@
         <shared-cache-mode>DISABLE_SELECTIVE</shared-cache-mode>
         <jar-file>lib/telve-core-model-${telve.version}.jar</jar-file>
         <jar-file>lib/telve-idm-model-${telve.version}.jar</jar-file>
+        <jar-file>lib/raf-model-${project.version}.jar</jar-file>
         
         <properties>
             <!-- Properties for Hibernate -->
