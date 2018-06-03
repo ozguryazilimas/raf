@@ -6,12 +6,14 @@
 package com.ozguryazilim.raf;
 
 import com.google.common.base.Strings;
-import com.ozguryazilim.raf.definition.RafDefinitionRepository;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -29,8 +31,8 @@ public class RafController implements Serializable{
     private Identity identity;
     
     @Inject
-    private RafDefinitionRepository rafDefinitionRepository;
-
+    private RafDefinitionService rafDefinitionService;
+    
     @Inject
     private RafContext context;
     
@@ -49,6 +51,7 @@ public class RafController implements Serializable{
     
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
+     * 
      * ViewAction olarak
      */
     public void init(){
@@ -57,8 +60,14 @@ public class RafController implements Serializable{
             rafCode = "PRIVATE";
         }
         
-        //FIXME: Raf seçimi service katmanında olmalı. PRIVATE ve SHARED giri özel rafların veritabanından gelmeme gibi bir huyu var :)
-        rafDefinition = rafDefinitionRepository.findAnyByCode(rafCode);
+        try {
+            rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafCode);
+        } catch (RafException ex) {
+            //FIXME: Burada ne yapmalı?
+            Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
         
         context.setSelectedRaf(rafDefinition);
     }

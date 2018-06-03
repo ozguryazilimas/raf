@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf.entities;
 
+import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.telve.annotations.BizKey;
 import com.ozguryazilim.telve.entities.EntityBase;
 import javax.persistence.Column;
@@ -13,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -59,6 +61,9 @@ public class RafDefinition extends EntityBase{
     @Column(name = "NODE_ID", length= 255)
     private String nodeId; 
 
+    @Transient
+    private RafNode node;
+    
     @Override
     public Long getId() {
         return id;
@@ -101,7 +106,13 @@ public class RafDefinition extends EntityBase{
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
-    
 
+    public RafNode getNode() {
+        return node;
+    }
+
+    public void setNode(RafNode node) {
+        this.node = node;
+    }
     
 }

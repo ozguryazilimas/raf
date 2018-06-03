@@ -6,6 +6,8 @@
 package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafNode;
 
 /**
  * RAF Repository için temel API.
@@ -30,4 +32,31 @@ public interface RafRepository {
      */
     void stop() throws RafException;
     
+    /**
+     * Verilen deifiniton üzerindeki bilgileri kullanarak yeni bir raf nodu oluşturur.
+     * @param definition
+     * @return 
+     */
+    RafNode createRafNode( RafDefinition definition ) throws RafException;
+    
+    /**
+     * Code ile verilen raf nodunu döndürür. Yoksa null döner.
+     * @param code
+     * @return 
+     */
+    RafNode getRafNode( String code ) throws RafException;
+    
+    /**
+     * Kullanıcının kişisel raf nodunu döndürür. Yoksa oluşturur.
+     * 
+     * @param username
+     * @return 
+     */
+    RafNode getPrivateRafNode( String username ) throws RafException;
+    
+    /**
+     * Ortak kullanılan RafNodu'nu döndürür. Yoksa oluşturur.
+     * @return 
+     */
+    RafNode getSharedRafNode() throws RafException;
 }
