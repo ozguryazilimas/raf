@@ -154,11 +154,12 @@
                     #{rafController.selectedContentPanel.title}
 
                     <div class="pull-right">
-                        <ui:remove>
-                            <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
+                        
+                        <p:commandLink action="#{createFolderAction.execute()}" process="@this" update="raf-view-content" >
                                 <i class="fa fa-plus" />
-                            </p:commandLink>
-                        </ui:remove>
+                                <p:ajax event="dialogReturn" update="raf-view" />
+                        </p:commandLink>
+                        
 
                         <ui:repeat value="#{rafController.contentPanels}" var="cw" >
                             <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.commandTitle}">

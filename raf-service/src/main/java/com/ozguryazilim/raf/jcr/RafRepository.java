@@ -102,4 +102,7 @@ public interface RafRepository {
      * @return 
      */
     RafCollection getCollectionById( String id ) throws RafException;
+    
+    
+    void createFolder( RafFolder folder ) throws RafException;
 }

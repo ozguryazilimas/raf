@@ -27,11 +27,22 @@ public class RafService implements Serializable{
     private RafRepository rafRepository;
     
     
+    
+    
     public List<RafFolder> getFolderList( String raf ) throws RafException{
+        //FIXME: yetki kontrolleri, sıralama v.b.
         return rafRepository.getFolderList(raf);
     }
     
     public RafCollection getCollection( String id ) throws RafException{
+        //FIXME: yetki kontrolleri, sıralama v.b.
         return rafRepository.getCollectionById(id);
+    }
+    
+    public void createFolder( RafFolder folder ) throws RafException{
+        //FIXME: yetki kontrolü
+        rafRepository.createFolder(folder);
+        
+        //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
     }
 }
