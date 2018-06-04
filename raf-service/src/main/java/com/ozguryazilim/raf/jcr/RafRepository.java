@@ -8,8 +8,10 @@ package com.ozguryazilim.raf.jcr;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafNode;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -105,4 +107,6 @@ public interface RafRepository {
     
     
     void createFolder( RafFolder folder ) throws RafException;
+    
+    public RafDocument uploadDocument( String fileName, InputStream in ) throws RafException;
 }

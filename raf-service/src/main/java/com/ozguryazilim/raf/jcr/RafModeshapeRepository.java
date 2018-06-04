@@ -5,12 +5,16 @@
  */
 package com.ozguryazilim.raf.jcr;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.jcr.Node;
@@ -235,6 +239,47 @@ public class RafModeshapeRepository implements RafRepository {
         } catch (RepositoryException ex) {
             throw new RafException();
         }
+    }
+
+    @Override
+    public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
+        if (Strings.isNullOrEmpty(fileName)) {
+            //FIXME: UI'a hata vermeli ama nasıl?
+            throw new RafException();
+        }
+
+        RafDocument result = null;
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            JcrTools jcrTools = new JcrTools();
+
+            String fullName = getEncodedPath(fileName);
+            LOG.debug("Encoded FileName : {}", fileName);
+
+            Node n = jcrTools.uploadFile(session, fullName, in);
+            /*
+            n.addMixin("tlv:ref");
+            n.addMixin("tlv:tag");
+            n.setProperty("tlv:sourceCaption", getSourceCaption());
+            n.setProperty("tlv:sourceDomain", getSourceDomain());
+            n.setProperty("tlv:sourceId", getSourceId());
+             */
+            session.save();
+
+            //n.getProperty("jcr:createdBy").setValue(getUserId());
+            //session.save();
+            result = null; //nodeToFile(n);
+            session.logout();
+            LOG.debug("Dosya JCR'e kondu : {}", fullName);
+        } catch (RepositoryException ex) {
+            LOG.error("Reporsitory Exception", ex);
+            throw new RafException();
+        } catch (IOException ex) {
+            LOG.error("IO Exception", ex);
+            throw new RafException();
+        }
+        return result;
     }
 
     //////////////////////////////////////////

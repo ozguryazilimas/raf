@@ -7,7 +7,9 @@ package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.jcr.RafRepository;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
@@ -44,5 +46,10 @@ public class RafService implements Serializable{
         rafRepository.createFolder(folder);
         
         //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
+    }
+    
+    public RafDocument uploadDocument( String fileName, InputStream in ) throws RafException{
+        //FIXME: yetki kontrolü
+        return rafRepository.uploadDocument(fileName, in);
     }
 }

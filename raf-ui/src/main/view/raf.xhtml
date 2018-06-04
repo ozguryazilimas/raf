@@ -160,6 +160,11 @@
                                 <p:ajax event="dialogReturn" update="raf-view" />
                         </p:commandLink>
                         
+                        <p:commandLink action="#{fileUploadAction.execute()}" process="@this" update="raf-view-content" >
+                                <i class="fa fa-upload" />
+                                <p:ajax event="dialogReturn" update="raf-view" />
+                        </p:commandLink>
+                        
 
                         <ui:repeat value="#{rafController.contentPanels}" var="cw" >
                             <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.commandTitle}">
