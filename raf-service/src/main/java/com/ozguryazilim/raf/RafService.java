@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.jcr.RafRepository;
+import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import java.io.Serializable;
 import java.util.List;
@@ -28,5 +29,9 @@ public class RafService implements Serializable{
     
     public List<RafFolder> getFolderList( String raf ) throws RafException{
         return rafRepository.getFolderList(raf);
+    }
+    
+    public RafCollection getCollection( String id ) throws RafException{
+        return rafRepository.getCollectionById(id);
     }
 }

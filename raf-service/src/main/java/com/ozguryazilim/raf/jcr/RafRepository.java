@@ -7,6 +7,7 @@ package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafNode;
 import java.util.List;
@@ -83,4 +84,22 @@ public interface RafRepository {
      * @throws RafException 
      */
     List<RafFolder> getFolderList( String rafCode ) throws RafException;
+    
+    /**
+     * Verilen Path için collection döndürür.
+     * 
+     * İçeriğinde nt:folder ve nt:file tipindeki nesler bulunur.
+     * RafFolder + RafDocument
+     * 
+     * @param path
+     * @return 
+     */
+    RafCollection getCollection( String path ) throws RafException;
+    
+    /**
+     * ID'si verilen child collection'ını döndürür.
+     * @param id
+     * @return 
+     */
+    RafCollection getCollectionById( String id ) throws RafException;
 }

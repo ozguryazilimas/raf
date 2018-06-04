@@ -7,7 +7,9 @@ package com.ozguryazilim.raf.jcr;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,6 +178,51 @@ public class RafModeshapeRepository implements RafRepository{
         
     }
     
+    @Override
+    public RafCollection getCollection(String path) throws RafException{
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public RafCollection getCollectionById(String id) throws RafException{
+        RafCollection result = new RafCollection();
+        
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNodeByIdentifier(id);
+
+            if( node == null ){
+                throw new RafException();
+            }
+                    
+            result.setId(node.getIdentifier());
+            result.setMimeType(RafMimeTypes.RAF_FOLDER);
+            result.setName(node.getName());
+            result.setPath(node.getPath());
+            //FIXME: burada title attribute'u alınmalı
+            result.setTitle(node.getName());
+            
+         
+            NodeIterator it = node.getNodes();
+            while( it.hasNext() ){
+                Node n = it.nextNode();
+                //FIXME: node tipine göre farklı raf nesnelerine dönüştürülmeli.
+                //node.getPrimaryNodeType().getName()
+                result.getItems().add(nodeToRafFolder(n));
+            }
+            
+            
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+
+    }
+    
+    
     //////////////////////////////////////////
     //Util Functions
     /**
@@ -228,6 +275,8 @@ public class RafModeshapeRepository implements RafRepository{
         }
         
     }
+
+    
 
     
     

@@ -27,7 +27,8 @@
             </li>
         </ui:remove>
 
-        <ui:repeat value="#{rafController.collection.nodes}" var="node">
+        <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+            <ui:remove>
         <li class="raf-item">
             <div class="raf-item-content">
                 <i class="fa fa-square-o" style="margin-right: 8px;"/>
@@ -74,6 +75,7 @@
                 </p:commandLink>
             </div>
         </li>
+                </ui:remove>
         </ui:repeat>
         
         <li class="raf-item">

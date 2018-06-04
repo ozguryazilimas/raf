@@ -135,7 +135,7 @@
                     #{rafController.selectedSidePanel.title}
 
                     <div class="pull-right">
-                        
+
                         <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
                             <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="" update="raf-view">
                                 <i class="fa #{sidePanel.icon}" />
@@ -150,62 +150,70 @@
 
             <p:outputPanel id="raf-view-content" class="raf-box middle">
                 <div class="raf-box-header">
-                    Başlık
-                    <ui:remove>
-                    <ui:fragment rendered="#{rafController.collection.parent.mimeType eq 'raf/folder'}">
-                        <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
+                    <i class="fa #{rafController.selectedContentPanel.icon}"/>
+                    #{rafController.selectedContentPanel.title}
 
-                        <div class="pull-right">
+                    <div class="pull-right">
+                        <ui:remove>
                             <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
                                 <i class="fa fa-plus" />
                             </p:commandLink>
-
-                            <a href="#" class="" onclick="PF('fdlg').show();">
-                                <i class="fa fa-upload" />
-                            </a>
-                            <a href="" class="">
-                                <i class="fa fa-cog" />
-                            </a>
-                        </div>
-
-                    </ui:fragment>
                         </ui:remove>
+
+                        <ui:repeat value="#{rafController.contentPanels}" var="cw" >
+                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.commandTitle}">
+                                <i class="fa #{cw.commandIcon}" />
+                            </p:commandLink>
+                        </ui:repeat>
+                        
+                        <a href="#" class="" onclick="PF('fdlg').show();">
+                            <i class="fa fa-upload" />
+                        </a>
+                        <a href="" class="">
+                            <i class="fa fa-cog" />
+                        </a>
+                    </div>
+
+
                 </div>
                 <div class="raf-box-content" >
-                    İçerik
+                    <ui:include src="#{rafController.selectedContentPanel.fragment}" />
+
                     <ui:remove>
-                    <ui:include src="/fragments/breadcrumb.xhtml" />
+                        <ui:include src="/fragments/breadcrumb.xhtml" />
 
-                    <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
-                        <ui:include src="/fragments/iconView.xhtml" />
-                    </ui:fragment>
+                        <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
+                            <ui:include src="/fragments/iconView.xhtml" />
+                        </ui:fragment>
 
-                    <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
-                        <ui:include src="/fragments/simpleRowView.xhtml" />
-                    </ui:fragment>
+                        <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
+                            <ui:include src="/fragments/simpleRowView.xhtml" />
+                        </ui:fragment>
 
-                    <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
-                        <ui:include src="/fragments/detailRowView.xhtml" />
-                    </ui:fragment>
+                        <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
+                            <ui:include src="/fragments/detailRowView.xhtml" />
+                        </ui:fragment>
 
-                    <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
+                        <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
+                            <ui:include src="/fragments/fileView.xhtml" />
+                        </ui:fragment>
+
                         <ui:include src="/fragments/fileView.xhtml" />
-                    </ui:fragment>
-
-                    <ui:include src="/fragments/fileView.xhtml" />
                     </ui:remove>
                 </div>
-                <div class="raf-box-footer" style="text-align: center">
-                    <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
-                        <li class="active"><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li><a href="#">6</a></li>
-                        <li><a href="#">7</a></li>
-                    </ul>
-                </div>
+                <ui:fragment rendered="#{rafController.selectedContentPanel.supportPaging()}">
+                    <div class="raf-box-footer" style="text-align: center">
+                        <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
+                            <li class="active"><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li><a href="#">7</a></li>
+                        </ul>
+                    </div>
+                </ui:fragment>
             </p:outputPanel>
         </p:outputPanel>
 
@@ -322,169 +330,176 @@
                                         data = [
 
                                         {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
-                                        <ui:repeat value="#{rafController.folders}" var="node">
-                                            {"id": "#{node.id}", "parent": "#{node.parentId}", "text": "#{node.name}" },
-                                        </ui:repeat>
-                                        <ui:remove>
-                                                {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
-                                            <ui:repeat value="#{rafController.folders}" var="node">
-                                                       {"id": "#{node.id}", "parent": "#{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}", "text": "#{node.name}" },
-                                                           </ui:repeat>
-                                            </ui:remove>
-                                            <ui:remove>
-                                                #{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}
-                        {"id": "klasor1", "parent": "#", "text": "Klasör 1"},
-                                {"id": "klasor1-1", "parent": "klasor1", "text": "Klasör 2"},
-                                    {"id": "klasor1-1-1", "parent": "klasor1-1", "text": "Klasör 2.5"},
-                                                {"id": "klasor1-2", "parent": "klasor1", "text": "Klasör 3"},
-                                                {"id": "klasor2", "parent": "#", "text": "Klasör 4"},
-                                                {"id": "klasor2-1", "parent": "klasor2", "text": "Klasör 5"},
-                                                {"id": "klasor2-2", "parent": "klasor2", "text": "Klasör 6"},
-                                            </ui:remove>
+                <ui:repeat value="#{rafController.folders}" var="node">
+                {"id": "#{node.id}", "parent": "#{node.parentId}", "text": "#{node.name}" },
+                </ui:repeat>
+                <ui:remove>
+                {"id": "#{rafController.selectedRaf.id}", "parent": "#", "text": "#{rafController.selectedRaf.name}"},
+                <ui:repeat value="#{rafController.folders}" var="node">
+    {
+                                        "id": "#{node.id}", "parent": "#{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}", "text": "#{node.name}" },
+        </ui:repeat>
+            </ui:remove>
+            <ui:remove>
+            #{node.parentId eq rafController.selectedRaf.id ? '#' : node.parentId}
+            {"id": "klasor1", "parent": "#", "text": "Klasör 1"},
+        {
+                                        "id": "klasor1-1", "parent": "klasor1", "text": "Klasör 2"},
+        {
+                                        "id": "klasor1-1-1", "parent": "klasor1-1", "text": "Klasör 2.5"},
+            {
+                                        "id": "klasor1-2", "parent": "klasor1", "text": "Klasör 3"},
+                    {
+                                        "id": "klasor2", "parent": "#", "text": "Klasör 4"},
+                        {
+                                        "id": "klasor2-1", "parent": "klasor2", "text": "Klasör 5"},
+                        {
+                                        "id": "klasor2-2", "parent": "klasor2", "text": "Klasör 6"},
+                        </ui:remove>
                                         ];
                                         selectedNode = '#{rafController.selectedRaf.id}';
                                         buildTree();
-                                    </script>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{rafController.sideBarType eq 'category'}">
-                                    Buraya Kategori Listesi gelecek
-                                </ui:fragment>
-                                <ui:fragment rendered="#{rafController.sideBarType eq 'tag'}">
-                                    Buraya Tag Listesi gelecek
-                                </ui:fragment>
-                                <ui:fragment rendered="#{rafController.sideBarType eq 'search'}">
-                                    Buraya Search kriterleri gelecek
-                                </ui:fragment>
+                                </script>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{rafController.sideBarType eq 'category'}">
+                                Buraya Kategori Listesi gelecek
+                            </ui:fragment>
+                            <ui:fragment rendered="#{rafController.sideBarType eq 'tag'}">
+                                Buraya Tag Listesi gelecek
+                            </ui:fragment>
+                            <ui:fragment rendered="#{rafController.sideBarType eq 'search'}">
+                                Buraya Search kriterleri gelecek
+                            </ui:fragment>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </ui:remove>
+            <ui:remove>
+                <p:outputPanel id="raf-view-content" class="raf-box middle">
+                    <div class="raf-box-header">
+                        <ui:fragment rendered="#{rafController.collection.parent.mimeType eq 'raf/folder'}">
+                            <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
+
+                            <div class="pull-right">
+                                <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
+                                    <i class="fa fa-plus" />
+                                </p:commandLink>
+
+                                <a href="#" class="" onclick="PF('fdlg').show();">
+                                    <i class="fa fa-upload" />
+                                </a>
+                                <a href="" class="">
+                                    <i class="fa fa-cog" />
+                                </a>
                             </div>
-                        </div>
-                    </ui:fragment>
-                </ui:remove>
-                <ui:remove>
-                    <p:outputPanel id="raf-view-content" class="raf-box middle">
-                        <div class="raf-box-header">
-                            <ui:fragment rendered="#{rafController.collection.parent.mimeType eq 'raf/folder'}">
-                                <i class="fa fa-folder-open"/> #{rafController.collection.parent.name}
 
-                                <div class="pull-right">
-                                    <p:commandLink action="#{rafController.initNewFolder()}" process="@this" update="folderDlg" oncomplete="PF('folderDlg').show()" title="New Folder">
-                                        <i class="fa fa-plus" />
-                                    </p:commandLink>
-
-                                    <a href="#" class="" onclick="PF('fdlg').show();">
-                                        <i class="fa fa-upload" />
-                                    </a>
-                                    <a href="" class="">
-                                        <i class="fa fa-cog" />
-                                    </a>
-                                </div>
-
-                            </ui:fragment>
-
-                        </div>
-                        <div class="raf-box-content" >
-
-                            <ui:include src="/fragments/breadcrumb.xhtml" />
-
-                            <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
-                                <ui:include src="/fragments/iconView.xhtml" />
-                            </ui:fragment>
-
-                            <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
-                                <ui:include src="/fragments/simpleRowView.xhtml" />
-                            </ui:fragment>
-
-                            <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
-                                <ui:include src="/fragments/detailRowView.xhtml" />
-                            </ui:fragment>
-
-                            <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
-                                <ui:include src="/fragments/fileView.xhtml" />
-                            </ui:fragment>
-
-                            <ui:include src="/fragments/fileView.xhtml" />
-                        </div>
-                        <div class="raf-box-footer" style="text-align: center">
-                            <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
-                                <li class="active"><a href="#">1</a></li>
-                                <li><a href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">4</a></li>
-                                <li><a href="#">5</a></li>
-                                <li><a href="#">6</a></li>
-                                <li><a href="#">7</a></li>
-                            </ul>
-                        </div>
-                    </p:outputPanel>
-                    <div class="raf-box right" style="display: none;">
-                        <div class="raf-box-header">Özellikler</div>
-                        <div class="raf-box-content" >
-
-                            <t:outputText label="İsim" value="Dosya 1" columnClass="col-xs-12"/>
-                            <t:outputText label="Açıklama" value="Açıklama yapıyoruz ama kime?" columnClass="col-xs-12"/>
-                            <t:outputText label="Kategori" value="Şablon" columnClass="col-xs-12"/>
-                            <t:outputText label="Etiketler" value="Teklif, Özgür Yazılım A.Ş., Bişi" columnClass="col-xs-12"/>
-
-                            <h:form id="propForm">
-
-                                <t:inputText label="İsim" value="" columnClass="col-xs-12"/>
-                                <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
-                                <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
-                                <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
-
-                            </h:form>
-
-                        </div>
+                        </ui:fragment>
 
                     </div>
-                </ui:remove>
-            </p:outputPanel>
+                    <div class="raf-box-content" >
+
+                        <ui:include src="/fragments/breadcrumb.xhtml" />
+
+                        <ui:fragment rendered="#{rafController.contentView eq 'iconView'}">
+                            <ui:include src="/fragments/iconView.xhtml" />
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{rafController.contentView eq 'simpleRowView'}">
+                            <ui:include src="/fragments/simpleRowView.xhtml" />
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{rafController.contentView eq 'detailRowView'}">
+                            <ui:include src="/fragments/detailRowView.xhtml" />
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{rafController.contentView eq 'fileView'}">
+                            <ui:include src="/fragments/fileView.xhtml" />
+                        </ui:fragment>
+
+                        <ui:include src="/fragments/fileView.xhtml" />
+                    </div>
+                    <div class="raf-box-footer" style="text-align: center">
+                        <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
+                            <li class="active"><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li><a href="#">7</a></li>
+                        </ul>
+                    </div>
+                </p:outputPanel>
+                <div class="raf-box right" style="display: none;">
+                    <div class="raf-box-header">Özellikler</div>
+                    <div class="raf-box-content" >
+
+                        <t:outputText label="İsim" value="Dosya 1" columnClass="col-xs-12"/>
+                        <t:outputText label="Açıklama" value="Açıklama yapıyoruz ama kime?" columnClass="col-xs-12"/>
+                        <t:outputText label="Kategori" value="Şablon" columnClass="col-xs-12"/>
+                        <t:outputText label="Etiketler" value="Teklif, Özgür Yazılım A.Ş., Bişi" columnClass="col-xs-12"/>
+
+                        <h:form id="propForm">
+
+                            <t:inputText label="İsim" value="" columnClass="col-xs-12"/>
+                            <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
+                            <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
+                            <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
+
+                        </h:form>
+
+                    </div>
+
+                </div>
+            </ui:remove>
+        </p:outputPanel>
 
 
 
-            <script type="text/javascript">
+        <script type="text/javascript">
 
-                function buildTree() {
+            function buildTree() {
                 // inline data 
                 jQuery("#data")
                         .on("activate_node.jstree", function (e, data) {
-                        //alert( data.instance.get_node(data.selected[0]).id );
-                        selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
+                            //alert( data.instance.get_node(data.selected[0]).id );
+                            selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
                         })
                         .on('loaded.jstree', function () {
-                        jQuery('#data').jstree('open_all');
-                        //setNodeSelections();
+                            jQuery('#data').jstree('open_all');
+                            //setNodeSelections();
                         })
                         .jstree({
-                        "plugins": ["wholerow", "types", "sort"],
-                                "types": {
+                            "plugins": ["wholerow", "types", "sort"],
+                            "types": {
                                 "default": {
-                                "icon": "fa fa-folder"
+                                    "icon": "fa fa-folder"
                                 }
-                                },
-                                'core': {
+                            },
+                            'core': {
                                 'data': data}
                         });
-                }
-                buildTree();
-                function setNodeSelections() {
+            }
+            buildTree();
+            function setNodeSelections() {
                 if (jQuery('#data').length > 0) {
-                jQuery('#data').jstree().select_node(selectedNode);
+                    jQuery('#data').jstree().select_node(selectedNode);
                 }
-                }
+            }
 
-                setNodeSelections();
+            setNodeSelections();
 
-            </script>
+        </script>
 
 
-            <p:dialog id="newFolder" widgetVar="newFolder">
-                <h:form id="nff">
-                    <t:inputText label="İsim" value="" />
-                </h:form>
-            </p:dialog>
+        <p:dialog id="newFolder" widgetVar="newFolder">
+            <h:form id="nff">
+                <t:inputText label="İsim" value="" />
+            </h:form>
+        </p:dialog>
 
-        </ui:remove>
-    </ui:define>
+    </ui:remove>
+</ui:define>
 
 
 </ui:composition>

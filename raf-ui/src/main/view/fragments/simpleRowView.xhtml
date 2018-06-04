@@ -6,117 +6,40 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <ui:remove>
-        <!-- Simple Row List Görünümü -->
-    </ui:remove>
-
-    <p:sidebar widgetVar="sidebar2" position="right" baseZIndex="10000">
-        <h1 style="font-weight:normal">Right Sidebar</h1>
-        <p:commandButton value="Cancel" oncomplete="PF('sidebar2').hide()"/>
-    </p:sidebar>
+    <ui:include src="/fragments/breadcrumb.xhtml" />
     
     <ul class="raf-item-row-list">
-
-        <ui:remove>
+        
+        <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
             <li class="raf-item">
-                <div class="raf-item-content">
-                    <span class="raf-item-image">
-                        <i class="fa fa-level-up fa-2x" />
+            <div class="raf-item-content">
+                <i class="fa fa-check-square-o" />
+                <span class="raf-item-image">
+                    <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-2x" />
+                </span>
+                <div class="raf-item-name">
+                    <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                        #{item.name}
+                    </p:commandLink>
+                    <span class="text-muted text-sm">
+                        Hakan Uygun | 12.12.2018
                     </span>
-                    <div class="raf-item-name">
-                        <a href="/dolap/raf/test/kalsor_1" class="text-sm">Üst Klasör</a>
-                    </div>
                 </div>
+            </div>
 
-
-            </li>
-        </ui:remove>
-
-        <ui:repeat value="#{rafController.collection.nodes}" var="node">
-            <li class="raf-item">
-                <div class="raf-item-content">
-                    <i class="fa fa-square-o" style="margin-right: 8px;"/>
-
-                    <span class="raf-item-image">
-                        <i class="fa fa-folder fa-2x" />
-                    </span>
-                    <div class="raf-item-name">
-                        <h:link outcome="raf.xhtml">
-                            <f:param name="path" value="#{node.path}" />
-                            #{node.name}
-                        </h:link>
-                        <span class="text-muted text-sm">
-                            #{node.createBy} | #{node.createDate}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="raf-item-tools">
-                    <a href="btn" >
-                        <i class="fa fa-download" />
-                    </a>
-                    <a href="#" onclick="PF('sidebar2').show()">
-                        <i class="fa fa-edit" />
-                    </a>
-                    <a href="btn" >
-                        <i class="fa fa-trash" />
-                    </a>
-                </div>
-            </li>
+            <div class="raf-item-tools">
+                <a href="btn" >
+                    <i class="fa fa-download" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-edit" />
+                </a>
+                <a href="btn" >
+                    <i class="fa fa-trash" />
+                </a>
+            </div>
+        </li>
         </ui:repeat>
-        <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-check-square-o" />
-                <span class="raf-item-image">
-                    <i class="fa fa-folder fa-2x" />
-                </span>
-                <div class="raf-item-name">
-                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Klasör 1</a>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
-                    </span>
-                </div>
-            </div>
-
-            <div class="raf-item-tools">
-                <a href="btn" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-edit" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-trash" />
-                </a>
-            </div>
-        </li>
-        <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-check-square-o" />
-                <span class="raf-item-image">
-                    <i class="fa fa-file-o fa-2x" />
-                </span>
-                <div class="raf-item-name">
-                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Dosya 1</a>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
-                    </span>
-                </div>
-            </div>
-
-            <div class="raf-item-tools">
-                <a href="btn" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-edit" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-trash" />
-                </a>
-            </div>
-        </li>
-
     </ul>
 </ui:composition>
 

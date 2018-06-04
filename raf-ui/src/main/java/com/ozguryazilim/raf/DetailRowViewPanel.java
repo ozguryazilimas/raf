@@ -1,0 +1,35 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.ozguryazilim.raf;
+
+import javax.inject.Named;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+
+/**
+ * detaylı sunum kontrol sınıfı.
+ * 
+ * @author Hakan Uygun
+ */
+@WindowScoped
+@Named
+public class DetailRowViewPanel extends RafCollectionContentPanel{
+    
+    @Override
+    public String getFragment() {
+        return "/fragments/detailRowView.xhtml";
+    }
+
+    @Override
+    public String getCommandIcon() {
+        return "fa-th-list";
+    }
+
+    @Override
+    public String getCommandTitle() {
+        //FIXME: i18n
+        return "Detail View";
+    }
+}

@@ -1,0 +1,37 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.ozguryazilim.raf;
+
+import javax.inject.Named;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+
+/**
+ *
+ * @author oyas
+ */
+@WindowScoped
+@Named
+public class SimpleRowViewPanel extends RafCollectionContentPanel{
+
+    @Override
+    public String getFragment() {
+        return "/fragments/simpleRowView.xhtml";
+    }
+
+    @Override
+    public String getCommandIcon() {
+        return "fa-list";
+    }
+
+    @Override
+    public String getCommandTitle() {
+        //FIXME: i18n
+        return "Simple View";
+    }
+
+    
+    
+}
