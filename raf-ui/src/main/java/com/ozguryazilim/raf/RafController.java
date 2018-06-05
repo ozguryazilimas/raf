@@ -11,6 +11,8 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
@@ -58,6 +60,12 @@ public class RafController implements Serializable{
     
     @Inject
     private DetailRowViewPanel detailRowView;
+    
+    @Inject
+    private DocumentViewPanel documentView;
+    
+    @Inject
+    private FolderViewPanel folderView;
     
     @Inject
     private Event<RafChangedEvent> rafChangedEvent;
@@ -166,6 +174,7 @@ public class RafController implements Serializable{
         
         result.add(simpleRowView);
         result.add(detailRowView);
+        result.add(folderView);
         
         return result;
     }
@@ -187,19 +196,28 @@ public class RafController implements Serializable{
         
         //FIXME: exception handling
         
-        //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
-        selectItem(item.getId());
+        //tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
+        if( item instanceof RafFolder ){
+            selectFolderById(item.getId());
+        } else if( item instanceof RafDocument ){
+            selectDocument((RafDocument)item);
+        }
         
     }
     
-    public void selectItem( String itemId ){
+    public void selectDocument( RafDocument item){
+        context.setSelectedObject(item);
+        selectedContentPanel = documentView;
+    }
+    
+    public void selectFolderById( String folderId ){
         
         //FIXME: exception handling
         
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         RafCollection collection = null;
         try {
-            collection = rafService.getCollection(itemId);
+            collection = rafService.getCollection(folderId);
         } catch (RafException ex) {
             Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -213,14 +231,34 @@ public class RafController implements Serializable{
         }
         
         folderChangedEvent.fire(new RafFolderChangeEvent());
+        context.setSelectedObject(findFolder(folderId));
         
+        selectedContentPanel = simpleRowView;
+    }
+    
+    /**
+     * Context'e bulunan RafFolder içinden idsi verilen folder'ı bulur. Bulamaz
+     * ise null döner.
+     *
+     * @param id
+     * @return
+     */
+    private RafFolder findFolder(String id) {
+
+        for (RafFolder f : context.getFolders()) {
+            if (id.equals(f.getId())) {
+                return f;
+            }
+        }
+
+        return null;
     }
     
     public void selectNode() {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         String nodeId = params.get("nodeId");
         if( !Strings.isNullOrEmpty(nodeId)){
-            selectItem(nodeId);
+            selectFolderById(nodeId);
         }
     }
 }

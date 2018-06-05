@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf;
 
+import com.ozguryazilim.raf.models.RafObject;
 import java.io.Serializable;
 import javax.inject.Inject;
 
@@ -17,15 +18,18 @@ public abstract class RafObjectContentPanel implements ContentPanel, Serializabl
     @Inject
     private RafContext context;
 
+    @Inject
+    private IconResolver iconResolver;
+    
     @Override
     public String getTitle() {
-        return context.getCollection().getTitle();
+        //FIXME: Burası Title olacak
+        return context.getSelectedObject().getName();
     }
 
     @Override
     public String getIcon() {
-        //FIXME: burada mimetype üzerinden icon almak lazım. context.getCollection().getMimeType();
-        return "fa-folder-open";
+        return iconResolver.getIcon(context.getSelectedObject().getMimeType());
     }
     
     
@@ -33,5 +37,9 @@ public abstract class RafObjectContentPanel implements ContentPanel, Serializabl
     public Boolean supportPaging() {
         //Her daim false
         return Boolean.FALSE;
+    }
+    
+    public RafObject getRafObject(){
+        return context.getSelectedObject();
     }
 }

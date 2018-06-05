@@ -9,14 +9,18 @@
     <ui:remove>
         <!-- File View -->
     </ui:remove>
+    
+    <ui:include src="/fragments/breadcrumb.xhtml" >
+        <ui:param name="currentFolderEnabled" value="true" />
+    </ui:include>
 
     <div class="raf-file">
         <div class="raf-item-content">
             <span class="raf-item-image">
-                <i class="fa fa-file-pdf-o fa-3x" />
+                <i class="fa #{iconResolver.getIcon(documentViewPanel.rafObject.mimeType)} fa-3x" />
             </span>
             <div class="raf-item-name">
-                <a href="/dolap/raf/test/kalsor_1" class="text-sm">Uzun İSimli Bir Dosya.pdf</a>
+                <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{documentViewPanel.rafObject.id}" class="text-sm">#{documentViewPanel.rafObject.name}</a>
                 <span class="text-muted text-sm">
                     Hakan Uygun | 12.12.2018
                 </span>
@@ -25,6 +29,7 @@
                     <i class="fa fa-star" />
                     <i class="fa fa-comments" />
                     v1.1
+                    <i class="fa fa-link" title="permalink"/>
                 </span>
 
             </div>

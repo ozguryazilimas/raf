@@ -209,9 +209,13 @@ public class RafModeshapeRepository implements RafRepository {
             NodeIterator it = node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
-                //FIXME: node tipine göre farklı raf nesnelerine dönüştürülmeli.
-                //node.getPrimaryNodeType().getName()
-                result.getItems().add(nodeToRafFolder(n));
+                
+                //Node tipine göre doğru conversion.
+                if( n.isNodeType("nt:folder")){
+                    result.getItems().add(nodeToRafFolder(n));
+                } else if ( n.isNodeType("nt:file")){
+                    result.getItems().add(nodeToRafDocument(n));
+                }
             }
 
             session.logout();
@@ -322,6 +326,21 @@ public class RafModeshapeRepository implements RafRepository {
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
 
+        return result;
+    }
+    
+    protected RafDocument nodeToRafDocument(Node node) throws RepositoryException {
+        RafDocument result = new RafDocument();
+
+        result.setId(node.getIdentifier());
+        result.setPath(node.getPath());
+        result.setName(node.getName());
+        result.setParentId(node.getParent().getIdentifier());
+        
+        //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
+        Node cn = node.getNode("jcr:content");
+        result.setMimeType(cn.getProperty("jcr:mimeType").getString());
+        
         return result;
     }
 

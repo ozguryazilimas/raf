@@ -28,7 +28,12 @@
 
         </ui:repeat>
 
-        <li>#{folderBreadcrumbController.currentFolder.name}</li>
+        <li>
+            <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
+                    #{folderBreadcrumbController.currentFolder.name}
+            </p:commandLink>
+        </li>
+        
     </ul>
 
 </ui:composition>
