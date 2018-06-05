@@ -329,8 +329,10 @@ public class RafModeshapeRepository implements RafRepository {
         NodeIterator it = node.getNodes();
         while (it.hasNext()) {
             Node n = it.nextNode();
-            result.add(nodeToRafFolder(n));
-            populateFolders(n, result);
+            if( n.isNodeType("nt:folder")){
+                result.add(nodeToRafFolder(n));
+                populateFolders(n, result);
+            }
         }
 
     }

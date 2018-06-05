@@ -6,7 +6,9 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <ui:include src="/fragments/breadcrumb.xhtml" />
+    <ui:fragment rendered="#{simpleRowViewPanel.supportBreadCrump()}" >
+        <ui:include src="/fragments/breadcrumb.xhtml" />
+    </ui:fragment>
     
     <ul class="raf-item-row-list">
         

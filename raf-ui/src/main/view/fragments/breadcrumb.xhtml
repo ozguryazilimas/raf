@@ -7,11 +7,28 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ul class="breadcrumb text-muted text-sm" style="margin: -4px -4px 0 -4px;  border-bottom: 1px solid silver; border-radius: 0px;">
-        <li><i class="fa fa-level-up" /></li>
-        <li><i class="fa fa-sitemap"/></li>
-        <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
-        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-        <li>Klasör 2.5</li>
+        <li></li>
+        <ui:remove>
+            Bir üst klasör'e kıs yol çok anlamlı değil.
+        <ui:fragment rendered="#{folderBreadcrumbController.parentFolder ne null}" >
+            <li>
+                <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.parentFolder)}" update="raf-view" ajax="true" process="@this">
+                    <i class="fa fa-level-up" />
+                </p:commandLink>
+            </li>
+        </ui:fragment>
+        </ui:remove>
+
+        <ui:repeat value="#{folderBreadcrumbController.breadcrumbItems}" var="item">
+            <li>
+                <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this">
+                    #{item.name}
+                </p:commandLink>
+            </li>
+
+        </ui:repeat>
+
+        <li>#{folderBreadcrumbController.currentFolder.name}</li>
     </ul>
 
 </ui:composition>

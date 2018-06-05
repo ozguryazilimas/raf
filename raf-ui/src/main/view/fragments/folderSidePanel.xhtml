@@ -6,6 +6,10 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
+    <h:form id="rmtForm">
+        <p:remoteCommand name="selectTreeNode" action="#{rafController.selectNode}" update="raf-view-content" partialSubmit="true" process="@this" />
+    </h:form>
+    
     <div id="data" />
 
     <script>

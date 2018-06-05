@@ -7,8 +7,10 @@ package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.Serializable;
+import java.util.List;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
@@ -27,6 +29,7 @@ public class RafContext implements Serializable{
     private String path;
     private RafCollection collection;
     private RafObject selectedObject;
+    private List<RafFolder> folders;
             
 
     public RafDefinition getSelectedRaf() {
@@ -60,7 +63,13 @@ public class RafContext implements Serializable{
     public void setSelectedObject(RafObject selectedObject) {
         this.selectedObject = selectedObject;
     }
-    
 
+    public List<RafFolder> getFolders() {
+        return folders;
+    }
+
+    public void setFolders(List<RafFolder> folders) {
+        this.folders = folders;
+    }
     
 }

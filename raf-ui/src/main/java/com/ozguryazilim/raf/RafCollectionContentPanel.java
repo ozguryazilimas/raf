@@ -43,4 +43,11 @@ public abstract class RafCollectionContentPanel implements ContentPanel, Seriali
         return context.getCollection();
     }
     
+    public Boolean supportBreadCrump(){
+        //FIXME: Burada mimeType'a göre karar vermek gerekecek. Örneğin Tag sonuçları için olmaz. Ama kategory için olabilir belki
+        return Boolean.TRUE;
+    }
+
+    
+    
 }

@@ -9,15 +9,18 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafChangedEvent;
+import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.event.Event;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -59,6 +62,9 @@ public class RafController implements Serializable{
     @Inject
     private Event<RafChangedEvent> rafChangedEvent;
     
+    @Inject
+    private Event<RafFolderChangeEvent> folderChangedEvent;
+    
     private SidePanel selectedSidePanel;
     
     private ContentPanel selectedContentPanel;
@@ -97,6 +103,14 @@ public class RafController implements Serializable{
             Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
         }
         context.setCollection(collection);
+        
+        
+        try {
+                context.setFolders( rafService.getFolderList(context.getSelectedRaf().getCode()));
+        } catch (RafException ex) {
+                //FIXME: ne yapacağız?
+                Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         rafChangedEvent.fire(new RafChangedEvent());
     }
@@ -174,16 +188,39 @@ public class RafController implements Serializable{
         //FIXME: exception handling
         
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
+        selectItem(item.getId());
+        
+    }
+    
+    public void selectItem( String itemId ){
+        
+        //FIXME: exception handling
+        
+        //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         RafCollection collection = null;
         try {
-            collection = rafService.getCollection(item.getId());
+            collection = rafService.getCollection(itemId);
         } catch (RafException ex) {
             Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
         }
         context.setCollection(collection);
         
-        //FIXME: doğru event fırlatılmalı. Selected item değişti diye
-        rafChangedEvent.fire(new RafChangedEvent());
+        try {
+                context.setFolders( rafService.getFolderList(context.getSelectedRaf().getCode()));
+        } catch (RafException ex) {
+                //FIXME: ne yapacağız?
+                Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
+        folderChangedEvent.fire(new RafFolderChangeEvent());
+        
+    }
+    
+    public void selectNode() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String nodeId = params.get("nodeId");
+        if( !Strings.isNullOrEmpty(nodeId)){
+            selectItem(nodeId);
+        }
     }
 }
