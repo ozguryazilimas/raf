@@ -13,6 +13,7 @@ import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
+import com.ozguryazilim.raf.models.RafObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -285,6 +286,39 @@ public class RafModeshapeRepository implements RafRepository {
         }
         return result;
     }
+    
+    
+    @Override
+    public RafObject getRafObject(String id) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNodeByIdentifier(id);
+            
+            RafObject result = null;
+            
+            if( node == null ){
+                //FIXME: bu exception nedir söylemek lazım.
+                throw new RafException();
+            }
+
+            if( node.isNodeType("nt:folder")){
+                result = nodeToRafFolder(node);
+            } else if( node.isNodeType("nt:file")){
+                result = nodeToRafDocument(node);
+            } else {
+                //FIXME:Bilinen bir node bulunamadı.
+                throw new RafException();
+            }
+            
+
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+    }
 
     //////////////////////////////////////////
     //Util Functions
@@ -355,5 +389,7 @@ public class RafModeshapeRepository implements RafRepository {
         }
 
     }
+
+    
 
 }

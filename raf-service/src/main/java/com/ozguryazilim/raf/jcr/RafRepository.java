@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafNode;
+import com.ozguryazilim.raf.models.RafObject;
 import java.io.InputStream;
 import java.util.List;
 
@@ -109,4 +110,14 @@ public interface RafRepository {
     void createFolder( RafFolder folder ) throws RafException;
     
     public RafDocument uploadDocument( String fileName, InputStream in ) throws RafException;
+    
+    /**
+     * Verilen id ile bulunacak olan RafNesnesi döndürürlür. 
+     * 
+     * Geri dönen değer RafObject'en türetilmiş bir sınıf olacaktır. RafFolder, RafDocument v.b.
+     * 
+     * @param id
+     * @return 
+     */
+    RafObject getRafObject( String id ) throws RafException;
 }

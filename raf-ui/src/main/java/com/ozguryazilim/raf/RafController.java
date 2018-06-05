@@ -79,6 +79,8 @@ public class RafController implements Serializable{
     
     private String rafCode;
     
+    private String objectId;
+    
     private RafDefinition rafDefinition;
     
     /**
@@ -87,6 +89,9 @@ public class RafController implements Serializable{
      * ViewAction olarak
      */
     public void init(){
+        
+        //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
+        
         //Eğer bir şey atanmamış ise kişisel raf olsun.
         if( Strings.isNullOrEmpty(rafCode)){
             rafCode = "PRIVATE";
@@ -103,14 +108,51 @@ public class RafController implements Serializable{
         
         context.setSelectedRaf(rafDefinition);
 
-        //FIXME: burda exception handling gerekli
-        RafCollection collection = null;
-        try {
-            collection = rafService.getCollection(rafDefinition.getNodeId());
-        } catch (RafException ex) {
-            Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+        if( !Strings.isNullOrEmpty(objectId)){
+            
+            try {
+                //Demek ki istenilen bir nesne var. Önce onu bir bulalım.
+                RafObject obj = rafService.getRafObject(objectId);
+                
+                RafFolder fld = null;
+                
+                //şimdi objenin tipine bakarak bazı kararlar verelim
+                if( obj instanceof RafDocument ){
+                    
+                    //Folder'ı bir bulalım
+                    //TODO: tip kontrolü yapmaya gerek var mı?
+                    fld = (RafFolder) rafService.getRafObject(obj.getParentId());
+                    selectedContentPanel = documentView;
+                    
+                } else if( obj instanceof RafFolder ){
+                    fld = (RafFolder) obj;
+                    //FIXME: burada kullanıcı tercihlerinden alınması gerekir.
+                    selectedContentPanel = simpleRowView;
+                }
+                
+                
+                context.setCollection(rafService.getCollection(fld.getId()));
+                context.setSelectedObject(obj);
+                
+            } catch (RafException ex) {
+                Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
+            
+        } else {
+            //Demek permalink olarak istenen bişi yok. O zaman rootu alalım.
+            //FIXME: burda exception handling gerekli
+            RafCollection collection = null;
+            try {
+                collection = rafService.getCollection(rafDefinition.getNodeId());
+            } catch (RafException ex) {
+                Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            context.setCollection(collection);
+            //FIXME: bundan çok emin değilim. RafFolder değil RafNode bağladık çünkü.
+            //context.setSelectedObject(rafDefinition.getNode());
         }
-        context.setCollection(collection);
         
         
         try {
@@ -131,6 +173,16 @@ public class RafController implements Serializable{
         this.rafCode = rafCode;
     }
 
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    
+    
     public RafDefinition getRafDefinition() {
         return rafDefinition;
     }
