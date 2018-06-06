@@ -9,12 +9,79 @@
     <ui:remove>
         <!-- File View -->
     </ui:remove>
-    
+
     <ui:include src="/fragments/breadcrumb.xhtml" >
         <ui:param name="currentFolderEnabled" value="true" />
     </ui:include>
 
     <div class="raf-file">
+
+        <div class="raf-file-header">
+
+            <p>#{documentViewPanel.rafObject.title}</p>
+            <p>#{documentViewPanel.rafObject.name}</p>
+            <p>
+                <span class="text-muted text-sm">
+                    Hakan Uygun | 12.12.2018
+                </span>
+
+                <span class="text-muted text-sm">  
+                    <i class="fa fa-star" />
+                    <i class="fa fa-comments" />
+                    v1.1
+                    <i class="fa fa-link" title="permalink"/>
+                </span>
+            </p>
+
+            Burada Dosya ile ilgli temel bilgiler olacak. Adı, sürümü, açıklaması v.b.
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-xs-12">
+
+                <div class="row">
+                    <div class="col-xs-12" >
+
+                        <div style="border: 1px silver solid; padding: 4px;">
+                            <ui:include src="#{documentViewPanel.previewWidget}" />
+                        </div>
+                    </div>
+
+                    <t:accordion icon="fa-comments" label="Yorumlar" columnClass="col-xs-12">
+                        <p>Yorumlar da buraya.</p>
+                        <p>Yorumlar da buraya.</p>
+                        <p>Yorumlar da buraya.</p>
+                        <p>Yorumlar da buraya.</p>
+                    </t:accordion>
+
+                </div>
+            </div>
+
+            <div class="raf-file-meta col-md-4 col-xs-12">
+                <div class="row">
+                    <t:accordion label="Temel Bilgiler" columnClass="col-xs-12">
+                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
+                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
+                    </t:accordion>
+                    <t:accordion label="Ek Bilgiler" columnClass="col-xs-12">
+                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
+                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
+                    </t:accordion>
+                    <t:accordion label="Süreç" columnClass="col-xs-12">
+                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
+                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
+                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
+                    </t:accordion>
+                </div>
+            </div>
+
+        </div>
+
         <div class="raf-item-content">
             <span class="raf-item-image">
                 <i class="fa #{iconResolver.getIcon(documentViewPanel.rafObject.mimeType)} fa-3x" />

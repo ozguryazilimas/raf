@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
@@ -16,6 +17,19 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 @Named
 public class DocumentViewPanel extends RafObjectContentPanel{
 
+    @Inject
+    private RafContext context;
+    
+    //FIXME: bunlar bir registery'den plugin yapısı ile alınacaklar.
+    @Inject
+    private DefaultDocumentPreview defaultPreview;
+    
+    @Inject
+    private ImagePreview imagePreview;
+    
+    @Inject
+    private PdfPreview pdfPreview;
+    
     @Override
     public String getFragment() {
         return "/fragments/documentView.xhtml";
@@ -30,5 +44,24 @@ public class DocumentViewPanel extends RafObjectContentPanel{
     public String getCommandTitle() {
         return "Detail View";
     }
+    
+    
+    /**
+     * Geriye mimeType'a göre hangi widget kullanılacak ise onun fragman bilgisini döner.
+     * 
+     * @return 
+     */
+    public String getPreviewWidget(){
+        
+        if( context.getSelectedObject().getMimeType().startsWith("image/") ){
+            return imagePreview.getFragment();
+        }
+        
+        if( context.getSelectedObject().getMimeType().startsWith("application/pdf") ){
+            return pdfPreview.getFragment();
+        }
+        
+        return defaultPreview.getFragment();
+    } 
     
 }

@@ -14,6 +14,8 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import org.apache.commons.io.IOUtils;
 import org.modeshape.common.text.UrlEncoder;
 import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
@@ -320,6 +323,32 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
+    public InputStream getDocumentContent( String id ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Content Requested: {}", node.getPath());
+
+            Node content = node.getNode("jcr:content");
+
+            
+            //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+
+            session.logout();
+
+            ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
+
+            return result;
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException();
+        }
+    }
+    
     //////////////////////////////////////////
     //Util Functions
     /**

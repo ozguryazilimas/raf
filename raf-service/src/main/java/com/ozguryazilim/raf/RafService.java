@@ -59,4 +59,8 @@ public class RafService implements Serializable{
         //FIXME: event fırlatalım ki log yazılabilsin v.b.
         return rafRepository.getRafObject( id );
     }
+    
+    public InputStream getDocumentContent( String id ) throws RafException{
+        return rafRepository.getDocumentContent( id );
+    }
 }

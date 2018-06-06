@@ -120,4 +120,7 @@ public interface RafRepository {
      * @return 
      */
     RafObject getRafObject( String id ) throws RafException;
+    
+    
+    public InputStream getDocumentContent( String id ) throws RafException;
 }

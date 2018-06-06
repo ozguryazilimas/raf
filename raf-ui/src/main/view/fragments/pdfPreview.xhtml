@@ -1,0 +1,21 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        TODO: width ne kadar olacak js ile bulmak lazım. Ekran çözünürlüğüne göre ölçekli bişi olmalı.
+        TODO: i18n
+    </ui:remove>
+    
+    #{request.contextPath}/resource/#{rafContext.selectedObject.id}
+    
+    <object type="application/pdf" data="#{request.contextPath}/resource/#{rafContext.selectedObject.id}" width="100%" height="300px">
+            Your browser can't display pdf, <a href="#{request.contextPath}/resource/#{rafContext.selectedObject.id}">click</a> to download pdf instead.
+    </object>
+
+</ui:composition>
+
