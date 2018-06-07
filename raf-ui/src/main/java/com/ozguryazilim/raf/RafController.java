@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf;
 
+import com.ozguryazilim.raf.ui.sidepanels.FolderSidePanel;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -14,6 +15,8 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
+import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,13 +51,6 @@ public class RafController implements Serializable{
     @Inject
     private RafContext context;
     
-    //Todo plugin olarak otomatik toplanacaklar.
-    @Inject
-    private FolderSidePanel folderSidePanel;
-    
-    @Inject
-    private CategorySidePanel categorySidePanel;
-    
     @Inject
     private SimpleRowViewPanel simpleRowView;
     
@@ -73,7 +69,7 @@ public class RafController implements Serializable{
     @Inject
     private Event<RafFolderChangeEvent> folderChangedEvent;
     
-    private SidePanel selectedSidePanel;
+    private AbstractSidePanel selectedSidePanel;
     
     private ContentPanel selectedContentPanel;
     
@@ -195,20 +191,13 @@ public class RafController implements Serializable{
     /**
      * Geriye SidePanel listesini döndürür.
      * 
-     * FIXME: Plugin yapısı oluşacak ve otomatik toplanacaklar.
-     * 
      * @return 
      */
-    public List<SidePanel> getSidePanels(){
-        List<SidePanel> result = new ArrayList<>();
-        
-        result.add(folderSidePanel);
-        result.add(categorySidePanel);
-        
-        return result;
+    public List<AbstractSidePanel> getSidePanels(){
+        return SidePanelRegistery.getSidePanels();
     }
 
-    public SidePanel getSelectedSidePanel() {
+    public AbstractSidePanel getSelectedSidePanel() {
         //Eğer seçili bir yoksa ilkini seçiyoruz.
         if( selectedSidePanel == null ){
             selectedSidePanel = getSidePanels().get(0);
@@ -216,7 +205,7 @@ public class RafController implements Serializable{
         return selectedSidePanel;
     }
 
-    public void setSelectedSidePanel(SidePanel selectedSidePanel) {
+    public void setSelectedSidePanel(AbstractSidePanel selectedSidePanel) {
         this.selectedSidePanel = selectedSidePanel;
     }
     

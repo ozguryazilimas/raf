@@ -138,14 +138,14 @@
                     <div class="pull-right">
 
                         <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
-                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="" update="raf-view">
-                                <i class="fa #{sidePanel.icon}" />
+                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="#{sidePanel.title}" update="raf-view">
+                                <i class="fa #{sidePanel.icon}" /> 
                             </p:commandLink>
                         </ui:repeat>
                     </div>
                 </div>
                 <div class="raf-box-content" style="">
-                    <ui:include src="#{rafController.selectedSidePanel.fragment}" />
+                    <ui:include src="#{rafController.selectedSidePanel.viewId}" />
                 </div>
             </div>
 
