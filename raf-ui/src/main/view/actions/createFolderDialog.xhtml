@@ -19,11 +19,9 @@
                 </div>
                 
                 <t:inputText label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="Klasör ismi"/>
-                <ui:remove>
-                    Burada title, açıklama, etiket v.b. gibi şeyler de alınacak.
-                <t:inputText label="general.label.Name" value="#{createFolderAction.folder.}" />
-                <t:inputTextarea label="general.label.Info" value="#{rafDefinitionDialogController.rafDefinition.info}" />
-                </ui:remove>
+                <t:inputTextarea label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim"/>
+                <t:inputTextarea label="general.label.Info" value="#{createFolderAction.folder.info}" placeholder="Açıklama"/>
+                
                 
             </div>
             

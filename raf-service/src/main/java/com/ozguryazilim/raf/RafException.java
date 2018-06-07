@@ -10,5 +10,12 @@ package com.ozguryazilim.raf;
  * @author oyas
  */
 public class RafException extends Exception{
+
+    public RafException() {
+    }
+
+    public RafException(Throwable thrwbl) {
+        super(thrwbl);
+    }
     
 }

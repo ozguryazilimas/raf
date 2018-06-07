@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +44,18 @@ public class RafModeshapeRepository implements RafRepository {
     private static final String SHARED_ROOT = "/SHARED";
     private static final String RAF_ROOT = "/RAF/";
 
+    
+    private static final String NODE_FOLDER = "nt:folder";
+    private static final String NODE_FILE = "nt:file";
+    
+    private static final String MIXIN_TITLE = "mix:title";
+    private static final String MIXIN_TAGGABLE = "raf:taggable";
+    
+    private static final String PROP_TITLE = "jcr:title";
+    private static final String PROP_DESCRIPTON = "jcr:description";
+    private static final String PROP_CATEGORY = "raf:category";
+    private static final String PROP_TAG = "raf:tags";
+    
     private UrlEncoder encoder;
 
     @Override
@@ -54,7 +68,7 @@ public class RafModeshapeRepository implements RafRepository {
             Session session = ModeShapeRepositoryFactory.getSession();
             session.logout();
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
 
@@ -71,19 +85,19 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(RAF_ROOT + definition.getCode());
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
             RafNode result = nodeToRafNode(node);
 
             //FIXME: şimdilik test işleri için var. Silinecek.
-            node = jcrTools.findOrCreateNode(session, fullPath + "/dene/abc/def", "nt:folder");
+            node = jcrTools.findOrCreateNode(session, fullPath + "/dene/abc/def", NODE_FOLDER);
 
             session.save();
             session.logout();
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
 
@@ -95,7 +109,7 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(RAF_ROOT + code);
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
             RafNode result = nodeToRafNode(node);
 
@@ -103,7 +117,7 @@ public class RafModeshapeRepository implements RafRepository {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
 
@@ -115,7 +129,7 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(PRIVATE_ROOT + username);
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
             RafNode result = nodeToRafNode(node);
 
@@ -124,7 +138,7 @@ public class RafModeshapeRepository implements RafRepository {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
 
     }
@@ -137,7 +151,7 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(SHARED_ROOT);
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
             RafNode result = nodeToRafNode(node);
 
@@ -146,7 +160,7 @@ public class RafModeshapeRepository implements RafRepository {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
 
@@ -166,7 +180,7 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(RAF_ROOT + rafCode);
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
             //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
             //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
@@ -180,7 +194,7 @@ public class RafModeshapeRepository implements RafRepository {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
 
     }
@@ -215,18 +229,23 @@ public class RafModeshapeRepository implements RafRepository {
                 Node n = it.nextNode();
                 
                 //Node tipine göre doğru conversion.
-                if( n.isNodeType("nt:folder")){
+                if( n.isNodeType(NODE_FOLDER)){
                     result.getItems().add(nodeToRafFolder(n));
-                } else if ( n.isNodeType("nt:file")){
+                } else if ( n.isNodeType(NODE_FILE)){
                     result.getItems().add(nodeToRafDocument(n));
                 }
             }
 
+            //FIXME: Debug için duruyor kalkacak.
+            JcrTools jcrTools = new JcrTools();
+            jcrTools.setDebug(true);
+            jcrTools.printSubgraph(node);
+            
             session.logout();
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
 
     }
@@ -239,8 +258,14 @@ public class RafModeshapeRepository implements RafRepository {
             String fullPath = getEncodedPath(folder.getPath());
 
             JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, "nt:folder");
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+            
+            node.setProperty(PROP_TITLE, folder.getTitle());
+            node.setProperty(PROP_DESCRIPTON, folder.getInfo());
+            
             session.save();
             session.logout();
 
@@ -266,6 +291,14 @@ public class RafModeshapeRepository implements RafRepository {
             LOG.debug("Encoded FileName : {}", fileName);
 
             Node n = jcrTools.uploadFile(session, fullName, in);
+            
+            n.addMixin(MIXIN_TITLE);
+            n.addMixin(MIXIN_TAGGABLE);
+            n.addMixin("raf:metadata");
+            
+            n.setProperty(PROP_TITLE, fileName);
+            
+            
             /*
             n.addMixin("tlv:ref");
             n.addMixin("tlv:tag");
@@ -282,10 +315,10 @@ public class RafModeshapeRepository implements RafRepository {
             LOG.debug("Dosya JCR'e kondu : {}", fullName);
         } catch (RepositoryException ex) {
             LOG.error("Reporsitory Exception", ex);
-            throw new RafException();
+            throw new RafException( ex );
         } catch (IOException ex) {
             LOG.error("IO Exception", ex);
-            throw new RafException();
+            throw new RafException( ex );
         }
         return result;
     }
@@ -305,9 +338,9 @@ public class RafModeshapeRepository implements RafRepository {
                 throw new RafException();
             }
 
-            if( node.isNodeType("nt:folder")){
+            if( node.isNodeType(NODE_FOLDER)){
                 result = nodeToRafFolder(node);
-            } else if( node.isNodeType("nt:file")){
+            } else if( node.isNodeType(NODE_FILE)){
                 result = nodeToRafDocument(node);
             } else {
                 //FIXME:Bilinen bir node bulunamadı.
@@ -345,7 +378,7 @@ public class RafModeshapeRepository implements RafRepository {
 
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
     
@@ -384,10 +417,23 @@ public class RafModeshapeRepository implements RafRepository {
     protected RafFolder nodeToRafFolder(Node node) throws RepositoryException {
         RafFolder result = new RafFolder();
 
+        JcrTools jcrTools = new JcrTools();
+        jcrTools.printSubgraph(node);
+        
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
+        
+        if( node.isNodeType(MIXIN_TITLE)){
+            result.setTitle(getPropertyAsString(node, PROP_TITLE));
+            result.setInfo(getPropertyAsString( node, PROP_DESCRIPTON));
+        }
+        
+        if( node.isNodeType(MIXIN_TAGGABLE)){
+            //result.setInfo(node.getProperty("raf:tags").getString());
+            //result.setInfo(node.getProperty("raf:category").getString());
+        }
 
         return result;
     }
@@ -395,6 +441,9 @@ public class RafModeshapeRepository implements RafRepository {
     protected RafDocument nodeToRafDocument(Node node) throws RepositoryException {
         RafDocument result = new RafDocument();
 
+        JcrTools jcrTools = new JcrTools();
+        jcrTools.printSubgraph(node);
+        
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
@@ -404,6 +453,16 @@ public class RafModeshapeRepository implements RafRepository {
         Node cn = node.getNode("jcr:content");
         result.setMimeType(cn.getProperty("jcr:mimeType").getString());
         
+        if( node.isNodeType(MIXIN_TITLE)){
+            result.setTitle(getPropertyAsString(node, PROP_TITLE));
+            result.setInfo(getPropertyAsString( node, PROP_DESCRIPTON));
+        }
+        
+        if( node.isNodeType(MIXIN_TAGGABLE)){
+            //result.setInfo(node.getProperty("raf:tags").getString());
+            //result.setInfo(node.getProperty("raf:category").getString());
+        }
+        
         return result;
     }
 
@@ -411,7 +470,7 @@ public class RafModeshapeRepository implements RafRepository {
         NodeIterator it = node.getNodes();
         while (it.hasNext()) {
             Node n = it.nextNode();
-            if( n.isNodeType("nt:folder")){
+            if( n.isNodeType(NODE_FOLDER)){
                 result.add(nodeToRafFolder(n));
                 populateFolders(n, result);
             }
@@ -419,6 +478,27 @@ public class RafModeshapeRepository implements RafRepository {
 
     }
 
-    
+    /**
+     * Verilen property key sonucunun null kontrolü yaparak geriye değer döndürür.
+     * @param node
+     * @param prop
+     * @return
+     * @throws RepositoryException 
+     */
+    private String getPropertyAsString( Node node, String prop ) throws RepositoryException{
+        
+        try{
+        Property property = node.getProperty(prop);
+        
+        if( property != null ){
+            return property.getString();
+        }
+        } catch( PathNotFoundException ex ){
+            //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
+            LOG.debug("Property not found : {}", prop);
+        }
+        
+        return null;
+    }
 
 }

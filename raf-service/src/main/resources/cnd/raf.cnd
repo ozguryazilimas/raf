@@ -1,0 +1,12 @@
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<raf='http://www.ozguryazilim.com.tr/jcr/raf/1.0'>
+
+[raf:taggable] mixin
+    - raf:category (STRING)
+    - raf:tags (STRING) multiple
+
+[raf:checksum] mixin
+    - raf:sha1 (STRING) mandatory
+
+[raf:metadata] mixin
+    + * (nt:unstructured)

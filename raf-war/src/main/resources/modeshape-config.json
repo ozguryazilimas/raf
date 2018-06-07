@@ -1,6 +1,7 @@
 {
     "name": "raf",
     "jndiName" : "jcr/raf",
+    "node-types" : ["cnd/raf.cnd"],
     "storage": {
         "persistence" : {
             "type" : "file",
@@ -22,5 +23,38 @@
                 "classname" : "com.ozguryazilim.raf.jcr.RafSecurityProvider"
             }
         ]
+    },
+    "sequencing" : {
+        "sequencers" : {
+            "Image" : {
+                "classname" : "ImageSequencer",
+                "pathExpression" : "default:(//*.(gif|png|pict|jpg))/jcr:content[@jcr:data]"
+            },
+            "PDF Metadata" : {
+                "classname" : "pdf",
+                "pathExpression" : "default:(//*.(pdf))/jcr:content[@jcr:data]"
+            },
+            "EPUB Metadata" : {
+                "classname" : "epub",
+                "pathExpression" : "default:(//*.(epub))/jcr:content[@jcr:data]"
+            },
+            "MsOffice Metadata" : {
+                "classname" : "msoffice",
+                "pathExpression" : "default:(//*.(xls|doc|ppt|docx))/jcr:content[@jcr:data]"
+            },
+            "Odf Metadata" : {
+                "classname" : "odf",
+                "pathExpression" : "default:(//*.(odt|ods|odp|odg|odc|ott|ots|otp|otg|otc))/jcr:content[@jcr:data]"
+            },
+            "Audio Metadata" : {
+                "classname" : "audio",
+                "pathExpression" : "default:(//*.(mp3|mp4|ogg|flac|wma))/jcr:content[@jcr:data]"
+            },
+            "Video Metadata" : {
+                "classname" : "video",
+                "pathExpression" : "default:(//*.(mp4|3gp|mkv|avi|flv|wmv|mov|webm|ogv))/jcr:content[@jcr:data]"
+            }
+            
+        }
     }
 }
