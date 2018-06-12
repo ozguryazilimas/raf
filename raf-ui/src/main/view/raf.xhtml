@@ -168,8 +168,8 @@
                         
 
                         <ui:repeat value="#{rafController.contentPanels}" var="cw" >
-                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.commandTitle}">
-                                <i class="fa #{cw.commandIcon}" />
+                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">
+                                <i class="fa #{cw.actionIcon}" />
                             </p:commandLink>
                         </ui:repeat>
                         
@@ -184,7 +184,7 @@
 
                 </div>
                 <div class="raf-box-content" >
-                    <ui:include src="#{rafController.selectedContentPanel.fragment}" />
+                    <ui:include src="#{rafController.selectedContentPanel.viewId}" />
 
                     <ui:remove>
                         <ui:include src="/fragments/breadcrumb.xhtml" />
@@ -208,7 +208,7 @@
                         <ui:include src="/fragments/fileView.xhtml" />
                     </ui:remove>
                 </div>
-                <ui:fragment rendered="#{rafController.selectedContentPanel.supportPaging()}">
+                <ui:fragment rendered="#{rafController.selectedContentPanel.supportPaging}">
                     <div class="raf-box-footer" style="text-align: center">
                         <ul class="pagination pagination-sm" style="margin: 0px; display: inline;">
                             <li class="active"><a href="#">1</a></li>

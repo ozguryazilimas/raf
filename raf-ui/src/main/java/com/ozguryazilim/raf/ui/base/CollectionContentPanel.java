@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf;
+package com.ozguryazilim.raf.ui.base;
 
+import com.ozguryazilim.raf.IconResolver;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.models.RafCollection;
-import java.io.Serializable;
 import javax.inject.Inject;
 
 /**
@@ -16,11 +17,15 @@ import javax.inject.Inject;
  * 
  * @author Hakan Uygun
  */
-public abstract class RafCollectionContentPanel implements ContentPanel, Serializable{
+public abstract class CollectionContentPanel extends AbstractContentPanel{
  
     @Inject
     private RafContext context;
 
+    
+    @Inject
+    private IconResolver iconResolver;
+    
     @Override
     public String getTitle() {
         return context.getCollection().getTitle();
@@ -28,13 +33,12 @@ public abstract class RafCollectionContentPanel implements ContentPanel, Seriali
 
     @Override
     public String getIcon() {
-        //FIXME: burada mimetype üzerinden icon almak lazım. context.getCollection().getMimeType();
-        return "fa-folder-open";
+        return iconResolver.getIcon(context.getCollection().getMimeType());
     }
     
     
     @Override
-    public Boolean supportPaging() {
+    public boolean getSupportPaging() {
         //Bu implemente edildiğinde açılacak
         return Boolean.FALSE;
     }
@@ -42,12 +46,11 @@ public abstract class RafCollectionContentPanel implements ContentPanel, Seriali
     public RafCollection getCollection(){
         return context.getCollection();
     }
-    
-    public Boolean supportBreadCrump(){
-        //FIXME: Burada mimeType'a göre karar vermek gerekecek. Örneğin Tag sonuçları için olmaz. Ama kategory için olabilir belki
-        return Boolean.TRUE;
-    }
 
+    @Override
+    public boolean getSupportCollection() {
+        return true;
+    }
     
     
 }

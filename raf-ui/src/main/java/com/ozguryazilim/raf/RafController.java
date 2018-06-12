@@ -15,11 +15,12 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.AbstractContentPanel;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
+import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -52,18 +53,6 @@ public class RafController implements Serializable{
     private RafContext context;
     
     @Inject
-    private SimpleRowViewPanel simpleRowView;
-    
-    @Inject
-    private DetailRowViewPanel detailRowView;
-    
-    @Inject
-    private DocumentViewPanel documentView;
-    
-    @Inject
-    private FolderViewPanel folderView;
-    
-    @Inject
     private Event<RafChangedEvent> rafChangedEvent;
     
     @Inject
@@ -71,7 +60,7 @@ public class RafController implements Serializable{
     
     private AbstractSidePanel selectedSidePanel;
     
-    private ContentPanel selectedContentPanel;
+    private AbstractContentPanel selectedContentPanel;
     
     private String rafCode;
     
@@ -118,12 +107,14 @@ public class RafController implements Serializable{
                     //Folder'ı bir bulalım
                     //TODO: tip kontrolü yapmaya gerek var mı?
                     fld = (RafFolder) rafService.getRafObject(obj.getParentId());
-                    selectedContentPanel = documentView;
+                    //FIXME: Doğru paneli nasıl seçeceğiz?
+                    selectedContentPanel = getObjectContentPanel();
                     
                 } else if( obj instanceof RafFolder ){
                     fld = (RafFolder) obj;
                     //FIXME: burada kullanıcı tercihlerinden alınması gerekir.
-                    selectedContentPanel = simpleRowView;
+                    //FIXME: DOğru paneli nasıl seçeceğiz?
+                    selectedContentPanel = getCollectionContentPanel();
                 }
                 
                 
@@ -148,6 +139,7 @@ public class RafController implements Serializable{
             context.setCollection(collection);
             //FIXME: bundan çok emin değilim. RafFolder değil RafNode bağladık çünkü.
             //context.setSelectedObject(rafDefinition.getNode());
+            selectedContentPanel = getCollectionContentPanel();
         }
         
         
@@ -210,17 +202,11 @@ public class RafController implements Serializable{
     }
     
 
-    public List<ContentPanel> getContentPanels(){
-        List<ContentPanel> result = new ArrayList<>();
-        
-        result.add(simpleRowView);
-        result.add(detailRowView);
-        result.add(folderView);
-        
-        return result;
+    public List<AbstractContentPanel> getContentPanels(){
+        return ContentPanelRegistery.getPanels();
     }
 
-    public ContentPanel getSelectedContentPanel() {
+    public AbstractContentPanel getSelectedContentPanel() {
         //Eğer seçili bir yoksa ilkini seçiyoruz.
         if( selectedContentPanel == null ){
             selectedContentPanel = getContentPanels().get(0);
@@ -228,10 +214,37 @@ public class RafController implements Serializable{
         return selectedContentPanel;
     }
 
-    public void setSelectedContentPanel(ContentPanel selectedContentPanel) {
+    public void setSelectedContentPanel(AbstractContentPanel selectedContentPanel) {
         this.selectedContentPanel = selectedContentPanel;
     }
 
+    /**
+     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu dönüyor.
+     * @return 
+     */
+    protected AbstractContentPanel getObjectContentPanel(){
+        for( AbstractContentPanel p : getContentPanels() ){
+            if( !p.getSupportCollection()){
+                return p;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu dönüyor.
+     * @return 
+     */
+    protected AbstractContentPanel getCollectionContentPanel(){
+        for( AbstractContentPanel p : getContentPanels() ){
+            if( p.getSupportCollection()){
+                return p;
+            }
+        }
+        
+        return null;
+    }
 
     public void selectItem( RafObject item){
         
@@ -248,7 +261,8 @@ public class RafController implements Serializable{
     
     public void selectDocument( RafDocument item){
         context.setSelectedObject(item);
-        selectedContentPanel = documentView;
+        //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
+        selectedContentPanel = getObjectContentPanel();
     }
     
     public void selectFolderById( String folderId ){
@@ -274,7 +288,8 @@ public class RafController implements Serializable{
         folderChangedEvent.fire(new RafFolderChangeEvent());
         context.setSelectedObject(findFolder(folderId));
         
-        selectedContentPanel = simpleRowView;
+        //FIXME: Doğru paneli nasıl seçeceğiz?
+        selectedContentPanel = getCollectionContentPanel();
     }
     
     /**
