@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -62,5 +63,10 @@ public class RafService implements Serializable{
     
     public InputStream getDocumentContent( String id ) throws RafException{
         return rafRepository.getDocumentContent( id );
+    }
+    
+    public void saveMetadata( String id, RafMetadata data )throws RafException{
+        //FIXME: Yetki kontrolü + event
+        rafRepository.saveMetadata(id, data);
     }
 }

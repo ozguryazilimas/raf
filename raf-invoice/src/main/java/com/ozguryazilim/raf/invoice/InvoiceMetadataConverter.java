@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf.pdf;
+package com.ozguryazilim.raf.invoice;
 
 import com.ozguryazilim.raf.MetadataConverter;
 import com.ozguryazilim.raf.RafException;
@@ -12,19 +12,23 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.VersionException;
 
 /**
- * PDF Sequencer ile üretilen pdf:metadata nodeType'ı RafMetadata'ya çevirir.
+ * invoice:metadata node type'ı RafMetadata'ya dönüştürür.
+ * 
  * @author Hakan Uygun
  */
-public class PdfMetadataConverter implements MetadataConverter{
+public class InvoiceMetadataConverter implements MetadataConverter{
 
     @Override
     public RafMetadata nodeToModel(Node node) throws RafException {
         try {
             RafMetadata result = new RafMetadata();
-            //FIXME: burada pdf:metadata tipinde olup olmadığı kontrol edilcek
-            if( !node.isNodeType("pdf:metadata") ){
+            
+            if( !node.isNodeType("invoice:metadata") ){
                 //FIXME: Daha düzgün bir hata çevir.
                 throw new RafException();
             }
@@ -40,7 +44,6 @@ public class PdfMetadataConverter implements MetadataConverter{
                     result.getAttributes().put( p.getName(), p.getValue().getString());
                 }
                 
-                //FIXME: pdf:page meta tiplerinden bir toparlama yapmak lazım.
             }
             
             return result;
@@ -51,9 +54,25 @@ public class PdfMetadataConverter implements MetadataConverter{
 
     @Override
     public void modelToNode(RafMetadata data, Node node) throws RafException {
-        //Bu metada update edilmeyecek dolayısı ile doğrudan exception fırlatalım.
-        //ReadOnly Metadata pdf:metadata şeklinde
-        throw new RafException();
+        
+        try {
+            node.setProperty("invoice:account", (String) data.getAttributes().get("invoice:account"));
+            node.setProperty("invoice:serial", (String) data.getAttributes().get("invoice:serial"));
+            node.setProperty("invoice:taxOffice", (String) data.getAttributes().get("invoice:taxOffice"));
+            node.setProperty("invoice:taxNumber", (String) data.getAttributes().get("invoice:taxNumber"));
+            //Calendar tipini nasıl setliyoruz ki?
+            //node.setProperty("invoice:date", ((Date) data.getAttributes().get("invoice:date")));
+            
+        } catch (VersionException ex) {
+            throw new RafException(ex);
+        } catch (LockException ex) {
+            throw new RafException(ex);
+        } catch (ConstraintViolationException ex) {
+            throw new RafException(ex);
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+        
     }
     
 }

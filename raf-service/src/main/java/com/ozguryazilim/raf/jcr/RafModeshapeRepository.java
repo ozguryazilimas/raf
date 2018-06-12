@@ -13,6 +13,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
@@ -360,6 +361,46 @@ public class RafModeshapeRepository  implements Serializable{
         }
     }
 
+    public void saveMetadata( String id, RafMetadata metadata ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node metaNode = null;
+
+            //Demek ki ilk kez yazılacak.
+            if( Strings.isNullOrEmpty(metadata.getNodeId())){
+                Node node = session.getNodeByIdentifier(id);
+            
+                if( node == null ){
+                    //FIXME: bu exception nedir söylemek lazım.
+                    throw new RafException();
+                }
+                
+                metaNode = node.addNode(metadata.getType(), metadata.getType());
+            } else {
+                //MetadataNode var update için kendisini bulalım
+                metaNode = session.getNodeByIdentifier(metadata.getNodeId());
+                
+                if( metaNode == null ){
+                    //FIXME: bu exception nedir söylemek lazım.
+                    throw new RafException();
+                }
+            }
+                        
+            
+            MetadataConverter converter = MetadataConverterRegistery.getConverter(metadata.getType());
+            
+            converter.modelToNode(metadata, metaNode);
+
+            session.save();
+            
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+    }
+    
     public InputStream getDocumentContent( String id ) throws RafException{
         try {
             Session session = ModeShapeRepositoryFactory.getSession();

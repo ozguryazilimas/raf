@@ -1,0 +1,30 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/layout/dialogBase.xhtml">
+    
+    <ui:param name="title" value="Fatura Bilgileri" />
+    
+    <ui:define name="form" >
+        <h:form id="imde">
+            <div class="row">
+                <t:inputText label="invoice.account" value="#{invoiceMetadataPanel.metadata.attributes['invoice:account']}" placeholder="Hesap bilgisi" requried="true"/>
+                <t:inputText label="invoice.serial" value="#{invoiceMetadataPanel.metadata.attributes['invoice:serial']}" placeholder="Fatura seri sıra numarası" requried="true"/>
+                <t:inputDate label="invoice.date" value="#{invoiceMetadataPanel.metadata.attributes['invoice:date']}" placeholder="Fatura tarihi" requried="true"/>
+                <t:inputText label="invoice.taxOffice" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxOffice']}" placeholder="Vergi Dairesi"/>
+                <t:inputText label="invoice.taxNumber" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxNumber']}" placeholder="Vergi No"/>
+            </div>
+            
+            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
+                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{invoiceMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
+                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{invoiceMetadataPanel.cancelDialog()}" process="@this"/>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+    
+</ui:composition>

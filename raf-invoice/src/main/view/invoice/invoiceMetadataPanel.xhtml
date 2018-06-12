@@ -1,0 +1,30 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+
+    <t:accordion id="invmd" label="#{invoiceMetadataPanel.title}" columnClass="col-xs-12">
+        <f:facet name="toolbar" rendered="#{invoiceMetadataPanel.canEdit()}">
+            <p:commandLink action="#{invoiceMetadataPanel.edit()}" process="@this" >
+                <i class="fa fa-edit" />
+                <p:ajax event="dialogReturn" update="invmd" />
+             </p:commandLink>
+        </f:facet>
+        <t:outputText label="invoice.account" value="#{invoiceMetadataPanel.metadata.attributes['invoice:account']}" columnClass="col-xs-12"/>
+        <t:outputText label="invoice.serial" value="#{invoiceMetadataPanel.metadata.attributes['invoice:serial']}" columnClass="col-xs-12"/>
+        <t:outputDate label="invoice.date" value="#{invoiceMetadataPanel.metadata.attributes['invoice:date']}" columnClass="col-xs-12"/>
+        <t:outputText label="invoice.taxOffice" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxOffice']}" columnClass="col-xs-12"/>
+        <t:outputText label="invoice.taxNumber" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxNumber']}" columnClass="col-xs-12"/>
+    </t:accordion>
+
+
+</ui:composition>
+

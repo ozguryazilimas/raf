@@ -16,5 +16,5 @@ public interface MetadataConverter {
     
     RafMetadata nodeToModel( Node node ) throws RafException;
     
-    Node modelToNode ( RafMetadata data ) throws RafException;
+    void modelToNode ( RafMetadata data, Node node ) throws RafException;
 }

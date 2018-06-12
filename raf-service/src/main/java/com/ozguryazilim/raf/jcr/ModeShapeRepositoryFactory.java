@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf.jcr;
 
+import com.ozguryazilim.raf.MetadataConfig;
+import com.ozguryazilim.raf.MetadataRegistery;
 import com.ozguryazilim.raf.SequencerConfig;
 import com.ozguryazilim.raf.SequencerRegistery;
 import java.io.FileNotFoundException;
@@ -18,6 +20,7 @@ import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
+import org.modeshape.schematic.document.EditableArray;
 import org.modeshape.schematic.document.EditableDocument;
 import org.modeshape.schematic.document.Editor;
 import org.modeshape.schematic.document.ParsingException;
@@ -83,11 +86,10 @@ public class ModeShapeRepositoryFactory {
             InputStream is = ModeShapeRepositoryFactory.class.getClassLoader().getResourceAsStream(configFile);
             RepositoryConfiguration config = RepositoryConfiguration.read(is, configFile);
 
-            // We could change the name of the repository programmatically ...
-            // config = config.withName("Some Other Repository");
-            LOGGER.debug("Node Types : {}", config.getNodeTypes());
+            //Configürasyon değişiklikleri.
             
             Editor editor = config.edit();
+            
             EditableDocument sequencers = editor.getOrCreateDocument(RepositoryConfiguration.FieldName.SEQUENCING).getOrCreateDocument(RepositoryConfiguration.FieldName.SEQUENCERS);
             
             for( SequencerConfig sc : SequencerRegistery.getSequencers()){
@@ -95,9 +97,17 @@ public class ModeShapeRepositoryFactory {
                 sequencer.setString(RepositoryConfiguration.FieldName.CLASSNAME, sc.getClassname());
                 sequencer.setString(RepositoryConfiguration.FieldName.PATH_EXPRESSION, sc.getExpression());
             }
+
+            //Sistemde eklencek olan metadata bağımlılıkları için CND'ler
+            EditableArray nodeTypes = editor.getOrCreateArray(RepositoryConfiguration.FieldName.NODE_TYPES);
+            for( MetadataConfig c : MetadataRegistery.getConfigs()){
+                nodeTypes.addString(c.getCnd());
+            }
+            
             
             config = new RepositoryConfiguration(editor, "RafConfig");
             
+            LOGGER.info("Node Types : {}", config.getNodeTypes());
             LOGGER.info( "Sequencers : {}", config.getSequencing().getSequencers());
             
             // Verify the configuration for the repository ...

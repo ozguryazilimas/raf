@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf.ui.contentpanels;
 
+import com.ozguryazilim.raf.MetadataRegistery;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.ContentPanelPages;
 import com.ozguryazilim.raf.models.RafMetadata;
@@ -15,6 +16,8 @@ import com.ozguryazilim.raf.ui.base.ObjectContentPanel;
 import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
 import java.util.List;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,6 +26,8 @@ import javax.inject.Inject;
 @ContentPanel( actionIcon = "fa-file", view = ContentPanelPages.DocumentViewPanel.class)
 public class DocumentViewPanel extends ObjectContentPanel{
 
+    private static final Logger LOG = LoggerFactory.getLogger(DocumentViewPanel.class);
+    
     @Inject
     private RafContext context;
     
@@ -57,5 +62,23 @@ public class DocumentViewPanel extends ObjectContentPanel{
         }
         
         return result;
+    }
+    
+    public List<String> getAdditonalMetadatas(){
+        //FIXME: gelen veriler mecut metadata'lar ile karşılaştırılmalı.
+        //FIXME: yetki kontrolü nerede yapılmalı?
+        return MetadataRegistery.getSelectableMetadataNames(context.getSelectedObject().getMimeType());
+    }
+
+    /**
+     * Burada olmayan bir metadata bloğu ekleniyor. Dolayısı ile doğrudan Editor açacağız.
+     * @param name 
+     */
+    public void addMetadata( String name ){
+        LOG.info("Metadata add : {}", name);
+        String type = MetadataRegistery.getMetadataType(name);
+        //Birden fazla UI panel regiter edilebilir dolayısı ile biz sadece ilkini açıyoruz. Select edilebildiğine göre edit de edilebilmeli!
+        List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(type);
+        ls.get(0).edit();
     }
 }
