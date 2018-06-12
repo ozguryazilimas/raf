@@ -18,8 +18,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -36,7 +39,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-public class RafModeshapeRepository implements RafRepository {
+@RequestScoped
+public class RafModeshapeRepository  implements Serializable{
 
     private static final Logger LOG = LoggerFactory.getLogger(RafModeshapeRepository.class);
 
@@ -58,7 +62,17 @@ public class RafModeshapeRepository implements RafRepository {
     
     private UrlEncoder encoder;
 
-    @Override
+    
+    @PostConstruct
+    public void init(){
+        try {
+            start();
+        } catch (RafException ex) {
+            LOG.error("ModeShape cannot started", ex);
+        }
+    }
+    
+    
     public void start() throws RafException {
         try {
             encoder = new UrlEncoder();
@@ -72,12 +86,10 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
-    @Override
     public void stop() throws RafException {
         ModeShapeRepositoryFactory.shutdown();
     }
 
-    @Override
     public RafNode createRafNode(RafDefinition definition) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -101,7 +113,6 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
-    @Override
     public RafNode getRafNode(String code) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -121,7 +132,6 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
-    @Override
     public RafNode getPrivateRafNode(String username) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -143,7 +153,6 @@ public class RafModeshapeRepository implements RafRepository {
 
     }
 
-    @Override
     public RafNode getSharedRafNode() throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -164,12 +173,10 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
-    @Override
     public List<RafFolder> getFolderList(RafNode rafNode) throws RafException {
         return getFolderList(rafNode.getName());
     }
 
-    @Override
     public List<RafFolder> getFolderList(String rafCode) throws RafException {
 
         List<RafFolder> result = new ArrayList<>();
@@ -199,12 +206,10 @@ public class RafModeshapeRepository implements RafRepository {
 
     }
 
-    @Override
     public RafCollection getCollection(String path) throws RafException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
     public RafCollection getCollectionById(String id) throws RafException {
         RafCollection result = new RafCollection();
 
@@ -250,7 +255,6 @@ public class RafModeshapeRepository implements RafRepository {
 
     }
 
-    @Override
     public void createFolder(RafFolder folder) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -274,7 +278,6 @@ public class RafModeshapeRepository implements RafRepository {
         }
     }
 
-    @Override
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         if (Strings.isNullOrEmpty(fileName)) {
             //FIXME: UI'a hata vermeli ama nasıl?
@@ -324,7 +327,6 @@ public class RafModeshapeRepository implements RafRepository {
     }
     
     
-    @Override
     public RafObject getRafObject(String id) throws RafException{
         try {
             Session session = ModeShapeRepositoryFactory.getSession();

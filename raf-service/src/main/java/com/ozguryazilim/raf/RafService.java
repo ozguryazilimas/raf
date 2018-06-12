@@ -5,7 +5,7 @@
  */
 package com.ozguryazilim.raf;
 
-import com.ozguryazilim.raf.jcr.RafRepository;
+import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -27,7 +27,7 @@ import javax.inject.Inject;
 public class RafService implements Serializable{
     
     @Inject
-    private RafRepository rafRepository;
+    private RafModeshapeRepository rafRepository;
     
     
     

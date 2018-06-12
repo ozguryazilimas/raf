@@ -7,7 +7,7 @@ package com.ozguryazilim.raf.definition;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.jcr.RafRepository;
+import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
@@ -28,7 +28,7 @@ public class RafDefinitionService implements Serializable{
     private RafDefinitionRepository repository;
     
     @Inject
-    private RafRepository rafRepository;
+    private RafModeshapeRepository rafRepository;
     
     public void createNewRaf( RafDefinition rd ) throws RafException{
         
