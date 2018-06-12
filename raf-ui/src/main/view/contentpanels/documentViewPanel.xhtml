@@ -59,24 +59,49 @@
 
             <div class="raf-file-meta col-md-4 col-xs-12">
                 <div class="row">
-                    <t:accordion label="Temel Bilgiler" columnClass="col-xs-12">
-                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
-                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
-                    </t:accordion>
-                    <t:accordion label="Ek Bilgiler" columnClass="col-xs-12">
-                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
-                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
-                    </t:accordion>
-                    <t:accordion label="Süreç" columnClass="col-xs-12">
-                        <t:inputText label="Başlık" value="" columnClass="col-xs-12"/>
-                        <t:inputTextarea label="Açıklama" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Etiketler" value="" columnClass="col-xs-12"/>
-                        <t:inputText label="Kategori" value="" columnClass="col-xs-12"/>
-                    </t:accordion>
+
+                    <c:forEach items="#{documentViewPanel.metadataPanels}" var="mp" varStatus="loop">
+                        <ui:include src="#{mp.viewId}" />
+                    </c:forEach>
+                    
+                    <ui:remove>
+                        <t:accordion label="Temel Bilgiler" columnClass="col-xs-12">
+                            <f:facet name="toolbar">
+                                <i class="fa fa-edit" />
+                            </f:facet>
+                            <t:outputText label="Başlık" value="#{documentViewPanel.rafObject.title}" columnClass="col-xs-12"/>
+                            <t:outputText label="Açıklama" value="#{documentViewPanel.rafObject.info}" columnClass="col-xs-12"/>
+                            <t:outputText label="Etiketler" value="" columnClass="col-xs-12"/>
+                            <t:outputText label="Kategori" value="" columnClass="col-xs-12"/>
+                        </t:accordion>
+
+                        <t:accordion label="E-Fatura Üst Verileri" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+                        <t:accordion label="PDF Üst Verileri" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+                        <t:accordion label="E-İmza" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+                        <t:accordion label="Süreç" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+                        <t:accordion label="Sürüm Tarihçesi" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+
+                        <t:accordion label="Ek Bilgiler" columnClass="col-xs-12">
+                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
+                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                            <t:outputText label="Sabit Yol" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
+                        </t:accordion>
+                    </ui:remove>
                 </div>
             </div>
 

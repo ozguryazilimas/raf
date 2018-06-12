@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/layout/dialogBase.xhtml">
+    
+    <ui:param name="title" value="Temel Bilgiler" />
+    
+    <ui:define name="form" >
+        <h:form id="bmde">
+            <div class="row">
+                <t:inputText label="general.label.Title" value="#{documentViewPanel.rafObject.title}" placeholder="Başlık"/>
+                <t:inputTextarea label="general.label.Info" value="#{documentViewPanel.rafObject.info}" placeholder="Açıklama"/>
+            </div>
+            
+            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
+                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{basicMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
+                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{basicMetadataPanel.cancelDialog()}" process="@this"/>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+    
+</ui:composition>

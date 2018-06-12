@@ -10,9 +10,12 @@ import com.ozguryazilim.raf.ui.previewpanels.ImagePreviewPanel;
 import com.ozguryazilim.raf.ui.previewpanels.PdfPreviewPanel;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.ContentPanelPages;
+import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.ContentPanel;
+import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentPanel;
 import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -50,4 +53,13 @@ public class DocumentViewPanel extends ObjectContentPanel{
         
     } 
     
+    public List<AbstractMetadataPanel> getMetadataPanels(){
+        
+        //FIXME: burada veri içeriğine göre doğru bir şekilde panel listesi dönülecek.
+        //FIXME: Yetki kontrolü de gerekiyor.
+        
+        List<AbstractMetadataPanel> result = MetadataPanelRegistery.getPanels("nt:file");
+        
+        return result;
+    }
 }

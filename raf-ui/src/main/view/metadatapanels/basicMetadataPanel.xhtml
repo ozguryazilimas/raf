@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+    
+    <t:accordion id="bmd" label="#{basicMetadataPanel.title}" columnClass="col-xs-12">
+        <f:facet name="toolbar" rendered="#{basicMetadataPanel.canEdit()}">
+            <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" >
+                <i class="fa fa-edit" />
+                <p:ajax event="dialogReturn" update="bmd" />
+             </p:commandLink>
+        </f:facet>
+        <t:outputText label="Başlık" value="#{documentViewPanel.rafObject.title}" columnClass="col-xs-12"/>
+        <t:outputText label="Açıklama" value="#{documentViewPanel.rafObject.info}" columnClass="col-xs-12"/>
+        <t:outputText label="Etiketler" value="" columnClass="col-xs-12"/>
+        <t:outputText label="Kategori" value="" columnClass="col-xs-12"/>
+    </t:accordion>
+
+
+</ui:composition>
+
