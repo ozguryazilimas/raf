@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf.jcr;
 
+import com.ozguryazilim.raf.SequencerConfig;
+import com.ozguryazilim.raf.SequencerRegistery;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
@@ -16,6 +18,8 @@ import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
+import org.modeshape.schematic.document.EditableDocument;
+import org.modeshape.schematic.document.Editor;
 import org.modeshape.schematic.document.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +86,20 @@ public class ModeShapeRepositoryFactory {
             // We could change the name of the repository programmatically ...
             // config = config.withName("Some Other Repository");
             LOGGER.debug("Node Types : {}", config.getNodeTypes());
+            
+            Editor editor = config.edit();
+            EditableDocument sequencers = editor.getOrCreateDocument(RepositoryConfiguration.FieldName.SEQUENCING).getOrCreateDocument(RepositoryConfiguration.FieldName.SEQUENCERS);
+            
+            for( SequencerConfig sc : SequencerRegistery.getSequencers()){
+                EditableDocument sequencer = sequencers.getOrCreateDocument(sc.getName());
+                sequencer.setString(RepositoryConfiguration.FieldName.CLASSNAME, sc.getClassname());
+                sequencer.setString(RepositoryConfiguration.FieldName.PATH_EXPRESSION, sc.getExpression());
+            }
+            
+            config = new RepositoryConfiguration(editor, "RafConfig");
+            
+            LOGGER.info( "Sequencers : {}", config.getSequencing().getSequencers());
+            
             // Verify the configuration for the repository ...
             Problems problems = config.validate();
             if (problems.hasErrors()) {

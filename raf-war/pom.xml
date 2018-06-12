@@ -55,6 +55,12 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>raf-pdf</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
     </dependencies>  
     
     <build>

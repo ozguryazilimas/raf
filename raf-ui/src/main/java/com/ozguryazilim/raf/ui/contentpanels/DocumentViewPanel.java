@@ -5,9 +5,6 @@
  */
 package com.ozguryazilim.raf.ui.contentpanels;
 
-import com.ozguryazilim.raf.ui.previewpanels.DefaultPreviewPanel;
-import com.ozguryazilim.raf.ui.previewpanels.ImagePreviewPanel;
-import com.ozguryazilim.raf.ui.previewpanels.PdfPreviewPanel;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.ContentPanelPages;
 import com.ozguryazilim.raf.models.RafMetadata;
@@ -28,16 +25,6 @@ public class DocumentViewPanel extends ObjectContentPanel{
 
     @Inject
     private RafContext context;
-    
-    //FIXME: bunlar bir registery'den plugin yapısı ile alınacaklar.
-    @Inject
-    private DefaultPreviewPanel defaultPreview;
-    
-    @Inject
-    private ImagePreviewPanel imagePreview;
-    
-    @Inject
-    private PdfPreviewPanel pdfPreview;
     
     /**
      * Geriye mimeType'a göre hangi widget kullanılacak ise onun fragman bilgisini döner.

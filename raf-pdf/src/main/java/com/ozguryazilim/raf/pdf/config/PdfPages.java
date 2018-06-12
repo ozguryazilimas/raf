@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf.config;
+package com.ozguryazilim.raf.pdf.config;
 
 import com.ozguryazilim.telve.auth.SecuredPage;
 import com.ozguryazilim.telve.view.Pages;
@@ -14,14 +14,13 @@ import org.apache.deltaspike.jsf.api.config.view.Folder;
  *
  * @author oyas
  */
-@Folder( name = "/previewpanels")
+@Folder( name = "/pdf")
 @ApplicationScoped
-public interface PreviewPanelPages extends Pages{
+public interface PdfPages extends Pages{
     
     @SecuredPage
-    class DefaultPreviewPanel implements PreviewPanelPages {}
+    class PdfPreviewPanel implements PdfPages {}
     
     @SecuredPage
-    class ImagePreviewPanel implements PreviewPanelPages {}
-    
+    class PdfMetadataPanel implements PdfPages {}
 }

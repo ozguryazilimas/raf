@@ -1,0 +1,26 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+    
+    <t:accordion id="pdfmd" label="#{pdfMetadataPanel.title}" columnClass="col-xs-12">
+        <t:outputText label="pdf.title" value="#{pdfMetadataPanel.metadata.attributes['pdf:title']}" columnClass="col-xs-12"/>
+        <t:outputText label="pdf.version" value="#{pdfMetadataPanel.metadata.attributes['pdf:version']}" columnClass="col-xs-12"/>
+        <t:outputText label="pdf.encrypted" value="#{pdfMetadataPanel.metadata.attributes['pdf:encrypted']}" columnClass="col-xs-12"/>
+        <t:outputText label="pdf.pageCount" value="#{pdfMetadataPanel.metadata.attributes['pdf:pageCount']}" columnClass="col-xs-12"/>
+        <t:outputDateTime label="pdf.creationDate" value="#{pdfMetadataPanel.metadata.attributes['pdf:creationDate']}" columnClass="col-xs-12"/>
+        <t:outputDateTime label="pdf.modificationDate" value="#{pdfMetadataPanel.metadata.attributes['pdf:modificationDate']}" columnClass="col-xs-12"/>
+        <t:outputText label="pdf.producer" value="#{pdfMetadataPanel.metadata.attributes['pdf:producer']}" columnClass="col-xs-12"/>
+    </t:accordion>
+
+
+</ui:composition>
+

@@ -265,5 +265,6 @@
     <module>raf-ui</module>
     <module>raf-model</module>
     <module>raf-service</module>
+    <module>raf-pdf</module>
   </modules>
 </project>

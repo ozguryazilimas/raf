@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf.ui.previewpanels;
+package com.ozguryazilim.raf.pdf;
 
-import com.ozguryazilim.raf.config.PreviewPanelPages;
+import com.ozguryazilim.raf.pdf.config.PdfPages;
 import com.ozguryazilim.raf.ui.base.AbstractPreviewPanel;
 import com.ozguryazilim.raf.ui.base.PreviewPanel;
 
@@ -18,7 +18,7 @@ import com.ozguryazilim.raf.ui.base.PreviewPanel;
  * 
  * @author Hakan Uygun
  */
-@PreviewPanel(view = PreviewPanelPages.PdfPreviewPanel.class, mimeType = "application/pdf")
+@PreviewPanel(view = PdfPages.PdfPreviewPanel.class, mimeType = "application/pdf")
 public class PdfPreviewPanel extends AbstractPreviewPanel{
 
 }

@@ -6,7 +6,8 @@
 package com.ozguryazilim.raf.jcr;
 
 import com.google.common.base.Strings;
-import com.ozguryazilim.raf.DefaultMetadataConverter;
+import com.ozguryazilim.raf.MetadataConverter;
+import com.ozguryazilim.raf.MetadataConverterRegistery;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
@@ -471,9 +472,8 @@ public class RafModeshapeRepository  implements Serializable{
         NodeIterator it = node.getNodes("*:metadata");
         while( it.hasNext() ){
             Node mn = it.nextNode();
-            //FIXME: node tipine göre converter aranacak eğer bulunamaz ise default kullanılacak
-            DefaultMetadataConverter converter = new DefaultMetadataConverter();
-            result.getMetadatas().add(converter.nodeToModel(mn)); 
+            MetadataConverter mc = MetadataConverterRegistery.getConverter(mn.getPrimaryNodeType().getName());
+            result.getMetadatas().add(mc.nodeToModel(mn)); 
         }
         
         return result;
