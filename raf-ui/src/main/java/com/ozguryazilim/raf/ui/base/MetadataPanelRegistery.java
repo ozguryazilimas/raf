@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.CaseFormat;
+import com.ozguryazilim.raf.ui.base.metadatapanels.DefaultMetadataPanel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,10 @@ public class MetadataPanelRegistery {
             for( String pn : l){
                 result.add((AbstractMetadataPanel) BeanProvider.getContextualReference( pn, true));
             }
+        } else {
+            //FIXME: Default olanı döndürmek lazım ama instance ile ilgli sorun var :( Sadece bir tane olabilir.
+            //FIXME: Aslında bu daha çok debug tadında bişi. Configden alsak a açık olup olmayacağını Eğer tanımlı bir panel yoksa o metadata bloğu gösterilmez.
+            result.add((AbstractMetadataPanel) BeanProvider.getContextualReference( DefaultMetadataPanel.class, true));
         }
         
         return result;

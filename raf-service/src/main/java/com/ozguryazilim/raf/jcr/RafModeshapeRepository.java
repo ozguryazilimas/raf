@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.jcr;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.DefaultMetadataConverter;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
@@ -440,7 +441,7 @@ public class RafModeshapeRepository  implements Serializable{
         return result;
     }
     
-    protected RafDocument nodeToRafDocument(Node node) throws RepositoryException {
+    protected RafDocument nodeToRafDocument(Node node) throws RepositoryException, RafException {
         RafDocument result = new RafDocument();
 
         JcrTools jcrTools = new JcrTools();
@@ -450,6 +451,8 @@ public class RafModeshapeRepository  implements Serializable{
         result.setPath(node.getPath());
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
+        
+        //FIXME: bilenen diğer metadata ( createDate v.b. ) toplanmalı
         
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode("jcr:content");
@@ -463,6 +466,14 @@ public class RafModeshapeRepository  implements Serializable{
         if( node.isNodeType(MIXIN_TAGGABLE)){
             //result.setInfo(node.getProperty("raf:tags").getString());
             //result.setInfo(node.getProperty("raf:category").getString());
+        }
+        
+        NodeIterator it = node.getNodes("*:metadata");
+        while( it.hasNext() ){
+            Node mn = it.nextNode();
+            //FIXME: node tipine göre converter aranacak eğer bulunamaz ise default kullanılacak
+            DefaultMetadataConverter converter = new DefaultMetadataConverter();
+            result.getMetadatas().add(converter.nodeToModel(mn)); 
         }
         
         return result;

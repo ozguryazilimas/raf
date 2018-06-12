@@ -6,7 +6,9 @@
 package com.ozguryazilim.raf.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,6 +37,8 @@ public abstract class RafObject implements Serializable{
     private String updateBy;
     private Date updateDate;
 
+    private List<RafMetadata> metadatas = new ArrayList<>();
+    
     public String getId() {
         return id;
     }
@@ -121,6 +125,14 @@ public abstract class RafObject implements Serializable{
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public List<RafMetadata> getMetadatas() {
+        return metadatas;
+    }
+
+    public void setMetadatas(List<RafMetadata> metadatas) {
+        this.metadatas = metadatas;
     }
 
     

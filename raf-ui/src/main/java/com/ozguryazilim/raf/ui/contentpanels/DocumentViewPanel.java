@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.ui.previewpanels.ImagePreviewPanel;
 import com.ozguryazilim.raf.ui.previewpanels.PdfPreviewPanel;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.ContentPanelPages;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.ContentPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
@@ -59,6 +60,14 @@ public class DocumentViewPanel extends ObjectContentPanel{
         //FIXME: Yetki kontrolü de gerekiyor.
         
         List<AbstractMetadataPanel> result = MetadataPanelRegistery.getPanels("nt:file");
+        
+        for( RafMetadata md : context.getSelectedObject().getMetadatas()){
+            List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(md.getType());
+            for( AbstractMetadataPanel mdp : ls ){
+                mdp.setMetadata(md);
+                result.add( mdp );
+            }
+        }
         
         return result;
     }

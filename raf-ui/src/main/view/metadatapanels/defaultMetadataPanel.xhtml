@@ -1,0 +1,22 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+    
+    <t:accordion id="dmd" label="#{defaultMetadataPanel.title}" columnClass="col-xs-12">
+        <p:repeat value="#{defaultMetadataPanel.metadata.attributes.keySet()}" var="md" >
+            <t:outputText label="#{md}" value="#{defaultMetadataPanel.metadata.attributes[md]}" columnClass="col-xs-12"/>
+        </p:repeat>
+    </t:accordion>
+
+
+</ui:composition>
+

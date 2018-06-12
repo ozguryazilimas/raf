@@ -19,6 +19,9 @@ import org.apache.deltaspike.jsf.api.config.view.Folder;
 public interface MetadataPanelPages extends Pages{
  
     @SecuredPage
+    class DefaultMetadataPanel implements MetadataPanelPages {}
+    
+    @SecuredPage
     class BasicMetadataPanel implements MetadataPanelPages {}
     
     @SecuredPage

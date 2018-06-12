@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.models.RafMetadata;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,16 @@ public abstract class AbstractMetadataPanel implements Serializable{
     @Inject
     private ViewConfigResolver viewConfigResolver;
 
+    private RafMetadata metadata;
+
+    public RafMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(RafMetadata metadata) {
+        this.metadata = metadata;
+    }
+    
     /**
      * Varsayılan hali ile sınıf adını döner.
      * @return 
