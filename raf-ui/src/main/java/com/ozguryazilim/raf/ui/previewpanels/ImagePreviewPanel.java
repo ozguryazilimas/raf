@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf;
+package com.ozguryazilim.raf.ui.previewpanels;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.ozguryazilim.raf.config.PreviewPanelPages;
+import com.ozguryazilim.raf.ui.base.AbstractPreviewPanel;
+import com.ozguryazilim.raf.ui.base.PreviewPanel;
 
 /**
  * Image tipinde içerikler için preview widget controller.
@@ -18,23 +18,8 @@ import javax.inject.Named;
  * 
  * @author Hakan Uygun
  */
-@RequestScoped
-@Named
-public class ImagePreview implements RafDocumentPreview{
+@PreviewPanel(view = PreviewPanelPages.ImagePreviewPanel.class, mimeType = "image/")
+public class ImagePreviewPanel extends AbstractPreviewPanel{
 
-    @Inject
-    private RafContext context;
-    
-    @Inject
-    private RafService rafService;
-    
-    @Override
-    public String getFragment() {
-        return "/fragments/imagePreview.xhtml";
-    }
-    
-    
-    
-    
     
 }

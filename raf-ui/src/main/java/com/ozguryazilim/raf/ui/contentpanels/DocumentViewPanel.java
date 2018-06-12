@@ -5,13 +5,14 @@
  */
 package com.ozguryazilim.raf.ui.contentpanels;
 
-import com.ozguryazilim.raf.DefaultDocumentPreview;
-import com.ozguryazilim.raf.ImagePreview;
-import com.ozguryazilim.raf.PdfPreview;
+import com.ozguryazilim.raf.ui.previewpanels.DefaultPreviewPanel;
+import com.ozguryazilim.raf.ui.previewpanels.ImagePreviewPanel;
+import com.ozguryazilim.raf.ui.previewpanels.PdfPreviewPanel;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.ContentPanelPages;
 import com.ozguryazilim.raf.ui.base.ContentPanel;
 import com.ozguryazilim.raf.ui.base.ObjectContentPanel;
+import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
 import javax.inject.Inject;
 
 /**
@@ -26,13 +27,13 @@ public class DocumentViewPanel extends ObjectContentPanel{
     
     //FIXME: bunlar bir registery'den plugin yapısı ile alınacaklar.
     @Inject
-    private DefaultDocumentPreview defaultPreview;
+    private DefaultPreviewPanel defaultPreview;
     
     @Inject
-    private ImagePreview imagePreview;
+    private ImagePreviewPanel imagePreview;
     
     @Inject
-    private PdfPreview pdfPreview;
+    private PdfPreviewPanel pdfPreview;
     
     /**
      * Geriye mimeType'a göre hangi widget kullanılacak ise onun fragman bilgisini döner.
@@ -40,17 +41,13 @@ public class DocumentViewPanel extends ObjectContentPanel{
      * @return 
      */
     public String getPreviewWidget(){
+        //Eğer mimetype yoksa default isteyelim
         if( context.getSelectedObject() != null ){
-            if( context.getSelectedObject().getMimeType().startsWith("image/") ){
-                return imagePreview.getFragment();
-            }
-
-            if( context.getSelectedObject().getMimeType().startsWith("application/pdf") ){
-                return pdfPreview.getFragment();
-            }
+            return PreviewPanelRegistery.getMimeTypePanel(context.getSelectedObject().getMimeType()).getViewId();
+        } else {
+            return PreviewPanelRegistery.getMimeTypePanel("default").getViewId();
         }
         
-        return defaultPreview.getFragment();
     } 
     
 }
