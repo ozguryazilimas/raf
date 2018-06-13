@@ -13,7 +13,7 @@
     
     <t:accordion id="bmd" label="#{basicMetadataPanel.title}" columnClass="col-xs-12">
         <f:facet name="toolbar" rendered="#{basicMetadataPanel.canEdit()}">
-            <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" >
+            <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" styleClass="btn btn-box-tool">
                 <i class="fa fa-edit" />
                 <p:ajax event="dialogReturn" update="bmd" />
              </p:commandLink>

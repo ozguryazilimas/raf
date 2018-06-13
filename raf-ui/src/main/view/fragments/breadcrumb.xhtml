@@ -22,7 +22,7 @@
         <ui:repeat value="#{folderBreadcrumbController.breadcrumbItems}" var="item">
             <li>
                 <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this">
-                    #{item.name}
+                    #{item.title}
                 </p:commandLink>
             </li>
 
@@ -30,7 +30,7 @@
 
         <li>
             <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
-                    #{folderBreadcrumbController.currentFolder.name}
+                    #{folderBreadcrumbController.currentFolder.title}
             </p:commandLink>
         </li>
         

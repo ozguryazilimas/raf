@@ -13,7 +13,7 @@ import com.ozguryazilim.raf.ui.base.ContentPanel;
  *
  * @author oyas
  */
-@ContentPanel(actionIcon = "fa-list", view = ContentPanelPages.SimpleRowViewPanel.class )
+@ContentPanel(actionIcon = "fa-list", view = ContentPanelPages.SimpleRowViewPanel.class, icon = "fa-folder-open" )
 public class SimpleRowViewPanel extends CollectionContentPanel{
     
 }

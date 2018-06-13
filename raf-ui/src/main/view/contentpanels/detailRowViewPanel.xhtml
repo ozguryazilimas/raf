@@ -6,167 +6,98 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <ui:remove>
-        <!-- Detail Row List Görünümü -->
-    </ui:remove>
+    <ui:fragment rendered="#{detailRowViewPanel.supportBreadcrumb}" >
+        <ui:include src="/fragments/breadcrumb.xhtml" />
+    </ui:fragment>
 
-    <ul class="raf-item-row-list">
 
-        <ui:remove>
-            <li class="raf-item">
-                <div class="raf-item-content">
-                    <span class="raf-item-image">
-                        <i class="fa fa-level-up fa-2x" />
-                    </span>
-                    <div class="raf-item-name">
-                        <a href="/dolap/raf/test/kalsor_1" class="text-sm">Üst Klasör</a>
+    <table class="table" >
+        <p:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+            <tr>
+                <td style="width: 16px; text-align: center; vertical-align: middle;"><i class="fa fa-check-square-o" style="margin-right: 8px;"/></td>
+                <td style="width: 16px; text-align: center; vertical-align: middle;"><i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x mr-5" /></td>
+                <td>
+                    <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                        <span class="text-sm">#{item.title}</span> 
+                    </p:commandLink>
+                    <div class="text-muted text-sm">#{item.name}</div>
+                    <div class="text-muted text-sm">
+                        #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
                     </div>
-                </div>
+                </td>
+                <td>
+                    <div class="text-muted text-sm">#{item.info}</div>
+                    <div class="text-muted text-sm">Kategori</div>
+                    <div class="text-muted text-sm">Etiket, Etiket, Etiket</div>
+                </td>
+                <td style="text-align: right; vertical-align: middle">
+                    <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
+                        <a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-download" />
+                        </a><p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink><a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                        </a>
+                    </ui:fragment>
+                    
+                    <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                        <p:commandLink action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink>
 
+                        <a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                        </a>
+                    </ui:fragment>
+                </td>
+            </tr>
 
-            </li>
-        </ui:remove>
+        </p:repeat>
+    </table>
 
-        <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
-            <ui:remove>
-        <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-square-o" style="margin-right: 8px;"/>
-                
-                <span class="raf-item-image">
-                    <i class="fa #{rafController.getIcon(node.mimeType)} fa-3x" />
-                </span>
-                <div class="raf-item-name">
-                    <h:link outcome="raf.xhtml">
-                            <f:param name="path" value="#{node.path}" />
-                            #{node.name}
-                        </h:link>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
-                    </span>
+    <ui:remove>
+        <ul class="raf-item-row-list">
 
-                    <span class="text-muted text-sm">  
-                        <ui:remove>
-                            <i class="fa fa-star" />
-                            <i class="fa fa-comments" />
-                            v1.1
-                        </ui:remove>
-                    </span>
+            <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+                <li class="raf-item">
+                    <div class="raf-item-content">
+                        <i class="fa fa-check-square-o" style="margin-right: 8px;"/>
+                        <span class="raf-item-image">
+                            <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x" />
+                        </span>
+                        <div class="raf-item-name">
+                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                                <span class="text-sm">#{item.title}</span> 
+                            </p:commandLink>
+                            <span class="text-muted text-sm">#{item.name}</span>
+                            <span class="text-muted text-sm">
+                                #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                            </span>
+                        </div>
+                    </div>
 
-                </div>
-            </div>
-            <div class="raf-item-content">
-                <div class="raf-item-name">
-                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
-                    <span class="text-muted text-sm">Kategori</span>
-                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
-                </div>
-            </div>
-
-            <div class="raf-item-tools">
-                <a href="#" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="#" onclick="PF('props').show();">
-                    <i class="fa fa-edit" />
-                </a>
-                <p:commandLink action="#{rafController.deleteNode(node.id)}" process="@this" update="raf-view" >
-                    <i class="fa fa-trash" />
-                </p:commandLink>
-            </div>
-        </li>
-                </ui:remove>
-        </ui:repeat>
-        
-        <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-square-o" style="margin-right: 8px;"/>
-                
-                <span class="raf-item-image">
-                    <i class="fa fa-folder fa-3x" />
-                </span>
-                <div class="raf-item-name">
-                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Uzun İsimli Bir Klasör</a>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
-                    </span>
-
-                    <span class="text-muted text-sm">  
-                        <ui:remove>
-                            <i class="fa fa-star" />
-                            <i class="fa fa-comments" />
-                            v1.1
-                        </ui:remove>
-                    </span>
-
-                </div>
-            </div>
-            <div class="raf-item-content">
-                <div class="raf-item-name">
-                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
-                    <span class="text-muted text-sm">Kategori</span>
-                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
-                </div>
-            </div>
-
-            <div class="raf-item-tools">
-                <a href="btn" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-edit" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-trash" />
-                </a>
-            </div>
-        </li>
-
-        <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-square-o" style="margin-right: 8px;"/>
-                
-                <span class="raf-item-image">
-                    <i class="fa fa-file-pdf-o fa-3x" />
-                </span>
-                <div class="raf-item-name">
-                    <a href="/dolap/raf/test/kalsor_1" class="text-sm">Uzun İSimli Bir Dosya.pdf</a>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
-                    </span>
-
-                    <span class="text-muted text-sm">  
-                        <i class="fa fa-star" />
-                        <i class="fa fa-comments" />
-                        v1.1
-                    </span>
-
-                </div>
-            </div>
-            <div class="raf-item-content">
-                <div class="raf-item-name">
-                    <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
-                    <span class="text-muted text-sm">Kategori</span>
-                    <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
-                </div>
-            </div>
-
-            <div class="raf-item-tools">
-                <a href="btn" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-edit" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-trash" />
-                </a>
-            </div>
-        </li>
-    </ul>
-    
-    <p:dialog id="props" widgetVar="props" header="Details">
-        Burada detaylar gelecek.
-    </p:dialog>
+                    <div class="raf-item-content">
+                        <div class="raf-item-name">
+                            <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
+                            <span class="text-muted text-sm">Kategori</span>
+                            <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
+                        </div>
+                    </div>
+                    <div class="raf-item-tools">
+                        <a href="btn" >
+                            <i class="fa fa-download" />
+                        </a>
+                        <a href="btn" >
+                            <i class="fa fa-edit" />
+                        </a>
+                        <a href="btn" >
+                            <i class="fa fa-trash" />
+                        </a>
+                    </div>
+                </li>
+            </ui:repeat>
+        </ul>
+    </ui:remove>
 </ui:composition>
 

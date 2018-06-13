@@ -15,7 +15,7 @@
     <script>
         data = [
             <ui:repeat value="#{folderSidePanel.folders}" var="folder">
-                {"id": "#{folder.id}", "parent": "#{folder.parentId}", "text": "#{folder.name}" },
+                {"id": "#{folder.id}", "parent": "#{folder.parentId}", "text": "#{folder.title}" },
                 </ui:repeat>
         ];
         <ui:remove>

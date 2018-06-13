@@ -102,10 +102,13 @@ public class RafModeshapeRepository  implements Serializable{
             JcrTools jcrTools = new JcrTools();
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+            
+            node.setProperty(PROP_TITLE, definition.getName());
+            node.setProperty(PROP_DESCRIPTON, definition.getInfo());
+            
             RafNode result = nodeToRafNode(node);
-
-            //FIXME: şimdilik test işleri için var. Silinecek.
-            node = jcrTools.findOrCreateNode(session, fullPath + "/dene/abc/def", NODE_FOLDER);
 
             session.save();
             session.logout();
@@ -116,6 +119,12 @@ public class RafModeshapeRepository  implements Serializable{
         }
     }
 
+    /**
+     * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
+     * @param code
+     * @return
+     * @throws RafException 
+     */
     public RafNode getRafNode(String code) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -135,6 +144,12 @@ public class RafModeshapeRepository  implements Serializable{
         }
     }
 
+    /**
+     * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
+     * @param username
+     * @return
+     * @throws RafException 
+     */
     public RafNode getPrivateRafNode(String username) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -156,6 +171,11 @@ public class RafModeshapeRepository  implements Serializable{
 
     }
 
+    /**
+     * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
+     * @return
+     * @throws RafException 
+     */
     public RafNode getSharedRafNode() throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -180,6 +200,12 @@ public class RafModeshapeRepository  implements Serializable{
         return getFolderList(rafNode.getName());
     }
 
+    /**
+     * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
+     * @param rafCode
+     * @return
+     * @throws RafException 
+     */
     public List<RafFolder> getFolderList(String rafCode) throws RafException {
 
         List<RafFolder> result = new ArrayList<>();
@@ -230,7 +256,7 @@ public class RafModeshapeRepository  implements Serializable{
             result.setName(node.getName());
             result.setPath(node.getPath());
             //FIXME: burada title attribute'u alınmalı
-            result.setTitle(node.getName());
+            result.setTitle( getPropertyAsString(node, PROP_TITLE));
 
             NodeIterator it = node.getNodes();
             while (it.hasNext()) {
@@ -379,16 +405,21 @@ public class RafModeshapeRepository  implements Serializable{
                 throw new RafException();
             }
 
-            
-            if( node.isNodeType(MIXIN_TITLE)){
-                node.setProperty(PROP_TITLE, object.getTitle());
-                node.setProperty(PROP_DESCRIPTON, object.getInfo());
+            //Gerekli mixinler yoksa ekleyelim. Aslında bu kontrol ne kadar gerekli bilemedim.
+            if( !node.isNodeType(MIXIN_TITLE)){
+                node.addMixin(MIXIN_TITLE);
             }
             
-            if( node.isNodeType(MIXIN_TAGGABLE)){
-                //node.setProperty(PROP_CATEGORY, object.getC());
-                //node.setProperty(PROP_TAG, "");
+            if( !node.isNodeType(MIXIN_TAGGABLE)){
+                node.addMixin(MIXIN_TAGGABLE);
             }
+            
+            node.setProperty(PROP_TITLE, object.getTitle());
+            node.setProperty(PROP_DESCRIPTON, object.getInfo());
+            
+            //node.setProperty(PROP_CATEGORY, object.getC());
+            //node.setProperty(PROP_TAG, "");
+            
             
             session.save();
             session.logout();

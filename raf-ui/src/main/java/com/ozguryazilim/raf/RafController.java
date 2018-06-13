@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -33,100 +34,96 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
- * 
+ *
  * @author Hakan Uygun
  */
 @WindowScoped
 @Named
-public class RafController implements Serializable{
-   
+public class RafController implements Serializable {
+
     @Inject
     private Identity identity;
-    
+
     @Inject
     private RafDefinitionService rafDefinitionService;
-    
+
     @Inject
     private RafService rafService;
-    
+
     @Inject
     private RafContext context;
-    
+
     @Inject
     private Event<RafChangedEvent> rafChangedEvent;
-    
+
     @Inject
     private Event<RafFolderChangeEvent> folderChangedEvent;
-    
+
     private AbstractSidePanel selectedSidePanel;
-    
+
     private AbstractContentPanel selectedContentPanel;
-    
+    private AbstractContentPanel selectedCollectionContentPanel;
+
     private String rafCode;
-    
+
     private String objectId;
-    
+
     private RafDefinition rafDefinition;
-    
+
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
-     * 
+     *
      * ViewAction olarak
      */
-    public void init(){
-        
+    public void init() {
+
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
-        
         //Eğer bir şey atanmamış ise kişisel raf olsun.
-        if( Strings.isNullOrEmpty(rafCode)){
+        if (Strings.isNullOrEmpty(rafCode)) {
             rafCode = "PRIVATE";
         }
-        
+
         try {
             rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafCode);
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
             Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
-        
         context.setSelectedRaf(rafDefinition);
 
-        if( !Strings.isNullOrEmpty(objectId)){
-            
+        if (!Strings.isNullOrEmpty(objectId)) {
+
             try {
                 //Demek ki istenilen bir nesne var. Önce onu bir bulalım.
                 RafObject obj = rafService.getRafObject(objectId);
-                
+
                 RafFolder fld = null;
-                
+
                 //şimdi objenin tipine bakarak bazı kararlar verelim
-                if( obj instanceof RafDocument ){
-                    
+                if (obj instanceof RafDocument) {
+
                     //Folder'ı bir bulalım
                     //TODO: tip kontrolü yapmaya gerek var mı?
                     fld = (RafFolder) rafService.getRafObject(obj.getParentId());
                     //FIXME: Doğru paneli nasıl seçeceğiz?
                     selectedContentPanel = getObjectContentPanel();
-                    
-                } else if( obj instanceof RafFolder ){
+
+                } else if (obj instanceof RafFolder) {
                     fld = (RafFolder) obj;
                     //FIXME: burada kullanıcı tercihlerinden alınması gerekir.
                     //FIXME: DOğru paneli nasıl seçeceğiz?
                     selectedContentPanel = getCollectionContentPanel();
                 }
-                
-                
+
                 context.setCollection(rafService.getCollection(fld.getId()));
                 context.setSelectedObject(obj);
-                
+
             } catch (RafException ex) {
                 Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
-            
+
         } else {
             //Demek permalink olarak istenen bişi yok. O zaman rootu alalım.
             //FIXME: burda exception handling gerekli
@@ -141,15 +138,14 @@ public class RafController implements Serializable{
             //context.setSelectedObject(rafDefinition.getNode());
             selectedContentPanel = getCollectionContentPanel();
         }
-        
-        
+
         try {
-                context.setFolders( rafService.getFolderList(context.getSelectedRaf().getCode()));
+            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
         } catch (RafException ex) {
-                //FIXME: ne yapacağız?
-                Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
+            //FIXME: ne yapacağız?
+            Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         rafChangedEvent.fire(new RafChangedEvent());
     }
 
@@ -169,8 +165,6 @@ public class RafController implements Serializable{
         this.objectId = objectId;
     }
 
-    
-    
     public RafDefinition getRafDefinition() {
         return rafDefinition;
     }
@@ -178,20 +172,19 @@ public class RafController implements Serializable{
     public void setRafDefinition(RafDefinition rafDefinition) {
         this.rafDefinition = rafDefinition;
     }
-    
 
     /**
      * Geriye SidePanel listesini döndürür.
-     * 
-     * @return 
+     *
+     * @return
      */
-    public List<AbstractSidePanel> getSidePanels(){
+    public List<AbstractSidePanel> getSidePanels() {
         return SidePanelRegistery.getSidePanels();
     }
 
     public AbstractSidePanel getSelectedSidePanel() {
         //Eğer seçili bir yoksa ilkini seçiyoruz.
-        if( selectedSidePanel == null ){
+        if (selectedSidePanel == null) {
             selectedSidePanel = getSidePanels().get(0);
         }
         return selectedSidePanel;
@@ -200,15 +193,20 @@ public class RafController implements Serializable{
     public void setSelectedSidePanel(AbstractSidePanel selectedSidePanel) {
         this.selectedSidePanel = selectedSidePanel;
     }
-    
 
-    public List<AbstractContentPanel> getContentPanels(){
+    public List<AbstractContentPanel> getContentPanels() {
         return ContentPanelRegistery.getPanels();
+    }
+
+    public List<AbstractContentPanel> getCollectionContentPanels() {
+        return getContentPanels().stream()
+                .filter(p -> p.getSupportCollection())
+                .collect(Collectors.toList());
     }
 
     public AbstractContentPanel getSelectedContentPanel() {
         //Eğer seçili bir yoksa ilkini seçiyoruz.
-        if( selectedContentPanel == null ){
+        if (selectedContentPanel == null) {
             selectedContentPanel = getContentPanels().get(0);
         }
         return selectedContentPanel;
@@ -216,59 +214,92 @@ public class RafController implements Serializable{
 
     public void setSelectedContentPanel(AbstractContentPanel selectedContentPanel) {
         this.selectedContentPanel = selectedContentPanel;
+        if (selectedContentPanel.getSupportCollection()) {
+            this.selectedCollectionContentPanel = selectedContentPanel;
+        }
     }
 
     /**
-     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu dönüyor.
-     * @return 
+     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu
+     * dönüyor.
+     *
+     * @return
      */
-    protected AbstractContentPanel getObjectContentPanel(){
-        for( AbstractContentPanel p : getContentPanels() ){
-            if( !p.getSupportCollection()){
+    protected AbstractContentPanel getObjectContentPanel() {
+        for (AbstractContentPanel p : getContentPanels()) {
+            if (!p.getSupportCollection()) {
                 return p;
             }
         }
-        
-        return null;
-    }
-    
-    /**
-     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu dönüyor.
-     * @return 
-     */
-    protected AbstractContentPanel getCollectionContentPanel(){
-        for( AbstractContentPanel p : getContentPanels() ){
-            if( p.getSupportCollection()){
-                return p;
-            }
-        }
-        
+
         return null;
     }
 
-    public void selectItem( RafObject item){
+    /**
+     * FIXME: Kullanıcı seçimlerini dikkate almak gerek. Şu anda ilk bulduğunu
+     * dönüyor.
+     *
+     * @return
+     */
+    protected AbstractContentPanel getCollectionContentPanel() {
         
+        if( selectedCollectionContentPanel == null ){
+            for (AbstractContentPanel p : getContentPanels()) {
+                if (p.getSupportCollection()) {
+                    selectedCollectionContentPanel = p;
+                    return p;
+                }
+            }
+        } else {
+            return selectedCollectionContentPanel;
+        }
+
+        return null;
+    }
+
+    public void selectItem(RafObject item) {
+
         //FIXME: exception handling
-        
         //tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
-        if( item instanceof RafFolder ){
+        if (item instanceof RafFolder) {
             selectFolderById(item.getId());
-        } else if( item instanceof RafDocument ){
-            selectDocument((RafDocument)item);
+        } else if (item instanceof RafDocument) {
+            selectDocument((RafDocument) item);
         }
-        
+
+    }
+
+    /**
+     * Folder'ın detayları için detail view isteniyor demek. 
+     * 
+     * Aslında folder edit edilecek.
+     * 
+     * @param item 
+     */
+    public void selectFolderItem(RafObject item) {
+
+        //FIXME: exception handling
+        //tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
+        if (item instanceof RafFolder) {
+            context.setSelectedObject(item);
+            //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
+            selectedContentPanel = getObjectContentPanel();
+            //selectFolderById(item.getId());
+        } else if (item instanceof RafDocument) {
+            selectDocument((RafDocument) item);
+        }
+
     }
     
-    public void selectDocument( RafDocument item){
+    public void selectDocument(RafDocument item) {
         context.setSelectedObject(item);
         //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
         selectedContentPanel = getObjectContentPanel();
     }
-    
-    public void selectFolderById( String folderId ){
-        
+
+    public void selectFolderById(String folderId) {
+
         //FIXME: exception handling
-        
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         RafCollection collection = null;
         try {
@@ -277,21 +308,21 @@ public class RafController implements Serializable{
             Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
         }
         context.setCollection(collection);
-        
+
         try {
-                context.setFolders( rafService.getFolderList(context.getSelectedRaf().getCode()));
+            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
         } catch (RafException ex) {
-                //FIXME: ne yapacağız?
-                Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
+            //FIXME: ne yapacağız?
+            Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         folderChangedEvent.fire(new RafFolderChangeEvent());
         context.setSelectedObject(findFolder(folderId));
-        
+
         //FIXME: Doğru paneli nasıl seçeceğiz?
         selectedContentPanel = getCollectionContentPanel();
     }
-    
+
     /**
      * Context'e bulunan RafFolder içinden idsi verilen folder'ı bulur. Bulamaz
      * ise null döner.
@@ -309,11 +340,11 @@ public class RafController implements Serializable{
 
         return null;
     }
-    
+
     public void selectNode() {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         String nodeId = params.get("nodeId");
-        if( !Strings.isNullOrEmpty(nodeId)){
+        if (!Strings.isNullOrEmpty(nodeId)) {
             selectFolderById(nodeId);
         }
     }

@@ -14,7 +14,7 @@ import com.ozguryazilim.raf.ui.base.ContentPanel;
  * 
  * @author Hakan Uygun
  */
-@ContentPanel( actionIcon = "fa-th-list", view = ContentPanelPages.DetailRowViewPanel.class)
+@ContentPanel( actionIcon = "fa-th-list", view = ContentPanelPages.DetailRowViewPanel.class, icon = "fa-folder-open")
 public class DetailRowViewPanel extends CollectionContentPanel{
     
 }

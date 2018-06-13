@@ -9,38 +9,49 @@
     <ui:fragment rendered="#{simpleRowViewPanel.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" />
     </ui:fragment>
-    
+
     <ul class="raf-item-row-list">
-        
+
         <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
             <li class="raf-item">
-            <div class="raf-item-content">
-                <i class="fa fa-check-square-o" />
-                <span class="raf-item-image">
-                    <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-2x" />
-                </span>
-                <div class="raf-item-name">
-                    <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
-                        #{item.name}
-                    </p:commandLink>
-                    <span class="text-muted text-sm">
-                        Hakan Uygun | 12.12.2018
+                <div class="raf-item-content">
+                    <i class="fa fa-check-square-o" style="margin-right: 4px;"/>
+                    <span class="raf-item-image">
+                        <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-2x" />
                     </span>
+                    <div class="raf-item-name">
+                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                            <span class="text-sm">#{item.title}</span>
+                        </p:commandLink>
+                        <span class="text-muted text-sm">
+                            #{item.info} <ui:remove>| #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/></ui:remove>
+                        </span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="raf-item-tools">
-                <a href="btn" >
-                    <i class="fa fa-download" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-edit" />
-                </a>
-                <a href="btn" >
-                    <i class="fa fa-trash" />
-                </a>
-            </div>
-        </li>
+                <div class="raf-item-tools">
+
+                    <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
+                        <a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-download" />
+                        </a><p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink><a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                        </a>
+                    </ui:fragment>
+                    
+                    <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                        <p:commandLink action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink>
+
+                        <a href="btn" class="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                        </a>
+                    </ui:fragment>
+                </div>
+            </li>
         </ui:repeat>
     </ul>
 </ui:composition>

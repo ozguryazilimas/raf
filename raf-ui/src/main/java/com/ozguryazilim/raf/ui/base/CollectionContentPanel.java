@@ -31,11 +31,12 @@ public abstract class CollectionContentPanel extends AbstractContentPanel{
         return context.getCollection().getTitle();
     }
 
+    /* TODO: Sanırım üst sınıfın ki daha doğru çalışıyor.
     @Override
     public String getIcon() {
         return iconResolver.getIcon(context.getCollection().getMimeType());
     }
-    
+    */
     
     @Override
     public boolean getSupportPaging() {
