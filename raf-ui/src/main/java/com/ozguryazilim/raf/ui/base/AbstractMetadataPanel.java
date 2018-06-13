@@ -107,6 +107,10 @@ public abstract class AbstractMetadataPanel implements Serializable{
         return getClass().getSimpleName();
     }
     
+    public int getOrder(){
+        return getAnnotation().order();
+    }
+    
     protected MetadataPanel getAnnotation(){
         return (MetadataPanel) ProxyUtils.getUnproxiedClass(this.getClass()).getAnnotation(MetadataPanel.class);
     }

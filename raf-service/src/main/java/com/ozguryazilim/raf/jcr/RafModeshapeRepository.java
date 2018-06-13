@@ -302,18 +302,20 @@ public class RafModeshapeRepository  implements Serializable{
             n.addMixin(MIXIN_TAGGABLE);
             n.addMixin("raf:metadata");
             
-            n.setProperty(PROP_TITLE, fileName);
+            String[] fa = fileName.split("/");
+            n.setProperty(PROP_TITLE, fa[fa.length -1]);
             
-            
-            /*
-            n.addMixin("tlv:ref");
-            n.addMixin("tlv:tag");
-            n.setProperty("tlv:sourceCaption", getSourceCaption());
-            n.setProperty("tlv:sourceDomain", getSourceDomain());
-            n.setProperty("tlv:sourceId", getSourceId());
-             */
             session.save();
 
+            //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
+            Node nc = n.getNode("jcr:content");
+            String mimeType = getPropertyAsString(nc, "jcr:mimeType");
+            if( Strings.isNullOrEmpty(mimeType)){
+                nc.setProperty("jcr:mimeType", "raf/binary");
+            }
+            
+            session.save();
+            
             //n.getProperty("jcr:createdBy").setValue(getUserId());
             //session.save();
             result = null; //nodeToFile(n);
@@ -361,6 +363,42 @@ public class RafModeshapeRepository  implements Serializable{
         }
     }
 
+    /**
+     * RafObject üzerinde bulunan title, info, category, tags gibi alanları günceller.
+     * @param object
+     * @throws RafException 
+     */
+    public void saveProperties( RafObject object ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNodeByIdentifier(object.getId());
+            
+            if( node == null ){
+                //FIXME: bu exception nedir söylemek lazım.
+                throw new RafException();
+            }
+
+            
+            if( node.isNodeType(MIXIN_TITLE)){
+                node.setProperty(PROP_TITLE, object.getTitle());
+                node.setProperty(PROP_DESCRIPTON, object.getInfo());
+            }
+            
+            if( node.isNodeType(MIXIN_TAGGABLE)){
+                //node.setProperty(PROP_CATEGORY, object.getC());
+                //node.setProperty(PROP_TAG, "");
+            }
+            
+            session.save();
+            session.logout();
+
+            
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+    }
+    
     public void saveMetadata( String id, RafMetadata metadata ) throws RafException{
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -470,6 +508,9 @@ public class RafModeshapeRepository  implements Serializable{
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
         
+        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
+        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        
         if( node.isNodeType(MIXIN_TITLE)){
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
             result.setInfo(getPropertyAsString( node, PROP_DESCRIPTON));
@@ -494,11 +535,21 @@ public class RafModeshapeRepository  implements Serializable{
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
         
-        //FIXME: bilenen diğer metadata ( createDate v.b. ) toplanmalı
+        //bilenen diğer metadata ( createDate v.b. ) toplanmalı
+        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
+        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        
         
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode("jcr:content");
-        result.setMimeType(cn.getProperty("jcr:mimeType").getString());
+        String s = getPropertyAsString( cn, "jcr:mimeType");
+        if( Strings.isNullOrEmpty(s)){
+            s = "raf/binary";
+        }
+        result.setMimeType(s);
+        
+        result.setUpdateBy(cn.getProperty("jcr:lastModifiedBy").getString());
+        result.setUpdateDate(cn.getProperty("jcr:lastModified").getDate().getTime());
         
         if( node.isNodeType(MIXIN_TITLE)){
             result.setTitle(getPropertyAsString(node, PROP_TITLE));

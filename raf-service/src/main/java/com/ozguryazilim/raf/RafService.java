@@ -69,4 +69,14 @@ public class RafService implements Serializable{
         //FIXME: Yetki kontrolü + event
         rafRepository.saveMetadata(id, data);
     }
+    
+    /**
+     * RafObject üzerinde bulunan title, info v.b. alanları günceller.
+     * @param data
+     * @throws RafException 
+     */
+    public void saveProperties( RafObject data )throws RafException{
+        //FIXME: Yetki kontrolü + event
+        rafRepository.saveProperties(data);
+    }
 }

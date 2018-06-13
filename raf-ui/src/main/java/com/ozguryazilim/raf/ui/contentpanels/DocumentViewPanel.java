@@ -14,6 +14,7 @@ import com.ozguryazilim.raf.ui.base.ContentPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentPanel;
 import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
+import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -60,6 +61,14 @@ public class DocumentViewPanel extends ObjectContentPanel{
                 result.add( mdp );
             }
         }
+        
+        //Sırasını düzgün hale getirelim.
+        result.sort(new Comparator<AbstractMetadataPanel>() {
+            @Override
+            public int compare(AbstractMetadataPanel p1, AbstractMetadataPanel p2) {
+                return p1.getOrder() > p2.getOrder() ? 1 : p1.getOrder() < p2.getOrder() ? -1 : 0;
+            }
+        });
         
         return result;
     }

@@ -13,7 +13,7 @@ import com.ozguryazilim.raf.ui.base.MetadataPanel;
  *
  * @author oyas
  */
-@MetadataPanel(type = "pdf:metadata", view = PdfPages.PdfMetadataPanel.class)
+@MetadataPanel(type = "pdf:metadata", view = PdfPages.PdfMetadataPanel.class, order = 20)
 public class PdfMetadataPanel extends AbstractMetadataPanel{
     
 }

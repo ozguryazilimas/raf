@@ -16,139 +16,76 @@
 
     <div class="raf-file">
 
-        <div class="raf-file-header">
-
-            <p>#{documentViewPanel.rafObject.title}</p>
-            <p>#{documentViewPanel.rafObject.name} #{documentViewPanel.rafObject.info}</p>
-            <p>
-                <span class="text-muted text-sm">
-                    Hakan Uygun | 12.12.2018
-                </span>
-
-                <span class="text-muted text-sm">  
-                    <i class="fa fa-star" />
-                    <i class="fa fa-comments" />
-                    v1.1
-                    <i class="fa fa-link" title="permalink"/>
-                </span>
-            </p>
-
-            Burada Dosya ile ilgli temel bilgiler olacak. Adı, sürümü, açıklaması v.b.
-            
-            <ui:repeat value="#{documentViewPanel.additonalMetadatas}" var="mt">
-                <p:commandLink action="#{documentViewPanel.addMetadata(mt)}" process="@this">
-                    <i class="fa fa-cog" /> #{mt}
-                </p:commandLink>
-            </ui:repeat>
-            
-        </div>
-
         <div class="row">
             <div class="col-md-8 col-xs-12">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h2 class="page-header">#{documentViewPanel.rafObject.title} <span class="label label-default text-sm pull-right">1.0</span>
+                        <span class="text-muted text-sm">#{documentViewPanel.rafObject.name}</span>
+                        </h2>
+                        
+                        <ui:fragment rendered="#{documentViewPanel.rafObject.info ne ''}">
+                            <div>#{documentViewPanel.rafObject.info}</div>
+                        </ui:fragment>
+                        
+                            <span class="text-muted text-sm">
+                                #{userLookup.getUserName(documentViewPanel.rafObject.updateBy)} | 
+                                <t:cellOutputDateTime value="#{documentViewPanel.rafObject.updateDate}" />
+                                | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{documentViewPanel.rafObject.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
+                            </span>
+                        
 
+                        <ui:remove>
+                        <ui:repeat value="#{documentViewPanel.additonalMetadatas}" var="mt">
+                            <p:commandLink action="#{documentViewPanel.addMetadata(mt)}" process="@this">
+                                <i class="fa fa-cog" /> #{mt}
+                            </p:commandLink>
+                        </ui:repeat>
+                            </ui:remove>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-12" >
 
-                        <div style="border: 1px silver solid; padding: 4px;">
+                        <div >
                             <ui:include src="#{documentViewPanel.previewWidget}" />
                         </div>
                     </div>
 
-                    <t:accordion icon="fa fa-comments" label="Yorumlar" columnClass="col-xs-12">
-                        <p>Yorumlar da buraya.</p>
-                        <p>Yorumlar da buraya.</p>
-                        <p>Yorumlar da buraya.</p>
-                        <p>Yorumlar da buraya.</p>
+                    <t:accordion icon="fa fa-comments" label="general.label.Comments" columnClass="col-xs-12">
+                        
+                        <div class="col-xs-12">
+                            Yorumlar da buraya.
+                        </div>
+                        
+                        <div class="col-xs-12">
+                            Yorumlar da buraya.
+                        </div>
+                        
+                        <div class="col-xs-12">
+                            Yorumlar da buraya.
+                        </div>
+                        
+                        
                     </t:accordion>
 
                 </div>
             </div>
-
             <div class="raf-file-meta col-md-4 col-xs-12">
+                <div class="row">
+                    <div class="col-xs-12">
+                        Buraya Çeşitli Aksiyonlar gelecek. Örneğin Download!
+                    </div>
+                </div>
                 <div class="row">
 
                     <c:forEach items="#{documentViewPanel.metadataPanels}" var="mp" varStatus="loop">
                         <ui:include src="#{mp.viewId}" />
                     </c:forEach>
-                    
-                    <ui:remove>
-                        <t:accordion label="Temel Bilgiler" columnClass="col-xs-12">
-                            <f:facet name="toolbar">
-                                <i class="fa fa-edit" />
-                            </f:facet>
-                            <t:outputText label="Başlık" value="#{documentViewPanel.rafObject.title}" columnClass="col-xs-12"/>
-                            <t:outputText label="Açıklama" value="#{documentViewPanel.rafObject.info}" columnClass="col-xs-12"/>
-                            <t:outputText label="Etiketler" value="" columnClass="col-xs-12"/>
-                            <t:outputText label="Kategori" value="" columnClass="col-xs-12"/>
-                        </t:accordion>
-
-                        <t:accordion label="E-Fatura Üst Verileri" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-                        <t:accordion label="PDF Üst Verileri" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-                        <t:accordion label="E-İmza" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-                        <t:accordion label="Süreç" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-                        <t:accordion label="Sürüm Tarihçesi" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-
-                        <t:accordion label="Ek Bilgiler" columnClass="col-xs-12">
-                            <t:outputText label="Dosya Adı" value="#{documentViewPanel.rafObject.name}" columnClass="col-xs-12"/>
-                            <t:outputText label="Tip" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                            <t:outputText label="Sabit Yol" value="#{documentViewPanel.rafObject.mimeType}" columnClass="col-xs-12"/>
-                        </t:accordion>
-                    </ui:remove>
                 </div>
             </div>
-
         </div>
 
-        <div class="raf-item-content">
-            <span class="raf-item-image">
-                <i class="fa #{iconResolver.getIcon(documentViewPanel.rafObject.mimeType)} fa-3x" />
-            </span>
-            <div class="raf-item-name">
-                <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{documentViewPanel.rafObject.id}" class="text-sm">#{documentViewPanel.rafObject.name}</a>
-                <span class="text-muted text-sm">
-                    Hakan Uygun | 12.12.2018
-                </span>
-
-                <span class="text-muted text-sm">  
-                    <i class="fa fa-star" />
-                    <i class="fa fa-comments" />
-                    v1.1
-                    <i class="fa fa-link" title="permalink"/>
-                </span>
-
-            </div>
-        </div>
-        <div class="raf-item-content">
-            <div class="raf-item-name">
-                <span class="text-muted text-sm">Açıklama Bişileri ve diğerleri</span>
-                <span class="text-muted text-sm">Kategori</span>
-                <span class="text-muted text-sm">Etiket, Etiket, Etiket</span>
-            </div>
-        </div>
-        <div class="raf-file-comments">
-            Burada Yorumlar ve yorum ekleme kısımları olabilir
-        </div>
-        <div class="raf-file-props">
-            İleride belki preview verebiliriz
-        </div>
-        <div class="raf-file-props">
-            İmza ve Süreç ile ilgili bazı detayları burada verebiliriz. Yan tarafta özellik kısmında ayrı tabla uğraşmak durumunda kalmaz
-        </div>
     </div>
 </ui:composition>
 
