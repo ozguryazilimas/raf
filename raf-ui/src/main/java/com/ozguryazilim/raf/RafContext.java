@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -30,6 +31,8 @@ public class RafContext implements Serializable{
     private RafCollection collection;
     private RafObject selectedObject;
     private List<RafFolder> folders;
+    private List<RafObject> seletedItems = new ArrayList<>();
+    private List<RafObject> clipboard = new ArrayList<>();
             
 
     public RafDefinition getSelectedRaf() {
@@ -71,5 +74,22 @@ public class RafContext implements Serializable{
     public void setFolders(List<RafFolder> folders) {
         this.folders = folders;
     }
+
+    public List<RafObject> getSeletedItems() {
+        return seletedItems;
+    }
+
+    public void setSeletedItems(List<RafObject> seletedItems) {
+        this.seletedItems = seletedItems;
+    }
+
+    public List<RafObject> getClipboard() {
+        return clipboard;
+    }
+
+    public void setClipboard(List<RafObject> clipboard) {
+        this.clipboard = clipboard;
+    }
+
     
 }

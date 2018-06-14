@@ -7,6 +7,11 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ul class="breadcrumb text-muted text-sm" style="margin: -4px -4px 0 -4px;  border-bottom: 1px solid silver; border-radius: 0px;">
+        
+        <p:commandLink action="#{rafSelectionController.toggleSelectAll()}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-left: -12px;">
+            <i class="fa #{rafSelectionController.allSelected ? 'fa-check-square' : 'fa-square-o'}" />
+        </p:commandLink>
+        
         <li></li>
         <ui:remove>
             Bir üst klasör'e kıs yol çok anlamlı değil.

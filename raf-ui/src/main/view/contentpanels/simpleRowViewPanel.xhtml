@@ -15,7 +15,11 @@
         <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
             <li class="raf-item">
                 <div class="raf-item-content">
-                    <i class="fa fa-check-square-o" style="margin-right: 4px;"/>
+                    
+                    <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
+                        <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
+                    </p:commandLink>
+                    
                     <span class="raf-item-image">
                         <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-2x" />
                     </span>

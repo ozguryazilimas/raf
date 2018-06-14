@@ -14,7 +14,11 @@
     <table class="table" >
         <p:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
             <tr>
-                <td style="width: 16px; text-align: center; vertical-align: middle;"><i class="fa fa-check-square-o" style="margin-right: 8px;"/></td>
+                <td style="width: 16px; text-align: center; vertical-align: middle;">
+                    <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
+                        <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
+                    </p:commandLink>
+                </td>
                 <td style="width: 16px; text-align: center; vertical-align: middle;"><i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x mr-5" /></td>
                 <td>
                     <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
