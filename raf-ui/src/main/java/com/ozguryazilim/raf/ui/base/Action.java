@@ -69,4 +69,5 @@ public @interface Action {
      */
     boolean supportCollection() default false;
     
+    boolean supportAjax() default true;
 }

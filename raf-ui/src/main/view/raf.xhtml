@@ -138,14 +138,20 @@
 
                     <div class="pull-right">
 
-                        <ui:repeat value="#{rafController.actions}" var="act">
+                        <div style="margin-left: 10px;display: inline-block;">
+                            <h:form id="actf" style="display: inline">
+                                <ui:repeat value="#{rafController.actions}" var="act">
 
-                            <p:commandLink action="#{act.execute()}" process="@this" update="raf-view-content" title="#{act.title}">
-                                <i class="fa #{act.icon}" />
-                                <p:ajax event="dialogReturn" update="raf-view" />
-                            </p:commandLink>
 
-                        </ui:repeat>
+                                    <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{act.title}">
+                                        <i class="fa #{act.icon}" />
+                                        <p:ajax event="dialogReturn" update="raf-view" />
+                                    </p:commandLink>
+
+
+                                </ui:repeat>
+                            </h:form>
+                        </div>
 
                         <ui:remove>
                             <p:commandLink action="#{createFolderAction.execute()}" process="@this" update="raf-view-content" >
@@ -169,23 +175,45 @@
                             </ui:repeat>
                         </ui:remove>
 
-                        <div class="dropdown" style="display: inline-block;">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-cog"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                                <li><a href="#">Show Folder</a></li>
-                                <li><a href="#">Show Breadcrumb</a></li>
-                                <li role="separator" class="divider"></li>
-                                <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
-                                    <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
-                                        <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">
-                                            <i class="fa #{cw.actionIcon}" /> #{cw.actionTitle}
-                                        </p:commandLink>
-                                    </li>
-                                </ui:repeat>
-                                <li role="separator" class="divider"></li>
-                            </ul>
+                        <ui:fragment rendered="#{not rafController.selectedContentPanel.supportCollection}">
+                            <div style="margin-left: 10px; display: inline-block;">
+                                <div class="dropdown" style="display: inline-block;">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Üst Veri Ekle">
+                                        <i class="fa fa-cubes" />
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        <ui:repeat value="#{documentViewPanel.additonalMetadatas}" var="md" >
+                                            <li>
+                                                <p:commandLink action="#{documentViewPanel.addMetadata(md)}" process="@this" update="raf-view-content">
+                                                    <i class="fa fa-cube" /> #{md}
+                                                </p:commandLink>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </ui:fragment>
+
+                        <div style="margin-left: 10px; display: inline-block;">
+                            <div class="dropdown" style="display: inline-block;">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-cog"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                    <li><a href="#">Show Folder</a></li>
+                                    <li><a href="#">Show Breadcrumb</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
+                                        <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
+                                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">
+                                                <i class="fa #{cw.actionIcon}" /> #{cw.actionTitle}
+                                            </p:commandLink>
+                                        </li>
+                                    </ui:repeat>
+                                    <li role="separator" class="divider"></li>
+                                </ul>
+                            </div>
                         </div>
 
                     </div>

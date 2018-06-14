@@ -192,7 +192,7 @@ public class AbstractAction implements Serializable{
                     return true;
                 }
             }
-        } else if( !forCollection ){
+        } else if( !forCollection && !getAnnotation().supportCollection()){
             RafObject o = getContext().getSelectedObject();
             
             //Kontrol edilebilecek bir seçim yok!
@@ -220,5 +220,9 @@ public class AbstractAction implements Serializable{
         }
         
         return false;
+    }
+    
+    public boolean isSupportAjax(){
+        return getAnnotation().supportAjax();
     }
 }

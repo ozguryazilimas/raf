@@ -32,9 +32,12 @@
                 </td>
                 <td style="text-align: right; vertical-align: middle">
                     <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
-                        <a href="btn" class="btn btn-box-tool">
-                            <i class="fa fa-download" />
-                        </a><p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                        <h:form id="ff" style="display: inline;">
+                            <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
+                                <i class="fa fa-download" />
+                            </p:commandLink>
+                        </h:form>
+                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                             <i class="fa fa-edit" />
                         </p:commandLink><a href="btn" class="btn btn-box-tool">
                             <i class="fa fa-trash" />
