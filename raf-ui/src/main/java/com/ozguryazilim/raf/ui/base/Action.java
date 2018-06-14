@@ -70,4 +70,6 @@ public @interface Action {
     boolean supportCollection() default false;
     
     boolean supportAjax() default true;
+    
+    boolean supportConfirmation() default false;
 }

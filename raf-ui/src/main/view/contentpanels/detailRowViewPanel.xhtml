@@ -39,9 +39,11 @@
                         </h:form>
                         <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                             <i class="fa fa-edit" />
-                        </p:commandLink><a href="btn" class="btn btn-box-tool">
+                        </p:commandLink>
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
                             <i class="fa fa-trash" />
-                        </a>
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
                     </ui:fragment>
                     
                     <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
@@ -49,9 +51,10 @@
                             <i class="fa fa-edit" />
                         </p:commandLink>
 
-                        <a href="btn" class="btn btn-box-tool">
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
                             <i class="fa fa-trash" />
-                        </a>
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
                     </ui:fragment>
                 </td>
             </tr>

@@ -8,7 +8,7 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
-import com.ozguryazilim.raf.events.RafChangedEvent;
+import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -33,12 +33,12 @@ public class FileUploadAction extends AbstractAction{
     private RafService rafService;
     
     @Inject
-    private Event<RafChangedEvent> rafChangedEvent;
+    private Event<RafUploadEvent> rafUploadEvent;
 
     @Override
     protected boolean finalizeAction() {
         //FIXME: doğru eventi fırlatalım.
-        rafChangedEvent.fire(new RafChangedEvent());
+        rafUploadEvent.fire(new RafUploadEvent());
         return super.finalizeAction(); 
     }
     

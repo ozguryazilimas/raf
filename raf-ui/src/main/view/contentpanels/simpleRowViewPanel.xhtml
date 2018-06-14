@@ -30,6 +30,7 @@
                 </div>
 
                 <div class="raf-item-tools">
+                    <ui:remove>FIXME: Yetki kontrolü</ui:remove>
 
                     <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
                         <h:form id="ff" style="display: inline;">
@@ -40,9 +41,10 @@
                         <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                             <i class="fa fa-edit" />
                         </p:commandLink>
-                        <a href="btn" class="btn btn-box-tool">
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
                             <i class="fa fa-trash" />
-                        </a>
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
@@ -50,9 +52,10 @@
                             <i class="fa fa-edit" />
                         </p:commandLink>
 
-                        <a href="btn" class="btn btn-box-tool">
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
                             <i class="fa fa-trash" />
-                        </a>
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
                     </ui:fragment>
                 </div>
             </li>

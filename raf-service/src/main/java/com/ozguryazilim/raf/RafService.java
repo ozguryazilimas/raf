@@ -79,4 +79,14 @@ public class RafService implements Serializable{
         //FIXME: Yetki kontrolü + event
         rafRepository.saveProperties(data);
     }
+    
+    public void deleteObject( RafObject data )throws RafException{
+        //FIXME: Yetki kontrolü
+        deleteObject(data.getId());
+    }
+    
+    public void deleteObject( String id )throws RafException{
+        //FIXME: Yetki kontrolü
+        rafRepository.deleteObject(id);
+    }
 }

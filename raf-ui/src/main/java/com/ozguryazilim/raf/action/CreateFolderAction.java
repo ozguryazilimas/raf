@@ -8,7 +8,7 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
-import com.ozguryazilim.raf.events.RafChangedEvent;
+import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -28,7 +28,7 @@ public class CreateFolderAction extends AbstractAction{
     private RafService rafService;
     
     @Inject
-    private Event<RafChangedEvent> rafChangedEvent;
+    private Event<RafFolderDataChangeEvent> folderCreateEvent;
     
     private RafFolder folder;
 
@@ -51,7 +51,7 @@ public class CreateFolderAction extends AbstractAction{
             return false;
         }
         
-        rafChangedEvent.fire(new RafChangedEvent());
+        folderCreateEvent.fire(new RafFolderDataChangeEvent());
         
         return true;
     }

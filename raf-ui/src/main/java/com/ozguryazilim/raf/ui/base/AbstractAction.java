@@ -225,4 +225,8 @@ public class AbstractAction implements Serializable{
     public boolean isSupportAjax(){
         return getAnnotation().supportAjax();
     }
+    
+    public boolean isSupportConfirmation(){
+        return getAnnotation().supportConfirmation();
+    }
 }

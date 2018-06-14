@@ -496,6 +496,31 @@ public class RafModeshapeRepository  implements Serializable{
         }
     }
     
+    /**
+     * ID'si verilen nodu siler.
+     * 
+     * @param id 
+     */
+    public void deleteObject( String id) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            
+            Node node = session.getNodeByIdentifier(id);
+            
+            JcrTools jcrTools = new JcrTools();
+            jcrTools.removeAllChildren(node);
+            node.remove();
+            
+            session.save();
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+        
+        
+    }
+    
     //////////////////////////////////////////
     //Util Functions
     /**

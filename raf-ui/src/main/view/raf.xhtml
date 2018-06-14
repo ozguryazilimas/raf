@@ -9,6 +9,7 @@
 
     <ui:param name="dontShowContentHeader" value="true" />
     <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="#{rafController.rafDefinition.name}" />
 
     <ui:define name="metadata">
         <f:metadata>
@@ -142,11 +143,21 @@
                             <h:form id="actf" style="display: inline">
                                 <ui:repeat value="#{rafController.actions}" var="act">
 
-
-                                    <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{act.title}">
-                                        <i class="fa #{act.icon}" />
-                                        <p:ajax event="dialogReturn" update="raf-view" />
-                                    </p:commandLink>
+                                    <ui:remove>Not: Confirmation yüzünden böyle garip bişi var!</ui:remove>
+                                    <ui:fragment rendered="#{act.supportConfirmation}">
+                                        <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{act.title}">
+                                            <i class="fa #{act.icon}" />
+                                            <p:confirm header="#{messages['confirmation.header.'.concat(act.name)]}" message="#{messages['confirmation.message.'.concat(act.name)]}" icon="fa fa-alert" />
+                                            <p:ajax event="dialogReturn" update="raf-view" />
+                                        </p:commandLink>
+                                    </ui:fragment>
+                                    
+                                    <ui:fragment rendered="#{not act.supportConfirmation}">
+                                        <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{act.title}">
+                                            <i class="fa #{act.icon}" />
+                                            <p:ajax event="dialogReturn" update="raf-view" />
+                                        </p:commandLink>
+                                    </ui:fragment>
 
 
                                 </ui:repeat>

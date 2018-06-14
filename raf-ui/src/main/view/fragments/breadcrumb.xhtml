@@ -34,7 +34,13 @@
             </p:commandLink>
         </li>
         
+        <div class="pull-right">
+            <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
+                    <i class="fa fa-close" />
+            </p:commandLink>
+        </div>
     </ul>
+    
 
 </ui:composition>
 

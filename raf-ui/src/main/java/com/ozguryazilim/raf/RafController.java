@@ -5,12 +5,14 @@
  */
 package com.ozguryazilim.raf;
 
-import com.ozguryazilim.raf.ui.sidepanels.FolderSidePanel;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
+import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
+import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
+import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -25,14 +27,15 @@ import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
@@ -43,6 +46,8 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 @Named
 public class RafController implements Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RafController.class);
+    
     @Inject
     private Identity identity;
 
@@ -89,7 +94,7 @@ public class RafController implements Serializable {
             rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafCode);
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
-            Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Error", ex);
         }
 
         //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
@@ -123,7 +128,7 @@ public class RafController implements Serializable {
                 context.setSelectedObject(obj);
 
             } catch (RafException ex) {
-                Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error("Raf Exception", ex);
             }
 
         } else {
@@ -133,7 +138,7 @@ public class RafController implements Serializable {
             try {
                 collection = rafService.getCollection(rafDefinition.getNodeId());
             } catch (RafException ex) {
-                Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error("Raf Exception", ex);
             }
             context.setCollection(collection);
             //FIXME: bundan çok emin değilim. RafFolder değil RafNode bağladık çünkü.
@@ -145,7 +150,7 @@ public class RafController implements Serializable {
             context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
         } catch (RafException ex) {
             //FIXME: ne yapacağız?
-            Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Raf Exception", ex);
         }
 
         rafChangedEvent.fire(new RafChangedEvent());
@@ -307,16 +312,18 @@ public class RafController implements Serializable {
         try {
             collection = rafService.getCollection(folderId);
         } catch (RafException ex) {
-            Logger.getLogger(RafController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Raf Exception", ex);
         }
         context.setCollection(collection);
 
+        //FIXME: Bu kod burada saçma! Folder değişmiş olması demek context objesi değişmiş demek.
+        /*
         try {
             context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
         } catch (RafException ex) {
             //FIXME: ne yapacağız?
-            Logger.getLogger(FolderSidePanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            LOG.error("Raf Exception", ex);
+        }*/
 
         folderChangedEvent.fire(new RafFolderChangeEvent());
         context.setSelectedObject(findFolder(folderId));
@@ -362,4 +369,49 @@ public class RafController implements Serializable {
                 .filter(a -> a.applicable(selectedContentPanel.getSupportCollection()))
                 .collect(Collectors.toList());
     }
+    
+    /**
+     * Nesne silinmesini dinler ve context'i düzenler.
+     * @param event 
+     */
+    public void deleteListener(@Observes RafObjectDeleteEvent event){
+        LOG.info("RafObjectDeleteEvent");
+        //Ne olursa olsun. Bişi silinmiş ise selectedObject kalmamıştır
+        context.setSelectedObject(null);
+        //Silinen nesneyi context collection'ınından çıkaralım
+        context.getCollection().getItems().remove(event.getPayload());
+        //Seçili olan panel'i düzeltelim ve collection panele geçelim
+        selectedContentPanel = getCollectionContentPanel();
+        
+    }
+    
+    /**
+     * Birşeyler upload edildiğinde çağırılır.
+     * 
+     * @param event 
+     */
+    public void uploadListener(@Observes RafUploadEvent event){
+        LOG.info("RafUploadEvent");
+        //Collection'ı yeniden çekmek lazım.
+        selectFolderById(context.getCollection().getId());
+        
+    }
+    
+    /**
+     * Birşeyler upload edildiğinde çağırılır.
+     * 
+     * @param event 
+     */
+    public void folderDataListener(@Observes RafFolderDataChangeEvent event){
+        LOG.info("RafFolderCreateEvent");
+        //Collection'ı yeniden çekmek lazım.
+        selectFolderById(context.getCollection().getId());
+        try {
+            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
+        } catch (RafException ex) {
+            LOG.error("Raf Exception", ex);
+        }
+    }
+    
+    
 }
