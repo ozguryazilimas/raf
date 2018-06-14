@@ -25,27 +25,6 @@
 
     <ui:define name="customHeader">
 
-
-        <ui:remove>
-            <section class="content-header">
-                <i class="fa fa-3x  fa-archive pull-left" />
-                <div class="pull-right">
-                    <ul class="breadcrumb text-muted text-sm" style="background: transparent;">
-                        <li><i class="fa fa-sitemap"/></li>
-                        <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
-                        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                        <li>Klasör 2.5</li>
-                    </ul>
-                </div>
-
-
-                <h1><div class="text-muted"><small>Raf</small></div> Kişisel</h1> 
-            </section>
-        </ui:remove>
-
         <div class="raf-header-container">
             <section class="raf-header">
                 <div class="raf-header-logo">
@@ -61,21 +40,6 @@
                 </div>
             </section>
             <section class="raf-header-tools">
-                <ui:remove>
-                    <div class="raf-header-tool-pack">
-                        <ul class="breadcrumb text-muted text-sm" style="background: transparent; padding: 0px; margin: 0px;">
-                            <li><i class="fa fa-sitemap"/></li>
-                            <li><a href="/dolap/raf/private/abc">Klasör 1</a></li>
-                            <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                            <ui:remove>
-                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                                <li><a href="/dolap/raf/private/abc/def">Klasör 2</a></li>
-                            </ui:remove>
-                            <li>Klasör 2.5</li>
-                        </ul>
-                    </div>
-                </ui:remove>
                 <div class="raf-header-tool-pack">
                     <div class="raf-header-btns">
                         <ui:remove>
@@ -174,15 +138,26 @@
 
                     <div class="pull-right">
 
-                        <p:commandLink action="#{createFolderAction.execute()}" process="@this" update="raf-view-content" >
-                            <i class="fa fa-plus" />
-                            <p:ajax event="dialogReturn" update="raf-view" />
-                        </p:commandLink>
+                        <ui:repeat value="#{rafController.actions}" var="act">
 
-                        <p:commandLink action="#{fileUploadAction.execute()}" process="@this" update="raf-view-content" >
-                            <i class="fa fa-upload" />
-                            <p:ajax event="dialogReturn" update="raf-view" />
-                        </p:commandLink>
+                            <p:commandLink action="#{act.execute()}" process="@this" update="raf-view-content" title="#{act.title}">
+                                <i class="fa #{act.icon}" />
+                                <p:ajax event="dialogReturn" update="raf-view" />
+                            </p:commandLink>
+
+                        </ui:repeat>
+
+                        <ui:remove>
+                            <p:commandLink action="#{createFolderAction.execute()}" process="@this" update="raf-view-content" >
+                                <i class="fa fa-plus" />
+                                <p:ajax event="dialogReturn" update="raf-view" />
+                            </p:commandLink>
+
+                            <p:commandLink action="#{fileUploadAction.execute()}" process="@this" update="raf-view-content" >
+                                <i class="fa fa-upload" />
+                                <p:ajax event="dialogReturn" update="raf-view" />
+                            </p:commandLink>
+                        </ui:remove>
 
 
                         <ui:remove>

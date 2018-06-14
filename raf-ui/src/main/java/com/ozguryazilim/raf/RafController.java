@@ -15,8 +15,10 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.AbstractContentPanel;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
+import com.ozguryazilim.raf.ui.base.ActionRegistery;
 import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
@@ -347,5 +349,17 @@ public class RafController implements Serializable {
         if (!Strings.isNullOrEmpty(nodeId)) {
             selectFolderById(nodeId);
         }
+    }
+    
+    /**
+     * Geriye uygulanabilir durumdaki action'ları döndürür.
+     * @return 
+     */
+    public List<AbstractAction> getActions(){
+        //FIXME: Yetki kontrolü
+        List<AbstractAction> acts = ActionRegistery.getActions();
+        return acts.stream()
+                .filter(a -> a.applicable(selectedContentPanel.getSupportCollection()))
+                .collect(Collectors.toList());
     }
 }

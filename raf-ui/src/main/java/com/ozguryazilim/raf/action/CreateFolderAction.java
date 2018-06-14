@@ -5,31 +5,24 @@
  */
 package com.ozguryazilim.raf.action;
 
-import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.config.ActionPages;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.ui.base.AbstractAction;
+import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.inject.Named;
-import org.primefaces.context.RequestContext;
 
 /**
- *
- * @author oyas
+ * Seçili klasör içine yeni bir kalsör ekler.
+ * 
+ * @author Hakan Uygun
  */
-@SessionScoped
-@Named
-public class CreateFolderAction implements Serializable{
-    
-    @Inject
-    private RafContext context;
+@Action(dialog = ActionPages.CreateFolderDialog.class,icon = "fa-plus",supportCollection = true,includedMimeType = "raf/folder")
+public class CreateFolderAction extends AbstractAction{
     
     @Inject
     private RafService rafService;
@@ -38,39 +31,31 @@ public class CreateFolderAction implements Serializable{
     private Event<RafChangedEvent> rafChangedEvent;
     
     private RafFolder folder;
-    
-    public void execute(){
-        
+
+    @Override
+    protected void initActionModel() {
         folder = new RafFolder();
         
-        folder.setParentId(context.getCollection().getId());
-        
-        Map<String, Object> options = new HashMap<>();
-
-        RequestContext.getCurrentInstance().openDialog("/actions/createFolderDialog", options, null);
+        folder.setParentId(getContext().getCollection().getId());
     }
-    
-    public void closeDialog() {
-        
-        folder.setPath( context.getCollection().getPath() + "/" + folder.getName());
-        
+
+    @Override
+    protected boolean finalizeAction() {
+        folder.setPath( getContext().getCollection().getPath() + "/" + folder.getName());
         
         try {
             rafService.createFolder(folder);
         } catch (RafException ex) {
             //TODO: i18n
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
+            return false;
         }
         
         rafChangedEvent.fire(new RafChangedEvent());
         
-        RequestContext.getCurrentInstance().closeDialog(null);
+        return true;
     }
-
-    public void cancelDialog() {
-        RequestContext.getCurrentInstance().closeDialog(null);
-    }
-
+    
     public RafFolder getFolder() {
         return folder;
     }
