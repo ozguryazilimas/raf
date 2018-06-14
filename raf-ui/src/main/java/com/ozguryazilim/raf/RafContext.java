@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.AbstractAction;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class RafContext implements Serializable{
     private List<RafFolder> folders;
     private List<RafObject> seletedItems = new ArrayList<>();
     private List<RafObject> clipboard = new ArrayList<>();
+    private AbstractAction clipboardAction;
             
 
     public RafDefinition getSelectedRaf() {
@@ -89,6 +91,14 @@ public class RafContext implements Serializable{
 
     public void setClipboard(List<RafObject> clipboard) {
         this.clipboard = clipboard;
+    }
+
+    public AbstractAction getClipboardAction() {
+        return clipboardAction;
+    }
+
+    public void setClipboardAction(AbstractAction clipboardAction) {
+        this.clipboardAction = clipboardAction;
     }
 
     

@@ -32,6 +32,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Workspace;
 import org.apache.commons.io.IOUtils;
 import org.modeshape.common.text.UrlEncoder;
 import org.modeshape.jcr.api.JcrTools;
@@ -519,6 +520,90 @@ public class RafModeshapeRepository  implements Serializable{
         }
         
         
+    }
+    
+    public void copyObject( RafObject from, RafFolder to ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+    
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            copy(session.getWorkspace(), from.getPath(), to.getPath() + "/" + from.getName());
+            
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    public void copyObject( List<RafObject> from, RafFolder to ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+    
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            for( RafObject o : from ){
+                copy(session.getWorkspace(), o.getPath(), to.getPath() + "/" + o.getName());
+            }
+            
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    public void moveObject( RafObject from, RafFolder to ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+    
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            move(session.getWorkspace(), from.getPath(), to.getPath() + "/" + from.getName());
+            
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    public void moveObject( List<RafObject> from, RafFolder to ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+    
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            for( RafObject o : from ){
+                move(session.getWorkspace(), o.getPath(), to.getPath() + "/" + o.getName());
+            }
+            
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    /**
+     * Asıl copy işlemi
+     * 
+     * @param workspace
+     * @param fromPath
+     * @param toPath
+     * @throws RepositoryException 
+     */
+    protected void copy( Workspace workspace, String fromPath, String toPath ) throws RepositoryException{
+        workspace.copy(fromPath, toPath);
+    }
+    
+    /**
+     * Asıl move işlemi
+     * 
+     * @param workspace
+     * @param fromPath
+     * @param toPath
+     * @throws RepositoryException 
+     */
+    protected void move( Workspace workspace, String fromPath, String toPath ) throws RepositoryException{
+        workspace.move(fromPath, toPath);
     }
     
     //////////////////////////////////////////
