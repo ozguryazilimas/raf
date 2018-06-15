@@ -54,8 +54,13 @@ public class FolderBreadcrumbController implements Serializable {
             if (!Strings.isNullOrEmpty(context.getCollection().getPath())) {
                 String[] ss = context.getCollection().getPath().split("/");
 
+                String p = "";
+                
                 for (String s : ss) {
-                    RafFolder f = findFolder(s);
+                    //Eğer içi boşsa yani ilk "/" ise pass geçelim. Yoksa //RAF/AAA gibi şeyler oluyor.
+                    if( Strings.isNullOrEmpty(s)) continue;
+                    p = p + "/" + s;
+                    RafFolder f = findFolder(p);
                     if (f != null) {
                         items.add(f);
                     }
@@ -87,16 +92,16 @@ public class FolderBreadcrumbController implements Serializable {
     
     
     /**
-     * Context'e bulunan RafFolder içinden ismi verilen folder'ı bulur. Bulamaz
+     * Context'e bulunan RafFolder içinden pathi verilen folder'ı bulur. Bulamaz
      * ise null döner.
      *
      * @param name
      * @return
      */
-    private RafFolder findFolder(String name) {
+    private RafFolder findFolder(String path) {
 
         for (RafFolder f : context.getFolders()) {
-            if (name.equals(f.getName())) {
+            if (path.equals(f.getPath())) {
                 return f;
             }
         }
