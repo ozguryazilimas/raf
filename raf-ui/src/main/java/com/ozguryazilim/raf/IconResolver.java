@@ -29,6 +29,10 @@ public class IconResolver implements Serializable{
         switch (mimeType) {
             case "raf/folder":
                 return "fa-folder";
+            case "raf/categories":
+                return "fa-sitemap";
+            case "raf/tags":
+                return "fa-tags";
             case "application/pdf":
                 return "fa-file-pdf-o";
             case "image/png":

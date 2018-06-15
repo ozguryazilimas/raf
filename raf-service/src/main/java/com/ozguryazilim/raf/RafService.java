@@ -58,6 +58,11 @@ public class RafService implements Serializable {
 
         return result;
     }
+    
+    public RafCollection getCategoryCollection(String category, String rootPath ) throws RafException {
+        //FIXME: sıralama, yetki v.s.
+        return rafRepository.getCategoryCollection(category, rootPath);
+    }
 
     public void createFolder(RafFolder folder) throws RafException {
         //FIXME: yetki kontrolü

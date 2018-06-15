@@ -52,6 +52,14 @@ public abstract class CollectionContentPanel extends AbstractContentPanel{
     public boolean getSupportCollection() {
         return true;
     }
+
+    @Override
+    public String getIcon() {
+        if( "raf/folder".equals(context.getCollection().getMimeType())){
+            return "fa-folder-open";
+        }
+        return iconResolver.getIcon(context.getCollection().getMimeType());
+    }
     
     
 }

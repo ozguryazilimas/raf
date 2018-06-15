@@ -28,6 +28,7 @@ import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.raf.ui.contentpanels.DocumentViewPanel;
 import com.ozguryazilim.raf.ui.contentpanels.FolderViewPanel;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -385,6 +386,13 @@ public class RafController implements Serializable {
             //selectFolderById(nodeId);
             //TODO: Aslında burda id değil doğrudan kategori kodu lazım bize. Sonuçta sorgu çekeceğiz.
             LOG.info("Selected Category ID : {}", nodeId);
+            try {
+                populateCategoryCollection(nodeId);
+            } catch (RafException ex) {
+                //FIXME: i18n ve gerçekten ne yapılmalı?
+                LOG.error("Category Selection Error", ex);
+                FacesMessages.error("Category Selection Error", ex.getLocalizedMessage());
+            }
         }
     }
 
@@ -478,6 +486,23 @@ public class RafController implements Serializable {
     protected void populateFolderCollection( String folderId) throws RafException{
         
         RafCollection collection = rafService.getCollection(folderId);
+        
+        if( !showFolders ){
+            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
+            collection.setItems(
+                collection.getItems()
+                        .stream()
+                        .filter( o -> !"raf/folder".equals(o.getMimeType()))
+                        .collect(Collectors.toList())
+            );
+        }
+        
+        context.setCollection(collection);
+    }
+    
+    protected void populateCategoryCollection( String category) throws RafException{
+        
+        RafCollection collection = rafService.getCategoryCollection(category, context.getSelectedRaf().getNode().getPath());
         
         if( !showFolders ){
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
