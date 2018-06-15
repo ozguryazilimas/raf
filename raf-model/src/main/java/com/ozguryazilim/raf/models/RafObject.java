@@ -32,6 +32,11 @@ public abstract class RafObject implements Serializable{
     private String info;
     private String parentId;
     
+    private String category;
+    private List<String> tags = new ArrayList<>();
+    private String color;
+    private Integer rating;
+    
     private String createBy;
     private Date createDate;
     private String updateBy;
@@ -135,8 +140,38 @@ public abstract class RafObject implements Serializable{
         this.metadatas = metadatas;
     }
 
-    
-    
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;

@@ -6,8 +6,60 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
+    <h:form id="catFrm">
+        <p:remoteCommand name="selectTreeNode" action="#{rafController.selectCategory}" update="raf-view-content" partialSubmit="true" process="@this" />
+    </h:form>
     
-    Buraya Kategori Ağacı Gelecek
+    <div id="catdata" />
+
+    <script>
+        catdata = [
+               <ui:repeat value="#{categorySidePanel.categories}" var="cats">
+                {"id": "#{cats.id}", "parent": "#{cats.parentId eq 0 ? '#' : cats.parentId}", "text": "#{cats.name}" },
+                </ui:repeat>
+        ];
+        <ui:remove>
+        selectedNode = '#{rafController.selectedRaf.id}';
+        </ui:remove>
+        
+    </script>
+
+    <script type="text/javascript">
+
+        function buildTree() {
+            // inline data 
+            jQuery("#catdata")
+                    .on("activate_node.jstree", function (e, data) {
+                        //alert( data.instance.get_node(data.selected[0]).id );
+                        selectTreeNode([{'name': 'nodeId', 'value': data.node.text}]);
+                    })
+                    .on('loaded.jstree', function () {
+                        jQuery('#data').jstree('open_all');
+                        //setNodeSelections();
+                    })
+                    .jstree({
+                        "plugins": ["wholerow", "types", "sort"],
+                        "types": {
+                            "default": {
+                                "icon": "fa fa-folder"
+                            }
+                        },
+                        'core': {
+                            'data': catdata}
+                    });
+        }
+        
+        buildTree();
+        
+        function setNodeSelections() {
+            if (jQuery('#catdata').length > 0) {
+                jQuery('#catdata').jstree().select_node(selectedNode);
+            }
+        }
+
+        //setNodeSelections();
+
+    </script>
     
 </ui:composition>
 

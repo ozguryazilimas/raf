@@ -377,6 +377,16 @@ public class RafController implements Serializable {
             selectFolderById(nodeId);
         }
     }
+    
+    public void selectCategory() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String nodeId = params.get("nodeId");
+        if (!Strings.isNullOrEmpty(nodeId)) {
+            //selectFolderById(nodeId);
+            //TODO: Aslında burda id değil doğrudan kategori kodu lazım bize. Sonuçta sorgu çekeceğiz.
+            LOG.info("Selected Category ID : {}", nodeId);
+        }
+    }
 
     /**
      * Geriye uygulanabilir durumdaki action'ları döndürür.

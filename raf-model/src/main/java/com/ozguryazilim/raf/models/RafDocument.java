@@ -11,24 +11,5 @@ package com.ozguryazilim.raf.models;
  */
 public class RafDocument extends RafObject{
 
-    private String category;
-    private String tags;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-    
     
 }

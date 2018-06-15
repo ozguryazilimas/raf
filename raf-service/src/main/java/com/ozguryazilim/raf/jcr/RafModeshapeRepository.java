@@ -444,7 +444,7 @@ public class RafModeshapeRepository  implements Serializable{
             node.setProperty(PROP_TITLE, object.getTitle());
             node.setProperty(PROP_DESCRIPTON, object.getInfo());
             
-            //node.setProperty(PROP_CATEGORY, object.getC());
+            node.setProperty(PROP_CATEGORY, object.getCategory());
             //node.setProperty(PROP_TAG, "");
             
             
@@ -712,7 +712,7 @@ public class RafModeshapeRepository  implements Serializable{
         
         if( node.isNodeType(MIXIN_TAGGABLE)){
             //result.setInfo(node.getProperty("raf:tags").getString());
-            //result.setInfo(node.getProperty("raf:category").getString());
+            result.setCategory(getPropertyAsString( node, PROP_CATEGORY));
         }
 
         return result;
@@ -752,7 +752,7 @@ public class RafModeshapeRepository  implements Serializable{
         
         if( node.isNodeType(MIXIN_TAGGABLE)){
             //result.setInfo(node.getProperty("raf:tags").getString());
-            //result.setInfo(node.getProperty("raf:category").getString());
+            result.setCategory(getPropertyAsString( node, PROP_CATEGORY));
         }
         
         NodeIterator it = node.getNodes("*:metadata");

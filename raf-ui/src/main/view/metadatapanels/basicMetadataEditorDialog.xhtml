@@ -15,6 +15,10 @@
             <div class="row">
                 <t:inputText label="general.label.Title" value="#{documentViewPanel.rafObject.title}" placeholder="Başlık"/>
                 <t:inputTextarea label="general.label.Info" value="#{documentViewPanel.rafObject.info}" placeholder="Açıklama"/>
+                <t:inputLookupDialog value="#{basicMetadataPanel.category}" label="general.label.Category"  
+                                 lookupBean="#{rafCategoryLookup}" lookupListener="basicMetadataPanel.category" 
+                                 leafSelect="false" 
+                                 columnClass="col-md-6 col-xs-12"/>
             </div>
             
             <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">

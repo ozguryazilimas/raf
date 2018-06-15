@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.MetadataPanelPages;
+import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -36,9 +37,28 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     @Inject
     private RafContext context;
     
+    private RafCategory category;
+
+    @Override
+    protected void initEditModel() {
+        //FIXME: Burada servisten nesneyi bulacağız.
+        category = null;
+    }
+    
     @Override
     protected void save() {
         try {
+            
+            LOG.info("Selected Category : {}", category);
+            if( category != null ){
+                context.getSelectedObject().setCategory(category.getName());
+                LOG.info("Selected Category : {}", category.getName());
+                //TODO: category attribute atanacak
+            } else {
+                //Modelde category varsa boşaltılacak
+                context.getSelectedObject().setCategory("");
+            }
+            
             //FIXME: yetki kontrolü nerede yapılacak?
             rafService.saveProperties(context.getSelectedObject());
         } catch (RafException ex) {
@@ -47,6 +67,13 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
             FacesMessages.error("Properties cannot saved");
         }
     }
- 
+
+    public RafCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(RafCategory category) {
+        this.category = category;
+    }
     
 }
