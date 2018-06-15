@@ -56,20 +56,18 @@ public @interface Action {
      * @return 
      */
     String excludeMimeType() default "";
+
+    ActionCapability[] capabilities();
     
     /**
-     * Bu action birden fazla nesne için çalışabilir mi?
+     * Verilen group numarasına göre sıraya konacaklar ve gruplanacaklar
      * @return 
      */
-    boolean supportMultipleObject() default false;
+    int group() default 0;
     
     /**
-     * Bu action RafCollection tipi için çalışabilir mi?
+     * Grup içinde sıralama için kullanılacak
      * @return 
      */
-    boolean supportCollection() default false;
-    
-    boolean supportAjax() default true;
-    
-    boolean supportConfirmation() default false;
+    int order() default 0;
 }

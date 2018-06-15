@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.config.ActionPages;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
+import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +25,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(dialog = ActionPages.FileUploadDialog.class, icon = "fa-upload",supportCollection = true,includedMimeType = "raf/folder")
+@Action(dialog = ActionPages.FileUploadDialog.class, 
+        icon = "fa-upload",
+        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
+        includedMimeType = "raf/folder",
+        order = 0)
 public class FileUploadAction extends AbstractAction{
     
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadAction.class);

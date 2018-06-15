@@ -25,6 +25,8 @@ import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class RafController implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafController.class);
-    
+
     @Inject
     private Identity identity;
 
@@ -249,8 +251,8 @@ public class RafController implements Serializable {
      * @return
      */
     protected AbstractContentPanel getCollectionContentPanel() {
-        
-        if( selectedCollectionContentPanel == null ){
+
+        if (selectedCollectionContentPanel == null) {
             for (AbstractContentPanel p : getContentPanels()) {
                 if (p.getSupportCollection()) {
                     selectedCollectionContentPanel = p;
@@ -277,11 +279,11 @@ public class RafController implements Serializable {
     }
 
     /**
-     * Folder'ın detayları için detail view isteniyor demek. 
-     * 
+     * Folder'ın detayları için detail view isteniyor demek.
+     *
      * Aslında folder edit edilecek.
-     * 
-     * @param item 
+     *
+     * @param item
      */
     public void selectFolderItem(RafObject item) {
 
@@ -297,29 +299,19 @@ public class RafController implements Serializable {
         }
 
     }
-    
+
     public void selectDocument(RafDocument item) {
         context.setSelectedObject(item);
+        context.getSeletedItems().clear();
+        context.getSeletedItems().add(item);
         //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
         selectedContentPanel = getObjectContentPanel();
     }
 
     public void selectFolderById(String folderId) {
 
-        
-
-        //FIXME: Bu kod burada saçma! Folder değişmiş olması demek context objesi değişmiş demek.
-        /*
-        try {
-            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
-        } catch (RafException ex) {
-            //FIXME: ne yapacağız?
-            LOG.error("Raf Exception", ex);
-        }*/
-
         context.setSelectedObject(findFolder(folderId));
         folderChangedEvent.fire(new RafFolderChangeEvent());
-        
 
         //FIXME: Doğru paneli nasıl seçeceğiz?
         selectedContentPanel = getCollectionContentPanel();
@@ -350,24 +342,45 @@ public class RafController implements Serializable {
             selectFolderById(nodeId);
         }
     }
-    
+
     /**
      * Geriye uygulanabilir durumdaki action'ları döndürür.
-     * @return 
+     * 
+     * TODO: Burada action listesinin hazırlanması ile ilgili bir cache mekanizması düşünmek lazım. Her seferinde hesaplamak biraz sorunlu.
+     * 
+     * @return
      */
-    public List<AbstractAction> getActions(){
+    public List<List<AbstractAction>> getActions() {
         //FIXME: Yetki kontrolü
+        
+        List<List<AbstractAction>> result = new ArrayList<>();
+        
         List<AbstractAction> acts = ActionRegistery.getActions();
-        return acts.stream()
+        Map< Integer, List<AbstractAction>> actGroups = acts.stream()
                 .filter(a -> a.applicable(selectedContentPanel.getSupportCollection()))
-                .collect(Collectors.toList());
+                .sorted(new Comparator<AbstractAction>() {
+                    @Override
+                    public int compare(AbstractAction a1, AbstractAction a2) {
+                        return a1.getOrder()< a2.getOrder()? -1 : a1.getOrder()> a2.getOrder()? 1 : 0;
+                    }
+                })
+                .collect( Collectors.groupingBy(AbstractAction::getGroup,Collectors.toList()) );
+
+        
+        for( Integer g : actGroups.keySet() ){
+            result.add(actGroups.get(g));
+        }
+
+        
+        return result;
     }
-    
+
     /**
      * Nesne silinmesini dinler ve context'i düzenler.
-     * @param event 
+     *
+     * @param event
      */
-    public void deleteListener(@Observes RafObjectDeleteEvent event){
+    public void deleteListener(@Observes RafObjectDeleteEvent event) {
         LOG.info("RafObjectDeleteEvent");
         //Ne olursa olsun. Bişi silinmiş ise selectedObject kalmamıştır
         context.setSelectedObject(null);
@@ -375,22 +388,22 @@ public class RafController implements Serializable {
         context.getCollection().getItems().remove(event.getPayload());
         //Seçili olan panel'i düzeltelim ve collection panele geçelim
         selectedContentPanel = getCollectionContentPanel();
-        
+
     }
-    
+
     /**
      * Birşeyler upload edildiğinde çağırılır.
-     * 
-     * @param event 
+     *
+     * @param event
      */
-    public void uploadListener(@Observes RafUploadEvent event){
+    public void uploadListener(@Observes RafUploadEvent event) {
         LOG.info("RafUploadEvent");
         //Collection'ı yeniden çekmek lazım.
         selectFolderById(context.getCollection().getId());
-        
+
     }
-    
-    public void folderChangeListener(@Observes RafFolderChangeEvent event){
+
+    public void folderChangeListener(@Observes RafFolderChangeEvent event) {
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         RafCollection collection = null;
@@ -401,13 +414,13 @@ public class RafController implements Serializable {
         }
         context.setCollection(collection);
     }
-    
+
     /**
      * Birşeyler upload edildiğinde çağırılır.
-     * 
-     * @param event 
+     *
+     * @param event
      */
-    public void folderDataListener(@Observes RafFolderDataChangeEvent event){
+    public void folderDataListener(@Observes RafFolderDataChangeEvent event) {
         LOG.info("RafFolderCreateEvent");
         //Collection'ı yeniden çekmek lazım.
         //selectFolderById(context.getCollection().getId());
@@ -417,6 +430,5 @@ public class RafController implements Serializable {
             LOG.error("Raf Exception", ex);
         }
     }
-    
-    
+
 }

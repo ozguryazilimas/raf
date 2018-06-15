@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
+import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -21,7 +22,11 @@ import javax.inject.Inject;
  * 
  * @author Hakan Uygun
  */
-@Action(dialog = ActionPages.CreateFolderDialog.class,icon = "fa-plus",supportCollection = true,includedMimeType = "raf/folder")
+@Action(dialog = ActionPages.CreateFolderDialog.class,
+        icon = "fa-plus",
+        capabilities = { ActionCapability.Ajax, ActionCapability.CollectionViews },
+        includedMimeType = "raf/folder",
+        order = 1)
 public class CreateFolderAction extends AbstractAction{
     
     @Inject

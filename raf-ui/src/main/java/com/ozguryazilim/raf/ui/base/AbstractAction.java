@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -120,6 +121,10 @@ public class AbstractAction implements Serializable{
     } 
     
     public void execute(){
+        
+        //eğer enabled değilse hemen çıkalım
+        if( !isEnabled()) return;
+        
         initActionModel();
         
         //Eğer gösterilecek bir UI yoksa ise doğrudan işleme gidelim.
@@ -171,7 +176,7 @@ public class AbstractAction implements Serializable{
         String em = getAnnotation().excludeMimeType(); 
             
         //Eğer Collection için isteniyor ise
-        if( forCollection && getAnnotation().supportCollection()){
+        if( forCollection && hasCapability(ActionCapability.CollectionViews)){
             
             String mm = getContext().getCollection().getMimeType();
             
@@ -192,7 +197,7 @@ public class AbstractAction implements Serializable{
                     return true;
                 }
             }
-        } else if( !forCollection && !getAnnotation().supportCollection()){
+        } else if( !forCollection && hasCapability(ActionCapability.DetailViews)){
             RafObject o = getContext().getSelectedObject();
             
             //Kontrol edilebilecek bir seçim yok!
@@ -223,10 +228,42 @@ public class AbstractAction implements Serializable{
     }
     
     public boolean isSupportAjax(){
-        return getAnnotation().supportAjax();
+        return hasCapability(ActionCapability.Ajax);
     }
     
     public boolean isSupportConfirmation(){
-        return getAnnotation().supportConfirmation();
+        return hasCapability( ActionCapability.Confirmation);
+    }
+    
+    public boolean hasCapability( ActionCapability cap ){
+        return Arrays.asList(getAnnotation().capabilities()).contains(cap);
+    }
+    
+    public int getGroup(){
+        return getAnnotation().group();
+    }
+    
+    public int getOrder(){
+        return getAnnotation().order();
+    }
+    
+    /**
+     * Contexted göre enabled olup olmadığı bilgisi.
+     * 
+     * Capabilityler üzerinden varsayılan hal hesaplanmaya çalışılır.
+     * 
+     * @return 
+     */
+    public boolean isEnabled(){
+        
+        if( hasCapability(ActionCapability.NeedClipboard) && getContext().getClipboard().isEmpty()){
+            return false;
+        }
+        
+        if( hasCapability(ActionCapability.NeedSelection) && getContext().getSeletedItems().isEmpty()){
+            return false;
+        }
+        
+        return true;
     }
 }

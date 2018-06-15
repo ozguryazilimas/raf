@@ -13,7 +13,10 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
+import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import java.util.ArrayList;
+import java.util.List;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -23,7 +26,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-trash", supportCollection = false, supportConfirmation = true )
+@Action(icon = "fa-trash", capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection, ActionCapability.Confirmation},
+        group = 11,
+        order = 0)
 public class DeleteAction extends AbstractAction{
 
     private static final Logger LOG = LoggerFactory.getLogger(DeleteAction.class);
@@ -45,7 +50,14 @@ public class DeleteAction extends AbstractAction{
 
     @Override
     protected boolean finalizeAction() {
-        deleteObject(getContext().getSelectedObject());
+
+        List<RafObject> items = new ArrayList<>(getContext().getSeletedItems());
+        for( RafObject o : items){
+            deleteObject(o);
+        }
+        
+        getContext().getSeletedItems().clear();
+        
         return true;
     }
     

@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
+import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +26,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-download", supportCollection = false, supportAjax = false, excludeMimeType = "raf/folder")
+@Action(icon = "fa-download", 
+        capabilities = {ActionCapability.CollectionViews, ActionCapability.DetailViews}, 
+        excludeMimeType = "raf/folder")
 public class DownloadAction extends AbstractAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(DownloadAction.class);

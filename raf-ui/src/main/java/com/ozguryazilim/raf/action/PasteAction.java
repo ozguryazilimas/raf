@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
+import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -22,7 +23,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-paste", supportCollection = true, includedMimeType = "raf/folder" )
+@Action(icon = "fa-paste", 
+        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.NeedClipboard}, 
+        includedMimeType = "raf/folder",
+        group = 10,
+        order = 3)
 public class PasteAction extends AbstractAction{
 
     private static final Logger LOG = LoggerFactory.getLogger(PasteAction.class);
