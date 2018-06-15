@@ -1,26 +1,31 @@
 {
     "name": "raf",
-    "jndiName" : "jcr/raf",
-    "node-types" : ["cnd/raf.cnd"],
+    "jndiName": "jcr/raf",
+    "node-types": ["cnd/raf.cnd"],
     "storage": {
-        "persistence" : {
-            "type" : "file",
+        "persistence": {
+            "type": "file",
             "path": "/home/oyas/tmp/raf_persistent_repository"
-        } 
-    },
-    "workspaces" : {
-        "default" : "default",
-        "allowCreation" : true 
-    },
-    "security" : {
-        "anonymous" : {
-            "roles" : ["admin"],
-            "useOnFailedLogin" : false
         },
-        "providers" : [
+        "binaryStorage": {
+            "type": "file",
+            "directory": "/home/oyas/tmp/raf_persistent_repository/binaries",
+            "trash": "/home/oyas/tmp/raf_persistent_repository/binaries/trash" 
+        }
+    },
+    "workspaces": {
+        "default": "default",
+        "allowCreation": true 
+    },
+    "security": {
+        "anonymous": {
+            "roles": ["admin"],
+            "useOnFailedLogin": false
+        },
+        "providers": [
             {
-                "name" : "Raf Security Provider",
-                "classname" : "com.ozguryazilim.raf.jcr.RafSecurityProvider"
+                "name": "Raf Security Provider",
+                "classname": "com.ozguryazilim.raf.jcr.RafSecurityProvider"
             }
         ]
     }

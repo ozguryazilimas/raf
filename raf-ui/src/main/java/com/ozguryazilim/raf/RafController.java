@@ -171,7 +171,7 @@ public class RafController implements Serializable {
         }
 
         try {
-            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
+            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getNode().getPath()));
         } catch (RafException ex) {
             //FIXME: ne yapacağız?
             LOG.error("Raf Exception", ex);
@@ -459,7 +459,7 @@ public class RafController implements Serializable {
         //Collection'ı yeniden çekmek lazım.
         //selectFolderById(context.getCollection().getId());
         try {
-            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
+            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getNode().getPath()));
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }

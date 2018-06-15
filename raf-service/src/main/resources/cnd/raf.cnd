@@ -1,6 +1,10 @@
 <nt='http://www.jcp.org/jcr/nt/1.0'>
 <raf='http://www.ozguryazilim.com.tr/jcr/raf/1.0'>
 
+[raf:raf] mixin
+    - raf:type (STRING) mandatory
+        < 'PRIVATE', 'SHARED', 'DEFAULT'
+
 [raf:taggable] mixin
     - raf:category (STRING)
     - raf:tags (STRING) multiple

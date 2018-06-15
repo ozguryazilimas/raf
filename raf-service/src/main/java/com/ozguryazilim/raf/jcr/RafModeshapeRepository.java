@@ -48,9 +48,10 @@ public class RafModeshapeRepository  implements Serializable{
 
     private static final Logger LOG = LoggerFactory.getLogger(RafModeshapeRepository.class);
 
+    
+    private static final String RAF_ROOT = "/RAF/";
     private static final String PRIVATE_ROOT = "/PRIVATE/";
     private static final String SHARED_ROOT = "/SHARED";
-    private static final String RAF_ROOT = "/RAF/";
 
     
     private static final String NODE_FOLDER = "nt:folder";
@@ -58,11 +59,17 @@ public class RafModeshapeRepository  implements Serializable{
     
     private static final String MIXIN_TITLE = "mix:title";
     private static final String MIXIN_TAGGABLE = "raf:taggable";
+    private static final String MIXIN_RAF = "raf:raf";
     
     private static final String PROP_TITLE = "jcr:title";
     private static final String PROP_DESCRIPTON = "jcr:description";
     private static final String PROP_CATEGORY = "raf:category";
     private static final String PROP_TAG = "raf:tags";
+    private static final String PROP_RAF_TYPE = "raf:type";
+    
+    private static final String RAF_TYPE_DEFAULT = "DEFAULT";
+    private static final String RAF_TYPE_PRIVATE = "PRIVATE";
+    private static final String RAF_TYPE_SHARED = "SHARED";
     
     private UrlEncoder encoder;
     JcrTools jcrTools = new JcrTools();
@@ -103,9 +110,11 @@ public class RafModeshapeRepository  implements Serializable{
             JcrTools jcrTools = new JcrTools();
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
+            node.addMixin(MIXIN_RAF);
             node.addMixin(MIXIN_TITLE);
             node.addMixin(MIXIN_TAGGABLE);
             
+            node.setProperty(PROP_RAF_TYPE, RAF_TYPE_DEFAULT);
             node.setProperty(PROP_TITLE, definition.getName());
             node.setProperty(PROP_DESCRIPTON, definition.getInfo());
             
@@ -160,6 +169,15 @@ public class RafModeshapeRepository  implements Serializable{
             JcrTools jcrTools = new JcrTools();
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
+            node.addMixin(MIXIN_RAF);
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+            
+            node.setProperty(PROP_RAF_TYPE, RAF_TYPE_PRIVATE);
+            //i18n
+            node.setProperty(PROP_TITLE, "Kişisel");
+            //node.setProperty(PROP_DESCRIPTON, definition.getInfo());
+            
             RafNode result = nodeToRafNode(node);
 
             session.save();
@@ -186,6 +204,15 @@ public class RafModeshapeRepository  implements Serializable{
             JcrTools jcrTools = new JcrTools();
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
+            node.addMixin(MIXIN_RAF);
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+            
+            node.setProperty(PROP_RAF_TYPE, RAF_TYPE_SHARED);
+            //i18n
+            node.setProperty(PROP_TITLE, "Ortak");
+            //node.setProperty(PROP_DESCRIPTON, definition.getInfo());
+            
             RafNode result = nodeToRafNode(node);
 
             session.save();
@@ -198,7 +225,7 @@ public class RafModeshapeRepository  implements Serializable{
     }
 
     public List<RafFolder> getFolderList(RafNode rafNode) throws RafException {
-        return getFolderList(rafNode.getName());
+        return getFolderList(rafNode.getPath());
     }
 
     /**
@@ -207,18 +234,17 @@ public class RafModeshapeRepository  implements Serializable{
      * @return
      * @throws RafException 
      */
-    public List<RafFolder> getFolderList(String rafCode) throws RafException {
+    public List<RafFolder> getFolderList(String rafPath) throws RafException {
 
         List<RafFolder> result = new ArrayList<>();
 
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
 
-            JcrTools jcrTools = new JcrTools();
-            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
-
+            Node node = session.getNode(fullPath);
+            
             //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
             //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
             RafFolder f = nodeToRafFolder(node);

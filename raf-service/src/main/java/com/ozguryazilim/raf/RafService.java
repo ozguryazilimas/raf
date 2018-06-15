@@ -31,9 +31,9 @@ public class RafService implements Serializable {
     @Inject
     private RafModeshapeRepository rafRepository;
 
-    public List<RafFolder> getFolderList(String raf) throws RafException {
+    public List<RafFolder> getFolderList(String rafPath) throws RafException {
         //FIXME: yetki kontrolleri, sıralama v.b.
-        return rafRepository.getFolderList(raf);
+        return rafRepository.getFolderList(rafPath);
     }
 
     public RafCollection getCollection(String id) throws RafException {
