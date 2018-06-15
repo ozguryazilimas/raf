@@ -1,0 +1,94 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/browseBase.xhtml">
+
+    <ui:param name="moduleCaption" value="module.caption.RafDefinition" />
+    <ui:param name="bean" value="#{rafDefinitionBrowse}" />
+    <ui:param name="advanceEnabled" value="true" />
+    <ui:param name="saveEnabled" value="true" />
+    <ui:param name="filterEnabled" value="true" />
+    <ui:param name="permission" value="rafDefinitionAdmin" />
+    <ui:param name="onSelectUpdate" value="" />
+    <ui:param name="onSelectEnabled" value="#editRafDefinition, #deleteRafDefinition" />
+
+
+    <ui:define name="ribbon-actions">
+
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+
+                jQuery('#newRafDefinition').click(function () {
+                    if (this.isEnabled()) {
+                        newRafDefinition();
+
+                    }
+                });
+                jQuery('#editRafDefinition').click(function () {
+                    if (this.isEnabled()) {
+                        editRafDefinition();
+                    }
+                });
+                jQuery('#deleteRafDefinition').click(function () {
+                    if (this.isEnabled()) {
+                        deleteRafDefinition();
+                    }
+                });
+            });
+        </script> 
+
+        <h:form id="actionForm">
+            <ui:remove>
+                <p:remoteCommand name="newRafDefinition" update=":suggestionPopup" actionListener="#{suggestionBrowse.newRafDefinition}" oncomplete="PF('suggestionPopup').show();"/>
+                <p:remoteCommand name="editRafDefinition" update=":suggestionPopup" actionListener="#{suggestionBrowse.editRafDefinition}" oncomplete="PF('suggestionPopup').show();"/>
+            </ui:remove>
+            <p:remoteCommand name="deleteRafDefinition" update=":browseListForm:results" actionListener="#{suggestionBrowse.deleteRaf}" />
+        </h:form>
+
+    </ui:define>
+
+
+    <ui:define name="includes">
+    </ui:define>
+
+    <ui:define name="context-menu">
+        <ui:remove>
+            <li>
+                <p:commandLink id="newRafDefinition" update=":suggestionPopup" actionListener="#{suggestionBrowse.newRafDefinition}" oncomplete="PF('suggestionPopup').show();" >
+                    <i class="fa fa-plus-circle"/>
+                    <span>#{messages['general.button.New']}</span>
+                </p:commandLink>
+            </li>
+            <li>
+                <p:commandLink id="editRafDefinition" 
+                               update=":suggestionPopup" 
+                               actionListener="#{suggestionBrowse.editRafDefinition}" 
+                               oncomplete="PF('suggestionPopup').show();"
+                               disabled="#{suggestionBrowse.selectedItem eq null }" styleClass="#{suggestionBrowse.selectedItem ne null ? '' : 'disabled'}">
+                    <i class="fa fa-edit"/>
+                    <span>#{messages['general.button.Edit']}</span>
+                </p:commandLink>
+            </li>
+        </ui:remove>
+        <li>
+            <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
+                <i class="fa fa-plus-circle" />
+                Yeni Raf Ekle
+                <p:ajax event="dialogReturn" update=":browseListForm:results, rafMenu" />
+            </p:commandLink>
+        </li>
+        <li>
+            <p:commandLink id="deleteRafDefinition" 
+                           update=":browseListForm:results, :rafMenu" 
+                           actionListener="#{rafDefinitionBrowse.deleteRaf}" 
+                           disabled="#{rafDefinitionBrowse.selectedItem eq null }" styleClass="#{rafDefinitionBrowse.selectedItem ne null ? '' : 'disabled'}">
+                <i class="fa fa-trash"/>
+                <span>#{messages['general.button.Delete']}</span>
+            </p:commandLink>
+        </li>
+    </ui:define>
+
+</ui:composition>

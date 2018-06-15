@@ -8,11 +8,13 @@ package com.ozguryazilim.raf.definition;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.events.RafDataChangedEvent;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.primefaces.context.RequestContext;
@@ -28,6 +30,9 @@ public class RafDefinitionDialogController implements Serializable {
 
     @Inject
     private RafDefinitionService service;
+
+    @Inject
+    private Event<RafDataChangedEvent> rafDataChangedEvent;
     
     private RafDefinition rafDefinition;
 
@@ -51,6 +56,8 @@ public class RafDefinitionDialogController implements Serializable {
             //TODO: i18n
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
         }
+        
+        rafDataChangedEvent.fire(new RafDataChangedEvent());
         
         RequestContext.getCurrentInstance().closeDialog(null);
     }

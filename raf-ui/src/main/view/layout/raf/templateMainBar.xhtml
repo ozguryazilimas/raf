@@ -34,11 +34,11 @@
                         <i class="#{telveConfigResolver.getProperty('app.title.icon')}" />
                         #{telveConfigResolver.getProperty('app.title')}
                     </h:link>
-                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#rafMenu" aria-expanded="false">
                         <i class="fa fa-bars"/>
                     </button>
                 </div>
-                <div id="navbar-collapse" class="navbar-collapse pull-left collapse">
+                <h:panelGroup layout="block" id="rafMenu" styleClass="navbar-collapse pull-left collapse">
                     <ul class="nav navbar-nav">
                         <ui:remove>
                             <!-- Main Navigations -->
@@ -79,14 +79,17 @@
                             </li>
                         </ui:fragment>
 
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-archive"></i>
                                 <span>Hepsi</span>
                                 <i class="caret"></i>
                             </a>
+
                             <ul class="dropdown-menu" role="menu">
-                                <ui:repeat value="#{rafNavigationController.rafs}" var="raf" >
+
+                                <p:repeat value="#{rafNavigationController.rafs}" var="raf" >
                                     <li >
                                         <h:link  outcome="/raf.xhtml" title="#{raf.code}">
                                             <i class="fa fa-archive"></i>
@@ -94,15 +97,22 @@
                                             #{raf.name}
                                         </h:link>
                                     </li>
-                                </ui:repeat>
+                                </p:repeat>
+
+                                <li role="separator" class="divider"></li>
+                                <li >
+                                    <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
+                                        <i class="fa fa-plus-circle" />
+                                        Yeni Raf Ekle
+                                        <p:ajax event="dialogReturn" update="rafMenu" />
+                                    </p:commandLink>
+                                </li>
                             </ul>
+
                         </li>
 
-                        <li >
-                            <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
-                                <i class="fa fa-plus-circle" />
-                            </p:commandLink>
-                        </li>
+
+
                     </ul>
                     <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
@@ -139,7 +149,7 @@
                             </li>
                         </ui:repeat>
                     </ul>
-                </div>
+                </h:panelGroup>
 
                 <div class="navbar-custom-menu">
                     <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;">

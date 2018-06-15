@@ -7,12 +7,14 @@ package com.ozguryazilim.raf.nav;
 
 import com.ozguryazilim.raf.definition.RafDefinitionRepository;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.events.RafDataChangedEvent;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -60,5 +62,7 @@ public class RafNavigationController implements Serializable{
         return rafs;
     }
     
-    
+    public void rafDataChangedListener( @Observes RafDataChangedEvent event){
+        rafs = definitionRepository.findAll();
+    }
 }
