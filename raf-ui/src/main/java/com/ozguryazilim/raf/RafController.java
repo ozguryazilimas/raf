@@ -306,15 +306,7 @@ public class RafController implements Serializable {
 
     public void selectFolderById(String folderId) {
 
-        //FIXME: exception handling
-        //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
-        RafCollection collection = null;
-        try {
-            collection = rafService.getCollection(folderId);
-        } catch (RafException ex) {
-            LOG.error("Raf Exception", ex);
-        }
-        context.setCollection(collection);
+        
 
         //FIXME: Bu kod burada saçma! Folder değişmiş olması demek context objesi değişmiş demek.
         /*
@@ -325,8 +317,9 @@ public class RafController implements Serializable {
             LOG.error("Raf Exception", ex);
         }*/
 
-        folderChangedEvent.fire(new RafFolderChangeEvent());
         context.setSelectedObject(findFolder(folderId));
+        folderChangedEvent.fire(new RafFolderChangeEvent());
+        
 
         //FIXME: Doğru paneli nasıl seçeceğiz?
         selectedContentPanel = getCollectionContentPanel();
@@ -397,6 +390,18 @@ public class RafController implements Serializable {
         
     }
     
+    public void folderChangeListener(@Observes RafFolderChangeEvent event){
+        //FIXME: exception handling
+        //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
+        RafCollection collection = null;
+        try {
+            collection = rafService.getCollection(context.getSelectedObject().getId());
+        } catch (RafException ex) {
+            LOG.error("Raf Exception", ex);
+        }
+        context.setCollection(collection);
+    }
+    
     /**
      * Birşeyler upload edildiğinde çağırılır.
      * 
@@ -405,7 +410,7 @@ public class RafController implements Serializable {
     public void folderDataListener(@Observes RafFolderDataChangeEvent event){
         LOG.info("RafFolderCreateEvent");
         //Collection'ı yeniden çekmek lazım.
-        selectFolderById(context.getCollection().getId());
+        //selectFolderById(context.getCollection().getId());
         try {
             context.setFolders(rafService.getFolderList(context.getSelectedRaf().getCode()));
         } catch (RafException ex) {
