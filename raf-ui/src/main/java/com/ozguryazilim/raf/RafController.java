@@ -6,6 +6,8 @@
 package com.ozguryazilim.raf;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafChangedEvent;
@@ -32,6 +34,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.faces.context.FacesContext;
@@ -55,6 +58,9 @@ public class RafController implements Serializable {
     @Inject
     private Identity identity;
 
+    @Inject @UserAware
+    private Kahve kahve;
+    
     @Inject
     private RafDefinitionService rafDefinitionService;
 
@@ -86,7 +92,15 @@ public class RafController implements Serializable {
     private String objectId;
 
     private RafDefinition rafDefinition;
+    
+    private Boolean showFolders = Boolean.TRUE;
 
+    
+    @PostConstruct
+    public void initDefaults(){
+        showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
+    }
+    
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
      *
@@ -134,7 +148,8 @@ public class RafController implements Serializable {
                     selectedContentPanel = getCollectionContentPanel();
                 }
 
-                context.setCollection(rafService.getCollection(fld.getId()));
+                populateFolderCollection(fld.getId());
+                
                 context.setSelectedObject(obj);
 
             } catch (RafException ex) {
@@ -144,15 +159,14 @@ public class RafController implements Serializable {
         } else {
             //Demek permalink olarak istenen bişi yok. O zaman rootu alalım.
             //FIXME: burda exception handling gerekli
-            RafCollection collection = null;
             try {
-                collection = rafService.getCollection(rafDefinition.getNodeId());
+                populateFolderCollection(rafDefinition.getNodeId());
             } catch (RafException ex) {
                 LOG.error("Raf Exception", ex);
             }
-            context.setCollection(collection);
+            
             //FIXME: bundan çok emin değilim. RafFolder değil RafNode bağladık çünkü.
-            //context.setSelectedObject(rafDefinition.getNode());
+            context.setSelectedObject(rafDefinition.getNode());
             selectedContentPanel = getCollectionContentPanel();
         }
 
@@ -427,13 +441,12 @@ public class RafController implements Serializable {
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
-        RafCollection collection = null;
         try {
-            collection = rafService.getCollection(context.getSelectedObject().getId());
+            populateFolderCollection(context.getSelectedObject().getId());
+
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }
-        context.setCollection(collection);
     }
 
     /**
@@ -452,4 +465,32 @@ public class RafController implements Serializable {
         }
     }
 
+    protected void populateFolderCollection( String folderId) throws RafException{
+        
+        RafCollection collection = rafService.getCollection(folderId);
+        
+        if( !showFolders ){
+            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
+            collection.setItems(
+                collection.getItems()
+                        .stream()
+                        .filter( o -> !"raf/folder".equals(o.getMimeType()))
+                        .collect(Collectors.toList())
+            );
+        }
+        
+        context.setCollection(collection);
+    }
+    
+    public void toggleShowFolders(){
+        showFolders = !showFolders;
+        
+        kahve.put("raf.showFolders", showFolders);
+        
+        folderChangedEvent.fire(new RafFolderChangeEvent());
+    }
+    
+    public Boolean getShowFolders(){
+        return showFolders;
+    }
 }

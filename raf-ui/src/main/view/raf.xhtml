@@ -219,9 +219,19 @@
                                     <i class="fa fa-cog"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                                    <li><a href="#">Show Folder</a></li>
-                                    <li><a href="#">Show Breadcrumb</a></li>
+                                    <li>
+                                        <p:commandLink action="#{rafController.toggleShowFolders()}" process="@this" update="raf-view-content">
+                                            <i class="fa #{rafController.showFolders ? 'fa-check-square' : 'fa-square-o' }" /> Show Folders
+                                        </p:commandLink>
+                                    </li>
+                                    <li>
+                                        <p:commandLink action="#{folderBreadcrumbController.toggleShow()}" process="@this" update="raf-view-content">
+                                            <i class="fa #{folderBreadcrumbController.showBreadcrumb ? 'fa-check-square' : 'fa-square-o' }" /> Show Breadcrumb
+                                        </p:commandLink>
+                                    </li>
+                                    
                                     <li role="separator" class="divider"></li>
+                                    
                                     <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
                                         <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
                                             <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">

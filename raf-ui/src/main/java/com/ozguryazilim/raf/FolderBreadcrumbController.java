@@ -6,12 +6,15 @@
 package com.ozguryazilim.raf;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,13 +34,24 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 @Named
 public class FolderBreadcrumbController implements Serializable {
 
+    @Inject @UserAware
+    private Kahve kahve;
+    
     @Inject
     private RafContext context;
 
-    List<RafFolder> items;
+    private List<RafFolder> items;
     
-    RafFolder parentFolder;
-    RafFolder currentFolder;
+    private RafFolder parentFolder;
+    private RafFolder currentFolder;
+    
+    private Boolean showBreadcrumb = Boolean.TRUE;
+    
+    
+    @PostConstruct
+    public void init(){
+        showBreadcrumb = kahve.get("raf.showBreadcrumb", Boolean.TRUE).getAsBoolean();
+    }
 
     /**
      * Geriye breadcrumb için kullanılacak folder listesini döndürür.
@@ -119,5 +133,14 @@ public class FolderBreadcrumbController implements Serializable {
         items = null;
         currentFolder = null;
         parentFolder = null;
+    }
+    
+    public void toggleShow(){
+        showBreadcrumb = !showBreadcrumb;
+        kahve.put("raf.showBreadcrumb", showBreadcrumb);
+    }
+    
+    public Boolean getShowBreadcrumb(){
+        return showBreadcrumb;
     }
 }

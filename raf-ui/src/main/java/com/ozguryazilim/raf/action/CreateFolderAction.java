@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
+import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
@@ -35,6 +36,9 @@ public class CreateFolderAction extends AbstractAction{
     @Inject
     private Event<RafFolderDataChangeEvent> folderCreateEvent;
     
+    @Inject
+    private Event<RafFolderChangeEvent> folderChangeEvent;
+    
     private RafFolder folder;
 
     @Override
@@ -57,6 +61,7 @@ public class CreateFolderAction extends AbstractAction{
         }
         
         folderCreateEvent.fire(new RafFolderDataChangeEvent());
+        folderChangeEvent.fire(new RafFolderChangeEvent());
         
         return true;
     }
