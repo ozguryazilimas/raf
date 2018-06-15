@@ -65,7 +65,7 @@ public class RafModeshapeRepository  implements Serializable{
     private static final String PROP_TAG = "raf:tags";
     
     private UrlEncoder encoder;
-
+    JcrTools jcrTools = new JcrTools();
     
     @PostConstruct
     public void init(){
@@ -528,7 +528,7 @@ public class RafModeshapeRepository  implements Serializable{
     
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            copy(session.getWorkspace(), from.getPath(), to.getPath() + "/" + from.getName());
+            copy(session.getWorkspace(), from.getPath(), targetPath( session, from, to.getPath()));
             
             session.logout();
         } catch (RepositoryException ex) {
@@ -543,7 +543,7 @@ public class RafModeshapeRepository  implements Serializable{
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for( RafObject o : from ){
-                copy(session.getWorkspace(), o.getPath(), to.getPath() + "/" + o.getName());
+                copy(session.getWorkspace(), o.getPath(), targetPath( session, o, to.getPath()));
             }
             
             session.logout();
@@ -558,7 +558,7 @@ public class RafModeshapeRepository  implements Serializable{
     
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            move(session.getWorkspace(), from.getPath(), to.getPath() + "/" + from.getName());
+            move(session.getWorkspace(), from.getPath(), targetPath( session, from, to.getPath()));
             
             session.logout();
         } catch (RepositoryException ex) {
@@ -573,13 +573,40 @@ public class RafModeshapeRepository  implements Serializable{
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for( RafObject o : from ){
-                move(session.getWorkspace(), o.getPath(), to.getPath() + "/" + o.getName());
+                move(session.getWorkspace(), o.getPath(), targetPath( session, o, to.getPath()));
             }
             
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
         }
+    }
+    
+    
+    protected String targetPath( Session session, RafObject o, String targetBase ) throws RepositoryException, RafException{
+        //jcrTools.findOrCreateNode(session, PROP_TAG)
+        //Önce folder var mı bakalım yoksa yoksa zaten exception ile çıkacağız.
+        Node folderNode = session.getNode(targetBase);
+        
+        //Node tipi folder değil ise hata verelim. Bunun üzerine kopyalama yapamayız
+        if( !folderNode.isNodeType(NODE_FOLDER)){
+            //FIXME: doğru bir hata üretelim.
+            throw new RafException();
+        }
+        
+        String result = targetBase + "/" + o.getName();
+        
+        try{
+            Node targetNode = session.getNode(result);
+        } catch ( PathNotFoundException e){
+            //Beklenen durum. Node yok ve doğru isimle geri döneceğiz. Aksi halde devam edip isim değiştireceğiz.
+            return result; 
+        }
+        
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
+        result = targetBase + "/" + o.getName() + "(" + folderNode.getNodes( o.getName() + "*" ).getSize() + ")";
+        
+        return result;
     }
     
     /**
