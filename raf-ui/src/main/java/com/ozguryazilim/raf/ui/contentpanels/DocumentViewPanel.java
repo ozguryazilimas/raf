@@ -90,4 +90,11 @@ public class DocumentViewPanel extends ObjectContentPanel{
         List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(type);
         ls.get(0).edit();
     }
+
+    @Override
+    public boolean isSupportMetadata() {
+        return true;
+    }
+    
+    
 }

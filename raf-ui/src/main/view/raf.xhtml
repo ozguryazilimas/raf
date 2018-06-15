@@ -192,17 +192,18 @@
                             </ui:repeat>
                         </ui:remove>
 
-                        <ui:fragment rendered="#{not rafController.selectedContentPanel.supportCollection}">
+                        <ui:fragment rendered="#{rafController.selectedContentPanel.supportMetadata}">
                             <div style="margin-left: 10px; display: inline-block;">
                                 <div class="dropdown" style="display: inline-block;">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Üst Veri Ekle">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{messages['action.addMetadata']}">
                                         <i class="fa fa-cubes" />
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
                                         <ui:repeat value="#{documentViewPanel.additonalMetadatas}" var="md" >
                                             <li>
-                                                <p:commandLink action="#{documentViewPanel.addMetadata(md)}" process="@this" update="raf-view-content">
+                                                <p:commandLink action="#{documentViewPanel.addMetadata(md)}" process="@this">
                                                     <i class="fa fa-cube" /> #{md}
+                                                    <p:ajax event="dialogReturn" update="raf-view" />
                                                 </p:commandLink>
                                             </li>
                                         </ui:repeat>

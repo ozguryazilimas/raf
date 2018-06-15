@@ -133,4 +133,8 @@ public abstract class AbstractContentPanel implements Serializable{
     protected ContentPanel getAnnotation(){
         return (ContentPanel) ProxyUtils.getUnproxiedClass(this.getClass()).getAnnotation(ContentPanel.class);
     }
+    
+    public boolean isSupportMetadata(){
+        return false;
+    }
 }

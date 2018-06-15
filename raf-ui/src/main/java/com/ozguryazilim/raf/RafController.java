@@ -23,6 +23,8 @@ import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.ActionRegistery;
 import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
+import com.ozguryazilim.raf.ui.contentpanels.DocumentViewPanel;
+import com.ozguryazilim.raf.ui.contentpanels.FolderViewPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -73,6 +75,12 @@ public class RafController implements Serializable {
     private AbstractContentPanel selectedContentPanel;
     private AbstractContentPanel selectedCollectionContentPanel;
 
+    @Inject
+    private DocumentViewPanel  documentViewPanel;
+    
+    @Inject
+    private FolderViewPanel  folderViewPanel;
+    
     private String rafCode;
 
     private String objectId;
@@ -235,13 +243,26 @@ public class RafController implements Serializable {
      * @return
      */
     protected AbstractContentPanel getObjectContentPanel() {
+        
+        //FIXME: burada previeww panelleri gibi aslında mimeType'a bakarak doğru paneli seçmek lazım
+        
+        if( context.getSelectedObject() instanceof RafDocument ){
+            return documentViewPanel;
+        } else if ( context.getSelectedObject() instanceof RafFolder ){
+            return folderViewPanel;
+        }
+        
+        /*
         for (AbstractContentPanel p : getContentPanels()) {
             if (!p.getSupportCollection()) {
                 return p;
             }
         }
-
+        */
+        
+        //FIXME: Hiçibişi seçilmemesi durumu riski var.
         return null;
+        
     }
 
     /**

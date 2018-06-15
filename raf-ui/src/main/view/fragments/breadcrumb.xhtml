@@ -7,21 +7,21 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ul class="breadcrumb text-muted text-sm" style="margin: -4px -4px 0 -4px;  border-bottom: 1px solid silver; border-radius: 0px;">
-        
-        <p:commandLink action="#{rafSelectionController.toggleSelectAll()}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-left: -12px;">
-            <i class="fa #{rafSelectionController.allSelected ? 'fa-check-square' : 'fa-square-o'}" />
-        </p:commandLink>
-        
+        <ui:fragment rendered="#{currentFolderEnabled ne 'true'}">
+            <p:commandLink action="#{rafSelectionController.toggleSelectAll()}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-left: -12px;">
+                <i class="fa #{rafSelectionController.allSelected ? 'fa-check-square' : 'fa-square-o'}" />
+            </p:commandLink>
+        </ui:fragment>
         <li></li>
         <ui:remove>
             Bir üst klasör'e kıs yol çok anlamlı değil.
-        <ui:fragment rendered="#{folderBreadcrumbController.parentFolder ne null}" >
-            <li>
-                <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.parentFolder)}" update="raf-view" ajax="true" process="@this">
-                    <i class="fa fa-level-up" />
-                </p:commandLink>
-            </li>
-        </ui:fragment>
+            <ui:fragment rendered="#{folderBreadcrumbController.parentFolder ne null}" >
+                <li>
+                    <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.parentFolder)}" update="raf-view" ajax="true" process="@this">
+                        <i class="fa fa-level-up" />
+                    </p:commandLink>
+                </li>
+            </ui:fragment>
         </ui:remove>
 
         <ui:repeat value="#{folderBreadcrumbController.breadcrumbItems}" var="item">
@@ -35,17 +35,17 @@
 
         <li>
             <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
-                    #{folderBreadcrumbController.currentFolder.title}
+                #{folderBreadcrumbController.currentFolder.title}
             </p:commandLink>
         </li>
-        
+
         <div class="pull-right">
             <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
-                    <i class="fa fa-close" />
+                <i class="fa fa-close" />
             </p:commandLink>
         </div>
     </ul>
-    
+
 
 </ui:composition>
 
