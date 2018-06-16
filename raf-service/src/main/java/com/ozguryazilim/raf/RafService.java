@@ -69,6 +69,11 @@ public class RafService implements Serializable {
         return rafRepository.getCategoryCollection(categoryId, category, categoryPath, rootPath, false);
     }
     
+    public RafCollection getTagCollection( String tag, String rootPath ) throws RafException {
+        //FIXME: sıralama, yetki v.s.
+        return rafRepository.getTagCollection(tag, rootPath);
+    }
+    
     public RafCollection getCategoryCollectionById(Long categoryId, String rootPath ) throws RafException {
         //FIXME: sıralama, yetki v.s.
         //FIXME: NPE kontorol

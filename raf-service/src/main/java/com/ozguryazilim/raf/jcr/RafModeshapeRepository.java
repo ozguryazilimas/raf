@@ -32,6 +32,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.Workspace;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
@@ -356,6 +357,44 @@ public class RafModeshapeRepository implements Serializable {
     }
     
     
+    public RafCollection getTagCollection( String tag, String rootPath ) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId(tag);
+        result.setMimeType("raf/tags");
+        result.setTitle(tag);
+        result.setPath(tag);
+        result.setName(tag);
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
+            String expression = "SELECT * FROM [" + MIXIN_TAGGABLE + "] WHERE ["+ PROP_TAG + "] = '" + tag + "' AND  ISDESCENDANTNODE('" + rootPath + "')";
+            
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+
+                //Node tipine göre doğru conversion.
+                if (n.isNodeType(NODE_FOLDER)) {
+                    result.getItems().add(nodeToRafFolder(n));
+                } else if (n.isNodeType(NODE_FILE)) {
+                    result.getItems().add(nodeToRafDocument(n));
+                }
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+
+        return result;
+    }
+    
 
     public void createFolder(RafFolder folder) throws RafException {
         try {
@@ -492,7 +531,9 @@ public class RafModeshapeRepository implements Serializable {
 
             node.setProperty(PROP_CATEGORY, object.getCategory());
             node.setProperty(PROP_CATEGORY_PATH, object.getCategoryPath());
-            node.setProperty(PROP_CATEGORY_ID, object.getCategoryId());
+            //Eğer id null gelir ise primitive çevrimi hata veriyor
+            node.setProperty(PROP_CATEGORY_ID, object.getCategoryId() == null ? 0 : object.getCategoryId());
+            node.setProperty(PROP_TAG, object.getTags().toArray(new String[] {}));
             //node.setProperty(PROP_TAG, "");
 
             session.save();
@@ -757,6 +798,7 @@ public class RafModeshapeRepository implements Serializable {
             result.setCategory(getPropertyAsString(node, PROP_CATEGORY));
             result.setCategoryPath(getPropertyAsString(node, PROP_CATEGORY_PATH));
             result.setCategoryId(getPropertyAsLong(node, PROP_CATEGORY_ID));
+            result.setTags(getPropertyAsStringList(node, PROP_TAG));
         }
 
         return result;
@@ -798,6 +840,7 @@ public class RafModeshapeRepository implements Serializable {
             result.setCategory(getPropertyAsString(node, PROP_CATEGORY));
             result.setCategoryPath(getPropertyAsString(node, PROP_CATEGORY_PATH));
             result.setCategoryId(getPropertyAsLong(node, PROP_CATEGORY_ID));
+            result.setTags(getPropertyAsStringList(node, PROP_TAG));
         }
 
         NodeIterator it = node.getNodes("*:metadata");
@@ -870,6 +913,36 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         return null;
+    }
+    
+    /**
+     * Verilen property key sonucunun null kontrolü yaparak geriye değer
+     * döndürür.
+     *
+     * @param node
+     * @param prop
+     * @return
+     * @throws RepositoryException
+     */
+    private List<String> getPropertyAsStringList(Node node, String prop) throws RepositoryException {
+
+        List<String> result = new ArrayList<>();
+        
+        try {
+            Property property = node.getProperty(prop);
+
+            if (property != null) {
+                Value[] vls = property.getValues();
+                for( Value v : vls ){
+                    result.add( v.getString());
+                }
+            }
+        } catch (PathNotFoundException ex) {
+            //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
+            LOG.debug("Property not found : {}", prop);
+        }
+
+        return result;
     }
 
 }

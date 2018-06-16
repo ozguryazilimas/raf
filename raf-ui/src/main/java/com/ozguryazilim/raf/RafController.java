@@ -59,9 +59,10 @@ public class RafController implements Serializable {
     @Inject
     private Identity identity;
 
-    @Inject @UserAware
+    @Inject
+    @UserAware
     private Kahve kahve;
-    
+
     @Inject
     private RafDefinitionService rafDefinitionService;
 
@@ -83,25 +84,24 @@ public class RafController implements Serializable {
     private AbstractContentPanel selectedCollectionContentPanel;
 
     @Inject
-    private DocumentViewPanel  documentViewPanel;
-    
+    private DocumentViewPanel documentViewPanel;
+
     @Inject
-    private FolderViewPanel  folderViewPanel;
-    
+    private FolderViewPanel folderViewPanel;
+
     private String rafCode;
 
     private String objectId;
 
     private RafDefinition rafDefinition;
-    
+
     private Boolean showFolders = Boolean.TRUE;
 
-    
     @PostConstruct
-    public void initDefaults(){
+    public void initDefaults() {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
     }
-    
+
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
      *
@@ -150,7 +150,7 @@ public class RafController implements Serializable {
                 }
 
                 populateFolderCollection(fld.getId());
-                
+
                 context.setSelectedObject(obj);
 
             } catch (RafException ex) {
@@ -165,7 +165,7 @@ public class RafController implements Serializable {
             } catch (RafException ex) {
                 LOG.error("Raf Exception", ex);
             }
-            
+
             //FIXME: bundan çok emin değilim. RafFolder değil RafNode bağladık çünkü.
             context.setSelectedObject(rafDefinition.getNode());
             selectedContentPanel = getCollectionContentPanel();
@@ -258,26 +258,24 @@ public class RafController implements Serializable {
      * @return
      */
     protected AbstractContentPanel getObjectContentPanel() {
-        
+
         //FIXME: burada previeww panelleri gibi aslında mimeType'a bakarak doğru paneli seçmek lazım
-        
-        if( context.getSelectedObject() instanceof RafDocument ){
+        if (context.getSelectedObject() instanceof RafDocument) {
             return documentViewPanel;
-        } else if ( context.getSelectedObject() instanceof RafFolder ){
+        } else if (context.getSelectedObject() instanceof RafFolder) {
             return folderViewPanel;
         }
-        
+
         /*
         for (AbstractContentPanel p : getContentPanels()) {
             if (!p.getSupportCollection()) {
                 return p;
             }
         }
-        */
-        
+         */
         //FIXME: Hiçibişi seçilmemesi durumu riski var.
         return null;
-        
+
     }
 
     /**
@@ -378,7 +376,7 @@ public class RafController implements Serializable {
             selectFolderById(nodeId);
         }
     }
-    
+
     public void selectCategory() {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         String nodeId = params.get("nodeId");
@@ -397,35 +395,45 @@ public class RafController implements Serializable {
         }
     }
 
+    public void selectTag(String tag) {
+        LOG.info("Selected Tag : {}", tag);
+        try {
+            populateTagCollection(tag);
+        } catch (RafException ex) {
+            //FIXME: i18n ve gerçekten ne yapılmalı?
+            LOG.error("Tag Selection Error", ex);
+            FacesMessages.error("Tag Selection Error", ex.getLocalizedMessage());
+        }
+    }
+
     /**
      * Geriye uygulanabilir durumdaki action'ları döndürür.
-     * 
-     * TODO: Burada action listesinin hazırlanması ile ilgili bir cache mekanizması düşünmek lazım. Her seferinde hesaplamak biraz sorunlu.
-     * 
+     *
+     * TODO: Burada action listesinin hazırlanması ile ilgili bir cache
+     * mekanizması düşünmek lazım. Her seferinde hesaplamak biraz sorunlu.
+     *
      * @return
      */
     public List<List<AbstractAction>> getActions() {
         //FIXME: Yetki kontrolü
-        
+
         List<List<AbstractAction>> result = new ArrayList<>();
-        
+
         List<AbstractAction> acts = ActionRegistery.getActions();
         Map< Integer, List<AbstractAction>> actGroups = acts.stream()
                 .filter(a -> a.applicable(selectedContentPanel.getSupportCollection()))
                 .sorted(new Comparator<AbstractAction>() {
                     @Override
                     public int compare(AbstractAction a1, AbstractAction a2) {
-                        return a1.getOrder()< a2.getOrder()? -1 : a1.getOrder()> a2.getOrder()? 1 : 0;
+                        return a1.getOrder() < a2.getOrder() ? -1 : a1.getOrder() > a2.getOrder() ? 1 : 0;
                     }
                 })
-                .collect( Collectors.groupingBy(AbstractAction::getGroup,Collectors.toList()) );
+                .collect(Collectors.groupingBy(AbstractAction::getGroup, Collectors.toList()));
 
-        
-        for( Integer g : actGroups.keySet() ){
+        for (Integer g : actGroups.keySet()) {
             result.add(actGroups.get(g));
         }
 
-        
         return result;
     }
 
@@ -484,36 +492,52 @@ public class RafController implements Serializable {
         }
     }
 
-    protected void populateFolderCollection( String folderId) throws RafException{
-        
+    protected void populateFolderCollection(String folderId) throws RafException {
+
         RafCollection collection = rafService.getCollection(folderId);
-        
-        if( !showFolders ){
+
+        if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
             collection.setItems(
-                collection.getItems()
-                        .stream()
-                        .filter( o -> !"raf/folder".equals(o.getMimeType()))
-                        .collect(Collectors.toList())
+                    collection.getItems()
+                            .stream()
+                            .filter(o -> !"raf/folder".equals(o.getMimeType()))
+                            .collect(Collectors.toList())
             );
         }
-        
+
         context.setCollection(collection);
     }
-    
-    protected void populateCategoryCollection( Long categoryId ) throws RafException{
+
+    protected void populateCategoryCollection(Long categoryId) throws RafException {
         RafCollection collection = rafService.getCategoryCollectionById(categoryId, context.getSelectedRaf().getNode().getPath());
-        
-        if( !showFolders ){
+
+        if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
             collection.setItems(
-                collection.getItems()
-                        .stream()
-                        .filter( o -> !"raf/folder".equals(o.getMimeType()))
-                        .collect(Collectors.toList())
+                    collection.getItems()
+                            .stream()
+                            .filter(o -> !"raf/folder".equals(o.getMimeType()))
+                            .collect(Collectors.toList())
             );
         }
-        
+
+        context.setCollection(collection);
+    }
+
+    protected void populateTagCollection(String tag) throws RafException {
+        RafCollection collection = rafService.getTagCollection( tag, context.getSelectedRaf().getNode().getPath());
+
+        if (!showFolders) {
+            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
+            collection.setItems(
+                    collection.getItems()
+                            .stream()
+                            .filter(o -> !"raf/folder".equals(o.getMimeType()))
+                            .collect(Collectors.toList())
+            );
+        }
+
         context.setCollection(collection);
     }
     
@@ -534,17 +558,16 @@ public class RafController implements Serializable {
         
         context.setCollection(collection);
     }
-    */
-    
-    public void toggleShowFolders(){
+     */
+    public void toggleShowFolders() {
         showFolders = !showFolders;
-        
+
         kahve.put("raf.showFolders", showFolders);
-        
+
         folderChangedEvent.fire(new RafFolderChangeEvent());
     }
-    
-    public Boolean getShowFolders(){
+
+    public Boolean getShowFolders() {
         return showFolders;
     }
 }

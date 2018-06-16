@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.tags;
+package com.ozguryazilim.raf.tag;
 
 import com.ozguryazilim.telve.entities.SuggestionItem;
 import com.ozguryazilim.telve.suggestion.SuggestionRepository;

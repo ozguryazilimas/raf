@@ -23,4 +23,7 @@ public interface SidePanelPages extends Pages{
     
     @SecuredPage
     class CategorySidePanel implements SidePanelPages {}
+    
+    @SecuredPage
+    class TagsSidePanel implements SidePanelPages {}
 }

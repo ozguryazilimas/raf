@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.tags;
 
+import com.ozguryazilim.raf.tag.TagSuggestionService;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.primefaces.event.SelectEvent;
 

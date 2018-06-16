@@ -5,27 +5,29 @@
  */
 package com.ozguryazilim.raf.ui.sidepanels;
 
-import com.ozguryazilim.raf.category.RafCategoryService;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.config.SidePanelPages;
-import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.tag.TagSuggestionService;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.SidePanel;
 import java.util.List;
 import javax.inject.Inject;
 
 /**
- * Category Side Panel kontrol sınıfı.
- * 
- * 
- * @author Hakan Uygun
+ *
+ * @author oyas
  */
-@SidePanel(view = SidePanelPages.CategorySidePanel.class, icon = "fa-sitemap")
-public class CategorySidePanel extends AbstractSidePanel{
-
+@SidePanel(view = SidePanelPages.TagsSidePanel.class, icon = "fa-tags")
+public class TagsSidePanel extends AbstractSidePanel{
+ 
     @Inject
-    private RafCategoryService categoryService;
+    private RafContext context;
     
-    public List<RafCategory> getCategories(){
-        return categoryService.getCategories();
+    @Inject
+    private TagSuggestionService tagService;
+    
+    public List<String> getTags(){
+        return tagService.getSuggestions(context.getSelectedRaf().getCode());
     }
+    
 }

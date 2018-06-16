@@ -15,7 +15,7 @@
             <div class="row">
                 <t:inputText label="general.label.Title" value="#{documentViewPanel.rafObject.title}" placeholder="Başlık"/>
                 <t:inputTextarea label="general.label.Info" value="#{documentViewPanel.rafObject.info}" placeholder="Açıklama"/>
-                <t:inputTag label="general.label.Tags" value="#{documentViewPanel.rafObject.tags}" key="AAA" />
+                <t:inputTag label="general.label.Tags" value="#{documentViewPanel.rafObject.tags}" key="#{rafContext.selectedRaf.code}" />
                 <t:inputLookupDialog value="#{basicMetadataPanel.category}" label="general.label.Category"  
                                  lookupBean="#{rafCategoryLookup}" lookupListener="basicMetadataPanel.category" 
                                  leafSelect="false" 
