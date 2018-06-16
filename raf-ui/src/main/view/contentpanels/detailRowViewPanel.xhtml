@@ -30,9 +30,13 @@
                     </div>
                 </td>
                 <td>
-                    <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
+                    <div class="text-muted text-sm">#{item.info}</div>
                     <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
-                    <div class="text-muted text-sm"><i class="fa fa-tags" /> Etiket, Etiket, Etiket</div>
+                    <div class="text-muted text-sm">
+                        <p:repeat value="#{item.tags}" var="tag">
+                            <i class="fa fa-tag" /> #{tag}
+                        </p:repeat>
+                    </div>
                 </td>
                 <td style="text-align: right; vertical-align: middle">
                     <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">

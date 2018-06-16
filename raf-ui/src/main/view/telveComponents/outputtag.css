@@ -1,10 +1,22 @@
 .tekir-tag {
-    background-color: #186ba0;
+    /*background-color: #186ba0;
     border-radius: 3px;
     color: #fff;
     display: inline-block;
     padding-left: 4px;
     padding-right: 4px;
     text-align: center;
-    margin-top: 2px;
+    margin-top: 2px;*/
+    display: inline-block;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: center;
 }
+
+/*
+.tekir-tag:before {
+    content: "\f02c";
+    font: normal normal normal 14px/1 FontAwesome;
+    margin-right: 2px;
+}
+*/

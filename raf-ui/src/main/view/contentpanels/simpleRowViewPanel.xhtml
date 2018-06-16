@@ -31,8 +31,17 @@
                             #{item.info} <ui:remove>| #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/></ui:remove>
                         </span>
                     </div>
+                    
+                    <div class="raf-item-name" style="margin-left: 8px;">
+                    <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
+                    <div class="text-muted text-sm">
+                        <p:repeat value="#{item.tags}" var="tag">
+                            <i class="fa fa-tag" /> #{tag}
+                        </p:repeat>
+                    </div>
+                    </div>
                 </div>
-
+                
                 <div class="raf-item-tools">
                     <ui:remove>FIXME: Yetki kontrolü</ui:remove>
 
