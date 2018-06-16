@@ -131,6 +131,29 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException(ex);
         }
     }
+    
+    public RafNode updateRafNode(RafDefinition definition) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = getEncodedPath(RAF_ROOT + definition.getCode());
+
+            
+            Node node = session.getNode(fullPath);
+
+            node.setProperty(PROP_TITLE, definition.getName());
+            node.setProperty(PROP_DESCRIPTON, definition.getInfo());
+
+            RafNode result = nodeToRafNode(node);
+
+            session.save();
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
 
     /**
      * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.

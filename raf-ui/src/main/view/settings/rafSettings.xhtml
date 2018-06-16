@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"                   
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:param name="dontShowContentHeader" value="true" />
+    <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="#{rafController.rafDefinition.name}" />
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{rafSettingsController.rafCode}" />
+            <f:viewAction action="#{rafSettingsController.init()}"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="extraHead">
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+    </ui:define>
+
+    <ui:define name="customHeader">
+
+        <div class="raf-header-container">
+            <section class="raf-header">
+                <div class="raf-header-logo">
+                    <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
+                </div>
+                <div class="raf-header-texts">
+                    <div class="raf-header-text text-muted text-sm">
+                        #{messages['raf.label.Raf']}
+                    </div>
+                    <div class="raf-header-info text-bold text-big">
+                        #{messages[rafSettingsController.rafDefinition.name]}
+                    </div>
+                </div>
+            </section>
+            <section class="raf-header-tools">
+                <div class="raf-header-tool-pack">
+                    <div class="raf-header-btns">
+                        <a href="" title="#{messages['action.title.Members']}">
+                            <i class="fa fa-users" />
+                        </a>
+                        <a href="" title="#{messages['action.title.Settings']}">
+                            <i class="fa fa-cogs" />
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </ui:define>
+
+    <ui:define name="body">
+        <ui:include src="/layout/messages.xhtml" />
+
+
+        <div class="box box-primary">
+            <h:form id="setf">
+                <div class="box-body">
+                    <t:inputText label="general.label.Name" value="#{rafSettingsController.rafDefinition.name}" />
+                    <t:inputText label="general.label.Code" value="#{rafSettingsController.rafDefinition.code}" readonly="true"/>
+                    <t:inputTextarea label="general.label.Info" value="#{rafSettingsController.rafDefinition.info}" columnClass="col-xs-12"/>
+                </div>
+                <div class="box-footer">
+                    <h:panelGroup styleClass="actionButtons" layout="block">
+                        <p:commandButton id="save" value="#{messages['general.button.Save']}" icon="fa fa-save" action="#{rafSettingsController.save()}" styleClass="btn-primary"/>
+                        <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafSettingsController.cancel()}" process="@this"/>
+                    </h:panelGroup>
+                </div>
+            </h:form>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

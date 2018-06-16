@@ -41,16 +41,20 @@
                 </div>
             </section>
             <section class="raf-header-tools">
+                <ui:fragment rendered="#{rafController.rafDefinition.code ne 'PRIVATE' and rafController.rafDefinition.code ne 'SHARED'}">
                 <div class="raf-header-tool-pack">
                     <div class="raf-header-btns">
                         <a href="" title="#{messages['action.title.Members']}">
                             <i class="fa fa-users" />
                         </a>
-                        <a href="" title="#{messages['action.title.Settings']}">
+                        
+                        <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
                             <i class="fa fa-cogs" />
-                        </a>
+                            <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                        </h:link>
                     </div>
                 </div>
+                    </ui:fragment>
             </section>
         </div>
 

@@ -24,4 +24,7 @@ public interface SettingsPages extends Pages{
     @Navigation(icon = "fa fa-archive", section = AdminNavigationSection.class)
     class RafDefinitionBrowse implements SettingsPages {};
     
+    @SecuredPage("rafSettings")
+    class RafSettings implements SettingsPages {};
+    
 }

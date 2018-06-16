@@ -13,6 +13,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 
 /**
  *
@@ -85,6 +86,17 @@ public class RafDefinitionService implements Serializable{
             return result;
         }
         
+    }
+    
+    @Transactional
+    public void save( RafDefinition rafDefinition ) throws RafException{
+        //PRIVATE ya da SHARED raf için saklanacak bişi yok.
+        if( rafDefinition.getId() < 1 ){
+            return;
+        }
+        
+        repository.saveAndFlush(rafDefinition);
+        rafRepository.updateRafNode(rafDefinition);
     }
     
 }
