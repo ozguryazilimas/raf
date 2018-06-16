@@ -33,74 +33,22 @@
                 </div>
                 <div class="raf-header-texts">
                     <div class="raf-header-text text-muted text-sm">
-                        Raf
+                        #{messages['raf.label.Raf']}
                     </div>
                     <div class="raf-header-info text-bold text-big">
-                        #{rafController.rafDefinition.name}
+                        #{messages[rafController.rafDefinition.name]}
                     </div>
                 </div>
             </section>
             <section class="raf-header-tools">
                 <div class="raf-header-tool-pack">
                     <div class="raf-header-btns">
-                        <ui:remove>
-                            <p:commandLink action="#{rafController.toggleSideBar()}" update="raf-view">
-                                <i class="fa fa-sitemap" />
-                            </p:commandLink>
-
-                            <p:commandLink action="#{rafController.createFolder()}" update="raf-view">
-                                <i class="fa fa-plus" />
-                            </p:commandLink>
-
-                            <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" update="raf-view">
-                                <i class="fa fa-plus" />
-                            </p:commandLink>
-                        </ui:remove>
-
-                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" >
-                            <i class="fa fa-plus" />
-                        </p:commandLink>
-                    </div>
-                    <div class="raf-header-btns">
-                        <ui:remove>
-                            <p:commandLink action="#{rafController.setContentView('iconView')}" update="raf-view">
-                                <i class="fa fa-th" />
-                            </p:commandLink>
-
-                            <p:commandLink action="#{rafController.setContentView('simpleRowView')}" update="raf-view">
-                                <i class="fa fa-list" />
-                            </p:commandLink>
-
-                            <p:commandLink action="#{rafController.setContentView('detailRowView')}" update="raf-view">
-                                <i class="fa fa-th-list" />
-                            </p:commandLink>
-                        </ui:remove>
-                    </div>
-                    <div class="raf-header-btns">
-                        <a href="" >
-                            <i class="fa fa-sitemap" />
+                        <a href="" title="#{messages['action.title.Members']}">
+                            <i class="fa fa-users" />
                         </a>
-                        <a href="" >
-                            <i class="fa fa-list" />
+                        <a href="" title="#{messages['action.title.Settings']}">
+                            <i class="fa fa-cogs" />
                         </a>
-                    </div>
-                    <div class="raf-header-btns">
-                        <div class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-cog"></i>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <ui:repeat value="#{rafNavigationController.rafs}" var="raf" >
-                                    <li >
-                                        <h:link  outcome="/raf.xhtml" title="#{raf.code}">
-                                            <i class="fa fa-archive"></i>
-                                            <f:param name="id" value="#{raf.code}" />
-                                            #{raf.name}
-                                        </h:link>
-                                    </li>
-                                </ui:repeat>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -113,15 +61,16 @@
 
 
         <p:outputPanel id="raf-view" class="raf" style="height: 100%;">
+            <ui:fragment rendered="#{rafController.showSidePanel}">
             <div class="raf-box left" >
                 <div class="raf-box-header">
                     <i class="fa #{rafController.selectedSidePanel.icon}"/>
-                    #{rafController.selectedSidePanel.title}
+                    #{messages[rafController.selectedSidePanel.title]}
 
                     <div class="pull-right">
 
                         <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
-                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="#{sidePanel.title}" update="raf-view">
+                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="#{messages[sidePanel.title]}" update="raf-view">
                                 <i class="fa #{sidePanel.icon}" /> 
                             </p:commandLink>
                         </ui:repeat>
@@ -131,7 +80,7 @@
                     <ui:include src="#{rafController.selectedSidePanel.viewId}" />
                 </div>
             </div>
-
+            </ui:fragment>
             <p:outputPanel id="raf-view-content" class="raf-box middle">
                 <div class="raf-box-header">
                     <i class="fa #{rafController.selectedContentPanel.icon}"/>
@@ -147,7 +96,7 @@
 
                                             <ui:remove>Not: Confirmation yüzünden böyle garip bişi var!</ui:remove>
                                             <ui:fragment rendered="#{act.supportConfirmation}">
-                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{act.title}"
+                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
                                                     <i class="fa #{act.icon}" />
                                                     <p:confirm header="#{messages['confirmation.header.'.concat(act.name)]}" message="#{messages['confirmation.message.'.concat(act.name)]}" icon="fa fa-alert" />
@@ -156,7 +105,7 @@
                                             </ui:fragment>
 
                                             <ui:fragment rendered="#{not act.supportConfirmation}">
-                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{act.title}"
+                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
                                                     <i class="fa #{act.icon}" />
                                                     <p:ajax event="dialogReturn" update="raf-view" />
@@ -220,13 +169,18 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
                                     <li>
+                                        <p:commandLink action="#{rafController.toggleSidePanel()}" process="@this" update="raf-view">
+                                            <i class="fa #{rafController.showSidePanel ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.ShowSidePanel']}
+                                        </p:commandLink>
+                                    </li>
+                                    <li>
                                         <p:commandLink action="#{rafController.toggleShowFolders()}" process="@this" update="raf-view-content">
-                                            <i class="fa #{rafController.showFolders ? 'fa-check-square' : 'fa-square-o' }" /> Show Folders
+                                            <i class="fa #{rafController.showFolders ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.ShowFolders']}
                                         </p:commandLink>
                                     </li>
                                     <li>
                                         <p:commandLink action="#{folderBreadcrumbController.toggleShow()}" process="@this" update="raf-view-content">
-                                            <i class="fa #{folderBreadcrumbController.showBreadcrumb ? 'fa-check-square' : 'fa-square-o' }" /> Show Breadcrumb
+                                            <i class="fa #{folderBreadcrumbController.showBreadcrumb ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.ShowBreadcrumb']}
                                         </p:commandLink>
                                     </li>
 
@@ -234,8 +188,8 @@
 
                                     <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
                                         <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
-                                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">
-                                                <i class="fa #{cw.actionIcon}" /> #{cw.actionTitle}
+                                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" >
+                                                <i class="fa #{cw.actionIcon}" /> #{messages[cw.actionTitle]}
                                             </p:commandLink>
                                         </li>
                                     </ui:repeat>

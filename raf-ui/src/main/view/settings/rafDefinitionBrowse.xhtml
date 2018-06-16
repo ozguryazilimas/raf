@@ -76,7 +76,7 @@
         <li>
             <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
                 <i class="fa fa-plus-circle" />
-                Yeni Raf Ekle
+                #{messages['raf.label.CreateRaf']}
                 <p:ajax event="dialogReturn" update=":browseListForm:results, rafMenu" />
             </p:commandLink>
         </li>

@@ -52,7 +52,7 @@ public class RafDefinitionService implements Serializable{
             
             privateRaf.setId(-1L);
             privateRaf.setCode(code);
-            privateRaf.setName("Kişisel");
+            privateRaf.setName("raf.label.Private");
             
             RafNode n = rafRepository.getPrivateRafNode(identity.getLoginName());
             privateRaf.setNodeId(n.getId());
@@ -64,7 +64,7 @@ public class RafDefinitionService implements Serializable{
             
             privateRaf.setId(-2L);
             privateRaf.setCode(code);
-            privateRaf.setName("Ortak");
+            privateRaf.setName("raf.label.Shared");
             
             RafNode n = rafRepository.getSharedRafNode();
             privateRaf.setNodeId(n.getId());

@@ -96,10 +96,12 @@ public class RafController implements Serializable {
     private RafDefinition rafDefinition;
 
     private Boolean showFolders = Boolean.TRUE;
+    private Boolean showSidePanel = Boolean.TRUE;
 
     @PostConstruct
     public void initDefaults() {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
+        showSidePanel = kahve.get("raf.showSidePanel", Boolean.TRUE).getAsBoolean();
     }
 
     /**
@@ -578,4 +580,16 @@ public class RafController implements Serializable {
     public Boolean getShowFolders() {
         return showFolders;
     }
+    
+    public void toggleSidePanel() {
+        showSidePanel = !showSidePanel;
+
+        kahve.put("raf.showSidePanel", showSidePanel);
+    }
+
+    public Boolean getShowSidePanel() {
+        return showSidePanel;
+    }
+    
+    
 }

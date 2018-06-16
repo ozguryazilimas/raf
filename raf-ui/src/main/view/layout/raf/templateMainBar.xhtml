@@ -63,20 +63,20 @@
                         </ui:remove>
                         <ui:fragment rendered="#{rafNavigationController.hasPersonalRaf()}">
                             <li >
-                                <h:link  outcome="/raf.xhtml" title="Kişisel">
+                                <h:link  outcome="/raf.xhtml" >
                                     <i class="fa fa-archive"></i>
                                     <f:param name="id" value="PRIVATE" />
-                                    Kişisel
+                                    #{messages['raf.label.Private']}
                                 </h:link>
                             </li>
                         </ui:fragment>
 
                         <ui:fragment rendered="#{rafNavigationController.hasSharedRaf()}">
                             <li >
-                                <h:link  outcome="/raf.xhtml" title="Ortak">
+                                <h:link  outcome="/raf.xhtml" >
                                     <i class="fa fa-archive"></i>
                                     <f:param name="id" value="SHARED" />
-                                    Ortak
+                                    #{messages['raf.label.Shared']}
                                 </h:link>
                             </li>
                         </ui:fragment>
@@ -85,7 +85,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-archive"></i>
-                                <span>Hepsi</span>
+                                <span>#{messages['raf.label.All']}</span>
                                 <i class="caret"></i>
                             </a>
 
@@ -105,7 +105,7 @@
                                 <li >
                                     <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
                                         <i class="fa fa-plus-circle" />
-                                        Yeni Raf Ekle
+                                        #{messages['raf.label.CreateRaf']}
                                         <p:ajax event="dialogReturn" update="rafMenu" />
                                     </p:commandLink>
                                 </li>
@@ -118,7 +118,7 @@
                     </ul>
                     <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
-                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="Search" />
+                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="#{messages['general.label.Search']}" />
                         </div>
                     </h:form>
                     <ul class="nav navbar-nav">
@@ -156,7 +156,7 @@
                 <div class="navbar-custom-menu">
                     <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
-                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="Search" />
+                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="#{messages['general.label.Search']}" />
                         </div>
                     </h:form>
                     <ul class="nav navbar-nav">
