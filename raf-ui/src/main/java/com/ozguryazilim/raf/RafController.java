@@ -350,6 +350,14 @@ public class RafController implements Serializable {
         //FIXME: Doğru paneli nasıl seçeceğiz?
         selectedContentPanel = getCollectionContentPanel();
     }
+    
+    public void closeObjectPanel(){
+        //FIXME: bundan pek emin değilim. SelectedObject'e null mu atamalı?
+        context.setSelectedObject(null);
+        //ObjectPanel'e geçerken obje aynı zamanda seçiliyor kapatırken de silelim
+        context.getSeletedItems().clear();
+        selectedContentPanel = getCollectionContentPanel();
+    }
 
     /**
      * Context'e bulunan RafFolder içinden idsi verilen folder'ı bulur. Bulamaz

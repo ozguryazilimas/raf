@@ -66,7 +66,7 @@ public class RafSelectionController implements Serializable{
     }
     
     public boolean isAllSelected( ){
-        return context.getSeletedItems().size() == context.getCollection().getItems().size();
+        return context.getCollection().getItems().size() > 0 && context.getSeletedItems().size() == context.getCollection().getItems().size();
     }
     
     public void folderChangeListener( @Observes RafFolderChangeEvent event){

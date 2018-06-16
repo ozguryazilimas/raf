@@ -112,7 +112,7 @@
         <ui:include src="/layout/messages.xhtml" />
 
 
-        <p:outputPanel id="raf-view" class="raf">
+        <p:outputPanel id="raf-view" class="raf" style="height: 100%;">
             <div class="raf-box left" >
                 <div class="raf-box-header">
                     <i class="fa #{rafController.selectedSidePanel.icon}"/>
@@ -229,9 +229,9 @@
                                             <i class="fa #{folderBreadcrumbController.showBreadcrumb ? 'fa-check-square' : 'fa-square-o' }" /> Show Breadcrumb
                                         </p:commandLink>
                                     </li>
-                                    
+
                                     <li role="separator" class="divider"></li>
-                                    
+
                                     <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
                                         <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
                                             <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" title="#{cw.actionTitle}">
@@ -264,10 +264,16 @@
                         </ul>
                     </div>
                 </ui:fragment>
+
+                <script type="text/javascript">
+                    /*contentSection*/
+                    var clientHeight = jQuery(window).height() - 150;
+                    jQuery('#contentSection').css('height', clientHeight);
+
+                    jQuery('.raf-box-content').css('max-height', clientHeight - 30);
+                </script>
             </p:outputPanel>
         </p:outputPanel>
-
-
 
 
 

@@ -7,7 +7,9 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ui:fragment rendered="#{detailRowViewPanel.supportBreadcrumb}" >
-        <ui:include src="/fragments/breadcrumb.xhtml" />
+        <ui:include src="/fragments/breadcrumb.xhtml" >
+            <ui:param name="forCollection" value="true" />
+        </ui:include>
     </ui:fragment>
 
 

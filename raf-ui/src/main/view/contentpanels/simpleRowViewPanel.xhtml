@@ -7,7 +7,10 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ui:fragment rendered="#{simpleRowViewPanel.supportBreadcrumb}" >
-        <ui:include src="/fragments/breadcrumb.xhtml" />
+        <ui:include src="/fragments/breadcrumb.xhtml" >
+            <ui:param name="forCollection" value="true" />
+        </ui:include>
+        
     </ui:fragment>
 
     <ul class="raf-item-row-list">
