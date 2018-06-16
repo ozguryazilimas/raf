@@ -33,6 +33,8 @@ public abstract class RafObject implements Serializable{
     private String parentId;
     
     private String category;
+    private String categoryPath;
+    private Long categoryId;
     private List<String> tags = new ArrayList<>();
     private String color;
     private Integer rating;
@@ -148,6 +150,23 @@ public abstract class RafObject implements Serializable{
         this.category = category;
     }
 
+    public String getCategoryPath() {
+        return categoryPath;
+    }
+
+    public void setCategoryPath(String categoryPath) {
+        this.categoryPath = categoryPath;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    
     public List<String> getTags() {
         return tags;
     }

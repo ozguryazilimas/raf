@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.ui.base.metadatapanels;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.config.MetadataPanelPages;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
@@ -37,12 +38,18 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     @Inject
     private RafContext context;
     
+    @Inject
+    private RafCategoryService categoryService;
+    
     private RafCategory category;
 
     @Override
     protected void initEditModel() {
         //FIXME: Burada servisten nesneyi bulacağız.
         category = null;
+        if( context.getSelectedObject().getCategoryId() != null ){
+            category = categoryService.findById(context.getSelectedObject().getCategoryId());
+        }
     }
     
     @Override
@@ -52,11 +59,15 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
             LOG.info("Selected Category : {}", category);
             if( category != null ){
                 context.getSelectedObject().setCategory(category.getName());
+                context.getSelectedObject().setCategoryPath(category.getPath());
+                context.getSelectedObject().setCategoryId(category.getId());
                 LOG.info("Selected Category : {}", category.getName());
                 //TODO: category attribute atanacak
             } else {
                 //Modelde category varsa boşaltılacak
-                context.getSelectedObject().setCategory("");
+                context.getSelectedObject().setCategory(null);
+                context.getSelectedObject().setCategoryPath(null);
+                context.getSelectedObject().setCategoryId(null);
             }
             
             //FIXME: yetki kontrolü nerede yapılacak?

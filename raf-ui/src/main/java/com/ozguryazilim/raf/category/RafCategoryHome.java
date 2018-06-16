@@ -21,6 +21,8 @@ public class RafCategoryHome extends TreeBase<RafCategory>{
     @Inject
     private RafCategoryRepository repository;
     
+    @Inject
+    private RafCategoryService categoryService;
     
     protected RafCategory getParent() {
         RafCategory parent = null;
@@ -42,6 +44,18 @@ public class RafCategoryHome extends TreeBase<RafCategory>{
     protected boolean onBeforeSave() {
         getEntity().setCode(getEntity().getName());
         return true;
+    }
+
+    @Override
+    protected boolean onAfterSave() {
+        categoryService.refresh();
+        return super.onAfterSave();
+    }
+
+    @Override
+    protected void onAfterDelete() {
+        categoryService.refresh();
+        super.onAfterDelete();
     }
     
     @Override

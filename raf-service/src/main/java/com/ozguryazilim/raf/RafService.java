@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf;
 
+import com.ozguryazilim.raf.category.RafCategoryService;
+import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -30,6 +32,9 @@ public class RafService implements Serializable {
 
     @Inject
     private RafModeshapeRepository rafRepository;
+    
+    @Inject
+    private RafCategoryService categoryService;
 
     public List<RafFolder> getFolderList(String rafPath) throws RafException {
         //FIXME: yetki kontrolleri, sıralama v.b.
@@ -59,9 +64,16 @@ public class RafService implements Serializable {
         return result;
     }
     
-    public RafCollection getCategoryCollection(String category, String rootPath ) throws RafException {
+    public RafCollection getCategoryCollection(Long categoryId, String category, String categoryPath, String rootPath ) throws RafException {
         //FIXME: sıralama, yetki v.s.
-        return rafRepository.getCategoryCollection(category, rootPath);
+        return rafRepository.getCategoryCollection(categoryId, category, categoryPath, rootPath, false);
+    }
+    
+    public RafCollection getCategoryCollectionById(Long categoryId, String rootPath ) throws RafException {
+        //FIXME: sıralama, yetki v.s.
+        //FIXME: NPE kontorol
+        RafCategory cat = categoryService.findById(categoryId);
+        return getCategoryCollection( cat.getId(), cat.getName(), cat.getPath(), rootPath);
     }
 
     public void createFolder(RafFolder folder) throws RafException {

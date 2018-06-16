@@ -5,7 +5,7 @@
  */
 package com.ozguryazilim.raf.ui.sidepanels;
 
-import com.ozguryazilim.raf.category.RafCategoryRepository;
+import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.config.SidePanelPages;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
@@ -20,13 +20,13 @@ import javax.inject.Inject;
  * 
  * @author Hakan Uygun
  */
-@SidePanel(view = SidePanelPages.CategorySidePanel.class, icon = "fa-sitemap", title = "Cetagories")
+@SidePanel(view = SidePanelPages.CategorySidePanel.class, icon = "fa-sitemap")
 public class CategorySidePanel extends AbstractSidePanel{
 
     @Inject
-    private RafCategoryRepository repository;
+    private RafCategoryService categoryService;
     
     public List<RafCategory> getCategories(){
-        return repository.findNodes();
+        return categoryService.getCategories();
     }
 }

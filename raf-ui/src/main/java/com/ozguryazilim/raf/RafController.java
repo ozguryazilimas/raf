@@ -387,7 +387,8 @@ public class RafController implements Serializable {
             //TODO: Aslında burda id değil doğrudan kategori kodu lazım bize. Sonuçta sorgu çekeceğiz.
             LOG.info("Selected Category ID : {}", nodeId);
             try {
-                populateCategoryCollection(nodeId);
+                Long catId = Long.parseLong(nodeId);
+                populateCategoryCollection(catId);
             } catch (RafException ex) {
                 //FIXME: i18n ve gerçekten ne yapılmalı?
                 LOG.error("Category Selection Error", ex);
@@ -500,6 +501,23 @@ public class RafController implements Serializable {
         context.setCollection(collection);
     }
     
+    protected void populateCategoryCollection( Long categoryId ) throws RafException{
+        RafCollection collection = rafService.getCategoryCollectionById(categoryId, context.getSelectedRaf().getNode().getPath());
+        
+        if( !showFolders ){
+            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
+            collection.setItems(
+                collection.getItems()
+                        .stream()
+                        .filter( o -> !"raf/folder".equals(o.getMimeType()))
+                        .collect(Collectors.toList())
+            );
+        }
+        
+        context.setCollection(collection);
+    }
+    
+    /* FIXME: şimdilik arayüzde sadece category id yeterli gibi duruyor.
     protected void populateCategoryCollection( String category) throws RafException{
         
         RafCollection collection = rafService.getCategoryCollection(category, context.getSelectedRaf().getNode().getPath());
@@ -516,6 +534,7 @@ public class RafController implements Serializable {
         
         context.setCollection(collection);
     }
+    */
     
     public void toggleShowFolders(){
         showFolders = !showFolders;

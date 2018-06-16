@@ -23,7 +23,7 @@ import javax.inject.Inject;
  * 
  * @author Hakan Uygun
  */
-@SidePanel(view = SidePanelPages.FolderSidePanel.class, icon = "fa-folder", title = "Folders")
+@SidePanel(view = SidePanelPages.FolderSidePanel.class, icon = "fa-folder")
 public class FolderSidePanel extends AbstractSidePanel{
 
     @Inject

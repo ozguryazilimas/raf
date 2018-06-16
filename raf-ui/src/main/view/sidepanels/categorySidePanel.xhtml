@@ -31,7 +31,7 @@
             jQuery("#catdata")
                     .on("activate_node.jstree", function (e, data) {
                         //alert( data.instance.get_node(data.selected[0]).id );
-                        selectTreeNode([{'name': 'nodeId', 'value': data.node.text}]);
+                        selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
                     })
                     .on('loaded.jstree', function () {
                         jQuery('#data').jstree('open_all');

@@ -65,6 +65,8 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_TITLE = "jcr:title";
     private static final String PROP_DESCRIPTON = "jcr:description";
     private static final String PROP_CATEGORY = "raf:category";
+    private static final String PROP_CATEGORY_PATH = "raf:categoryPath";
+    private static final String PROP_CATEGORY_ID = "raf:categoryId";
     private static final String PROP_TAG = "raf:tags";
     private static final String PROP_RAF_TYPE = "raf:type";
 
@@ -315,12 +317,12 @@ public class RafModeshapeRepository implements Serializable {
 
     }
 
-    public RafCollection getCategoryCollection(String category, String rootPath) throws RafException {
+    public RafCollection getCategoryCollection(Long categoryId, String category, String categoryPath, String rootPath, boolean rescursive) throws RafException {
         RafCollection result = new RafCollection();
-        result.setId("CATEGORY_RESULTS");
+        result.setId(categoryId.toString());
         result.setMimeType("raf/categories");
         result.setTitle(category);
-        result.setPath(category);
+        result.setPath(categoryPath);
         result.setName(category);
 
         try {
@@ -328,7 +330,9 @@ public class RafModeshapeRepository implements Serializable {
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
-            String expression = "SELECT * FROM [" + MIXIN_TAGGABLE + "] WHERE ["+ PROP_CATEGORY + "] = '" + category + "' AND  ISDESCENDANTNODE('" + rootPath + "')";
+            //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
+            String expression = "SELECT * FROM [" + MIXIN_TAGGABLE + "] WHERE ["+ PROP_CATEGORY_PATH + "] = '" + categoryPath + "' AND  ISDESCENDANTNODE('" + rootPath + "')";
+            
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
 
@@ -350,6 +354,8 @@ public class RafModeshapeRepository implements Serializable {
 
         return result;
     }
+    
+    
 
     public void createFolder(RafFolder folder) throws RafException {
         try {
@@ -485,6 +491,8 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_DESCRIPTON, object.getInfo());
 
             node.setProperty(PROP_CATEGORY, object.getCategory());
+            node.setProperty(PROP_CATEGORY_PATH, object.getCategoryPath());
+            node.setProperty(PROP_CATEGORY_ID, object.getCategoryId());
             //node.setProperty(PROP_TAG, "");
 
             session.save();
@@ -747,6 +755,8 @@ public class RafModeshapeRepository implements Serializable {
         if (node.isNodeType(MIXIN_TAGGABLE)) {
             //result.setInfo(node.getProperty("raf:tags").getString());
             result.setCategory(getPropertyAsString(node, PROP_CATEGORY));
+            result.setCategoryPath(getPropertyAsString(node, PROP_CATEGORY_PATH));
+            result.setCategoryId(getPropertyAsLong(node, PROP_CATEGORY_ID));
         }
 
         return result;
@@ -786,6 +796,8 @@ public class RafModeshapeRepository implements Serializable {
         if (node.isNodeType(MIXIN_TAGGABLE)) {
             //result.setInfo(node.getProperty("raf:tags").getString());
             result.setCategory(getPropertyAsString(node, PROP_CATEGORY));
+            result.setCategoryPath(getPropertyAsString(node, PROP_CATEGORY_PATH));
+            result.setCategoryId(getPropertyAsLong(node, PROP_CATEGORY_ID));
         }
 
         NodeIterator it = node.getNodes("*:metadata");
@@ -826,6 +838,31 @@ public class RafModeshapeRepository implements Serializable {
 
             if (property != null) {
                 return property.getString();
+            }
+        } catch (PathNotFoundException ex) {
+            //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
+            LOG.debug("Property not found : {}", prop);
+        }
+
+        return null;
+    }
+    
+    /**
+     * Verilen property key sonucunun null kontrolü yaparak geriye değer
+     * döndürür.
+     *
+     * @param node
+     * @param prop
+     * @return
+     * @throws RepositoryException
+     */
+    private Long getPropertyAsLong(Node node, String prop) throws RepositoryException {
+
+        try {
+            Property property = node.getProperty(prop);
+
+            if (property != null) {
+                return property.getLong();
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.

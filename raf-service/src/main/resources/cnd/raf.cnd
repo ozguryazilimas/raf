@@ -7,6 +7,8 @@
 
 [raf:taggable] mixin
     - raf:category (STRING)
+    - raf:categoryPath (STRING)
+    - raf:categoryId (LONG)
     - raf:tags (STRING) multiple
 
 [raf:checksum] mixin
