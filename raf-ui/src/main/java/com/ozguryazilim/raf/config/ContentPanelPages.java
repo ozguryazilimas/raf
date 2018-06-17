@@ -29,4 +29,17 @@ public interface ContentPanelPages extends Pages{
     
     @SecuredPage
     class FolderViewPanel implements ContentPanelPages {}
+    
+    
+    @SecuredPage
+    class CompactSmallViewPanel implements ContentPanelPages {}
+    
+    @SecuredPage
+    class CompactMediumViewPanel implements ContentPanelPages {}
+    
+    @SecuredPage
+    class CompactLargeViewPanel implements ContentPanelPages {}
+    
+    @SecuredPage
+    class TableSmallViewPanel implements ContentPanelPages {}
 }

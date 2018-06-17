@@ -6,7 +6,7 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <ui:fragment rendered="#{simpleRowViewPanel.supportBreadcrumb}" >
+    <ui:fragment rendered="#{compactLargeViewPanel.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" >
             <ui:param name="forCollection" value="true" />
         </ui:include>
@@ -14,7 +14,7 @@
     </ui:fragment>
 
     <div class="raf-container" >
-        <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+        <ui:repeat value="#{compactLargeViewPanel.collection.items}" var="item" >
             <div class="raf-container-item">
                 <div class="raf-container-item-item large-icon">
                     <span class="raf-container-item-item-img" >
@@ -61,7 +61,7 @@
     <ui:remove>
         <ul class="raf-item-row-list">
 
-            <ui:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+            <ui:repeat value="#{compactLargeViewPanel.collection.items}" var="item" >
                 <li class="raf-item">
                     <div class="raf-item-content">
 

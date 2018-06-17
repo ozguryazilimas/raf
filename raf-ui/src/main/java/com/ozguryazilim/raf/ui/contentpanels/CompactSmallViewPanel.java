@@ -5,14 +5,15 @@
  */
 package com.ozguryazilim.raf.ui.contentpanels;
 
+import com.ozguryazilim.raf.config.ContentPanelPages;
 import com.ozguryazilim.raf.ui.base.CollectionContentPanel;
+import com.ozguryazilim.raf.ui.base.ContentPanel;
 
 /**
- * detaylı sunum kontrol sınıfı.
- * 
- * @author Hakan Uygun
+ *
+ * @author oyas
  */
-//@ContentPanel( actionIcon = "fa-th-list", view = ContentPanelPages.DetailRowViewPanel.class, icon = "fa-folder-open")
-public class DetailRowViewPanel extends CollectionContentPanel{
+@ContentPanel(actionIcon = "fa-list", view = ContentPanelPages.CompactSmallViewPanel.class, icon = "fa-folder-open" )
+public class CompactSmallViewPanel extends CollectionContentPanel{
     
 }

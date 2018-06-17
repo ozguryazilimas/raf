@@ -12,9 +12,76 @@
         </ui:include>
     </ui:fragment>
 
-
-    <table class="table" >
+    <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">
+    <table class="table table-striped" >
+        <tr>
+            <th></th>
+            <th></th>
+            <th>Başlık</th>
+            <th>Dosya</th>
+            <th>Kullanıcı</th>
+            <th>Tarih</th>
+            <th>Açıklama</th>
+            <th>Kategori</th>
+            <th></th>
+        </tr>
         <p:repeat value="#{simpleRowViewPanel.collection.items}" var="item" >
+            <tr>
+                <td style="width: 16px; text-align: center; ">
+                    <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
+                        <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
+                    </p:commandLink>
+                </td>
+                <td style="width: 16px; text-align: center;"><i class="fa #{iconResolver.getIcon(item.mimeType)}" /></td>
+                <td>
+                    <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                        <span class="text-sm">#{item.title}</span> 
+                    </p:commandLink>
+                </td>
+                <td>
+                    #{item.name}
+                </td>
+                <td>
+                    #{userLookup.getUserName(item.createBy)}
+                </td>
+                <td>
+                    <t:cellOutputDateTime value="#{item.createDate}"/>
+                </td>
+                <td>
+                    #{item.info}
+                </td>
+                <td>
+                    #{item.category}
+                </td>
+                <td style="text-align: right; vertical-align: middle">
+                    <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
+                        <h:form id="ff" style="display: inline;">
+                            <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
+                                <i class="fa fa-download" />
+                            </p:commandLink>
+                        </h:form>
+                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink>
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
+                    </ui:fragment>
+                    
+                    <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                        <p:commandLink action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                            <i class="fa fa-edit" />
+                        </p:commandLink>
+
+                        <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
+                            <i class="fa fa-trash" />
+                            <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                        </p:commandLink>
+                    </ui:fragment>
+                </td>
+            </tr>
+            <ui:remove>
             <tr>
                 <td style="width: 16px; text-align: center; vertical-align: middle;">
                     <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
@@ -68,10 +135,11 @@
                     </ui:fragment>
                 </td>
             </tr>
-
+                </ui:remove>
         </p:repeat>
     </table>
-
+        </div>
+    
     <ui:remove>
         <ul class="raf-item-row-list">
 
