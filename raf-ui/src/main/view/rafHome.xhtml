@@ -1,0 +1,184 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"                   
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:param name="dontShowContentHeader" value="true" />
+    <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="Raf Home" />
+
+    <ui:define name="metadata">
+
+    </ui:define>
+
+
+    <ui:define name="extraHead">
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+    </ui:define>
+
+    <ui:define name="body">
+        <ui:include src="/layout/messages.xhtml" />
+
+        <div class="row" style="margin-top: 8px;">
+            <div class="col-sm-4 col-xs-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Sık Kullanılan Raflar</h3>
+                    </div>
+                    <div class="box-body no-padding">
+                        <ul class="nav nav-pills nav-stacked">
+                            <p:repeat value="#{rafNavigationController.rafs}" var="raf" >
+                                <li >
+                                    <h:link  outcome="/raf.xhtml" title="#{raf.code}">
+                                        <i class="fa fa-archive"></i>
+                                        <f:param name="id" value="#{raf.code}" />
+                                        #{raf.name}
+                                    </h:link>
+                                </li>
+                            </p:repeat>
+                        </ul>
+                    </div>
+                </div>
+                <ui:remove>
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Paylaşılmış Belgeler</h3>
+                        </div>
+                        <div class="box-body no-padding">
+                            <ul class="nav nav-pills nav-stacked">
+                                <p:repeat value="#{rafNavigationController.rafs}" var="raf" >
+                                    <li >
+                                        <h:link  outcome="/raf.xhtml" title="#{raf.code}">
+                                            <i class="fa fa-archive"></i>
+                                            <f:param name="id" value="#{raf.code}" />
+                                            #{raf.name}
+                                        </h:link>
+                                    </li>
+                                </p:repeat>
+                            </ul>
+                        </div>
+                    </div>
+                </ui:remove>
+            </div>
+
+            <div class="col-sm-8 col-xs-12">
+
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Olaylar</h3>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-box-tool" type="button" data-widget="collapse">
+                                <i class="fa fa-minus" />
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <style>
+                            .product-info{
+                                margin-left: 36px ! important;
+                            }
+                        </style>
+                        <ul class="products-list product-list-in-box">
+                            <li class="item">
+                                <div class="product-img">
+                                    <i class="fa fa-folder fa-2x text-muted" />
+                                </div>
+                                <div class="product-info" style="margin-left: 36px;">
+                                    <span> Hakan Uygun tarafından <a href="" class="">Deneme</a> klasörü oluşturuldu </span>
+                                    <div class="text-muted text-sm">Detay açıklama</div>
+                                    <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
+                                </div>
+                            </li>
+                            <li class="item">
+                                <div class="product-img">
+                                    <i class="fa fa-file fa-2x text-muted" />
+                                </div>
+                                <div class="product-info">
+                                    <span> Hakan Uygun tarafından <a href="" class="">test.pdf</a> belgesi yüklendi </span>
+                                    <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
+                                </div>
+                            </li>
+                            <li class="item">
+                                <div class="product-img">
+                                    <i class="fa fa-download fa-2x text-muted" />
+                                </div>
+                                <div class="product-info">
+                                    <span> Ahmet Yaşar tarafından <a href="" class="">test.pdf</a> belgesi indirildi</span>
+                                    <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <ui:remove>
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Olaylar</h3>
+                        </div>
+                        <div class="box-body">
+
+                            <style>
+                                .timeline > li > .fa{
+                                    line-height: 30px !important;
+                                }
+                            </style>
+                            <ul class="timeline timeline-inverse">
+                                <li class="time-label">
+                                    <span class="bg-red">
+                                        10 Haz. 2018
+                                    </span>
+                                </li>
+                                <li>
+                                    <!-- timeline icon -->
+                                    <ui:remove>
+                                        <i class="fa fa-folder bg-blue"></i>
+                                    </ui:remove>
+                                    <div class="timeline-item">
+                                        <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
+
+                                        <h3 class="timeline-header"><a href="#">Hakan Uygun</a> <span class="text-bold">Deneme</span> klasörünü oluşturdu</h3>
+
+                                        <div class="timeline-body">
+
+                                        </div>
+
+                                        <div class="timeline-footer">
+                                            <a class="btn btn-primary btn-xs"><i class="fa fa-link" /></a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <!-- timeline icon -->
+                                    <i class="fa fa-file bg-blue"></i>
+                                    <div class="timeline-item">
+                                        <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
+
+                                        <h3 class="timeline-header"><span class="text-bold">Hakan Uygun</span> <a href="#">test.pdf</a> belgesini ekledi</h3>
+
+                                        <ui:remove>
+                                            <div class="timeline-body">
+                                                Test.pdf
+                                            </div>
+
+                                            <div class="timeline-footer">
+                                                <a class="btn btn-primary btn-xs"><i class="fa fa-link" /></a>
+                                            </div>
+                                        </ui:remove>
+                                    </div>
+                                </li>
+                                <li><i class="fa fa-clock-o bg-gray" /></li>
+                            </ul> 
+                        </div>
+                    </div>
+                </ui:remove>
+            </div>
+        </div>
+    </ui:define>
+
+
+</ui:composition>
