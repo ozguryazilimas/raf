@@ -33,5 +33,26 @@
             <column name="PID" type="BIGINT"/>
         </createTable>
     </changeSet>
+    
+    <changeSet author="huygun" id="201806171040">
+        <createTable tableName="RAF_MEMBER">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_CATPK"/>
+            </column>
+            <column name="MEMBER_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MEMBER_TYPE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RAF_ID" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="huygun" id="201806171041">
+        <addForeignKeyConstraint baseColumnNames="RAF_ID" baseTableName="RAF_MEMBER" constraintName="FK_RM_RAFID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEFINITION"/>
+    </changeSet>
         
 </databaseChangeLog>

@@ -41,12 +41,20 @@
             <section class="raf-header-tools">
                 <div class="raf-header-tool-pack">
                     <div class="raf-header-btns">
-                        <a href="" title="#{messages['action.title.Members']}">
+                        <h:link outcome="/raf.xhtml" title="#{messages['raf.label.Raf']}">
+                            <i class="fa fa-archive" />
+                            <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
+                        </h:link>
+                        
+                        <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
                             <i class="fa fa-users" />
-                        </a>
-                        <a href="" title="#{messages['action.title.Settings']}">
+                            <f:param name="id" value="#{rafSettingsController.rafDefinition.code}" />
+                        </h:link>
+                        
+                        <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
                             <i class="fa fa-cogs" />
-                        </a>
+                            <f:param name="id" value="#{rafSettingsController.rafDefinition.code}" />
+                        </h:link>
                     </div>
                 </div>
             </section>

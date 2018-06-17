@@ -15,6 +15,7 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -29,6 +30,7 @@ import com.ozguryazilim.raf.ui.contentpanels.DocumentViewPanel;
 import com.ozguryazilim.raf.ui.contentpanels.FolderViewPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +43,7 @@ import javax.enterprise.event.Observes;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +67,16 @@ public class RafController implements Serializable {
     private Kahve kahve;
 
     @Inject
+    private ViewNavigationHandler viewNavigationHandler;
+    
+    @Inject
     private RafDefinitionService rafDefinitionService;
 
     @Inject
     private RafService rafService;
+    
+    @Inject
+    private RafMemberService memberService;
 
     @Inject
     private RafContext context;
@@ -97,6 +106,7 @@ public class RafController implements Serializable {
 
     private Boolean showFolders = Boolean.TRUE;
     private Boolean showSidePanel = Boolean.TRUE;
+    private Boolean showManagerTools = Boolean.TRUE;
 
     @PostConstruct
     public void initDefaults() {
@@ -122,8 +132,27 @@ public class RafController implements Serializable {
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
             LOG.error("Error", ex);
+            viewNavigationHandler.navigateTo(Pages.Home.class);
         }
 
+        try {
+            //Uye değilse hemen HomePage'e geri gönderelim.
+            if( !memberService.isMemberOf(identity.getLoginName(), rafDefinition) ){
+                viewNavigationHandler.navigateTo(Pages.Home.class);
+            }
+        } catch (RafException ex) {
+            LOG.error("Error", ex);
+            //Gene de geldiği yere gönderelim.
+            viewNavigationHandler.navigateTo(Pages.Home.class);
+        }
+        
+        try {
+            showManagerTools = rafDefinition.getId() > 0 && memberService.hasMemberRole(identity.getLoginName(), "MANAGER", rafDefinition);
+        } catch (RafException ex) {
+            showManagerTools = Boolean.FALSE;
+        }
+        
+        
         //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
         context.setSelectedRaf(rafDefinition);
 
@@ -591,5 +620,7 @@ public class RafController implements Serializable {
         return showSidePanel;
     }
     
-    
+    public boolean showManagerTools(){
+        return showManagerTools;
+    }
 }

@@ -5,7 +5,7 @@
  */
 package com.ozguryazilim.raf.nav;
 
-import com.ozguryazilim.raf.definition.RafDefinitionRepository;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
 import com.ozguryazilim.telve.auth.Identity;
@@ -32,7 +32,7 @@ public class RafNavigationController implements Serializable{
     private Identity identity;
     
     @Inject
-    private RafDefinitionRepository definitionRepository;
+    private RafDefinitionService rafDefinitionService;
     
     private Boolean hasPersonalRaf = false;
     private Boolean hasSharedRaf = false;
@@ -47,7 +47,7 @@ public class RafNavigationController implements Serializable{
         hasSharedRaf = "true".equals( ConfigResolver.getPropertyValue("raf.shared.enabled", "true"));
         
         //FIXME: Burada yetki kontrolü yapılacak.
-        rafs = definitionRepository.findAll();
+        rafs = rafDefinitionService.getRafsForUser(identity.getLoginName());
     }
 
     public Boolean hasPersonalRaf() {
@@ -63,6 +63,7 @@ public class RafNavigationController implements Serializable{
     }
     
     public void rafDataChangedListener( @Observes RafDataChangedEvent event){
-        rafs = definitionRepository.findAll();
+        rafDefinitionService.refresh();
+        rafs = rafDefinitionService.getRafsForUser(identity.getLoginName());
     }
 }

@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.definition;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafDefinition_;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
+import com.ozguryazilim.raf.member.RafMemberRepository;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import com.ozguryazilim.telve.forms.Browse;
 import com.ozguryazilim.telve.forms.BrowseBase;
@@ -18,14 +19,20 @@ import javax.inject.Inject;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 
 /**
- *
- * @author oyas
+ * Admin tarafından raf yönetim paneli. 
+ * 
+ * FIXME: Çok eksik var. Yetki + Konfirmasyon + JCR verilerinin de silinmesi v.b.
+ * 
+ * @author Hakan Uygun
  */
 @Browse( feature = RafDefinitionFeature.class )
 public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition>{
 
     @Inject
     private RafDefinitionRepository repository;
+    
+    @Inject
+    private RafMemberRepository memberRepository;
     
     @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
@@ -56,8 +63,16 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     @Transactional
     public void deleteRaf(){
         if( selectedItem != null ){
+            
+            //RefIntegrity nedeniyle önce üyeleri siliyoruz.
+            memberRepository.removeByRaf(selectedItem);
+            
+            //şimdi de kendisini
             repository.remove(selectedItem);
             search();
+            
+            //FIXME: burada JCR'yi silmek lazım.
+            
             
             rafDataChangedEvent.fire(new RafDataChangedEvent());
         }
