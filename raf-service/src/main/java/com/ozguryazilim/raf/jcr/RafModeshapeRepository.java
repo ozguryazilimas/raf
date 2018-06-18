@@ -56,9 +56,12 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PRIVATE_ROOT = "/PRIVATE/";
     private static final String SHARED_ROOT = "/SHARED";
 
+    private static final String NODE_HIERARCHY = "nt:hierarchyNode";
     private static final String NODE_FOLDER = "nt:folder";
     private static final String NODE_FILE = "nt:file";
 
+    private static final String NODE_SEARCH = "nt:base";
+    
     private static final String MIXIN_TITLE = "mix:title";
     private static final String MIXIN_TAGGABLE = "raf:taggable";
     private static final String MIXIN_RAF = "raf:raf";
@@ -418,6 +421,43 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
     
+    public RafCollection getSearchCollection( String searchText, String rootPath ) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle(searchText);
+        result.setPath("SEARCH");
+        result.setName(searchText);
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT * FROM [" + NODE_SEARCH + "] as nodes WHERE CONTAINS(nodes.*, '" + searchText + "') AND  ISDESCENDANTNODE('" + rootPath + "')";
+            
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+
+                //Node tipine göre doğru conversion.
+                if (n.isNodeType(NODE_FOLDER)) {
+                    result.getItems().add(nodeToRafFolder(n));
+                } else if (n.isNodeType(NODE_FILE)) {
+                    result.getItems().add(nodeToRafDocument(n));
+                }
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+
+        return result;
+    }
 
     public void createFolder(RafFolder folder) throws RafException {
         try {

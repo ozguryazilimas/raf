@@ -18,15 +18,15 @@
             }
         </style>
 
-        
+
         <p:ajaxStatus onstart="NProgress.start();" onsuccess="NProgress.done();" />
-        
+
         <ui:remove>
-        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
-        
-        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
-            <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
-        </p:dialog>
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+            </p:dialog>
         </ui:remove>
 
         <nav class="navbar navbar-static-top">
@@ -118,7 +118,9 @@
                     </ul>
                     <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
-                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="#{messages['general.label.Search']}" />
+                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
+                            <p:commandButton action="#{searchController.search()}" ajax="true" style="display:none;" styleClass="btn btn-primary" update="@(.raf-view-content)">
+                            </p:commandButton>
                         </div>
                     </h:form>
                     <ul class="nav navbar-nav">
@@ -156,7 +158,13 @@
                 <div class="navbar-custom-menu">
                     <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;">
                         <div class="form-group">
-                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="" placeholder="#{messages['general.label.Search']}" />
+                            <div class="ui-inputgroup">
+                                <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
+
+                                <p:commandButton action="#{searchController.search()}" ajax="true" style="display:none;" styleClass="btn btn-primary" update="@(.raf-view-content)">
+                                </p:commandButton>
+
+                            </div>
                         </div>
                     </h:form>
                     <ul class="nav navbar-nav">

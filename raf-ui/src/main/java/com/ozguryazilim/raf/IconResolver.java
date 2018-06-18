@@ -33,6 +33,8 @@ public class IconResolver implements Serializable{
                 return "fa-sitemap";
             case "raf/tags":
                 return "fa-tags";
+            case "raf/search":
+                return "fa-search";
             case "application/pdf":
                 return "fa-file-pdf-o";
             case "image/png":

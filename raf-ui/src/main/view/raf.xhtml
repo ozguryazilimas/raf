@@ -43,20 +43,20 @@
             </section>
             <section class="raf-header-tools">
                 <ui:fragment rendered="#{rafController.showManagerTools()}">
-                <div class="raf-header-tool-pack">
-                    <div class="raf-header-btns">
-                        <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
-                            <i class="fa fa-users" />
-                            <f:param name="id" value="#{rafContext.selectedRaf.code}" />
-                        </h:link>
-                        
-                        <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
-                            <i class="fa fa-cogs" />
-                            <f:param name="id" value="#{rafContext.selectedRaf.code}" />
-                        </h:link>
+                    <div class="raf-header-tool-pack">
+                        <div class="raf-header-btns">
+                            <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
+                                <i class="fa fa-users" />
+                                <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                            </h:link>
+
+                            <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
+                                <i class="fa fa-cogs" />
+                                <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                            </h:link>
+                        </div>
                     </div>
-                </div>
-                    </ui:fragment>
+                </ui:fragment>
             </section>
         </div>
 
@@ -68,26 +68,26 @@
 
         <p:outputPanel id="raf-view" class="raf" style="height: 100%;">
             <ui:fragment rendered="#{rafController.showSidePanel}">
-            <div class="raf-box left" >
-                <div class="raf-box-header">
-                    <i class="fa #{rafController.selectedSidePanel.icon}"/>
-                    #{messages[rafController.selectedSidePanel.title]}
+                <div class="raf-box left" >
+                    <div class="raf-box-header">
+                        <i class="fa #{rafController.selectedSidePanel.icon}"/>
+                        #{messages[rafController.selectedSidePanel.title]}
 
-                    <div class="pull-right">
+                        <div class="pull-right">
 
-                        <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
-                            <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="#{messages[sidePanel.title]}" update="raf-view">
-                                <i class="fa #{sidePanel.icon}" /> 
-                            </p:commandLink>
-                        </ui:repeat>
+                            <ui:repeat value="#{rafController.sidePanels}" var="sidePanel">
+                                <p:commandLink action="#{rafController.setSelectedSidePanel(sidePanel)}" title="#{messages[sidePanel.title]}" update="raf-view">
+                                    <i class="fa #{sidePanel.icon}" /> 
+                                </p:commandLink>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                    <div class="raf-box-content" style="">
+                        <ui:include src="#{rafController.selectedSidePanel.viewId}" />
                     </div>
                 </div>
-                <div class="raf-box-content" style="">
-                    <ui:include src="#{rafController.selectedSidePanel.viewId}" />
-                </div>
-            </div>
             </ui:fragment>
-            <p:outputPanel id="raf-view-content" class="raf-box middle">
+            <p:outputPanel id="raf-view-content" class="raf-box middle raf-view-content">
                 <div class="raf-box-header">
                     <i class="fa #{rafController.selectedContentPanel.icon}"/>
                     #{rafController.selectedContentPanel.title}
@@ -200,25 +200,25 @@
                                         </li>
                                     </ui:repeat>
                                     <ui:remove>
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <a href=""><i class="fa fa-list"/> AAAA </a>
-                                    </li>
-                                    <li>
-                                        <a href=""><i class="fa fa-list-ul"/> BBB </a>
-                                    </li>
-                                    <li>
-                                        <a href=""><i class="fa fa-th-list"/> CCC </a>
-                                    </li>
-                                    <li>
-                                        <a href=""><i class="fa fa-th"/> DDD </a>
-                                    </li>
-                                    <li>
-                                        <a href=""><i class="fa fa-th-large"/> EEE </a>
-                                    </li>
-                                    <li>
-                                        <a href=""><i class="fa fa-align-justify"/> FFF </a>
-                                    </li>
+                                        <li role="separator" class="divider"></li>
+                                        <li>
+                                            <a href=""><i class="fa fa-list"/> AAAA </a>
+                                        </li>
+                                        <li>
+                                            <a href=""><i class="fa fa-list-ul"/> BBB </a>
+                                        </li>
+                                        <li>
+                                            <a href=""><i class="fa fa-th-list"/> CCC </a>
+                                        </li>
+                                        <li>
+                                            <a href=""><i class="fa fa-th"/> DDD </a>
+                                        </li>
+                                        <li>
+                                            <a href=""><i class="fa fa-th-large"/> EEE </a>
+                                        </li>
+                                        <li>
+                                            <a href=""><i class="fa fa-align-justify"/> FFF </a>
+                                        </li>
                                     </ui:remove>
                                 </ul>
                             </div>
@@ -246,29 +246,29 @@
                 </ui:fragment>
 
                 <script type="text/javascript">
-                    function setSizes(){
+                    function setSizes() {
                         var clientHeight = jQuery(window).height() - 150;
                         jQuery('#contentSection').css('height', clientHeight);
 
                         jQuery('.raf-box-content').css('max-height', clientHeight - 29);
                         jQuery('.raf-container').css('max-height', clientHeight - 60);
                         jQuery('.content-view-port').css('max-height', clientHeight - 60);
-                        jQuery('.content-view-port').css('min-height', clientHeight - 60 );
+                        jQuery('.content-view-port').css('min-height', clientHeight - 60);
 
-                        jQuery('.content-view-port').on('mousewheel', function(event) {
-                             this.scrollLeft -= (event.deltaY * 30);
-                                event.preventDefault();
+                        jQuery('.content-view-port').on('mousewheel', function (event) {
+                            this.scrollLeft -= (event.deltaY * 30);
+                            event.preventDefault();
                         });
                     }
-                    
+
                     setSizes();
-                    
+
                     var resizeTimer;
-                    jQuery(window).resize(function() {
+                    jQuery(window).resize(function () {
                         clearTimeout(resizeTimer);
                         resizeTimer = setTimeout(setSizes, 100);
                     });
-                    
+
                 </script>
             </p:outputPanel>
         </p:outputPanel>
