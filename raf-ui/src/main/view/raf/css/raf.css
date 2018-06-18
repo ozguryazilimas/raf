@@ -97,7 +97,7 @@
     flex-direction: column;
 }
 .raf-box-header{ padding: 4px; border-bottom: 1px solid silver; background: #efefef;}
-.raf-box-content{ flex: 1}
+.raf-box-content{ flex: 1; overflow: auto;}
 .raf-box-footer{ padding: 4px; border-top: 1px solid silver; background: #efefef; align-self: flex-end; width: 100%}
 
 .left {order:1; flex-basis:100%; flex: 1; min-width: 200px; }
@@ -265,4 +265,9 @@
 
 .content-view-port{
     overflow: auto;
+}
+
+.raf-file{
+    padding-left: 8px;
+    padding-right: 8px;
 }

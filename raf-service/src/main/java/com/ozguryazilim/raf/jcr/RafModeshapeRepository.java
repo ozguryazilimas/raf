@@ -602,7 +602,7 @@ public class RafModeshapeRepository implements Serializable {
             session.logout();
 
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException( ex );
         }
     }
 
