@@ -26,6 +26,10 @@
             <type>war</type>
         </dependency>
         <dependency>
+            <groupId>org.modeshape</groupId>
+            <artifactId>modeshape-extractor-tika</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.ozguryazilim.mutfak</groupId>
             <artifactId>telve-idm</artifactId>
             <version>${telve.version}</version>

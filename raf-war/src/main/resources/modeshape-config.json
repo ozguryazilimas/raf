@@ -28,5 +28,13 @@
                 "classname": "com.ozguryazilim.raf.jcr.RafSecurityProvider"
             }
         ]
+    },
+    "textExtraction": {
+        "extractors" : {
+            "tikaExtractor":{
+                "name" : "Tika content-based extractor",
+                "classname" : "tika"
+            }
+        }
     }
 }

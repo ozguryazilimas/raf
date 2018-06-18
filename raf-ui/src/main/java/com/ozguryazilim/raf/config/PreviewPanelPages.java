@@ -24,4 +24,7 @@ public interface PreviewPanelPages extends Pages{
     @SecuredPage
     class ImagePreviewPanel implements PreviewPanelPages {}
     
+    @SecuredPage
+    class TextPreviewPanel implements PreviewPanelPages {}
+    
 }
