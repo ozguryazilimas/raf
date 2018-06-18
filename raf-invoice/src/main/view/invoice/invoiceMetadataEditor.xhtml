@@ -7,9 +7,9 @@
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 template="/layout/dialogBase.xhtml">
-    
+
     <ui:param name="title" value="Fatura Bilgileri" />
-    
+
     <ui:define name="form" >
         <h:form id="imde">
             <div class="row">
@@ -19,12 +19,14 @@
                 <t:inputText label="invoice.taxOffice" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxOffice']}" placeholder="Vergi Dairesi"/>
                 <t:inputText label="invoice.taxNumber" value="#{invoiceMetadataPanel.metadata.attributes['invoice:taxNumber']}" placeholder="Vergi No"/>
             </div>
-            
-            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
-                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{invoiceMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
-                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{invoiceMetadataPanel.cancelDialog()}" process="@this"/>
-            </h:panelGroup>
+
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" >
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{invoiceMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{invoiceMetadataPanel.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
         </h:form>
     </ui:define>
-    
+
 </ui:composition>

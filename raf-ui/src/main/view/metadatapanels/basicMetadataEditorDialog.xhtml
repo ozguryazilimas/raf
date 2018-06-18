@@ -7,9 +7,9 @@
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 template="/layout/dialogBase.xhtml">
-    
+
     <ui:param name="title" value="panel.title.BasicMetadataPanel" />
-    
+
     <ui:define name="form" >
         <h:form id="bmde">
             <div class="row">
@@ -17,16 +17,17 @@
                 <t:inputTextarea label="general.label.Info" value="#{documentViewPanel.rafObject.info}" placeholder="Açıklama"/>
                 <t:inputTag label="general.label.Tags" value="#{documentViewPanel.rafObject.tags}" key="#{rafContext.selectedRaf.code}" />
                 <t:inputLookupDialog value="#{basicMetadataPanel.category}" label="general.label.Category"  
-                                 lookupBean="#{rafCategoryLookup}" lookupListener="basicMetadataPanel.category" 
-                                 leafSelect="false" 
-                                 columnClass="col-md-6 col-xs-12"/>
+                                     lookupBean="#{rafCategoryLookup}" lookupListener="basicMetadataPanel.category" 
+                                     leafSelect="false" 
+                                     columnClass="col-md-6 col-xs-12"/>
             </div>
-            
-            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
-                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{basicMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
-                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{basicMetadataPanel.cancelDialog()}" process="@this"/>
-            </h:panelGroup>
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{basicMetadataPanel.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{basicMetadataPanel.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
         </h:form>
     </ui:define>
-    
+
 </ui:composition>

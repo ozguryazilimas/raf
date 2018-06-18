@@ -15,20 +15,22 @@
             <div class="row">
                 
                 <div class="col-xs-12">
-                    #{rafContext.collection.name} klasörü içine açılacak
+                    <span class="text-bold">#{rafContext.collection.title}</span> klasörü içine oluşturulacak
                 </div>
                 
+                <t:inputText label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim"/>
                 <t:inputText label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="Klasör ismi"/>
-                <t:inputTextarea label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim"/>
                 <t:inputTextarea label="general.label.Info" value="#{createFolderAction.folder.info}" placeholder="Açıklama"/>
                 
                 
             </div>
             
-            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
+            <div class="row">
+            <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
                 <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{createFolderAction.closeDialog()}" styleClass="btn-primary"/>
-                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{createFolderAction.cancelDialog()}" />
+                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{createFolderAction.cancelDialog()}" process="@this"/>
             </h:panelGroup>
+                </div>
         </h:form>
     </ui:define>
     

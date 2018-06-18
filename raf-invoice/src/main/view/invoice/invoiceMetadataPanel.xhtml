@@ -13,7 +13,7 @@
 
     <t:accordion id="invmd" label="#{invoiceMetadataPanel.title}" columnClass="col-xs-12">
         <f:facet name="toolbar" rendered="#{invoiceMetadataPanel.canEdit()}">
-            <p:commandLink action="#{invoiceMetadataPanel.edit()}" process="@this" >
+            <p:commandLink action="#{invoiceMetadataPanel.edit()}" process="@this" styleClass="btn btn-box-tool">
                 <i class="fa fa-edit" />
                 <p:ajax event="dialogReturn" update="invmd" />
              </p:commandLink>

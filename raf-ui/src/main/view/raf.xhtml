@@ -246,19 +246,29 @@
                 </ui:fragment>
 
                 <script type="text/javascript">
-                    /*contentSection*/
-                    var clientHeight = jQuery(window).height() - 150;
-                    jQuery('#contentSection').css('height', clientHeight);
+                    function setSizes(){
+                        var clientHeight = jQuery(window).height() - 150;
+                        jQuery('#contentSection').css('height', clientHeight);
 
-                    jQuery('.raf-box-content').css('max-height', clientHeight - 29);
-                    jQuery('.raf-container').css('max-height', clientHeight - 60);
-                    jQuery('.content-view-port').css('max-height', clientHeight - 60);
-                    jQuery('.content-view-port').css('min-height', clientHeight - 60);
+                        jQuery('.raf-box-content').css('max-height', clientHeight - 29);
+                        jQuery('.raf-container').css('max-height', clientHeight - 60);
+                        jQuery('.content-view-port').css('max-height', clientHeight - 60);
+                        jQuery('.content-view-port').css('min-height', clientHeight - 60 );
+
+                        jQuery('.content-view-port').on('mousewheel', function(event) {
+                             this.scrollLeft -= (event.deltaY * 30);
+                                event.preventDefault();
+                        });
+                    }
                     
-                    jQuery('.content-view-port').on('mousewheel', function(event) {
-                         this.scrollLeft -= (event.deltaY * 30);
-                            event.preventDefault();
+                    setSizes();
+                    
+                    var resizeTimer;
+                    jQuery(window).resize(function() {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(setSizes, 100);
                     });
+                    
                 </script>
             </p:outputPanel>
         </p:outputPanel>
