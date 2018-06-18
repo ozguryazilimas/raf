@@ -38,7 +38,9 @@
                 <p:commandButton value="#{messages['general.button.Yes']}" type="button" styleClass="ui-confirmdialog-yes pull-right" icon="ui-icon-check" />
             </p:confirmDialog>
 
+            <ui:remove>
             <ui:include src="/layout/notificationBar.xhtml" />
+            </ui:remove>
             
             <ui:insert name="outerspace"></ui:insert>
 

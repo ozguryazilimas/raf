@@ -189,13 +189,12 @@
 
 .raf-container{
     display: flex;
-    flex-direction: column;
     flex-flow: column wrap;
     align-content: flex-start;
     align-items: stretch;
     justify-items: stretch;
     justify-content: stretch;
-    overflow-x: auto;
+    
 }
 
 .raf-container-item{
@@ -262,4 +261,8 @@
 .raf-item-selected > a:hover{
     background-color: #3c8dbc !important;
     color: #fff !important;
+}
+
+.content-view-port{
+    overflow: auto;
 }
