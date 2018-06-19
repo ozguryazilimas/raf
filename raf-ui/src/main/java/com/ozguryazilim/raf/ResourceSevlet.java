@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 /**
  * Preview v.b. de kullanmak üzere resource servlet.
@@ -35,6 +37,13 @@ public class ResourceSevlet extends HttpServlet{
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        Subject currentUser = SecurityUtils.getSubject();
+        if( !currentUser.isAuthenticated() ){
+            //FIXME: Doğru HTTP hata kodunu dönelim
+            //FIXME: Ayrıca talep edilen dosyaya erişim yetkisi var mı o da kontrol edilmeli.
+            return;
+        }
         
         String[] parts = req.getPathInfo().split("/");
         
