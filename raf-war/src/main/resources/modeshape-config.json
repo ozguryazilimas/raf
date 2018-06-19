@@ -10,7 +10,9 @@
         "binaryStorage": {
             "type": "file",
             "directory": "/home/oyas/tmp/raf_persistent_repository/binaries",
-            "trash": "/home/oyas/tmp/raf_persistent_repository/binaries/trash" 
+            "trash": "/home/oyas/tmp/raf_persistent_repository/binaries/trash", 
+            "minimumBinarySizeInBytes": 1024,
+            "mimeTypeDetection": "content"
         }
     },
     "workspaces": {
@@ -30,11 +32,25 @@
         ]
     },
     "textExtraction": {
-        "extractors" : {
-            "tikaExtractor":{
-                "name" : "Tika content-based extractor",
-                "classname" : "tika"
+        "extractors": {
+            "tikaExtractor": {
+                "name": "Tika content-based extractor",
+                "classname": "tika"
             }
+        }
+    },
+    "indexProviders": {
+        "lucene": {
+            "classname": "lucene",
+            "directory": "/home/oyas/tmp/raf_persistent_repository/indexes"
+        }
+    },
+    "indexes": {
+        "textFromFiles": {
+            "kind": "text",
+            "provider": "lucene",
+            "nodeType": "nt:resource",
+            "columns": "jcr:data(BINARY)"
         }
     }
 }

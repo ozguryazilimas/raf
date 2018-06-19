@@ -59,6 +59,10 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-odf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.modeshape</groupId>
+            <artifactId>modeshape-lucene-index-provider</artifactId>
+        </dependency>
     </dependencies>
     
 </project>

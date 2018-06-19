@@ -444,11 +444,19 @@ public class RafModeshapeRepository implements Serializable {
             while (it.hasNext()) {
                 Node n = it.nextNode();
 
+                Node sn = n;
+                
+                if( n.isNodeType("nt:resource")){
+                    sn = n.getParent();
+                } else if( n.getName().endsWith(":metadata")){
+                    sn = n.getParent();
+                }
+                
                 //Node tipine göre doğru conversion.
-                if (n.isNodeType(NODE_FOLDER)) {
-                    result.getItems().add(nodeToRafFolder(n));
-                } else if (n.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(n));
+                if (sn.isNodeType(NODE_FOLDER)) {
+                    result.getItems().add(nodeToRafFolder(sn));
+                } else if (sn.isNodeType(NODE_FILE)) {
+                    result.getItems().add(nodeToRafDocument(sn));
                 }
             }
 
