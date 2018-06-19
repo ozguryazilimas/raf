@@ -11,28 +11,82 @@
     <ui:param name="title" value="dialog.title.UploadFile" />
 
     <ui:define name="form" >
-        <h:form id="ff" enctype="multipart/form-data">
-            <div class="row">
 
-                <div class="col-xs-12">
-                    <span class="text-bold">#{rafContext.collection.title}</span> klasörü içine açılacak
+        <h:outputStylesheet library="fineuploader" name="fine-uploader-gallery.css" />
+        <h:outputScript library="fineuploader" name="fine-uploader.js" />
+
+        <ui:include src="fineUploaderGalleryTemplate.xhtml" />
+
+
+        <div id="fine-uploader-gallery"></div>
+
+        <script>
+            var galleryUploader = new qq.FineUploader({
+                element: document.getElementById("fine-uploader-gallery"),
+                template: 'qq-template-gallery',
+                request: {
+                    endpoint: '#{request.contextPath}/upload',
+                    params: {
+                        raf: "#{rafContext.selectedRaf.code}",
+                        rafPath: "#{rafContext.collection.path}"
+                    }
+                },
+                chunking: {
+                    enabled: true,
+                    mandatory: false,
+                    concurrent: {
+                        enabled: false
+                    },
+                    success: {
+                        endpoint: "#{request.contextPath}/upload?chunksEnd=1"
+                    }
+                },
+                thumbnails: {
+                    placeholders: {
+                        waitingPath: '#{request.contextPath}/javax.faces.resource/waiting-generic.png.jsf?ln=fineuploader',
+                        notAvailablePath: '#{request.contextPath}/javax.faces.resource/not_available-generic.png.jsf?ln=fineuploader'
+                    }
+                }/*,
+                 validation: {
+                 allowedExtensions: ['jpeg', 'jpg', 'gif', 'png']
+                 }*/
+            });
+        </script>
+
+        <div class="row">
+            <h:form id="fupl">
+            <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                <p:commandLink id="save" action="#{fileUploadAction.closeDialog()}" styleClass="btn btn-primary" process="@this">
+                    <i class="fa fa-check" /> #{messages['general.button.Ok']}
+                </p:commandLink>
+            </h:panelGroup>
+            </h:form>
+        </div>
+
+        <ui:remove>
+            <h:form id="ff" enctype="multipart/form-data">
+                <div class="row">
+
+                    <div class="col-xs-12">
+                        <span class="text-bold">#{rafContext.collection.title}</span> klasörü içine açılacak
+                    </div>
+
+                    <div class="col-xs-12">
+                        <p:fileUpload fileUploadListener="#{fileUploadAction.handleFileUpload}" mode="advanced" 
+                                      dragDropSupport="true" 
+                                      auto="true"
+                                      sizeLimit="100000000" allowTypes="/(\.|\/)(.*)$/" />
+                    </div>
+
                 </div>
-
-                <div class="col-xs-12">
-                <p:fileUpload fileUploadListener="#{fileUploadAction.handleFileUpload}" mode="advanced" 
-                              dragDropSupport="true" 
-                              auto="true"
-                              sizeLimit="100000000" allowTypes="/(\.|\/)(.*)$/" />
+                <div class="row">
+                    <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                        <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{fileUploadAction.closeDialog()}" styleClass="btn-primary"/>
+                        <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{fileUploadAction.cancelDialog()}" process="@this"/>
+                    </h:panelGroup>
                 </div>
-
-            </div>
-            <div class="row">
-                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{fileUploadAction.closeDialog()}" styleClass="btn-primary"/>
-                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{fileUploadAction.cancelDialog()}" process="@this"/>
-                </h:panelGroup>
-            </div>
-        </h:form>
+            </h:form>
+        </ui:remove>
     </ui:define>
 
 </ui:composition>

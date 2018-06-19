@@ -15,6 +15,7 @@ import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.primefaces.event.FileUploadEvent;
@@ -39,6 +40,12 @@ public class FileUploadAction extends AbstractAction{
     
     @Inject
     private Event<RafUploadEvent> rafUploadEvent;
+
+    @Override
+    protected void initDialogOptions(Map<String, Object> options) {
+        options.put("contentHeight", 480);
+        options.put("contentWidth", 640);
+    }
 
     @Override
     protected boolean finalizeAction() {

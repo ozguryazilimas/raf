@@ -130,10 +130,25 @@ public class AbstractAction implements Serializable{
         //Eğer gösterilecek bir UI yoksa ise doğrudan işleme gidelim.
         if( hasDialog()){
             Map<String, Object> options = new HashMap<>();
+            
+            options.put("modal", true);
+            //options.put("draggable", false);
+            options.put("resizable", false);
+            
+            //options.put("responsive",   true);
+            //options.put("fitViewport", true );
+            
+            initDialogOptions( options );
+                    
+            
             RequestContext.getCurrentInstance().openDialog( getDailogId(), options, null);
         } else {
             finalizeAction();
         }
+    }
+    
+    protected void initDialogOptions( Map<String, Object> options ){
+        
     }
     
     public void closeDialog() {
