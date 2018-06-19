@@ -12,7 +12,9 @@ import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
+import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,9 @@ public class RafMemberService implements Serializable {
     
     @Inject
     private GroupRepository groupRepository;
+    
+    @Inject
+    private UserGroupRepository userGrouprepository;
     
     @Inject
     private UserService userService;
@@ -222,6 +227,17 @@ public class RafMemberService implements Serializable {
             return Collections.emptyList();
         }
         
-        return userService.getUsersByGroup(ls.get(0).getPath());
+        List<String> result = new ArrayList<>();
+        
+        for( Group g : ls) {
+            result.addAll(
+                    userGrouprepository.findByGroup(g).stream()
+                        .map(gu -> gu.getUser().getLoginName())
+                        .collect(Collectors.toList())
+            );
+        }
+        
+        
+        return result;
     }
 }
