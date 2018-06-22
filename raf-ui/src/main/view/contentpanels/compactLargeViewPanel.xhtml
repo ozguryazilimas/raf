@@ -4,7 +4,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <ui:fragment rendered="#{compactLargeViewPanel.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" >
@@ -22,7 +23,19 @@
                             <p:commandLink action="#{rafSelectionController.toggle(item)}" 
                                            update="raf-view-content" ajax="true" process="@this" 
                                            >
+                                <ui:remove>
                                 <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x" />
+                                
+                                <i class="icon icon-3x icon-red #{iconResolver.getIcon(item.mimeType)}" /> 
+                                </ui:remove>
+                                <ui:remove>
+                                <img src="#{resource['icons:folders.svg']}#folder" class="icon icon-red"/> 
+                                </ui:remove>
+                                
+                                <svg class="icon icon-3x " >
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                                </svg>
+                                
                             </p:commandLink>
                         </div>
                     </span>

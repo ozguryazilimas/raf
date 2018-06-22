@@ -4,7 +4,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <ui:fragment rendered="#{tableSmallViewPanel.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" >
@@ -33,7 +34,14 @@
                                 <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
                             </p:commandLink>
                         </td>
-                        <td style="width: 16px; text-align: center;"><i class="fa #{iconResolver.getIcon(item.mimeType)}" /></td>
+                        <td style="width: 16px; text-align: center;">
+                            <ui:remove>
+                                <i class="icon #{iconResolver.getIcon(item.mimeType)}" />
+                            </ui:remove>
+                            <svg class="icon" >
+                                <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                            </svg>
+                        </td>
                         <td>
                             <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
                                 <span class="text-sm">#{item.title}</span> 

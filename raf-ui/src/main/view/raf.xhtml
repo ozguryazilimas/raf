@@ -23,6 +23,7 @@
     <ui:define name="extraHead">
         <h:outputStylesheet library="raf" name="css/raf.css" />
         <h:outputScript library="raf" name="js/jquery.mousewheel.js" />
+        <h:outputStylesheet library="icons" name="icons.css" />
     </ui:define>
 
     <ui:define name="customHeader">
@@ -65,6 +66,7 @@
     <ui:define name="body">
         <ui:include src="/layout/messages.xhtml" />
 
+        
 
         <p:outputPanel id="raf-view" class="raf" style="height: 100%;">
             <ui:fragment rendered="#{rafController.showSidePanel}">

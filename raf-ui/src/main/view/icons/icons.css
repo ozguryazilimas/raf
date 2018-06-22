@@ -1,0 +1,65 @@
+svg {width: 100%; height: auto;}
+
+.icon{
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    background-size: 22px 22px; 
+}
+
+.icon-2x{
+    width: 32px;
+    height: 32px;
+    background-size: 32px 32px;
+}
+
+
+.icon-3x{
+    width: 64px;
+    height: 64px;
+    background-size: 64px 64px;
+}
+
+.icon-folder {
+	background-image: url("#{resource['icons:folder.svg']}");
+	background-repeat: no-repeat;
+}
+
+
+.icon-document {
+	background-image: url("#{resource['icons:document.svg']}");
+	background-repeat: no-repeat;
+}
+
+.icon-red{
+    color: #da4453;
+}
+
+.icon-blue{
+    color: #3daee9;
+}
+
+.icon-yellow{
+    color: #fdbc4b;
+}
+
+.icon-brown{
+    color: #d35400;
+}
+
+.icon-black{
+    color: #232629;
+}
+
+.icon-green{
+    color: #2ecc71;
+}
+
+.icon-grey{
+    color: #bdc3c7;
+}
+
+.icon-violet{
+    color: #9b59b6;
+}
+

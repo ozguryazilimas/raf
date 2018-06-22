@@ -4,7 +4,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <ui:fragment rendered="#{compactSmallViewPanel.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" >
@@ -12,6 +13,9 @@
         </ui:include>
 
     </ui:fragment>
+    
+    
+    
     <div class="content-view-port">
     <div class="raf-container" >
         <ui:repeat value="#{compactSmallViewPanel.collection.items}" var="item" >
@@ -22,7 +26,13 @@
                             <p:commandLink action="#{rafSelectionController.toggle(item)}" 
                                            update="raf-view-content" ajax="true" process="@this" 
                                            >
-                                <i class="fa #{iconResolver.getIcon(item.mimeType)}" />
+                                <ui:remove>#{iconResolver.getIcon(item.mimeType)}</ui:remove>
+                                <ui:remove>
+                                <i class="icon #{iconResolver.getIcon(item.mimeType)}" /> 
+                                </ui:remove>
+                                <svg class="icon" >
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                                </svg>
                             </p:commandLink>
                         </div>
                     </span>
