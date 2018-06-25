@@ -14,63 +14,77 @@
 
     </ui:fragment>
     <div class="content-view-port">
-    <div class="raf-container" >
-        <ui:repeat value="#{compactLargeViewPanel.collection.items}" var="item" >
-            <div class="raf-container-item">
-                <div class="raf-container-item-item large-icon">
-                    <span class="raf-container-item-item-img" >
-                        <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
-                            <p:commandLink action="#{rafSelectionController.toggle(item)}" 
-                                           update="raf-view-content" ajax="true" process="@this" 
-                                           >
-                                <ui:remove>
-                                <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x" />
-                                
-                                <i class="icon icon-3x icon-red #{iconResolver.getIcon(item.mimeType)}" /> 
-                                </ui:remove>
-                                <ui:remove>
-                                <img src="#{resource['icons:folders.svg']}#folder" class="icon icon-red"/> 
-                                </ui:remove>
-                                
-                                <svg class="icon icon-3x " >
-                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
-                                </svg>
-                                
-                            </p:commandLink>
-                        </div>
-                    </span>
-                    <span class="raf-container-item-item-cnd">
-                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
-                            <span class="text-sm">#{item.title}</span>
-                        </p:commandLink>
+        <div class="raf-container" >
+            <ui:repeat value="#{compactLargeViewPanel.groupNames}" var="group" >
+                <div class="raf-container-item-group">
+                    <ui:fragment rendered="#{compactMediumViewPanel.groupBy}">
+                    <div class="raf-container-item-group-header" >
+                        <div>#{group}</div>
+                    </div>
+                    </ui:fragment>
 
-                        <div class="text-muted text-sm">#{item.name}</div>
-                        <div class="text-muted text-sm">
-                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
-                        </div>
+                    <div class="raf-container-item-group-item">
+                        <ui:repeat value="#{compactLargeViewPanel.getGroupItems(group)}" var="item" >
 
-                        <ui:fragment rendered="#{not empty item.info}">
-                            <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
-                        </ui:fragment>
+                            <div class="raf-container-item">
+                                <div class="raf-container-item-item large-icon">
+                                    <span class="raf-container-item-item-img" >
+                                        <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
+                                            <p:commandLink action="#{rafSelectionController.toggle(item)}" 
+                                                           update="raf-view-content" ajax="true" process="@this" 
+                                                           >
+                                                <ui:remove>
+                                                    <i class="fa #{iconResolver.getIcon(item.mimeType)} fa-3x" />
 
-                        <ui:fragment rendered="#{not empty item.category}">
-                            <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
-                        </ui:fragment>
+                                                    <i class="icon icon-3x icon-red #{iconResolver.getIcon(item.mimeType)}" /> 
+                                                </ui:remove>
+                                                <ui:remove>
+                                                    <img src="#{resource['icons:folders.svg']}#folder" class="icon icon-red"/> 
+                                                </ui:remove>
 
-                        <ui:fragment rendered="#{not empty item.tags}">
-                            <div class="text-muted text-sm">
-                                <p:repeat value="#{item.tags}" var="tag">
-                                    <i class="fa fa-tag" /> #{tag}
-                                </p:repeat>
+                                                <svg class="icon icon-3x " >
+                                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                                                </svg>
+
+                                            </p:commandLink>
+                                        </div>
+                                    </span>
+                                    <span class="raf-container-item-item-cnd">
+                                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                                            <span class="text-sm">#{item.title}</span>
+                                        </p:commandLink>
+
+                                        <div class="text-muted text-sm">#{item.name}</div>
+                                        <div class="text-muted text-sm">
+                                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                        </div>
+
+                                        <ui:fragment rendered="#{not empty item.info}">
+                                            <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
+                                        </ui:fragment>
+
+                                        <ui:fragment rendered="#{not empty item.category}">
+                                            <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
+                                        </ui:fragment>
+
+                                        <ui:fragment rendered="#{not empty item.tags}">
+                                            <div class="text-muted text-sm">
+                                                <p:repeat value="#{item.tags}" var="tag">
+                                                    <i class="fa fa-tag" /> #{tag}
+                                                </p:repeat>
+                                            </div>
+                                        </ui:fragment>
+
+                                    </span>
+                                </div>
                             </div>
-                        </ui:fragment>
-
-                    </span>
+                        </ui:repeat>
+                    </div>
                 </div>
-            </div>
-        </ui:repeat>
-    </div>
+
+            </ui:repeat>
         </div>
+    </div>
     <ui:remove>
         <ul class="raf-item-row-list">
 

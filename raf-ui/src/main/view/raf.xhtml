@@ -66,7 +66,7 @@
     <ui:define name="body">
         <ui:include src="/layout/messages.xhtml" />
 
-        
+
 
         <p:outputPanel id="raf-view" class="raf" style="height: 100%;">
             <ui:fragment rendered="#{rafController.showSidePanel}">
@@ -192,15 +192,63 @@
                                         </p:commandLink>
                                     </li>
 
-                                    <li role="separator" class="divider"></li>
+                                    <ui:fragment rendered="#{rafController.selectedContentPanel.supportCollection}">
+                                        <li role="separator" class="divider"></li>
 
-                                    <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
-                                        <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
-                                            <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" >
-                                                <i class="fa #{cw.actionIcon}" /> #{messages[cw.actionTitle]}
+                                        <ui:repeat value="#{rafController.collectionContentPanels}" var="cw" >
+                                            <li class="#{rafController.getSelectedContentPanel() eq cw ? 'active' : ''}">
+                                                <p:commandLink action="#{rafController.setSelectedContentPanel(cw)}" process="@this" update="raf-view-content" >
+                                                    <i class="fa #{cw.actionIcon}" /> #{messages[cw.actionTitle]}
+                                                </p:commandLink>
+                                            </li>
+                                        </ui:repeat>
+
+                                        <li role="separator" class="divider"></li>
+                                        <li class="dropdown-header">Sıralama</li>
+
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setSortBy('NAME')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.selectedContentPanel.getSortBy() eq 'NAME' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Name']}
                                             </p:commandLink>
                                         </li>
-                                    </ui:repeat>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setSortBy('DATE')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.selectedContentPanel.getSortBy() eq 'DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.Date']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setSortBy('MIMETYPE')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.selectedContentPanel.getSortBy() eq 'MIMETYPE' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.MimeType']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setSortBy('CATEGORY')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.selectedContentPanel.getSortBy() eq 'CATEGORY' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Category']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setSortBy('TAG')}" process="@this" update="raf-view-content">
+
+                                                <i class="fa  #{rafController.selectedContentPanel.getSortBy() eq 'TAG' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Tag']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li role="separator" class="divider"></li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setDescSort( not rafController.selectedContentPanel.getDescSort())}" process="@this" update="raf-view-content">
+                                                <i class="fa #{rafController.selectedContentPanel.getDescSort() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.DescOrder']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setFoldersFirst( not rafController.selectedContentPanel.getFoldersFirst())}" process="@this" update="raf-view-content">
+                                                <i class="fa #{rafController.selectedContentPanel.getFoldersFirst() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.FoldersFirst']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setGroupBy( not rafController.selectedContentPanel.getGroupBy())}" process="@this" update="raf-view-content">
+                                                <i class="fa #{rafController.selectedContentPanel.getGroupBy() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.GroupBy']}
+                                            </p:commandLink>
+                                        </li>
+                                    </ui:fragment>
                                     <ui:remove>
                                         <li role="separator" class="divider"></li>
                                         <li>
@@ -254,13 +302,32 @@
 
                         jQuery('.raf-box-content').css('max-height', clientHeight - 29);
                         jQuery('.raf-container').css('max-height', clientHeight - 60);
+                        //jQuery('.raf-container-item-group').css('max-height', clientHeight - 60);
+                        jQuery('.raf-container-item-group').css('min-height', clientHeight - 78);
+                        jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 80);
                         jQuery('.content-view-port').css('max-height', clientHeight - 60);
                         jQuery('.content-view-port').css('min-height', clientHeight - 60);
+
 
                         jQuery('.content-view-port').on('mousewheel', function (event) {
                             this.scrollLeft -= (event.deltaY * 30);
                             event.preventDefault();
                         });
+
+
+                        jQuery('.raf-container-item-group-item').each(function () {
+                            var minw = 220;
+                            var lastChild = jQuery(this).children().last();
+                            jQuery(this).children().each(function(){
+                                var o = jQuery(this).outerWidth(true);
+                                if( o > minw ){
+                                    minw = o;
+                                }
+                            });
+                            var newWidth = lastChild.position().left - jQuery(this).position().left + minw;
+                            jQuery(this).width(newWidth);
+                        });
+
                     }
 
                     setSizes();

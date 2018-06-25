@@ -18,7 +18,16 @@
     
     <div class="content-view-port">
     <div class="raf-container" >
-        <ui:repeat value="#{compactSmallViewPanel.collection.items}" var="item" >
+        <ui:repeat value="#{compactSmallViewPanel.groupNames}" var="group" >
+                <div class="raf-container-item-group">
+                    <ui:fragment rendered="#{compactMediumViewPanel.groupBy}">
+                    <div class="raf-container-item-group-header" >
+                        <div>#{group}</div>
+                    </div>
+                    </ui:fragment>
+
+                    <div class="raf-container-item-group-item">
+        <ui:repeat value="#{compactSmallViewPanel.getGroupItems(group)}" var="item" >
             <div class="raf-container-item">
                 <div class="raf-container-item-item small-icon">
                     <span class="raf-container-item-item-img" >
@@ -66,6 +75,9 @@
                     </span>
                 </div>
             </div>
+        </ui:repeat>
+                    </div>
+                </div>
         </ui:repeat>
     </div>
     </div>
