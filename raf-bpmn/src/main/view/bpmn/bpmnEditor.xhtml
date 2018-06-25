@@ -1,0 +1,103 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:define name="form">
+        <h:outputScript library="bpmn-assets" name="bpmn-modeler.production.min.js" />
+        <h:outputStylesheet library="bpmn-assets" name="diagram-js.css" />
+        <h:outputStylesheet library="bpmn-assets" name="bpmn-embedded.css" />
+
+        <h:form id="bpmnf">
+            <h:inputHidden id="objectId" value="#{bpmnEditor.objectId}" />
+            <h:inputHidden id="bpmnText" value="#{bpmnEditor.bpmnText}" />
+            <p:remoteCommand name="saveData" action="#{bpmnEditor.save()}" />
+        </h:form>
+        
+        <style>
+            .bjs-powered-by {
+                display: none;
+            }
+            svg{
+                height: 100%;
+            }
+        </style>
+        <div style="padding: 4px;">
+            <button id="save" onclick="saveDiagram()">
+                
+                <i class="fa fa-save" />
+            </button>
+            
+            <div class="embed-responsive embed-responsive-4by3" style="">
+                <div id="canvas" class="embed-responsive-item"></div>
+            </div>
+        </div>
+
+        <script>
+            var objectId = "#{rafContext.selectedObject.id}";
+            var diagramUrl = "#{request.contextPath}/resource/#{rafContext.selectedObject.id}";
+                // viewer instance
+                var bpmnModeler = new BpmnJS({
+                    container: jQuery('#canvas'),
+                    height: 1800,
+                    keyboard: {
+                        bindTo: window
+                    }
+                });
+                /**
+                 * Open diagram in our viewer instance.
+                 *
+                 * @param {String} bpmnXML diagram to display
+                 */
+                function openDiagram(bpmnXML) {
+                    // import diagram
+                    bpmnModeler.importXML(bpmnXML, function (err) {
+                        if (err) {
+                            return console.error('could not import BPMN 2.0 diagram', err);
+                        }
+                        // access viewer components
+                        var canvas = bpmnModeler.get('canvas');
+                        var overlays = bpmnModeler.get('overlays');
+                        canvas.viewbox({x: 1, y: 1, width: 500, height: 500});
+                        // zoom to fit full viewport
+                        canvas.zoom('fit-viewport');
+                        // attach an overlay to a node
+                        /*
+                         overlays.add('SCAN_OK', 'note', {
+                         position: {
+                         bottom: 0,
+                         right: 0
+                         },
+                         html: '<div class="diagram-note">Mixed up the labels?</div>'
+                         });
+                         */
+                        // add marker
+                        //canvas.addMarker('SCAN_OK', 'needs-discussion');
+                    });
+                }
+
+
+                function saveDiagram() {
+                    bpmnModeler.saveXML({format: true}, function (err, xml) {
+                        if (err) {
+                            return console.error('could not save BPMN 2.0 diagram', err);
+                        }
+                        //alert('Diagram exported. Check the developer tools!');
+                        //console.log('DIAGRAM', xml);
+                        jQuery("#bpmnf\\:objectId").val(objectId);
+                        jQuery("#bpmnf\\:bpmnText").val(xml);
+                        saveData();
+                    });
+                }
+                
+                // load external diagram file via AJAX and open it
+                jQuery.get(diagramUrl, openDiagram, 'text');
+        </script>
+
+    </ui:define>
+</ui:composition>
+
