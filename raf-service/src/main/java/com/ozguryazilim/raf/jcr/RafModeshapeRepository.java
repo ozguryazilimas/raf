@@ -522,6 +522,12 @@ public class RafModeshapeRepository implements Serializable {
             if (Strings.isNullOrEmpty(mimeType)) {
                 nc.setProperty("jcr:mimeType", "raf/binary");
             }
+            
+            //Normalde mimeType application/xml geliyor BPMN için bunu değiştiriyoruz.
+            //TODO: MimeType dedection için aslında daha düzgün bir şey gerek. 
+            if( fileName.endsWith(".bpmn")){
+                nc.setProperty("jcr:mimeType", "application/bpmn-xml");
+            }
 
             session.save();
 

@@ -267,5 +267,6 @@
     <module>raf-service</module>
     <module>raf-pdf</module>
     <module>raf-invoice</module>
+    <module>raf-bpmn</module>
   </modules>
 </project>

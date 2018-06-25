@@ -30,7 +30,7 @@ public class IconResolver implements Serializable{
             "image-png", "image-jpeg", "image-bmp", "image-svg-xml", "image-gif", 
             "application-pdf", "text-plain", "text-x-asciidoc", "text-x-web-markdown",
             "text-csv", "application-x-sh", "text-html", "application-xml", "text-x-log",
-            "application-x-mobipocket-ebook", "application-epub-zip", 
+            "application-x-mobipocket-ebook", "application-epub-zip", "application-bpmn-xml", 
             "video-webm", "video-x-matroska", "video-x-mp4",
             "audio-mp3", "audio-mpeg", 
             "application-zip", "application-gzip", "application-x-bittorrent",
