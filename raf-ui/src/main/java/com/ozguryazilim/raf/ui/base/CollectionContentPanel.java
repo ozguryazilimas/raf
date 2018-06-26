@@ -8,7 +8,7 @@ package com.ozguryazilim.raf.ui.base;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafContext;
-import com.ozguryazilim.raf.events.RafFolderChangeEvent;
+import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.utils.DateUtils;
@@ -185,7 +185,7 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
         return iconResolver.getIcon(context.getCollection().getMimeType());
     }
 
-    public void listener(@Observes RafFolderChangeEvent event) {
+    public void listener(@Observes RafCollectionChangeEvent event) {
         clear();
     }
 

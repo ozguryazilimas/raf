@@ -8,9 +8,11 @@ package com.ozguryazilim.raf.search;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
+import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -33,6 +35,9 @@ public class SearchController implements Serializable{
     @Inject
     private SearchService searchService;
     
+    @Inject
+    private Event<RafCollectionChangeEvent> rafCollectionChangeEvent;
+    
     private String searchText;
 
     public String getSearchText() {
@@ -52,6 +57,8 @@ public class SearchController implements Serializable{
             LOG.info("Results : {}", c);
             
             context.setCollection(c);
+            
+            rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
             
         } catch (RafException ex) {
             //FIXME: i18n

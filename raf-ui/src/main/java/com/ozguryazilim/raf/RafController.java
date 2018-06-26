@@ -11,6 +11,7 @@ import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafChangedEvent;
+import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
@@ -83,6 +84,9 @@ public class RafController implements Serializable {
 
     @Inject
     private Event<RafChangedEvent> rafChangedEvent;
+    
+    @Inject
+    private Event<RafCollectionChangeEvent> rafCollectionChangeEvent;
 
     @Inject
     private Event<RafFolderChangeEvent> folderChangedEvent;
@@ -489,7 +493,8 @@ public class RafController implements Serializable {
         context.getCollection().getItems().remove(event.getPayload());
         //Seçili olan panel'i düzeltelim ve collection panele geçelim
         selectedContentPanel = getCollectionContentPanel();
-
+            
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
     /**
@@ -546,6 +551,8 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
+        
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
     protected void populateCategoryCollection(Long categoryId) throws RafException {
@@ -562,6 +569,8 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
+        
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
     protected void populateTagCollection(String tag) throws RafException {
@@ -578,6 +587,8 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
+        
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
     
     /* FIXME: şimdilik arayüzde sadece category id yeterli gibi duruyor.
