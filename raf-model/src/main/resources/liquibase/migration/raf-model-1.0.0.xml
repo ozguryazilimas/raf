@@ -37,7 +37,7 @@
     <changeSet author="huygun" id="201806171040">
         <createTable tableName="RAF_MEMBER">
             <column name="ID" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="RAF_CATPK"/>
+                <constraints primaryKey="true" primaryKeyName="RAF_MEMPK"/>
             </column>
             <column name="MEMBER_NAME" type="VARCHAR(100)">
                 <constraints nullable="false"/>
