@@ -332,8 +332,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Debug için duruyor kalkacak.
             JcrTools jcrTools = new JcrTools();
-            jcrTools.setDebug(true);
-            jcrTools.printSubgraph(node);
+            //jcrTools.setDebug(true);
+            //jcrTools.printSubgraph(node);
 
             session.logout();
 
@@ -855,7 +855,7 @@ public class RafModeshapeRepository implements Serializable {
         RafFolder result = new RafFolder();
 
         JcrTools jcrTools = new JcrTools();
-        jcrTools.printSubgraph(node);
+        //jcrTools.printSubgraph(node);
 
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
@@ -885,7 +885,7 @@ public class RafModeshapeRepository implements Serializable {
         RafDocument result = new RafDocument();
 
         JcrTools jcrTools = new JcrTools();
-        jcrTools.printSubgraph(node);
+        //jcrTools.printSubgraph(node);
 
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());

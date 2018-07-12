@@ -40,7 +40,7 @@ public class UploadServlet extends HttpServlet {
 
         //FIXME: Yetki kontrolü yapılacak. Hem login hem raf için
         
-        LOG.info("Upload Servlet Start");
+        LOG.debug("Upload Servlet Start");
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(req);
 
@@ -62,7 +62,7 @@ public class UploadServlet extends HttpServlet {
                         InputStream stream = item.openStream();
                         
                         String value = Streams.asString(stream);
-                        LOG.info("Form field {} with value {} detected.", name, value);
+                        LOG.debug("Form field {} with value {} detected.", name, value);
 
                         switch (name) {
                             case "raf":
@@ -95,7 +95,7 @@ public class UploadServlet extends HttpServlet {
                         }
 
                     } else {
-                        LOG.info("File field {} with file name {} detected.", name, item.getName());
+                        LOG.debug("File field {} with file name {} detected.", name, item.getName());
                         // Process the input stream
                         FileItem fileItem = fileItemFactory.createItem(item.getFieldName(),
                                                        item.getContentType(),
@@ -115,7 +115,7 @@ public class UploadServlet extends HttpServlet {
                     storage.save(ur);
                 } else {
                     //RAF'a yazmaya
-                    LOG.info("{} dosyasını RAF'a yerleştiriyoruz.", ur.getFileName());
+                    LOG.debug("{} dosyasını RAF'a yerleştiriyoruz.", ur.getFileName());
                     uploadToRaf(ur.getRafPath() + "/" + ur.getFileName(),  ur.getData().getInputStream());
                 }
 
@@ -126,7 +126,7 @@ public class UploadServlet extends HttpServlet {
             }
         } else {
             //Chunk Kapatma Mesajı
-            LOG.info("Request : {}", req.getParameterMap());
+            LOG.debug("Request : {}", req.getParameterMap());
             
             //FIXME: yetki kontrolü
             String raf = req.getParameter("raf");
