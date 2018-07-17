@@ -18,6 +18,7 @@ rm -rf WEB-INF/lib/raf-service-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-pdf-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-bpmn-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-invoice-1.0.0-SNAPSHOT.jar
+rm -rf WEB-INF/lib/raf-jbpm-1.0.0-SNAPSHOT.jar
 
 
 ln -s ~/git/telve4/telve-core/target/classes/ WEB-INF/lib/telve-core-4.0.0.Beta6-SNAPSHOT.jar
@@ -36,6 +37,7 @@ ln -s ~/git/raf/raf-service/target/classes/ WEB-INF/lib/raf-service-1.0.0-SNAPSH
 ln -s ~/git/raf/raf-pdf/target/classes/ WEB-INF/lib/raf-pdf-1.0.0-SNAPSHOT.jar
 ln -s ~/git/raf/raf-bpmn/target/classes/ WEB-INF/lib/raf-bpmn-1.0.0-SNAPSHOT.jar
 ln -s ~/git/raf/raf-invoice/target/classes/ WEB-INF/lib/raf-invoice-1.0.0-SNAPSHOT.jar
+ln -s ~/git/raf/raf-jbpm/target/classes/ WEB-INF/lib/raf-jbpm-1.0.0-SNAPSHOT.jar
 
 
 

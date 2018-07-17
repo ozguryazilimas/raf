@@ -1,0 +1,130 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:param name="dontShowContentHeader" value="true" />
+    <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="Task List" />
+
+    <ui:define name="metadata">
+        <ui:remove>
+            <f:metadata>
+                <f:viewParam name="id" value="#{rafController.rafCode}" />
+                <f:viewParam name="o" value="#{rafController.objectId}" />
+                <f:viewAction action="#{rafController.init()}"/>
+            </f:metadata>
+        </ui:remove>
+    </ui:define>
+
+
+    <ui:define name="extraHead">
+        <ui:remove>
+            <h:outputStylesheet library="raf" name="css/raf.css" />
+            <h:outputScript library="raf" name="js/jquery.mousewheel.js" />
+            <h:outputStylesheet library="icons" name="icons.css" />
+        </ui:remove>
+    </ui:define>
+
+    <ui:define name="customHeader">
+
+        <div class="raf-header-container">
+            <section class="raf-header">
+                <div class="raf-header-logo">
+                    <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
+                </div>
+                <div class="raf-header-texts">
+                    <div class="raf-header-text text-muted text-sm">
+                        #{messages['raf.label.Raf']}
+                    </div>
+                    <div class="raf-header-info text-bold text-big">
+                        #{messages[rafController.rafDefinition.name]}
+                    </div>
+                </div>
+            </section>
+            <section class="raf-header-tools">
+                <ui:fragment rendered="#{rafController.showManagerTools()}">
+                    <div class="raf-header-tool-pack">
+                        <div class="raf-header-btns">
+                            <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
+                                <i class="fa fa-users" />
+                                <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                            </h:link>
+
+                            <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
+                                <i class="fa fa-cogs" />
+                                <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                            </h:link>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </section>
+        </div>
+
+    </ui:define>
+
+    <ui:define name="body">
+        <ui:include src="/layout/messages.xhtml" />
+
+        <div class="row">
+            <div class="col-md-4 col-xs-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        Buraya filtre gelecek
+                    </div>
+                    <div class="box-body">
+                        <ul class="products-list product-list-in-box">
+                            <p:repeat value="#{taskController.tasks}" var="task" >
+                                <li class="item">
+                                    <p:commandLink action="#{taskController.selectTask(task.id)}" process="@this" styleClass="product-title" update="tfrm">
+                                        ##{task.id} - #{task.subject}
+                                    </p:commandLink>
+                                    <span class="product-description">
+                                        #{task.description}
+                                    </span>
+                                    <span class="text-sm text-muted">
+                                        #{task.processId} - #{task.name}
+                                    </span>
+                                </li>
+                            </p:repeat>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-xs-12">
+                <h:form id="tfrm">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">
+                                ##{taskController.selectedTask.taskData.processInstanceId} #{taskController.selectedTask.subject}  [#{taskController.selectedTask.name}]
+                                <ui:remove>
+                                <span class="text-sm text-muted">
+                                    #{taskController.selectedTask.description}
+                                </span>
+                                </ui:remove>
+                            </h3>
+                        </div>
+                        <div class="box-body">
+                            <ui:include src="#{taskController.getTaskView()}" />
+                        </div>
+                        <div class="box-footer">
+                            <h:panelGroup styleClass="actionButtons" layout="block" >
+                                <p:repeat value="#{taskController.taskActions}" var="act">
+                                    <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"/>
+                                </p:repeat>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+
+
+</ui:composition>
+
