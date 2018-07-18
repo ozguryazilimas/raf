@@ -289,5 +289,6 @@
         <module>raf-bpmn</module>
         <module>raf-jbpm</module>
         <module>raf-jbpm-sample-kjar</module>
+        <module>raf-forms</module>
     </modules>
 </project>

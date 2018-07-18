@@ -84,7 +84,10 @@
             <div class="row">
 
                 <c:forEach items="#{documentViewPanel.metadataPanels}" var="mp" varStatus="loop">
-                    <ui:include src="#{mp.viewId}" />
+                    <ui:include src="#{mp.viewId}" >
+                        <ui:param name="idp" value="#{loop}" />
+                        <ui:param name="mpbean" value="#{mp}" />
+                    </ui:include>
                 </c:forEach>
             </div>
         </div>

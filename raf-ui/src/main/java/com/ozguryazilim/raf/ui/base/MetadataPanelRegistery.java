@@ -6,7 +6,10 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.CaseFormat;
+import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.ui.base.metadatapanels.DefaultMetadataPanel;
+import com.ozguryazilim.raf.ui.base.metadatapanels.DynaFormMetadataPanel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,9 +69,25 @@ public class MetadataPanelRegistery {
                 result.add((AbstractMetadataPanel) BeanProvider.getContextualReference( pn, true));
             }
         } else {
-            //FIXME: Default olanı döndürmek lazım ama instance ile ilgli sorun var :( Sadece bir tane olabilir.
-            //FIXME: Aslında bu daha çok debug tadında bişi. Configden alsak a açık olup olmayacağını Eğer tanımlı bir panel yoksa o metadata bloğu gösterilmez.
-            result.add((AbstractMetadataPanel) BeanProvider.getContextualReference( DefaultMetadataPanel.class, true));
+            
+            //Doğrudan bir sınıf tanımlı değil imiş. Şimdi dinamik form tanımı var mı bir bakalım!
+            FormManager formManager = BeanProvider.getContextualReference(FormManager.class, true);
+            Form form = formManager.getForm(type);
+            if( form != null ){
+                //FIXME: MetadataPanel yapısını kesinlikle refactor etmek gerek!
+                //FIXME: Burada intance ile ilgili bir problem olacak. Eğer aynı tip için birden fazla form tanımlanmış ya da ise ne olacak?
+                //Daha ağır bir problem var! Farklı metadata tipleri için form tanımlanmış olabilir ama elimizde sadece bir tane MetadataPanel instance'ı var ve form bilgilisni setlediğimizde sonuncusu için geçerli olacak.
+                //Çünkü dialog frameworkü ile çalışmak için scope session yapılmış.
+                //Keza çağrıldığı yerde de metadata veri bloğu ekleniyor bu kontroller nesnesine.
+                //Metadata tipi için bir adet form almak formKey açısından da makul ama iki farklı metada data bloğu için dynaform yapısı elimizde patlar.
+                DynaFormMetadataPanel mp = BeanProvider.getContextualReference( DynaFormMetadataPanel.class, true);
+                mp.setForm(form);
+                result.add( mp );
+            } else {
+                //FIXME: Default olanı döndürmek lazım ama instance ile ilgli sorun var :( Sadece bir tane olabilir.
+                //FIXME: Aslında bu daha çok debug tadında bişi. Configden alsak a açık olup olmayacağını Eğer tanımlı bir panel yoksa o metadata bloğu gösterilmez.
+                result.add((AbstractMetadataPanel) BeanProvider.getContextualReference( DefaultMetadataPanel.class, true));
+            }
         }
         
         return result;
