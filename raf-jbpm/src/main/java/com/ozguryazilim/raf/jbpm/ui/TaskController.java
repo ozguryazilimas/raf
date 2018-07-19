@@ -27,7 +27,7 @@ import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
-import org.jbpm.services.api.model.UserTaskInstanceDesc;
+import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.query.QueryService;
 import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Task;
@@ -87,14 +87,16 @@ public class TaskController implements Serializable, FormController {
             return "/bpm/taskView.xhtml";
         }
 
-        UserTaskInstanceDesc ut = runtimeDataService.getTaskById(selectedTaskId);
-        String fn = ut.getFormName();
-
-        LOG.info("Task Form Name : {}", fn);
+        //FIXME: Burada custom taskView yapılabilmesine imkan vermeliyiz. E-İmza v.b. için lazım olacak!
 
         return "/bpm/taskView.xhtml";
     }
 
+    public String getProcessName( String deploymentId, String processId ){
+        ProcessDefinition processDesc = runtimeDataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
+        return processDesc.getName();
+    }
+    
     public void selectTask(Long taskId) {
         selectedTaskId = taskId;
         selectedTask = taskService.getTask(taskId);

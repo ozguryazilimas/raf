@@ -1,0 +1,10 @@
+[
+	[
+		"name" : "Raf Service Task",
+		"parameters" : [
+			"Message" : new StringDataType()
+		],
+		"displayName" : "Raf Service Task",
+		"icon" : "raf.png"
+	]
+]

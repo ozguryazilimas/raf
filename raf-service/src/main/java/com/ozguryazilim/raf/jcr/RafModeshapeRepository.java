@@ -525,7 +525,7 @@ public class RafModeshapeRepository implements Serializable {
             
             //Normalde mimeType application/xml geliyor BPMN için bunu değiştiriyoruz.
             //TODO: MimeType dedection için aslında daha düzgün bir şey gerek. 
-            if( fileName.endsWith(".bpmn")){
+            if( fileName.endsWith(".bpmn" ) || fileName.endsWith(".bpmn2" )){
                 nc.setProperty("jcr:mimeType", "application/bpmn-xml");
             }
 
