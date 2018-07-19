@@ -10,11 +10,13 @@ import com.ozguryazilim.raf.forms.builders.DateFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.SelectionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.SuggestionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.TextFieldBuilder;
+import com.ozguryazilim.raf.forms.builders.UserFieldBuilder;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.DateField;
 import com.ozguryazilim.raf.forms.model.SelectionField;
 import com.ozguryazilim.raf.forms.model.SuggestionField;
 import com.ozguryazilim.raf.forms.model.TextField;
+import com.ozguryazilim.raf.forms.model.UserField;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -65,5 +67,6 @@ public class FieldTypeRegistery {
         FieldTypeRegistery.register("Selection", SelectionField.class, SelectionFieldBuilder.class);
         FieldTypeRegistery.register("Suggestion", SuggestionField.class, SuggestionFieldBuilder.class);
         FieldTypeRegistery.register("Date", DateField.class, DateFieldBuilder.class);
+        FieldTypeRegistery.register("User", UserField.class, UserFieldBuilder.class);
     }
 }

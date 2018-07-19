@@ -49,7 +49,7 @@ public class FormXmlParser {
             Element root = document.getRootElement();
             
             if( !"form".equals(root.getName())){
-                LOG.warn("This is not a from.xml : {}", document);
+                LOG.warn("This is not a form.xml : {}", document);
                 return null;
             }
             
@@ -76,7 +76,7 @@ public class FormXmlParser {
                     
                 }
                 
-                LOG.info("attributes {}", attributes );
+                LOG.debug("attributes {}", attributes );
                 AbstractField f = fb.build(attributes);
                 
                 formBuilder.addField(f);

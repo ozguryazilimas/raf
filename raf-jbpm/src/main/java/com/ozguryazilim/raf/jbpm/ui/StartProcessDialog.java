@@ -6,6 +6,9 @@
 package com.ozguryazilim.raf.jbpm.ui;
 
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -31,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 @SessionScoped
 @Named
-public class StartProcessDialog implements Serializable{
+public class StartProcessDialog implements Serializable, FormController{
     
     private static final Logger LOG = LoggerFactory.getLogger(StartProcessDialog.class);
     
@@ -50,8 +53,12 @@ public class StartProcessDialog implements Serializable{
     @Inject
     private Identity identity;
     
+    @Inject
+    private FormManager formManager;
+    
     private String deploymentId;
     private String processId;
+    private Form form;
     
     private Map<String,Object> data = new HashMap<>();
     
@@ -63,6 +70,9 @@ public class StartProcessDialog implements Serializable{
         this.processId = processId;
         this.data.clear();
         this.selectedRafItems.clear();
+        
+        //Process Starter formları ProcessId + Starter ile başlar
+        form = formManager.getForm(processId + "Starter");
         
         ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId("com.ozguryazilim.mutfak:raf-jbpm-sample-kjar:1.0.0-SNAPSHOT", "DocumentApproveProcess");
         Map<String, String> processData = bpmnDefinitionService.getProcessVariables("com.ozguryazilim.mutfak:raf-jbpm-sample-kjar:1.0.0-SNAPSHOT", "DocumentApproveProcess");
@@ -137,6 +147,11 @@ public class StartProcessDialog implements Serializable{
         }
         
         data.put("document", rafOIDs);
+    }
+
+    @Override
+    public Form getForm() {
+        return form;
     }
     
 }

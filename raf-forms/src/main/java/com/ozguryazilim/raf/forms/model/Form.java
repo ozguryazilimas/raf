@@ -85,6 +85,11 @@ public class Form implements Serializable{
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Form{" + "id=" + id + ", formKey=" + formKey + ", version=" + version + ", title=" + title + '}';
+    }
     
     
     

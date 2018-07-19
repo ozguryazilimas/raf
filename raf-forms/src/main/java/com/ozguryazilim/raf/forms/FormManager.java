@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class FormManager {
     
-    private static final Logger LOG = LoggerFactory.getLogger(FormXmlParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FormManager.class);
     
     private Map<String,Form> formMap = new HashMap<>();
     
@@ -37,12 +37,17 @@ public class FormManager {
                 .matchFilenameExtension("frm.xml", new FileMatchProcessor() {
                     @Override
                     public void processMatch(String relativePath, InputStream inputStream, long lengthBytes) throws IOException {
-                        LOG.info("Deploying form : {}", relativePath);
-                        Form frm = FormXmlParser.parse(inputStream);
-                        formMap.put(frm.getFormKey(), frm);
+                        LOG.info("Deploying classpath form : {}", relativePath);
+                        deployForm( inputStream );
                     }
                 }).scan();
         
+    }
+
+    public void deployForm(InputStream inputStream){
+        Form frm = FormXmlParser.parse(inputStream);
+        formMap.put(frm.getFormKey(), frm);
+        LOG.info("Form deployed : {}", frm);
     }
     
     public Form getForm( String formKey ){

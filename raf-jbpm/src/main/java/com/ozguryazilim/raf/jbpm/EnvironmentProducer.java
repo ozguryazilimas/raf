@@ -14,7 +14,6 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import org.jbpm.services.api.DeploymentService;
-import org.jbpm.services.cdi.Kjar;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.UserInfo;
@@ -42,7 +41,7 @@ public class EnvironmentProducer {
     private TelveIdentityProvider telveIdentityProvider;
 
     @Inject
-    @Kjar
+    //@Kjar
     private DeploymentService deploymentService;
 
     @Produces
@@ -67,8 +66,10 @@ public class EnvironmentProducer {
         return new JPATaskLifeCycleEventListener(true);
     }
 
-    @Produces
+    //@Produces
+    //@ApplicationScoped
     public DeploymentService getDeploymentService() {
+        //return new RModuleDeploymentService();
         return this.deploymentService;
     }
 
