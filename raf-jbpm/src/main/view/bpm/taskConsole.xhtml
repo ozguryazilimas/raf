@@ -70,58 +70,63 @@
     <ui:define name="body">
         <ui:include src="/layout/messages.xhtml" />
 
-        <div class="row">
-            <div class="col-md-4 col-xs-12">
-                <div class="box">
-                    <div class="box-header with-border">
-                        Buraya filtre gelecek
-                    </div>
-                    <div class="box-body">
-                        <ul class="products-list product-list-in-box">
-                            <p:repeat value="#{taskController.tasks}" var="task" >
-                                <li class="item">
-                                    <p:commandLink action="#{taskController.selectTask(task.id)}" process="@this" styleClass="product-title" update="tfrm">
-                                        ##{task.id} - #{task.subject}
-                                    </p:commandLink>
-                                    <span class="product-description">
-                                        #{task.description}
-                                    </span>
-                                    <span class="text-sm text-muted">
-                                        #{task.processId} - #{task.name}
-                                    </span>
-                                </li>
-                            </p:repeat>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-8 col-xs-12">
-                <h:form id="tfrm">
-                    <div class="box box-primary">
+        <h:panelGroup id="taskConsole" layout="block" >
+            <div class="row">
+                <div class="col-md-4 col-xs-12">
+                    <div class="box">
                         <div class="box-header with-border">
-                            <h3 class="box-title">
-                                ##{taskController.selectedTask.taskData.processInstanceId} #{taskController.selectedTask.subject}  [#{taskController.selectedTask.name}]
-                                <ui:remove>
-                                <span class="text-sm text-muted">
-                                    #{taskController.selectedTask.description}
-                                </span>
-                                </ui:remove>
-                            </h3>
+                            Buraya filtre gelecek
                         </div>
                         <div class="box-body">
-                            <ui:include src="#{taskController.getTaskView()}" />
-                        </div>
-                        <div class="box-footer">
-                            <h:panelGroup styleClass="actionButtons" layout="block" >
-                                <p:repeat value="#{taskController.taskActions}" var="act">
-                                    <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"/>
+                            <ul class="products-list product-list-in-box">
+                                <p:repeat value="#{taskController.tasks}" var="task" >
+                                    <li class="item">
+                                        <p:commandLink action="#{taskController.selectTask(task.id)}" process="@this" styleClass="product-title" update="tfrm">
+                                            ##{task.id} - #{task.subject}
+                                        </p:commandLink>
+                                        <span class="product-description">
+                                            #{task.description}
+                                        </span>
+                                        <span class="text-sm text-muted">
+                                            #{task.processId} - #{task.name}
+                                        </span>
+                                    </li>
                                 </p:repeat>
-                            </h:panelGroup>
+                            </ul>
                         </div>
                     </div>
-                </h:form>
+                </div>
+                <div class="col-md-8 col-xs-12">
+                    <h:form id="tfrm">
+                        <ui:fragment rendered="#{not empty taskController.selectedTask}">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">
+                                        ##{taskController.selectedTask.taskData.processInstanceId} #{taskController.selectedTask.subject}  [#{taskController.selectedTask.name}]
+                                        <ui:remove>
+                                            <span class="text-sm text-muted">
+                                                #{taskController.selectedTask.description}
+                                            </span>
+                                        </ui:remove>
+                                    </h3>
+                                </div>
+                                <div class="box-body">
+                                    <ui:include src="#{taskController.getTaskView()}" />
+                                </div>
+                                <div class="box-footer">
+                                    <h:panelGroup styleClass="actionButtons" layout="block" >
+                                        <p:repeat value="#{taskController.taskActions}" var="act">
+                                            <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
+                                                             update="taskConsole"/>
+                                        </p:repeat>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </ui:fragment>
+                    </h:form>
+                </div>
             </div>
-        </div>
+        </h:panelGroup>
     </ui:define>
 
 

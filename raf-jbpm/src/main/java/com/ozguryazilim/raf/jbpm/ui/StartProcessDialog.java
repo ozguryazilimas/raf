@@ -58,6 +58,7 @@ public class StartProcessDialog implements Serializable, FormController{
     
     private String deploymentId;
     private String processId;
+    private String processName;
     private Form form;
     
     private Map<String,Object> data = new HashMap<>();
@@ -74,14 +75,11 @@ public class StartProcessDialog implements Serializable, FormController{
         //Process Starter formları ProcessId + Starter ile başlar
         form = formManager.getForm(processId + "Starter");
         
-        ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId("com.ozguryazilim.mutfak:raf-jbpm-sample-kjar:1.0.0-SNAPSHOT", "DocumentApproveProcess");
-        Map<String, String> processData = bpmnDefinitionService.getProcessVariables("com.ozguryazilim.mutfak:raf-jbpm-sample-kjar:1.0.0-SNAPSHOT", "DocumentApproveProcess");
         
-        if (processData == null) {
-            processData = new HashMap<String, String>();
-        }
+        ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
+        processName = processDesc.getName();
         
-        LOG.info("Process Form Contexts {} {}", processDesc, processData);
+        LOG.info("Process Form Contexts {} {}, {}", deploymentId, processId, form);
         
         Map<String, Object> options = new HashMap<>();
         RequestContext.getCurrentInstance().openDialog(getDialogId(), options, null);
@@ -153,5 +151,10 @@ public class StartProcessDialog implements Serializable, FormController{
     public Form getForm() {
         return form;
     }
+
+    public String getProcessName() {
+        return processName;
+    }
+
     
 }

@@ -9,13 +9,13 @@
                 xmlns:xlink="http://www.w3.org/1999/xlink"
                 template="/layout/dialogBase.xhtml">
 
-    <ui:param name="title" value="Süreç" />
+    <ui:param name="title" value="#{startProcessDialog.processName}" />
 
     <ui:define name="form" >
         <h:form id="pf">
             <div class="row">
-                <t:inputText label="process.label.Subject" value="#{startProcessDialog.data['subject']}" placeholder="Konu" requried="true"/>
-                <t:inputTextarea label="process.label.Description" value="#{startProcessDialog.data['description']}" placeholder="Açıklama" requried="true"/>
+                <t:inputText label="process.label.Subject" value="#{startProcessDialog.data['subject']}" placeholder="Konu" required="true"/>
+                <t:inputTextarea label="process.label.Description" value="#{startProcessDialog.data['description']}" placeholder="Açıklama" required="true"/>
             </div>
             
             <ui:include src="/forms/formEdit.xhtml" >

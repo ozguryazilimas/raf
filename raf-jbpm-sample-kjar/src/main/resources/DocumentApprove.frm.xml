@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form id="DocumentApprove" formKey="DocumentApprove" title="Belge Onay" version="1.0" >
+    <field uitype="User" datatype="String" dataKey="initiator" readonly="true" required="true" label="Onay İsteyen Kullanıcı"  />
+    <field uitype="Text" datatype="String" dataKey="message" readonly="false" required="true" label="Onay Mesajı"  />
+</form>
+

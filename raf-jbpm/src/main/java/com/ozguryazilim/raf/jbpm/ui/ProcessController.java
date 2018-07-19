@@ -35,6 +35,7 @@ public class ProcessController implements Serializable{
     private static final Logger LOG = LoggerFactory.getLogger(ProcessController.class);
 
     private Map<String,String> processMap = new HashMap<>();
+    private Map<String,String> processNameMap = new HashMap<>();
     
     @Inject
     private DeploymentService deploymentService;
@@ -56,6 +57,10 @@ public class ProcessController implements Serializable{
         return result;
     }
     
+    public String getProcessName(String processId){
+        return processNameMap.get(processId);
+    }
+    
     public void startProcess( String processId ){
         LOG.info("Selected Process {} {}", processMap.get(processId), processId);
         processDialog.openDialog(processMap.get(processId), processId);
@@ -70,6 +75,7 @@ public class ProcessController implements Serializable{
                 if( "PROCESS".equals( da.getKnowledgeType())){
                     LOG.info("Selectable Process {} {}", du.getDeploymentUnit().getIdentifier(), da.getId());
                     processMap.put(da.getId(), du.getDeploymentUnit().getIdentifier());
+                    processNameMap.put(da.getId(), da.getName());
                 }
             }
         }

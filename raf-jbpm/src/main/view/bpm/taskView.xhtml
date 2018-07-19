@@ -11,6 +11,10 @@
         <t:outputText label="general.label.Info" value="#{taskController.selectedTask.description}" columnClass="col-xs-12"/>
     </div>
 
+    <ui:include src="/forms/formEdit.xhtml" >
+        <ui:param name="frm" value="#{taskController}" />
+    </ui:include>
+    
     <div class="row">
         <t:accordion icon="fa fa-files-o" label="general.label.Documents">
             <table class="table">
@@ -35,7 +39,7 @@
         <t:accordion id="ca" icon="fa fa-comments" label="general.label.Comments">
             <h:panelGroup id="comments" layout="block" styleClass="col-xs-12">
                 <ul class="timeline timeline-inverse">
-                    <p:repeat value="#{taskController.selectedTask.getTaskData().getComments()}" var="cm" >
+                    <p:repeat value="#{taskController.getComments()}" var="cm" >
                         <li>
                             <!-- timeline icon -->
                             <i class="fa fa-comment bg-blue"></i>
@@ -69,10 +73,6 @@
             </p:commandLink>
         </div>
     </div>
-
-
-    #{taskController.selectedTask.taskData.taskInputVariables}
-    #{taskController.selectedTask.taskData.taskOutputVariables}
 
 </ui:composition>
 
