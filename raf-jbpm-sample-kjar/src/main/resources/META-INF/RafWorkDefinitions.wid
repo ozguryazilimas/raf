@@ -6,5 +6,15 @@
 		],
 		"displayName" : "Raf Service Task",
 		"icon" : "raf.png"
+	],
+	[
+		"name" : "Raf Notification Task",
+		"parameters" : [
+			"To" : new StringDataType(),
+			"Subject" : new StringDataType(),
+			"Body" : new StringDataType()
+		],
+		"displayName" : "Raf Notification Task",
+		"icon" : "raf.png"
 	]
 ]

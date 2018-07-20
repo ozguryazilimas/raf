@@ -7,6 +7,7 @@ package com.ozguryazilim.raf.jbpm;
 
 import com.ozguryazilim.raf.jbpm.identity.TelveIdentityProvider;
 import com.ozguryazilim.raf.jbpm.identity.TelveUserGroupCallback;
+import com.ozguryazilim.telve.auth.Identity;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -28,6 +29,10 @@ public class EnvironmentProducer {
     @PersistenceUnit(unitName = "org.jbpm.domain")
     private EntityManagerFactory emf;
 
+    
+    @Inject
+    private Identity identity;
+    
     /*
     @Inject
     @Selectable
@@ -57,6 +62,15 @@ public class EnvironmentProducer {
 
     @Produces
     public UserInfo produceUserInfo() {
+        
+        //FIXME: Burada Bir UserInfo tipi geliştirmeklazım.
+        
+        if( identity == null ){
+            
+        } else {
+            
+        }
+        
         return null; //userGroupInfoProducer.produceUserInfo();
     }
 
@@ -65,6 +79,13 @@ public class EnvironmentProducer {
     public TaskLifeCycleEventListener produceTaskAuditListener() {
         return new JPATaskLifeCycleEventListener(true);
     }
+    
+    /*
+    @Produces
+    public TaskLifeCycleEventListener produceRafTaskListener() {
+        return new RafTaskLifeCycleEventListener();
+    }
+    */
 
     //@Produces
     //@ApplicationScoped

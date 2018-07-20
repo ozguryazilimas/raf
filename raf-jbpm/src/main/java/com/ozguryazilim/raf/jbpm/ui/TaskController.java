@@ -71,10 +71,19 @@ public class TaskController implements Serializable, FormController {
 
     private List<TaskAction> taskActions = new ArrayList<>();
 
+    //URL ile geldiğinde setlenir ve ardından init kısmında kullanılır.
+    private String taskId = "";
+    
     private String commentText;
-
     private Form form;
 
+    public void init(){
+        if( !Strings.isNullOrEmpty(taskId) ){
+            //FIXME: burada exception mümkün. Kontrol etmeli
+            selectTask(Long.parseLong(taskId));
+        }
+    }
+    
     public List<TaskSummary> getTasks() {
 
         List<TaskSummary> result = runtimeDataService.getTasksAssignedAsPotentialOwner(identity.getLoginName(), null);
@@ -251,4 +260,14 @@ public class TaskController implements Serializable, FormController {
     public Map<String, Object> getData() {
         return taskContent;
     }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+    
+    
 }

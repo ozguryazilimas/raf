@@ -14,7 +14,7 @@
     <ui:include src="/forms/formEdit.xhtml" >
         <ui:param name="frm" value="#{taskController}" />
     </ui:include>
-    
+
     <div class="row">
         <t:accordion icon="fa fa-files-o" label="general.label.Documents">
             <table class="table">
@@ -38,27 +38,42 @@
     <div class="row">
         <t:accordion id="ca" icon="fa fa-comments" label="general.label.Comments">
             <h:panelGroup id="comments" layout="block" styleClass="col-xs-12">
-                <ul class="timeline timeline-inverse">
+                <ul class="list-group">
                     <p:repeat value="#{taskController.getComments()}" var="cm" >
-                        <li>
-                            <!-- timeline icon -->
-                            <i class="fa fa-comment bg-blue"></i>
-                            <div class="timeline-item">
-                                <span class="time"><i class="fa fa-clock-o" /><t:cellOutputDateTime value="#{cm.addedAt}" /></span>
-                                <span class="time"><i class="fa fa-user" />#{userLookup.getUserName(cm.addedBy.id)}</span>
-                                
-                                
-                                <div class="timeline-body">
-                                    #{cm.text}
-                                </div>
+                        <li class="list-group-item">
+                            <i class="fa fa-comment text-muted"></i>
+                            <span class="text-muted text-sm"> #{userLookup.getUserName(cm.addedBy.id)}</span>
+                            <span class="text-muted text-sm pull-right"><i class="fa fa-clock-o mr-5" /> <t:cellOutputDateTime value="#{cm.addedAt}" /></span>
+
+                            <div style="padding: 4px;">
+                                #{cm.text}
                             </div>
                         </li>
                     </p:repeat>
-                    <li>
-                        <i class="fa fa-clock-o bg-gray" />
-                    </li>
                 </ul>
 
+                <ui:remove>
+                    <ul class="timeline timeline-inverse">
+                        <p:repeat value="#{taskController.getComments()}" var="cm" >
+                            <li>
+                                <!-- timeline icon -->
+                                <i class="fa fa-comment"></i>
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fa fa-clock-o" /><t:cellOutputDateTime value="#{cm.addedAt}" /></span>
+                                    <span class="time"><i class="fa fa-user" />#{userLookup.getUserName(cm.addedBy.id)}</span>
+
+
+                                    <div class="timeline-body">
+                                        #{cm.text}
+                                    </div>
+                                </div>
+                            </li>
+                        </p:repeat>
+                        <li>
+                            <i class="fa fa-clock-o" />
+                        </li>
+                    </ul>
+                </ui:remove>
             </h:panelGroup>
         </t:accordion>
     </div>

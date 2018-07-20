@@ -12,13 +12,10 @@
     <ui:param name="pageTitle" value="Task List" />
 
     <ui:define name="metadata">
-        <ui:remove>
-            <f:metadata>
-                <f:viewParam name="id" value="#{rafController.rafCode}" />
-                <f:viewParam name="o" value="#{rafController.objectId}" />
-                <f:viewAction action="#{rafController.init()}"/>
-            </f:metadata>
-        </ui:remove>
+        <f:metadata>
+            <f:viewParam name="tid" value="#{taskController.taskId}" />
+            <f:viewAction action="#{taskController.init()}"/>
+        </f:metadata>
     </ui:define>
 
 
@@ -34,6 +31,7 @@
 
         <div class="raf-header-container">
             <section class="raf-header">
+                <ui:remove>
                 <div class="raf-header-logo">
                     <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
                 </div>
@@ -45,8 +43,10 @@
                         #{messages[rafController.rafDefinition.name]}
                     </div>
                 </div>
+                    </ui:remove>
             </section>
             <section class="raf-header-tools">
+                <ui:remove>
                 <ui:fragment rendered="#{rafController.showManagerTools()}">
                     <div class="raf-header-tool-pack">
                         <div class="raf-header-btns">
@@ -62,6 +62,7 @@
                         </div>
                     </div>
                 </ui:fragment>
+                    </ui:remove>
             </section>
         </div>
 
@@ -108,18 +109,25 @@
                                                 #{taskController.selectedTask.description}
                                             </span>
                                         </ui:remove>
+                                        
                                     </h3>
+                                    <span class="pull-right">
+                                            <h:outputText value="Tamamlanmış Görev" rendered="#{taskController.selectedTask.taskData.status eq 'Completed'}" /> 
+                                            <i class="fa fa-user" /> #{userLookup.getUserName(taskController.selectedTask.taskData.actualOwner.id)}
+                                    </span>
                                 </div>
                                 <div class="box-body">
                                     <ui:include src="#{taskController.getTaskView()}" />
                                 </div>
                                 <div class="box-footer">
+                                    <ui:fragment rendered="#{taskController.selectedTask.taskData.status ne 'Completed'}">
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
                                         <p:repeat value="#{taskController.taskActions}" var="act">
                                             <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
                                                              update="taskConsole"/>
                                         </p:repeat>
                                     </h:panelGroup>
+                                    </ui:fragment>
                                 </div>
                             </div>
                         </ui:fragment>
