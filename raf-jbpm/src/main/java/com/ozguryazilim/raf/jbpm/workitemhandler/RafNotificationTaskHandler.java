@@ -46,6 +46,11 @@ public class RafNotificationTaskHandler implements WorkItemHandler {
         Map<String, Object> params = new HashMap<>();
         
         params.put("description", workItem.getParameter("Body"));
+        
+        //params.put("ProcessId", workItem.);
+        params.put("ProcessInstanceId", workItem.getProcessInstanceId());
+        //params.put("DeploymentId", event.getTask().getTaskData().getDeploymentId());
+        
         /*
         params.put("TaskDescription", event.getTask().getDescription());
         params.put("TaskId", event.getTask().getId());

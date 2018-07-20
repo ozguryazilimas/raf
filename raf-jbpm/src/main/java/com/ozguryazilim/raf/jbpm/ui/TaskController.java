@@ -12,7 +12,6 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
-import com.ozguryazilim.raf.jbpm.actions.StartProcessAction;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 @Named
 public class TaskController implements Serializable, FormController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StartProcessAction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TaskController.class);
 
     @Inject
     private Identity identity;
