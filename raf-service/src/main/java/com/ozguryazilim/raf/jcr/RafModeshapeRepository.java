@@ -562,7 +562,7 @@ public class RafModeshapeRepository implements Serializable {
             node.addMixin(MIXIN_TITLE);
             node.addMixin(MIXIN_TAGGABLE);
 
-            //node.setProperty(PROP_TITLE, folder.getTitle());
+            node.setProperty(PROP_TITLE, node.getName());
             //node.setProperty(PROP_DESCRIPTON, folder.getInfo());
 
             session.save();

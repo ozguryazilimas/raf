@@ -24,5 +24,15 @@
 		],
 		"displayName" : "Raf Import Process Documents",
 		"icon" : "raf.png"
+	],
+        [
+		"name" : "Raf Export Process Documents",
+		"parameters" : [
+                    "Documents" : new ObjectDataType(),
+                    "RootFolder" : new StringDataType(),
+                    "NewFolder"  : new StringDataType()
+		],
+		"displayName" : "Raf Export Process Documents",
+		"icon" : "raf.png"
 	]
 ]
