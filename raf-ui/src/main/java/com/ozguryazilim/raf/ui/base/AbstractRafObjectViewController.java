@@ -3,17 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ozguryazilim.raf.ui.contentpanels;
+package com.ozguryazilim.raf.ui.base;
 
+import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.MetadataRegistery;
-import com.ozguryazilim.raf.RafContext;
-import com.ozguryazilim.raf.config.ContentPanelPages;
 import com.ozguryazilim.raf.models.RafMetadata;
-import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
-import com.ozguryazilim.raf.ui.base.ContentPanel;
-import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
-import com.ozguryazilim.raf.ui.base.ObjectContentPanel;
-import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
+import com.ozguryazilim.raf.models.RafObject;
 import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
@@ -21,31 +16,45 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author oyas
+ * RafNesneleri gösterimi için taban sınıf.
+ * 
+ * 
+ * Bütün RafObject'ler için metadata panel desteği lazım olacaktır diye metadata panel kısmı burada.
+ * 
+ * TODO: Acava MetaDataAware bişimi yapmalı?
+ * 
+ * Benzar durum Comment için de gerekebilir!
+ * 
+ * @author Hakan Uygun
  */
-@ContentPanel( actionIcon = "fa-file", view = ContentPanelPages.DocumentViewPanel.class)
-public class DocumentViewPanel extends ObjectContentPanel{
+public abstract class AbstractRafObjectViewController<R extends RafObject> implements RafObjectViewController<R>{
 
-    private static final Logger LOG = LoggerFactory.getLogger(DocumentViewPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractRafDocumentViewController.class);
     
     @Inject
-    private RafContext context;
+    private IconResolver iconResolver;
     
-    /**
-     * Geriye mimeType'a göre hangi widget kullanılacak ise onun fragman bilgisini döner.
-     * 
-     * @return 
-     */
-    public String getPreviewWidget(){
-        //Eğer mimetype yoksa default isteyelim
-        if( context.getSelectedObject() != null ){
-            return PreviewPanelRegistery.getMimeTypePanel(context.getSelectedObject().getMimeType()).getViewId();
-        } else {
-            return PreviewPanelRegistery.getMimeTypePanel("default").getViewId();
-        }
-        
-    } 
+    private R object;
+    
+    @Override
+    public void setObject(R object) {
+        this.object = object;
+    }
+
+    @Override
+    public R getObject() {
+        return object;
+    }
+
+    @Override
+    public String getIcon() {
+        return iconResolver.getIcon(getObject().getMimeType());
+    }
+
+    @Override
+    public String getTitle() {
+        return getObject().getTitle();
+    }
     
     public List<AbstractMetadataPanel> getMetadataPanels(){
         
@@ -54,7 +63,7 @@ public class DocumentViewPanel extends ObjectContentPanel{
         
         List<AbstractMetadataPanel> result = MetadataPanelRegistery.getPanels("nt:file");
         
-        for( RafMetadata md : context.getSelectedObject().getMetadatas()){
+        for( RafMetadata md : getObject().getMetadatas()){
             List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(md.getType());
             for( AbstractMetadataPanel mdp : ls ){
                 mdp.setMetadata(md);
@@ -76,7 +85,7 @@ public class DocumentViewPanel extends ObjectContentPanel{
     public List<String> getAdditonalMetadatas(){
         //FIXME: gelen veriler mecut metadata'lar ile karşılaştırılmalı.
         //FIXME: yetki kontrolü nerede yapılmalı?
-        return MetadataRegistery.getSelectableMetadataNames(context.getSelectedObject().getMimeType());
+        return MetadataRegistery.getSelectableMetadataNames(getObject().getMimeType());
     }
 
     /**
@@ -90,11 +99,5 @@ public class DocumentViewPanel extends ObjectContentPanel{
         List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(type);
         ls.get(0).edit();
     }
-
-    @Override
-    public boolean isSupportMetadata() {
-        return true;
-    }
-    
     
 }

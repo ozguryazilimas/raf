@@ -31,10 +31,10 @@ public class ContentPanelRegistery {
         LOG.info("ContentPanel Registered : {}", name);
     }
     
-    public static List<AbstractContentPanel> getPanels(){
-        List<AbstractContentPanel> result = new ArrayList<>();
+    public static List<ContentViewPanel> getPanels(){
+        List<ContentViewPanel> result = new ArrayList<>();
         for( String pn : panels.keySet()){
-            result.add((AbstractContentPanel) BeanProvider.getContextualReference( pn, true));
+            result.add((ContentViewPanel) BeanProvider.getContextualReference( pn, true));
         }
         
         return result;

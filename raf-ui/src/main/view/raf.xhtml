@@ -297,7 +297,9 @@
 
                 </div>
                 <div class="raf-box-content" >
-                    <ui:include src="#{rafController.selectedContentPanel.viewId}" />
+                    <ui:include src="#{rafController.selectedContentPanel.viewId}" >
+                        <ui:param name="viewBean" value="#{rafController.selectedContentPanel}" />
+                    </ui:include>
                 </div>
                 <ui:fragment rendered="#{rafController.selectedContentPanel.supportPaging}">
                     <div class="raf-box-footer" style="text-align: center">

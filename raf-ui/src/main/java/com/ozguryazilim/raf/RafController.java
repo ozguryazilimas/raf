@@ -22,13 +22,14 @@ import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
-import com.ozguryazilim.raf.ui.base.AbstractContentPanel;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.ActionRegistery;
 import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
+import com.ozguryazilim.raf.ui.base.ContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
-import com.ozguryazilim.raf.ui.contentpanels.DocumentViewPanel;
-import com.ozguryazilim.raf.ui.contentpanels.FolderViewPanel;
+import com.ozguryazilim.raf.ui.contentpanels.RafCollectionCompactViewPanel;
+import com.ozguryazilim.raf.ui.contentpanels.RafDocumentViewPanel;
+import com.ozguryazilim.raf.ui.contentpanels.RafFolderViewPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
@@ -93,14 +94,17 @@ public class RafController implements Serializable {
 
     private AbstractSidePanel selectedSidePanel;
 
-    private AbstractContentPanel selectedContentPanel;
-    private AbstractContentPanel selectedCollectionContentPanel;
+    private ContentViewPanel selectedContentPanel;
+    private ContentViewPanel selectedCollectionContentPanel;
 
     @Inject
-    private DocumentViewPanel documentViewPanel;
+    private RafDocumentViewPanel documentViewPanel;
 
     @Inject
-    private FolderViewPanel folderViewPanel;
+    private RafFolderViewPanel folderViewPanel;
+    
+    @Inject
+    private RafCollectionCompactViewPanel collectionCompactViewPanel;
 
     private String rafCode;
 
@@ -112,10 +116,15 @@ public class RafController implements Serializable {
     private Boolean showSidePanel = Boolean.TRUE;
     private Boolean showManagerTools = Boolean.TRUE;
 
+    
+    
     @PostConstruct
     public void initDefaults() {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
         showSidePanel = kahve.get("raf.showSidePanel", Boolean.TRUE).getAsBoolean();
+        
+        selectedContentPanel= collectionCompactViewPanel;
+        selectedCollectionContentPanel = collectionCompactViewPanel;
     }
 
     /**
@@ -261,17 +270,17 @@ public class RafController implements Serializable {
         this.selectedSidePanel = selectedSidePanel;
     }
 
-    public List<AbstractContentPanel> getContentPanels() {
+    public List<ContentViewPanel> getContentPanels() {
         return ContentPanelRegistery.getPanels();
     }
 
-    public List<AbstractContentPanel> getCollectionContentPanels() {
+    public List<ContentViewPanel> getCollectionContentPanels() {
         return getContentPanels().stream()
                 .filter(p -> p.getSupportCollection())
                 .collect(Collectors.toList());
     }
 
-    public AbstractContentPanel getSelectedContentPanel() {
+    public ContentViewPanel getSelectedContentPanel() {
         //Eğer seçili bir yoksa ilkini seçiyoruz.
         if (selectedContentPanel == null) {
             selectedContentPanel = getContentPanels().get(0);
@@ -279,7 +288,7 @@ public class RafController implements Serializable {
         return selectedContentPanel;
     }
 
-    public void setSelectedContentPanel(AbstractContentPanel selectedContentPanel) {
+    public void setSelectedContentPanel(ContentViewPanel selectedContentPanel) {
         this.selectedContentPanel = selectedContentPanel;
         if (selectedContentPanel.getSupportCollection()) {
             this.selectedCollectionContentPanel = selectedContentPanel;
@@ -292,23 +301,19 @@ public class RafController implements Serializable {
      *
      * @return
      */
-    protected AbstractContentPanel getObjectContentPanel() {
+    protected ContentViewPanel getObjectContentPanel() {
 
-        //FIXME: burada previeww panelleri gibi aslında mimeType'a bakarak doğru paneli seçmek lazım
+        //FIXME: burada previeww panelleri gibi aslında mimeType'a / nodeType'a bakarak doğru paneli seçmek lazım
         if (context.getSelectedObject() instanceof RafDocument) {
+            documentViewPanel.setObject((RafDocument)context.getSelectedObject());
             return documentViewPanel;
         } else if (context.getSelectedObject() instanceof RafFolder) {
+            folderViewPanel.setObject((RafFolder)context.getSelectedObject());
             return folderViewPanel;
         }
-
-        /*
-        for (AbstractContentPanel p : getContentPanels()) {
-            if (!p.getSupportCollection()) {
-                return p;
-            }
-        }
-         */
+        
         //FIXME: Hiçibişi seçilmemesi durumu riski var.
+        LOG.warn("RafObjectViewPanel not found for Object Type '{}'", context.getSelectedObject());
         return null;
 
     }
@@ -319,10 +324,10 @@ public class RafController implements Serializable {
      *
      * @return
      */
-    protected AbstractContentPanel getCollectionContentPanel() {
+    protected ContentViewPanel getCollectionContentPanel() {
 
         if (selectedCollectionContentPanel == null) {
-            for (AbstractContentPanel p : getContentPanels()) {
+            for (ContentViewPanel p : getContentPanels()) {
                 if (p.getSupportCollection()) {
                     selectedCollectionContentPanel = p;
                     return p;
@@ -331,8 +336,8 @@ public class RafController implements Serializable {
         } else {
             return selectedCollectionContentPanel;
         }
-
-        return null;
+        
+        return selectedCollectionContentPanel;
     }
 
     public void selectItem(RafObject item) {

@@ -7,8 +7,6 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.IconResolver;
-import com.ozguryazilim.raf.RafContext;
-import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.utils.DateUtils;
@@ -18,31 +16,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 /**
- * Collection tipi content panelleri için taban sınıf.
- *
- * Farklı view tipleri bu sınıfı miras alarak farklı sunum katmanları
- * oluşturabilir.
- *
+ * RafCollection için temel view controller sınıfı.
+ * 
+ * Tek görevi Aldığı sort ve group bilgilerine göre nesneleri sıralamak ve gruplamak.
+ * 
  * @author Hakan Uygun
  */
-public abstract class CollectionContentPanel extends AbstractContentPanel {
+public abstract class AbstractRafCollectionViewController implements RafCollectionViewController{
 
     private static final String SORT_BY_NAME = "NAME";
     private static final String SORT_BY_DATE = "DATE";
     private static final String SORT_BY_MIMETYPE = "MIMETYPE";
     private static final String SORT_BY_CATEGORY = "CATEGORY";
     private static final String SORT_BY_TAG = "TAG";
-
+   
     @Inject
-    private RafContext context;
-
-    @Inject
-    private IconResolver iconResolver;
-
+    private IconResolver iconResolver; 
+    
+    private RafCollection collection;
+        
     private String sortBy = SORT_BY_NAME;
     private Boolean descSort = Boolean.FALSE;
     private Boolean foldersFirst = Boolean.TRUE;
@@ -50,28 +45,30 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
 
     private List<String> groupNames = new ArrayList<>();
     private Map<String, List<RafObject>> groupMap = new HashMap<>();
+    
+    @Override
+    public String getIcon() {
+        if ("raf/folder".equals(getCollection().getMimeType())) {
+            return "fa-folder-open";
+        }
+        return iconResolver.getIcon(getCollection().getMimeType());
+    }
 
     @Override
     public String getTitle() {
-        return context.getCollection().getTitle();
+        return getCollection().getTitle();
     }
-
-    /* TODO: Sanırım üst sınıfın ki daha doğru çalışıyor.
+    
     @Override
-    public String getIcon() {
-        return iconResolver.getIcon(context.getCollection().getMimeType());
-    }
-     */
-    @Override
-    public boolean getSupportPaging() {
-        //Bu implemente edildiğinde açılacak
-        return Boolean.FALSE;
-    }
-
     public RafCollection getCollection() {
-        return context.getCollection();
+        return collection;
     }
 
+    @Override
+    public void setCollection(RafCollection collection) {
+        this.collection = collection;
+    }
+    
     public List<String> getGroupNames() {
         if (groupNames.isEmpty()) {
             //FIXME: Burada arayüzden alınan sıralama ve gruplama yetenekleri kullanılacak
@@ -79,7 +76,7 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
             //Eğer Gruplama gösterilmeyecek ise sadece tek bir grup olacak ve tüm hepsini o taşıyacak
             //Farklı sort ve gruplama işlemleri için fonksiyonlar yazmak lazım.
             if (groupBy) {
-                groupMap = context.getCollection().getItems().stream()
+                groupMap = getCollection().getItems().stream()
                         .collect(
                                 Collectors.groupingBy(
                                         x -> {
@@ -138,7 +135,7 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
             } else {
                 groupNames.add("ALL");
                 groupMap.clear();
-                groupMap.put("ALL", context.getCollection().getItems().stream().sorted(new Comparator<RafObject>() {
+                groupMap.put("ALL", getCollection().getItems().stream().sorted(new Comparator<RafObject>() {
                     @Override
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: FolderFirst kontrolü
@@ -167,33 +164,17 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
         }
         return groupNames;
     }
-
+    
     public List<RafObject> getGroupItems(String group) {
         return groupMap.get(group);
-    }
-
-    @Override
-    public boolean getSupportCollection() {
-        return true;
-    }
-
-    @Override
-    public String getIcon() {
-        if ("raf/folder".equals(context.getCollection().getMimeType())) {
-            return "fa-folder-open";
-        }
-        return iconResolver.getIcon(context.getCollection().getMimeType());
-    }
-
-    public void listener(@Observes RafCollectionChangeEvent event) {
-        clear();
     }
 
     public void clear() {
         groupNames.clear();
         groupMap.clear();
     }
-
+    
+    
     public String getSortBy() {
         return sortBy;
     }
@@ -229,5 +210,4 @@ public abstract class CollectionContentPanel extends AbstractContentPanel {
         this.groupBy = groupBy;
         clear();
     }
-
 }

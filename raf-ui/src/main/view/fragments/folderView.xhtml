@@ -20,18 +20,18 @@
         <div class="col-md-8 col-xs-12">
             <div class="row">
                 <div class="col-xs-12">
-                    <h2 class="page-header">#{folderViewPanel.rafObject.title} 
-                        <span class="text-muted text-sm">#{folderViewPanel.rafObject.name}</span>
+                    <h2 class="page-header">#{viewBean.object.title} 
+                        <span class="text-muted text-sm">#{viewBean.object.name}</span>
                     </h2>
 
-                    <ui:fragment rendered="#{folderViewPanel.rafObject.info ne ''}">
-                        <div>#{folderViewPanel.rafObject.info}</div>
+                    <ui:fragment rendered="#{viewBean.object.info ne ''}">
+                        <div>#{viewBean.object.info}</div>
                     </ui:fragment>
 
                     <span class="text-muted text-sm">
-                        #{userLookup.getUserName(folderViewPanel.rafObject.createBy)} | 
-                        <t:cellOutputDateTime value="#{folderViewPanel.rafObject.createDate}" />
-                        | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{folderViewPanel.rafObject.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
+                        #{userLookup.getUserName(viewBean.object.createBy)} | 
+                        <t:cellOutputDateTime value="#{viewBean.object.createDate}" />
+                        | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{viewBean.object.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
                     </span>
 
                 </div>
@@ -65,7 +65,7 @@
 
             <div class="row">
 
-                <c:forEach items="#{folderViewPanel.metadataPanels}" var="mp" varStatus="loop">
+                <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
                     <ui:include src="#{mp.viewId}" />
                 </c:forEach>
             </div>

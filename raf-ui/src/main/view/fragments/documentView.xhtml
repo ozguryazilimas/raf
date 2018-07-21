@@ -20,18 +20,18 @@
         <div class="col-md-8 col-xs-12">
             <div class="row">
                 <div class="col-xs-12">
-                    <h2 class="page-header">#{documentViewPanel.rafObject.title} <span class="label label-default text-sm pull-right">1.0</span>
-                        <span class="text-muted text-sm">#{documentViewPanel.rafObject.name}</span>
+                    <h2 class="page-header">#{viewBean.object.title} <span class="label label-default text-sm pull-right">1.0</span>
+                        <span class="text-muted text-sm">#{viewBean.object.name}</span>
                     </h2>
 
-                    <ui:fragment rendered="#{documentViewPanel.rafObject.info ne ''}">
-                        <div>#{documentViewPanel.rafObject.info}</div>
+                    <ui:fragment rendered="#{viewBean.object.info ne ''}">
+                        <div>#{viewBean.object.info}</div>
                     </ui:fragment>
 
                     <span class="text-muted text-sm">
-                        #{userLookup.getUserName(documentViewPanel.rafObject.updateBy)} | 
-                        <t:cellOutputDateTime value="#{documentViewPanel.rafObject.updateDate}" />
-                        | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{documentViewPanel.rafObject.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
+                        #{userLookup.getUserName(viewBean.object.updateBy)} | 
+                        <t:cellOutputDateTime value="#{viewBean.object.updateDate}" />
+                        | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{viewBean.object.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
                     </span>
 
 
@@ -48,7 +48,7 @@
                 <div class="col-xs-12" >
 
                     <div >
-                        <ui:include src="#{documentViewPanel.previewWidget}" />
+                        <ui:include src="#{viewBean.previewWidget}" />
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@
             </ui:remove>
             <div class="row">
 
-                <c:forEach items="#{documentViewPanel.metadataPanels}" var="mp" varStatus="loop">
+                <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
                     <ui:include src="#{mp.viewId}" >
                         <ui:param name="idp" value="#{loop}" />
                         <ui:param name="mpbean" value="#{mp}" />

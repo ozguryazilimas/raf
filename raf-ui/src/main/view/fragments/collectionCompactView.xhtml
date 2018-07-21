@@ -7,24 +7,24 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:xlink="http://www.w3.org/1999/xlink">
 
-    <ui:fragment rendered="#{compactMediumViewPanel.supportBreadcrumb}" >
+    <ui:fragment rendered="#{viewBean.supportBreadcrumb}" >
         <ui:include src="/fragments/breadcrumb.xhtml" >
             <ui:param name="forCollection" value="true" />
         </ui:include>
-
     </ui:fragment>
+    
     <div class="content-view-port">
         <div class="raf-container" >
-            <ui:repeat value="#{compactMediumViewPanel.groupNames}" var="group" >
+            <ui:repeat value="#{viewBean.groupNames}" var="group" >
                 <div class="raf-container-item-group">
-                    <ui:fragment rendered="#{compactMediumViewPanel.groupBy}">
+                    <ui:fragment rendered="#{viewBean.groupBy}">
                     <div class="raf-container-item-group-header" >
                         <div>#{group}</div>
                     </div>
                     </ui:fragment>
 
                     <div class="raf-container-item-group-item">
-                        <ui:repeat value="#{compactMediumViewPanel.getGroupItems(group)}" var="item" >
+                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item" >
                             <div class="raf-container-item">
                                 <div class="raf-container-item-item medium-icon">
                                     <span class="raf-container-item-item-img" >
