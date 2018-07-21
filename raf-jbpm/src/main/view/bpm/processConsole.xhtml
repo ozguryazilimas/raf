@@ -142,21 +142,9 @@
                                                 </ui:include>
 
                                                 <div class="row">
-                                                    <t:accordion icon="fa fa-files-o" label="general.label.Documents">
-                                                        <table class="table">
-                                                            <p:repeat value="#{processConsoleController.rafObjectItems}" var="ro" >
-                                                                <tr>
-                                                                    <td>
-                                                                        <svg class="icon" style="height: 24px; width: 24px;">
-                                                                            <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(ro.mimeType)}" />
-                                                                        </svg>
-                                                                    </td>
-                                                                    <td>#{ro.name}</td>
-                                                                    <td>#{ro.info}</td>
-                                                                </tr>
-                                                            </p:repeat>
-                                                        </table>
-                                                    </t:accordion>
+                                                    <ui:include src="/fragments/documents.xhtml">
+                                                        <ui:param name="rafObjects" value="#{processConsoleController.rafObjectItems}" />
+                                                    </ui:include>
                                                 </div>
 
                                                 <div class="row">

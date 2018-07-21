@@ -6,7 +6,6 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
                 template="/layout/dialogBase.xhtml">
 
     <ui:param name="title" value="#{startProcessDialog.processName}" />
@@ -17,27 +16,15 @@
                 <t:inputText label="process.label.Subject" value="#{startProcessDialog.data['subject']}" placeholder="Konu" required="true"/>
                 <t:inputTextarea label="process.label.Description" value="#{startProcessDialog.data['description']}" placeholder="Açıklama" required="true"/>
             </div>
-            
+
             <ui:include src="/forms/formEdit.xhtml" >
                 <ui:param name="frm" value="#{startProcessDialog}" />
             </ui:include>
 
             <div class="row">
-                <t:accordion icon="fa fa-files-o" label="general.label.Documents">
-                    <table class="table">
-                        <p:repeat value="#{startProcessDialog.selectedDocuments}" var="ro" >
-                            <tr>
-                                <td>
-                                    <svg class="icon" style="height: 24px; width: 24px;">
-                                        <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(ro.mimeType)}" />
-                                    </svg>
-                                </td>
-                                <td>#{ro.name}</td>
-                                <td>#{ro.info}</td>
-                            </tr>
-                        </p:repeat>
-                    </table>
-                </t:accordion>
+                <ui:include src="/fragments/documents.xhtml">
+                    <ui:param name="rafObjects" value="#{startProcessDialog.selectedDocuments}" />
+                </ui:include>
             </div>
 
             <div class="row">
