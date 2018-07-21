@@ -9,6 +9,8 @@ import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.MetadataRegistery;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.metadatapanels.BasicMetadataPanel;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
@@ -33,6 +35,9 @@ public abstract class AbstractRafObjectViewController<R extends RafObject> imple
     
     @Inject
     private IconResolver iconResolver;
+    
+    @Inject
+    private BasicMetadataPanel basicMetadataPanel;
     
     private R object;
     
@@ -59,9 +64,14 @@ public abstract class AbstractRafObjectViewController<R extends RafObject> imple
     public List<AbstractMetadataPanel> getMetadataPanels(){
         
         //FIXME: burada veri içeriğine göre doğru bir şekilde panel listesi dönülecek.
+        //FIXME: burada yapılan işlem cachelenmeli. Ama nasıl onu bilemiyoruz. Window/Session Scope bir nesnede ikide bir değer değişecek. Belki de mimeType'a + metaData bloğu için map tutmak?
         //FIXME: Yetki kontrolü de gerekiyor.
         
-        List<AbstractMetadataPanel> result = MetadataPanelRegistery.getPanels("nt:file");
+        List<AbstractMetadataPanel> result = new ArrayList<>();//MetadataPanelRegistery.getPanels("nt:file");
+        
+        basicMetadataPanel.setObject(getObject());
+        
+        result.add(basicMetadataPanel);
         
         for( RafMetadata md : getObject().getMetadatas()){
             List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(md.getType());

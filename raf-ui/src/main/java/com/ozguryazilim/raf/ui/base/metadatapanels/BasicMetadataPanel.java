@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.config.MetadataPanelPages;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -43,12 +44,22 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     
     private RafCategory category;
 
+    private RafObject object;
+
+    public RafObject getObject() {
+        return object;
+    }
+
+    public void setObject(RafObject object) {
+        this.object = object;
+    }
+    
     @Override
     protected void initEditModel() {
         //FIXME: Burada servisten nesneyi bulacağız.
         category = null;
-        if( context.getSelectedObject().getCategoryId() != null ){
-            category = categoryService.findById(context.getSelectedObject().getCategoryId());
+        if( getObject().getCategoryId() != null ){
+            category = categoryService.findById(getObject().getCategoryId());
         }
     }
     
@@ -58,20 +69,20 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
             
             LOG.info("Selected Category : {}", category);
             if( category != null ){
-                context.getSelectedObject().setCategory(category.getName());
-                context.getSelectedObject().setCategoryPath(category.getPath());
-                context.getSelectedObject().setCategoryId(category.getId());
+                getObject().setCategory(category.getName());
+                getObject().setCategoryPath(category.getPath());
+                getObject().setCategoryId(category.getId());
                 LOG.info("Selected Category : {}", category.getName());
                 //TODO: category attribute atanacak
             } else {
                 //Modelde category varsa boşaltılacak
-                context.getSelectedObject().setCategory(null);
-                context.getSelectedObject().setCategoryPath(null);
-                context.getSelectedObject().setCategoryId(null);
+                getObject().setCategory(null);
+                getObject().setCategoryPath(null);
+                getObject().setCategoryId(null);
             }
             
             //FIXME: yetki kontrolü nerede yapılacak?
-            rafService.saveProperties(context.getSelectedObject());
+            rafService.saveProperties(getObject());
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Properties cannot saved", ex);

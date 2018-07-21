@@ -20,7 +20,11 @@
                             <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(ro.mimeType)}" />
                         </svg>
                     </td>
-                    <td>#{ro.name}</td>
+                    <td>
+                        <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
+                            #{ro.name}
+                        </p:commandLink>
+                    </td>
                     <td>#{ro.info}</td>
                 </tr>
             </p:repeat>
