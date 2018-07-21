@@ -3,7 +3,7 @@
 
 [raf:raf] mixin
     - raf:type (STRING) mandatory
-        < 'PRIVATE', 'SHARED', 'DEFAULT'
+        < 'PRIVATE', 'SHARED', 'DEFAULT', 'PROCESS'
 
 [raf:taggable] mixin
     - raf:category (STRING)

@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf.jbpm;
 
+import com.ozguryazilim.raf.jbpm.workitemhandler.RafImportProcessDocumentsTaskHandler;
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafNotificationTaskHandler;
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafServiceTaskHandler;
 import java.util.HashMap;
@@ -33,6 +34,9 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
     @Inject
     private RafNotificationTaskHandler rafNotificationTaskHandler;
     
+    @Inject
+    private RafImportProcessDocumentsTaskHandler importProcessDocumentsTaskHandler;
+    
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(String identifier, Map<String, Object> params) {
         
@@ -42,6 +46,7 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
         
         result.put("Raf Service Task", new RafServiceTaskHandler());
         result.put("Raf Notification Task", rafNotificationTaskHandler);
+        result.put("Raf Import Process Documents", importProcessDocumentsTaskHandler);
         
         return result;
         

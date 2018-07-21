@@ -55,6 +55,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_ROOT = "/RAF/";
     private static final String PRIVATE_ROOT = "/PRIVATE/";
     private static final String SHARED_ROOT = "/SHARED";
+    private static final String PROCESS_ROOT = "/PROCESS";
 
     private static final String NODE_HIERARCHY = "nt:hierarchyNode";
     private static final String NODE_FOLDER = "nt:folder";
@@ -77,6 +78,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
     private static final String RAF_TYPE_SHARED = "SHARED";
+    private static final String RAF_TYPE_PROCESS = "PROCESS";
 
     private UrlEncoder encoder;
     JcrTools jcrTools = new JcrTools();
@@ -243,6 +245,41 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_RAF_TYPE, RAF_TYPE_SHARED);
             //i18n
             node.setProperty(PROP_TITLE, "Ortak");
+            //node.setProperty(PROP_DESCRIPTON, definition.getInfo());
+
+            RafNode result = nodeToRafNode(node);
+
+            session.save();
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    /**
+     * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
+     *
+     * @return
+     * @throws RafException
+     */
+    public RafNode getProcessRafNode() throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = getEncodedPath(PROCESS_ROOT);
+
+            JcrTools jcrTools = new JcrTools();
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
+
+            node.addMixin(MIXIN_RAF);
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+
+            node.setProperty(PROP_RAF_TYPE, RAF_TYPE_PROCESS);
+            //i18n
+            node.setProperty(PROP_TITLE, "Processes");
             //node.setProperty(PROP_DESCRIPTON, definition.getInfo());
 
             RafNode result = nodeToRafNode(node);
@@ -467,7 +504,16 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public void createFolder(RafFolder folder) throws RafException {
+    /**
+     * Yeni oluşturulan RafFolder geriye döner. 
+     * 
+     * Parametre olrak gönderilen RafFolder by example içindir.
+     * 
+     * @param folder
+     * @return
+     * @throws RafException 
+     */
+    public RafFolder createFolder(RafFolder folder) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
@@ -483,10 +529,51 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_DESCRIPTON, folder.getInfo());
 
             session.save();
+            
+            RafFolder result = nodeToRafFolder(node);
+            
             session.logout();
+            
+            return result;
 
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException(ex);
+        }
+    }
+    
+    /**
+     * Verilen path için folder oluşturur.
+     * 
+     * Title, Description gibi alanlar doğal olarak doldurulmazlar.
+     * 
+     * @param folderPath
+     * @return
+     * @throws RafException 
+     */
+    public RafFolder createFolder(String folderPath) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = getEncodedPath(folderPath);
+
+            JcrTools jcrTools = new JcrTools();
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
+
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+
+            //node.setProperty(PROP_TITLE, folder.getTitle());
+            //node.setProperty(PROP_DESCRIPTON, folder.getInfo());
+
+            session.save();
+            
+            RafFolder result = nodeToRafFolder(node);
+            session.logout();
+            
+            return result;
+
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
         }
     }
 

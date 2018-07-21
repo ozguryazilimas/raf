@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMetadata;
+import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -81,11 +82,39 @@ public class RafService implements Serializable {
         return getCategoryCollection( cat.getId(), cat.getName(), cat.getPath(), rootPath);
     }
 
-    public void createFolder(RafFolder folder) throws RafException {
+    /**
+     * Verilen RafFolder modeli örnek olarak kullanılır.
+     * 
+     * path, title, description gibi alanlar üzerinden yeni bir RafFolder oluşturulur.
+     * 
+     * Oluşturulan yeni folder geri döndürürlür.
+     * 
+     * Eğer o path üzerinde bir folder var ise o geri döner.
+     * 
+     * @param folder
+     * @return
+     * @throws RafException 
+     */
+    public RafFolder createFolder(RafFolder folder) throws RafException {
         //FIXME: yetki kontrolü
-        rafRepository.createFolder(folder);
-
         //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
+        return rafRepository.createFolder(folder);
+        
+    }
+    
+    /**
+     * Verilen path için folder oluşturur.
+     * 
+     * Title, Desctription gibi alanlar doğal olarak doldurulmazlar
+     * @param folderPath
+     * @return
+     * @throws RafException 
+     */
+    public RafFolder createFolder(String folderPath) throws RafException {
+        //FIXME: yetki kontrolü
+        //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
+        return rafRepository.createFolder(folderPath);
+        
     }
 
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
@@ -137,5 +166,9 @@ public class RafService implements Serializable {
     public void moveObject(List<RafObject> from, RafFolder to) throws RafException {
         //FIXME: yetki kontrolü
         rafRepository.moveObject(from, to);
+    }
+    
+    public RafNode getProcessRafNode() throws RafException{
+        return rafRepository.getProcessRafNode();
     }
 }

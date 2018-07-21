@@ -16,5 +16,13 @@
 		],
 		"displayName" : "Raf Notification Task",
 		"icon" : "raf.png"
+	],
+        [
+		"name" : "Raf Import Process Documents",
+		"parameters" : [
+			"Documents" : new ObjectDataType()
+		],
+		"displayName" : "Raf Import Process Documents",
+		"icon" : "raf.png"
 	]
 ]
