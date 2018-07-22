@@ -299,6 +299,8 @@
                 <div class="raf-box-content" >
                     <ui:include src="#{rafController.selectedContentPanel.viewId}" >
                         <ui:param name="viewBean" value="#{rafController.selectedContentPanel}" />
+                        <ui:param name="selectionBean" value="#{rafSelectionController}" />
+                        <ui:param name="controllerBean" value="#{rafController}" />
                     </ui:include>
                 </div>
                 <ui:fragment rendered="#{rafController.selectedContentPanel.supportPaging}">

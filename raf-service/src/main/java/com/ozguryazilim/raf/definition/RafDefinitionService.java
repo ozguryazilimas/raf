@@ -30,7 +30,7 @@ public class RafDefinitionService implements Serializable {
 
     @Inject
     private Identity identity;
-    
+
     @Inject
     private RafDefinitionRepository repository;
 
@@ -60,7 +60,7 @@ public class RafDefinitionService implements Serializable {
         rd.setNodeId(n.getId());
 
         repository.save(rd);
-        
+
         //Oluşturan kişiyi MANAGER olarak atayalım.
         memberService.addMember(rd, identity.getLoginName(), RafMemberType.USER, "MANAGER");
     }
@@ -68,29 +68,9 @@ public class RafDefinitionService implements Serializable {
     public RafDefinition getRafDefinitionByCode(String code) throws RafException {
 
         if ("PRIVATE".equals(code)) {
-            RafDefinition privateRaf = new RafDefinition();
-
-            privateRaf.setId(-1L);
-            privateRaf.setCode(code);
-            privateRaf.setName("raf.label.Private");
-
-            RafNode n = rafRepository.getPrivateRafNode(identity.getLoginName());
-            privateRaf.setNodeId(n.getId());
-            privateRaf.setNode(n);
-
-            return privateRaf;
+            return getPrivateRaf(identity.getLoginName());
         } else if ("SHARED".equals(code)) {
-            RafDefinition privateRaf = new RafDefinition();
-
-            privateRaf.setId(-2L);
-            privateRaf.setCode(code);
-            privateRaf.setName("raf.label.Shared");
-
-            RafNode n = rafRepository.getSharedRafNode();
-            privateRaf.setNodeId(n.getId());
-            privateRaf.setNode(n);
-
-            return privateRaf;
+            return getSharedRaf();
         } else {
             //FIXME: burada yetki kontrolü de yapılması gerekiyor.
 
@@ -105,6 +85,34 @@ public class RafDefinitionService implements Serializable {
             return result;
         }
 
+    }
+
+    public RafDefinition getPrivateRaf(String username) throws RafException {
+        RafDefinition result = new RafDefinition();
+
+        result.setId(-1L);
+        result.setCode("PRIVATE");
+        result.setName("raf.label.Private");
+
+        RafNode n = rafRepository.getPrivateRafNode(username);
+        result.setNodeId(n.getId());
+        result.setNode(n);
+
+        return result;
+    }
+
+    public RafDefinition getSharedRaf() throws RafException {
+        RafDefinition result = new RafDefinition();
+
+        result.setId(-2L);
+        result.setCode("SHARED");
+        result.setName("raf.label.Shared");
+
+        RafNode n = rafRepository.getSharedRafNode();
+        result.setNodeId(n.getId());
+        result.setNode(n);
+
+        return result;
     }
 
     @Transactional
@@ -123,19 +131,35 @@ public class RafDefinitionService implements Serializable {
         return rafs;
 
     }
-    
-    public List<RafDefinition> getRafsForUser( String username ) {
 
-        return rafs.stream()
+    public List<RafDefinition> getRafsForUser(String username) {
+        return getRafsForUser(username, false);
+    }
+
+    public List<RafDefinition> getRafsForUser(String username, Boolean addCommonRafs) {
+
+        List<RafDefinition> restult = rafs.stream()
                 .filter(r -> {
                     try {
-                        return memberService.isMemberOf( username, r);
+                        return memberService.isMemberOf(username, r);
                     } catch (RafException ex) {
                         //Yapacak bişi yok
                     }
                     return false;
                 })
                 .collect(Collectors.toList());
+
+        if (addCommonRafs) {
+            try {
+                restult.add(getPrivateRaf(username));
+                restult.add(getSharedRaf());
+            } catch (RafException ex) {
+                //Hata bildirsek mi?
+            }
+
+        }
+
+        return restult;
     }
 
     protected void populateRafs() {

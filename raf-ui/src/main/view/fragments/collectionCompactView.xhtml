@@ -28,8 +28,8 @@
                             <div class="raf-container-item">
                                 <div class="raf-container-item-item medium-icon">
                                     <span class="raf-container-item-item-img" >
-                                        <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
-                                            <p:commandLink action="#{rafSelectionController.toggle(item)}" 
+                                        <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
+                                            <p:commandLink action="#{selectionBean.toggle(item)}" 
                                                            update="raf-view-content" ajax="true" process="@this" >
                                                 <svg class="icon icon-2x" >
                                                     <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
@@ -38,7 +38,7 @@
                                         </div>
                                     </span>
                                     <span class="raf-container-item-item-cnd">
-                                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
+                                        <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="text-sm">
                                             <span class="text-sm">#{item.title}</span>
                                         </p:commandLink>
 

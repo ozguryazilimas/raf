@@ -352,7 +352,9 @@ public class RafModeshapeRepository implements Serializable {
             result.setMimeType(RafMimeTypes.RAF_FOLDER);
             result.setName(node.getName());
             result.setPath(node.getPath());
-            //FIXME: burada title attribute'u alınmalı
+            //FIXME: Burada aslında raf'a denk geldiysel parentId null dönmeliyiz.
+            result.setParentId(node.getParent().getIdentifier());
+            
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
 
             NodeIterator it = node.getNodes();

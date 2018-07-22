@@ -23,6 +23,7 @@ public class RafCollection implements Serializable{
     private String title;
     private String id;
     private String name;
+    private String parentId;
     
     private List<RafObject> items = new ArrayList<>();
 
@@ -72,6 +73,14 @@ public class RafCollection implements Serializable{
 
     public void setItems(List<RafObject> items) {
         this.items = items;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
     
 }
