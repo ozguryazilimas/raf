@@ -16,8 +16,6 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
 import com.ozguryazilim.telve.auth.Identity;
-import com.ozguryazilim.telve.entities.FeaturePointer;
-import com.ozguryazilim.telve.feature.FeatureLink;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
@@ -244,17 +242,6 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         }
 
         if (sl.getExpression().isEmpty()) {
-            return;
-        }
-
-        //FIXME: FeatureLink olmayacak tabii ki
-        if (sl.getValue() instanceof FeatureLink) {
-            FeatureLink fl = (FeatureLink) sl.getValue();
-            FeaturePointer fp = new FeaturePointer();
-            fp.setFeature(fl.getFeatureName());
-            fp.setBusinessKey(fl.getBusinessKey());
-            fp.setPrimaryKey((Long) fl.getId());
-            ELUtils.setObject(sl.getExpression(), fp);
             return;
         }
 

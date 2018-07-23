@@ -6,8 +6,10 @@
 package com.ozguryazilim.raf.ui.base.metadatapanels;
 
 import com.ozguryazilim.raf.config.MetadataPanelPages;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import java.util.Map;
@@ -37,8 +39,18 @@ public class DynaFormMetadataPanel extends AbstractMetadataPanel implements Form
 
     public void setForm(Form form) {
         this.form = form;
+        
     }
 
+    @Override
+    public void setMetadata(RafMetadata metadata) {
+        super.setMetadata(metadata);
+        for( Field f : form.getFields()){
+            f.setData(getData());
+        }
+    }
+
+    
     @Override
     public Map<String, Object> getData() {
         return getMetadata().getAttributes();

@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf.forms.builders;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import java.util.Map;
 
@@ -22,9 +23,16 @@ public abstract class AbstractFieldBuilder {
     public abstract AbstractField build( Map<String,String> attributes);
     
     protected void baseBuild( AbstractField field, Map<String,String> attributes){
-        //FIXME: default verileri ( parametre olarak xml'den gelmediyse ) doldurulacak
+        //FIXME: default verileri ( parametre olarak xml'den gelmediyse ) doldurulacak. 
+        //FIXME: Zorunlu olan alanlar doldurulmamış ise hata üretilecek.
         field.setId(attributes.get("id"));
+        
         field.setDataKey(attributes.get("dataKey"));
+        
+        if( Strings.isNullOrEmpty(field.getId())){
+            field.setId(field.getDataKey());
+        }
+        
         field.setLabel(attributes.get("label"));
         field.setPlaceholder(attributes.get("placeholder"));
         field.setReadonly("true".equals(attributes.get("readonly")));

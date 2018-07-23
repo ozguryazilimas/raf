@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.forms.ui;
 
 import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import java.io.Serializable;
 import java.util.Map;
@@ -33,8 +34,11 @@ public class FormControllerImpl implements Serializable{
         LOG.debug("Form Controller init with '{}'", formKey);
         form = formManager.getForm(formKey);
         this.data = data;
+        for( Field f : form.getFields()){
+            f.setData(data);
+        }
     }
-
+    
     public Form getForm() {
         return form;
     }

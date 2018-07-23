@@ -23,7 +23,7 @@ public class Form implements Serializable{
     private String version;
     private String title;
     
-    private List<AbstractField> fields = new ArrayList<>();
+    private List<Field> fields = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -49,7 +49,7 @@ public class Form implements Serializable{
         this.version = version;
     }
 
-    public List<AbstractField> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
 

@@ -7,12 +7,16 @@ package com.ozguryazilim.raf.forms;
 
 import com.ozguryazilim.raf.forms.builders.AbstractFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.DateFieldBuilder;
+import com.ozguryazilim.raf.forms.builders.RafDocumentFieldBuilder;
+import com.ozguryazilim.raf.forms.builders.RafFolderFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.SelectionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.SuggestionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.TextFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.UserFieldBuilder;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.DateField;
+import com.ozguryazilim.raf.forms.model.RafDocumentField;
+import com.ozguryazilim.raf.forms.model.RafFolderField;
 import com.ozguryazilim.raf.forms.model.SelectionField;
 import com.ozguryazilim.raf.forms.model.SuggestionField;
 import com.ozguryazilim.raf.forms.model.TextField;
@@ -68,5 +72,7 @@ public class FieldTypeRegistery {
         FieldTypeRegistery.register("Suggestion", SuggestionField.class, SuggestionFieldBuilder.class);
         FieldTypeRegistery.register("Date", DateField.class, DateFieldBuilder.class);
         FieldTypeRegistery.register("User", UserField.class, UserFieldBuilder.class);
+        FieldTypeRegistery.register("RafFolder", RafFolderField.class, RafFolderFieldBuilder.class);
+        FieldTypeRegistery.register("RafDocument", RafDocumentField.class, RafDocumentFieldBuilder.class);
     }
 }

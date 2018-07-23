@@ -10,6 +10,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
@@ -142,6 +143,9 @@ public class TaskController implements Serializable, FormController {
         }
 
         form = formManager.getForm((String)taskContent.get("TaskName"));
+        for( Field f : form.getFields() ){
+            f.setData(taskContent);
+        }
 
         LOG.debug("Selected Form : {}", form);
 

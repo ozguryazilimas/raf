@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents">
+
+
+    <ui:remove>
+        <t:inputText label="#{field.label}" value="#{frm.data[field.dataKey]}" columnClass="col-xs-12" required="#{field.required}" readonly="#{field.readonly}" placeholder="#{field.placeholder}"/>
+
+        <t:inputRafObjectLookupDialog value="#{frm.data[field.dataKey]}" label="#{field.label}"  
+                                      lookupBean="#{rafObjectLookup}" lookupListener="userHome.entity.domainGroup" 
+                                      leafSelect="true" required="#{field.required}" readonly="#{field.readonly}" placeholder="#{field.placeholder}"
+                                      lookupProfile="selectionType:Folder"
+                                      columnClass="col-md-6 col-xs-12"/>
+
+    </ui:remove>
+    
+    <div class="prop col-md-6 col-xs-12">
+        <p:outputLabel for="#{field.id}_inp" value="#{messages[field.label]}" styleClass="name #{invalid?'errors':''}" />
+        <span class="value">
+            <div class="input-group">
+                <p:inputText id="#{field.id}_inp" value="#{field.value.title}" readonly="true" />
+                <div class="input-group-btn">
+                    <p:commandButton action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', field.value )}" 
+                                     partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="#{field.readonly}">
+                        <p:ajax event="dialogReturn"  listener="#{field.onSelect}" update="#{field.id}_inp" partialSubmit="true" process="@this" />   
+                    </p:commandButton>
+                </div>
+            </div>
+        </span>
+        <p:message for="#{field.id}_inp" display="tooltip"/>
+    </div>
+
+
+</ui:composition>
+

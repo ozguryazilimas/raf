@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.forms.model;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Objects;
  * @author oyas
  * @param <T> Serializable olan bir veri modeli. 
  */
-public abstract class AbstractField<T extends Serializable> implements Serializable{
+public abstract class AbstractField<T extends Serializable> implements Field<T>{
 
     private String id;
     private String label;
@@ -24,6 +25,8 @@ public abstract class AbstractField<T extends Serializable> implements Serializa
     private Boolean readonly = Boolean.FALSE;
     private T defaultValue;
     private String dataKey;
+    private Map<String,Object> data;
+    private T value;
 
     public AbstractField() {
     }
@@ -46,68 +49,99 @@ public abstract class AbstractField<T extends Serializable> implements Serializa
     }
     
     
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public void setId(String id) {
         this.id = id;
     }
 
+    @Override
     public String getLabel() {
         return label;
     }
 
+    @Override
     public void setLabel(String label) {
         this.label = label;
     }
 
+    @Override
     public String getPlaceholder() {
         return placeholder;
     }
 
+    @Override
     public void setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
     }
 
+    @Override
     public String getPermission() {
         return permission;
     }
 
+    @Override
     public void setPermission(String permission) {
         this.permission = permission;
     }
 
+    @Override
     public Boolean getRequired() {
         return required;
     }
 
+    @Override
     public void setRequired(Boolean required) {
         this.required = required;
     }
 
+    @Override
     public Boolean getReadonly() {
         return readonly;
     }
 
+    @Override
     public void setReadonly(Boolean readonly) {
         this.readonly = readonly;
     }
 
+    @Override
     public T getDefaultValue() {
         return defaultValue;
     }
 
+    @Override
     public void setDefaultValue(T defaultValue) {
         this.defaultValue = defaultValue;
     }
 
+    @Override
     public String getDataKey() {
         return dataKey;
     }
 
+    @Override
     public void setDataKey(String dataKey) {
         this.dataKey = dataKey;
+    }
+
+    @Override
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
+
+    @Override
+    public T getValue() {
+        return (T) data.get(getDataKey());
+    }
+
+    @Override
+    public void setValue(T value) {
+        data.put(getDataKey(), value);
     }
     
     public abstract Class<T> getValueClass();
@@ -136,7 +170,6 @@ public abstract class AbstractField<T extends Serializable> implements Serializa
         }
         return true;
     }
-    
-    
+
     
 }
