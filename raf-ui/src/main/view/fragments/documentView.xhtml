@@ -10,13 +10,11 @@
         <!-- File View -->
     </ui:remove>
 
-    <ui:remove>
-        <ui:fragment rendered="#{breadcrumbHide eq 'true'}">
+    <ui:fragment rendered="#{viewBean.supportBreadcrumb}" >
             <ui:include src="/fragments/breadcrumb.xhtml" >
                 <ui:param name="currentFolderEnabled" value="true" />
             </ui:include>
-        </ui:fragment>
-    </ui:remove>
+    </ui:fragment>
 
     <div class="raf-file">
 

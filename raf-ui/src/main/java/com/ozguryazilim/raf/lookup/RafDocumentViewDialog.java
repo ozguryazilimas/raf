@@ -42,4 +42,8 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
     public void cancelDialog() {
         RequestContext.getCurrentInstance().closeDialog(null);
     }
+    
+    public boolean getSupportBreadcrumb() {
+        return false;
+    }
 }
