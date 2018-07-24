@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form id="IcYazisma1" formKey="Yönetici Onayı" title="Çıkış No Al" version="1.0" >
-    <field uitype="RafFolder" datatype="RafFolder" dataKey="rootFolder" readonly="false" required="true" label="Aktarılacak Klasör" />
-    <field uitype="RafDocument" datatype="RafDocument" dataKey="ekBelge" readonly="false" required="true" label="Ek Belge Seç" />
-</form>
+<forms>
+    <form id="IcYazisma" formKey="IcYazismaStarter" title="İç Yazışma Süreci" version="1.0" >
+        <field uitype="Selection" datatype="String" dataKey="processType" readonly="false" required="true" label="İç Yazışma Tipi" values="Doğrudan, 1. Yönetici, 2. Yönetici, Genel Sekreter" />
+    </form>
+    <form id="IcYazisma1" formKey="Yönetici Onayı" title="Çıkış No Al" version="1.0" >
+        <field uitype="RafFolder" datatype="RafFolder" dataKey="rootFolder" readonly="false" required="true" label="Aktarılacak Klasör" />
+        <field uitype="RafDocument" datatype="RafDocument" dataKey="ekBelge" readonly="false" required="true" label="Ek Belge Seç" />
+    </form>
+</forms>
 

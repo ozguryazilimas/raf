@@ -11,6 +11,7 @@ import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcesso
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -38,16 +39,18 @@ public class FormManager {
                     @Override
                     public void processMatch(String relativePath, InputStream inputStream, long lengthBytes) throws IOException {
                         LOG.info("Deploying classpath form : {}", relativePath);
-                        deployForm( inputStream );
+                        deployForms( inputStream );
                     }
                 }).scan();
         
     }
 
-    public void deployForm(InputStream inputStream){
-        Form frm = FormXmlParser.parse(inputStream);
-        formMap.put(frm.getFormKey(), frm);
-        LOG.info("Form deployed : {}", frm);
+    public void deployForms(InputStream inputStream){
+        List<Form> frms = FormXmlParser.parse(inputStream);
+        for( Form f : frms ){
+            formMap.put(f.getFormKey(), f);
+            LOG.info("Form deployed : {}", f);
+        }
     }
     
     public Form getForm( String formKey ){

@@ -42,7 +42,7 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
             if (fileName.matches(".+frm.xml$")) {
                 LOG.info("Form File {} found", fileName);
                 InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
-                formManager.deployForm(is);
+                formManager.deployForms(is);
             }
         }
         

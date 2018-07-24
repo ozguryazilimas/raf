@@ -8,6 +8,7 @@ package com.ozguryazilim.raf;
 import com.ozguryazilim.raf.forms.FormXmlParser;
 import com.ozguryazilim.raf.forms.model.Form;
 import java.io.InputStream;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -48,14 +49,15 @@ public class FormXmlParserTest {
         System.out.println("parse");
         InputStream is = getClass().getResourceAsStream("/testForm.frm.xml");
         Form expResult = null;
-        Form result = FormXmlParser.parse(is);
+        List<Form> result = FormXmlParser.parse(is);
+        assertEquals(1, result.size());
         //assertEquals(expResult, result);
-        assertEquals("invoice:metadata", result.getFormKey());
-        assertEquals("1.0", result.getVersion());
-        assertEquals("invoiceMetadata", result.getId());
+        assertEquals("invoice:metadata", result.get(0).getFormKey());
+        assertEquals("1.0", result.get(0).getVersion());
+        assertEquals("invoiceMetadata", result.get(0).getId());
         
-        assertEquals(5, result.getFields().size());
-        assertEquals("invoice:account", result.getFields().get(0).getDataKey());
+        assertEquals(5, result.get(0).getFields().size());
+        assertEquals("invoice:account", result.get(0).getFields().get(0).getDataKey());
         
     }
 

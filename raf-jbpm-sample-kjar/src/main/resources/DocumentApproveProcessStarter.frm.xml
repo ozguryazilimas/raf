@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form id="DocumentApproveProcessStarter" formKey="DocumentApproveProcessStarter" title="Belge Onay Süreci" version="1.0" >
-    <field uitype="User" datatype="String" dataKey="approver" readonly="false" required="true" label="Onaylayacak Kullanıcı"  />
-</form>

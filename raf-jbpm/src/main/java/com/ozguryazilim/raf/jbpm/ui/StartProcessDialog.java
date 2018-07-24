@@ -7,6 +7,7 @@ package com.ozguryazilim.raf.jbpm.ui;
 
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
@@ -74,7 +75,9 @@ public class StartProcessDialog implements Serializable, FormController{
         
         //Process Starter formları ProcessId + Starter ile başlar
         form = formManager.getForm(processId + "Starter");
-        
+        for( Field f : form.getFields() ){
+            f.setData(data);
+        }
         
         ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
         processName = processDesc.getName();
