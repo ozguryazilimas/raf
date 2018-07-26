@@ -17,6 +17,7 @@ import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,8 +61,11 @@ public class RafModeshapeRepository implements Serializable {
     private static final String NODE_HIERARCHY = "nt:hierarchyNode";
     private static final String NODE_FOLDER = "nt:folder";
     private static final String NODE_FILE = "nt:file";
+    
 
     private static final String NODE_SEARCH = "nt:base";
+    
+    private static final String MIXIN_RECORD = "raf:record";
     
     private static final String MIXIN_TITLE = "mix:title";
     private static final String MIXIN_TAGGABLE = "raf:taggable";
@@ -75,6 +79,15 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_TAG = "raf:tags";
     private static final String PROP_RAF_TYPE = "raf:type";
 
+    private static final String PROP_RECORD_TYPE = "raf:recordType";
+    private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
+    private static final String PROP_MAIN_DOCUMENT = "raf:mainDocument";
+    private static final String PROP_ELECTRONIC_DOCUMENT = "raf:electronicDocument";
+    private static final String PROP_LOCATION = "raf:location";
+    private static final String PROP_PROCESS_ID = "raf:processId";
+    private static final String PROP_PROCESS_INST_ID = "raf:processIntanceId";
+    private static final String PROP_STATUS = "raf:status";
+    
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
     private static final String RAF_TYPE_SHARED = "SHARED";
@@ -363,7 +376,12 @@ public class RafModeshapeRepository implements Serializable {
 
                 //Node tipine göre doğru conversion.
                 if (n.isNodeType(NODE_FOLDER)) {
-                    result.getItems().add(nodeToRafFolder(n));
+                    //Recod Tipindekileri ayrıca toparlıyoruz.
+                    if( n.isNodeType(MIXIN_RECORD)){
+                        result.getItems().add(nodeToRafRecord(n));
+                    } else {
+                        result.getItems().add(nodeToRafFolder(n));
+                    }
                 } else if (n.isNodeType(NODE_FILE)) {
                     result.getItems().add(nodeToRafDocument(n));
                 }
@@ -408,7 +426,11 @@ public class RafModeshapeRepository implements Serializable {
 
                 //Node tipine göre doğru conversion.
                 if (n.isNodeType(NODE_FOLDER)) {
-                    result.getItems().add(nodeToRafFolder(n));
+                    if (n.isNodeType(MIXIN_RECORD)) {
+                        result.getItems().add(nodeToRafRecord(n));
+                    } else {
+                        result.getItems().add(nodeToRafFolder(n));
+                    }
                 } else if (n.isNodeType(NODE_FILE)) {
                     result.getItems().add(nodeToRafDocument(n));
                 }
@@ -447,7 +469,11 @@ public class RafModeshapeRepository implements Serializable {
 
                 //Node tipine göre doğru conversion.
                 if (n.isNodeType(NODE_FOLDER)) {
-                    result.getItems().add(nodeToRafFolder(n));
+                    if( n.isNodeType(MIXIN_RECORD)){
+                        result.getItems().add(nodeToRafRecord(n));
+                    } else {
+                        result.getItems().add(nodeToRafFolder(n));
+                    }
                 } else if (n.isNodeType(NODE_FILE)) {
                     result.getItems().add(nodeToRafDocument(n));
                 }
@@ -493,7 +519,11 @@ public class RafModeshapeRepository implements Serializable {
                 
                 //Node tipine göre doğru conversion.
                 if (sn.isNodeType(NODE_FOLDER)) {
-                    result.getItems().add(nodeToRafFolder(sn));
+                    if( sn.isNodeType(MIXIN_RECORD)){
+                        result.getItems().add(nodeToRafRecord(sn));
+                    } else {
+                        result.getItems().add(nodeToRafFolder(sn));
+                    }
                 } else if (sn.isNodeType(NODE_FILE)) {
                     result.getItems().add(nodeToRafDocument(sn));
                 }
@@ -578,6 +608,48 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException(ex);
         }
     }
+    
+    /**
+     * Örnek veri ile dolu rafRecod objesinden JCR nodunu hazırlayıp gerçek olanı geri döndürür.
+     * @param record
+     * @return
+     * @throws RafException 
+     */
+    public RafRecord createRecord(RafRecord record) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = getEncodedPath(record.getPath() + "/" + record.getName());
+
+            JcrTools jcrTools = new JcrTools();
+            Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
+
+            node.addMixin(MIXIN_TITLE);
+            node.addMixin(MIXIN_TAGGABLE);
+            node.addMixin(MIXIN_RECORD);
+
+            node.setProperty(PROP_TITLE, record.getTitle());
+            node.setProperty(PROP_DESCRIPTON, record.getInfo());
+            node.setProperty(PROP_RECORD_TYPE, record.getRecordType());
+            node.setProperty(PROP_DOCUMENT_TYPE, record.getDocumentType());
+            
+            node.setProperty(PROP_MAIN_DOCUMENT, record.getMainDocument());
+            //FIXME: diğer parçaları da ekleyeeğiz. 
+            //FIXME: metadata'lar nasıl olacak?
+            //FIXME: file kısmı nasıl oalcak?
+            
+
+            session.save();
+            
+            RafRecord result = nodeToRafRecord(node);
+            session.logout();
+            
+            return result;
+
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
 
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         if (Strings.isNullOrEmpty(fileName)) {
@@ -649,7 +721,11 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (node.isNodeType(NODE_FOLDER)) {
-                result = nodeToRafFolder(node);
+                if( node.isNodeType(MIXIN_RECORD)){
+                    result = nodeToRafRecord(node);
+                } else {
+                    result = nodeToRafFolder(node);
+                }
             } else if (node.isNodeType(NODE_FILE)) {
                 result = nodeToRafDocument(node);
             } else {
@@ -969,6 +1045,62 @@ public class RafModeshapeRepository implements Serializable {
 
         return result;
     }
+    
+    protected RafRecord nodeToRafRecord(Node node) throws RepositoryException, RafException {
+        RafRecord result = new RafRecord();
+
+        JcrTools jcrTools = new JcrTools();
+        //jcrTools.printSubgraph(node);
+
+        result.setId(node.getIdentifier());
+        result.setPath(node.getPath());
+        result.setName(node.getName());
+        result.setParentId(node.getParent().getIdentifier());
+
+        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
+        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+
+        if (node.isNodeType(MIXIN_TITLE)) {
+            result.setTitle(getPropertyAsString(node, PROP_TITLE));
+            result.setInfo(getPropertyAsString(node, PROP_DESCRIPTON));
+        }
+
+        if (node.isNodeType(MIXIN_TAGGABLE)) {
+            //result.setInfo(node.getProperty("raf:tags").getString());
+            result.setCategory(getPropertyAsString(node, PROP_CATEGORY));
+            result.setCategoryPath(getPropertyAsString(node, PROP_CATEGORY_PATH));
+            result.setCategoryId(getPropertyAsLong(node, PROP_CATEGORY_ID));
+            result.setTags(getPropertyAsStringList(node, PROP_TAG));
+        }
+        
+        if (node.isNodeType(MIXIN_RECORD)) {
+            result.setRecordType(getPropertyAsString(node, PROP_RECORD_TYPE));
+            result.setDocumentType(getPropertyAsString(node, PROP_DOCUMENT_TYPE));
+            result.setMainDocument(getPropertyAsString(node, PROP_MAIN_DOCUMENT));
+            result.setLocation(getPropertyAsString(node, PROP_LOCATION));
+            result.setProcessId(getPropertyAsString(node, PROP_PROCESS_ID));
+            result.setProcessIntanceId(getPropertyAsLong(node, PROP_PROCESS_INST_ID));
+            result.setStatus(getPropertyAsString(node, PROP_STATUS));
+            result.setElectronicDocument(getPropertyAsBoolean(node, PROP_ELECTRONIC_DOCUMENT));
+        }
+        
+        //RafRecord için metadata'lar
+        NodeIterator it = node.getNodes("*:metadata");
+        while (it.hasNext()) {
+            Node mn = it.nextNode();
+            MetadataConverter mc = MetadataConverterRegistery.getConverter(mn.getPrimaryNodeType().getName());
+            result.getMetadatas().add(mc.nodeToModel(mn));
+        }
+        
+        //RafRecord'a ekli RefDocument listesi
+        it = node.getNodes("nt:file");
+        while (it.hasNext()) {
+            Node mn = it.nextNode();
+            result.getDocuments().add(nodeToRafDocument(mn));
+        }
+
+        return result;
+    }
 
     protected RafDocument nodeToRafDocument(Node node) throws RepositoryException, RafException {
         RafDocument result = new RafDocument();
@@ -1023,7 +1155,8 @@ public class RafModeshapeRepository implements Serializable {
         NodeIterator it = node.getNodes();
         while (it.hasNext()) {
             Node n = it.nextNode();
-            if (n.isNodeType(NODE_FOLDER)) {
+            //MIXIN_RECORD tipinde olanlar folder değildir!
+            if (n.isNodeType(NODE_FOLDER) && !n.isNodeType(MIXIN_RECORD)) {
                 result.add(nodeToRafFolder(n));
                 populateFolders(n, result);
             }
@@ -1072,6 +1205,31 @@ public class RafModeshapeRepository implements Serializable {
 
             if (property != null) {
                 return property.getLong();
+            }
+        } catch (PathNotFoundException ex) {
+            //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
+            LOG.debug("Property not found : {}", prop);
+        }
+
+        return null;
+    }
+    
+    /**
+     * Verilen property key sonucunun null kontrolü yaparak geriye değer
+     * döndürür.
+     *
+     * @param node
+     * @param prop
+     * @return
+     * @throws RepositoryException
+     */
+    private Boolean getPropertyAsBoolean(Node node, String prop) throws RepositoryException {
+
+        try {
+            Property property = node.getProperty(prop);
+
+            if (property != null) {
+                return property.getBoolean();
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.

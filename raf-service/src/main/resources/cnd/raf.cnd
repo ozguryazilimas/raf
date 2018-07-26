@@ -16,3 +16,19 @@
 
 [raf:metadata] mixin
     + * (nt:unstructured)
+
+[raf:record] mixin
+    - raf:recordType (STRING) mandatory
+    - raf:documentType (STRING) mandatory
+    - raf:mainDocument (STRING)
+    - raf:electronicDocument (BOOLEAN)
+    - raf:location (STRING)
+    - raf:processId (STRING) 
+    - raf:processIntanceId (LONG)
+    - raf:status (STRING)
+
+[raf:classifiable] mixin
+    - raf:classification (STRING)
+
+[raf:updatable] mixin
+    - raf:updatePeriod (STRING)

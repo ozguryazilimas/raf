@@ -5,12 +5,14 @@
  */
 package com.ozguryazilim.raf.jbpm;
 
+import com.ozguryazilim.raf.auth.KJarResourceHandler;
 import com.ozguryazilim.raf.forms.FormManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.DeployedUnitImpl;
@@ -34,16 +36,35 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
     @Inject
     private FormManager formManager;
     
+    @Inject
+    private Instance<KJarResourceHandler> resourceHandlers;
+    
     @Override
     protected void processResources(InternalKieModule module, Collection<String> files, KieContainer kieContainer, DeploymentUnit unit, DeployedUnitImpl deployedUnit, ReleaseId releaseId, Map<String, ProcessDescriptor> processes) {
         super.processResources(module, files, kieContainer, unit, deployedUnit, releaseId, processes); 
         
         for (String fileName : files) {
+            
+            resourceHandlers.forEach( h -> {
+                if( h.canHandle(fileName)){
+                    LOG.debug("File {} process by handler {}", fileName, h);
+                    InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
+                    h.handle(is);
+                }
+            });
+            
+            /*
             if (fileName.matches(".+frm.xml$")) {
                 LOG.info("Form File {} found", fileName);
                 InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
                 formManager.deployForms(is);
+            } else if(fileName.matches(".+rts.xml$")){
+                LOG.info("Record Type File {} found", fileName);
+                InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
+                //FIXME: buraya injection ile kjar resource processor almak gerek.
+                //formManager.deployForms(is);
             }
+            */
         }
         
     }

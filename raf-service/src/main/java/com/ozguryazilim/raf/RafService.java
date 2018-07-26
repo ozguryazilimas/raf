@@ -14,6 +14,7 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Comparator;
@@ -99,6 +100,13 @@ public class RafService implements Serializable {
         //FIXME: yetki kontrolü
         //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
         return rafRepository.createFolder(folder);
+        
+    }
+    
+    public RafRecord createFolder(RafRecord record) throws RafException {
+        //FIXME: yetki kontrolü
+        //TODO: record eklendiğine dair burada bir event fırlatmak lazım.
+        return rafRepository.createRecord(record);
         
     }
     

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recordTypes>
+    <recordType name="GelenEvrak" title="Gelen Evrak" metadata="gelenEvrak:metadata" form="GelenEvrak">
+        <documentTypes>
+            <documentType name="BilgiTalep" title="Bilgi Talep" metadata="bilgiTalep:metadata" />
+            <documentType name="DavaDilekce" title="Dava Dilekçesi" form="DavaDilekceStart"/>
+        </documentTypes>
+        <processes>
+            <process name="GelenEvrak" title="Gelen Evrak Süreci" />
+        </processes>
+        <metadatas>
+            <metadata name="dava:metadata" />
+            <metadata name="invoice:metadata" />
+        </metadatas>
+    </recordType>
+</recordTypes>
