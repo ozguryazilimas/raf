@@ -11,9 +11,9 @@
     </ui:remove>
 
     <ui:fragment rendered="#{viewBean.supportBreadcrumb}" >
-            <ui:include src="/fragments/breadcrumb.xhtml" >
-                <ui:param name="currentFolderEnabled" value="true" />
-            </ui:include>
+        <ui:include src="/fragments/breadcrumb.xhtml" >
+            <ui:param name="currentFolderEnabled" value="true" />
+        </ui:include>
     </ui:fragment>
 
     <div class="raf-file">
@@ -49,11 +49,13 @@
             <div class="row">
                 <div class="col-xs-12" >
 
-                    <div >
-                        <ui:include src="#{viewBean.previewWidget}" >
-                            <ui:param name="rafObject" value="#{viewBean.object}" />
-                        </ui:include>
-                    </div>
+                    <ui:remove>
+                        <div >
+                            <ui:include src="#{viewBean.previewWidget}" >
+                                <ui:param name="rafObject" value="#{viewBean.object}" />
+                            </ui:include>
+                        </div>
+                    </ui:remove>
                 </div>
 
                 <ui:remove>

@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.record;
 import com.ozguryazilim.raf.record.model.RafRecordType;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,5 +51,11 @@ public class RecordTypeManager implements Serializable{
         List<RafRecordType> recordTypes = RecordTypeXmlParser.parse(is);
         register(recordTypes);
     }
+ 
+    
+    public List<RafRecordType> getRecordTypes(){
+        return new ArrayList(typeMap.values());
+    }
+    
     
 }

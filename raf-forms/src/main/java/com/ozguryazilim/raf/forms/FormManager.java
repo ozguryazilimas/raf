@@ -55,6 +55,11 @@ public class FormManager {
     
     public Form getForm( String formKey ){
         //FIXME: Field üzerinde data bağlantısı olduğu için aslında her istenildiğinde ( daha doğrusu oturum başına ) yeni bir instance üretmek lazım. Clone?
-        return formMap.get(formKey);
+        Form result = formMap.get(formKey);
+        if( result == null ){
+            LOG.warn("Form not found for key '{}'", formKey);
+            return  new Form();
+        }
+        return result;
     }
 }

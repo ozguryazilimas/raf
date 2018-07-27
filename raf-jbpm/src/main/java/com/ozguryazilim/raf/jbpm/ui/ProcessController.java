@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
  * Sistemde kullanıcının erişebileceği süreçler ve bunların uygunluk durumunu belirleyerek Menu oluşturulmasını sağlar.
  * Kullanıcıdan gelen süreç başlatma isteğini karşılayıp ilgili UI açma işlemlerini yapar.
  * 
+ * FIXME: Burası aslında ProcessLookupService sınıfını kullanmalı
+ * 
  * @author Hakan Uygun
  */
 @WindowScoped

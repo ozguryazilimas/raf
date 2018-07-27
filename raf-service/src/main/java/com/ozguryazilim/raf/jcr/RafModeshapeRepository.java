@@ -720,6 +720,11 @@ public class RafModeshapeRepository implements Serializable {
                 throw new RafException();
             }
 
+            //FIXME: debug için sonradan kapatılacak
+            JcrTools jcrTools = new JcrTools();
+            jcrTools.setDebug(true);
+            jcrTools.printSubgraph(node);
+            
             if (node.isNodeType(NODE_FOLDER)) {
                 if( node.isNodeType(MIXIN_RECORD)){
                     result = nodeToRafRecord(node);
@@ -889,6 +894,22 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     public void copyObject(List<RafObject> from, RafFolder to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            for (RafObject o : from) {
+                copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+            }
+
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    public void copyObject(List<RafObject> from, RafRecord to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
@@ -1084,6 +1105,19 @@ public class RafModeshapeRepository implements Serializable {
             result.setElectronicDocument(getPropertyAsBoolean(node, PROP_ELECTRONIC_DOCUMENT));
         }
         
+        //child nodelar üzerinden dolaşıp metadata ve file bilgilerini topluyoruz.
+        NodeIterator it = node.getNodes();
+        while (it.hasNext()) {
+            Node mn = it.nextNode();
+            if( mn.isNodeType("nt:file")){
+                result.getDocuments().add(nodeToRafDocument(mn));
+            } else if( mn.getName().endsWith(":metadata") ){
+                MetadataConverter mc = MetadataConverterRegistery.getConverter(mn.getPrimaryNodeType().getName());
+                result.getMetadatas().add(mc.nodeToModel(mn));
+            }
+        }
+        
+        /*
         //RafRecord için metadata'lar
         NodeIterator it = node.getNodes("*:metadata");
         while (it.hasNext()) {
@@ -1098,6 +1132,7 @@ public class RafModeshapeRepository implements Serializable {
             Node mn = it.nextNode();
             result.getDocuments().add(nodeToRafDocument(mn));
         }
+        */
 
         return result;
     }

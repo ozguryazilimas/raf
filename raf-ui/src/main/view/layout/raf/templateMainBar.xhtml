@@ -81,18 +81,62 @@
                             </li>
                         </ui:fragment>
 
-                        <li >
-                            <h:link  outcome="/bpm/taskConsole.xhtml" >
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-archive"></i>
-                                #{messages['raf.label.Tasks']}
-                            </h:link>
+                                <span>#{messages['raf.label.Processes']}</span>
+                                <i class="caret"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+                                <li >
+                                    <h:link  outcome="/bpm/taskConsole.xhtml" >
+                                        <i class="fa fa-archive"></i>
+                                        #{messages['raf.label.Tasks']}
+                                    </h:link>
+                                </li>
+
+                                <li >
+                                    <h:link  outcome="/bpm/processConsole.xhtml" >
+                                        <i class="fa fa-archive"></i>
+                                        #{messages['raf.label.Processes']}
+                                    </h:link>
+                                </li>
+                            </ul>
                         </li>
-                        
-                        <li >
-                            <h:link  outcome="/bpm/processConsole.xhtml" >
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-archive"></i>
-                                #{messages['raf.label.Processes']}
-                            </h:link>
+                                <span>#{messages['action.startRecord']}</span>
+                                <i class="caret"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+
+                                <p:repeat value="#{recordController.recordTypes}" var="rt" >
+                                    <li >
+                                        <p:commandLink action="#{recordController.startRecord(rt)}" process="@this">
+                                            <i class="fa fa-random" /> #{rt.title}
+                                            <ui:remove>
+                                                <p:ajax event="dialogReturn" update="raf-view" />
+                                            </ui:remove>
+                                        </p:commandLink>
+                                    </li>
+                                </p:repeat>
+
+                                <ui:remove>
+                                    <li role="separator" class="divider"></li>
+                                    <li >
+                                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
+                                            <i class="fa fa-plus-circle" />
+                                            #{messages['raf.label.CreateRaf']}
+                                            <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
+                                        </p:commandLink>
+                                    </li>
+                                </ui:remove>
+                            </ul>
+
                         </li>
 
                         <li class="dropdown">

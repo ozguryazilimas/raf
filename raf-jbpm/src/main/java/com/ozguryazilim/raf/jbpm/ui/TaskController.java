@@ -14,6 +14,7 @@ import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public class TaskController implements Serializable, FormController {
     private Long selectedTaskId = 0l;
     private Task selectedTask;
     private Map<String, Object> taskContent;
+    private Map<String, Object> data = new HashMap<>();
 
     private List<RafObject> rafObjectItems = new ArrayList<>();
 
@@ -111,10 +113,11 @@ public class TaskController implements Serializable, FormController {
         selectedTask = taskService.getTask(taskId);
         taskContent = taskService.getTaskInputContentByTaskId(taskId);
 
+        data.clear();
         rafObjectItems.clear();
 
         //FIXME: Burada bir yetki problemi var. Task'ı gören kişi belgeleri göremiyor olabilir! Kontrol edilmeli.
-        List<String> rafOIDs = (List<String>) taskContent.get("document");
+        List<String> rafOIDs = (List<String>) taskContent.get("documents");
         if (rafOIDs != null) {
             for (String oid : rafOIDs) {
                 try {
@@ -122,6 +125,20 @@ public class TaskController implements Serializable, FormController {
                 } catch (RafException ex) {
                     LOG.error("Raf Exception", ex);
                 }
+            }
+        }
+        
+        //Eğer task içinden RafRecord çıkıyor ise onu ekleyelim.
+        String recordObjectId = (String) taskContent.get("recordObject");
+        if( !Strings.isNullOrEmpty(recordObjectId)){
+            RafRecord recordObject = null;
+            try {
+                recordObject = (RafRecord) rafService.getRafObject(recordObjectId);
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+            if( recordObject != null ){
+                rafObjectItems.add(recordObject);
             }
         }
 
@@ -142,9 +159,33 @@ public class TaskController implements Serializable, FormController {
             }
         }
 
-        form = formManager.getForm((String)taskContent.get("TaskName"));
+        //Form bulunuyor. eğer RafRecord için işlem yapıyor isek formu aslında record üzerinden gelen DocumentType, RecordType ile ilişkili formu bulmalı.
+        //FIXME: burada RecordTypeManager yok! Form bilgisini nasıl alacağız? Şimdilik recordType üzerinden namingConvention yapsak?
+        String recordType = (String) taskContent.get("recordType");
+        String documentType = (String) taskContent.get("documentType");
+        String taskName = (String)taskContent.get("TaskName");
+        
+        //FIXME: buarda aslında önce recordTye + documentType + taskName olmadı recordTye + taskName olmadı taskName şeklinde form aramak lazım.
+        if( !Strings.isNullOrEmpty(recordType)){
+            form = formManager.getForm(recordType + "." + taskName);
+        } else {
+            form = formManager.getForm( taskName);
+        }
+        
+        
+
+        //FIXME: Burada aslında gelen verileri flat hale getirecek bir şeyler düşünmek lazım. taskContent içinde form için kullanılacak alanlar olacak.
+        //Bu işlemden emin değilim
+        data.putAll(taskContent);
+        
+        //Eğer metadata pass edildi ise bunları data alanına yerleştiriyoruz! Form verileri metadata mapi ile akacak
+        Map<String,Object> metadata = (Map<String,Object>) taskContent.get("metadata");
+        if( metadata != null ){
+            data.putAll(metadata);
+        }
+        
         for( Field f : form.getFields() ){
-            f.setData(taskContent);
+            f.setData(data);
         }
 
         LOG.debug("Selected Form : {}", form);
@@ -190,15 +231,22 @@ public class TaskController implements Serializable, FormController {
 
         Map<String, Object> completeParams = new HashMap<>();
         completeParams.put("result", action);
-        completeParams.put("document", rafOIDs);
+        completeParams.put("documents", rafOIDs);
 
-        for (Map.Entry<String, Object> e : taskContent.entrySet()) {
-            //Zaten tanıdık bildik bi rşey değil ise out'a dolduralım
-            if (!("result".equals(e.getKey()) || "document".equals(e.getKey()) || "result_actions".equals(e.getKey()))) {
+        //TODO: metadata yapısı ile sanki buna gerek yok artık! ( Acaba sadece süreci ilgilendiren şeyler nasıl olacak? )
+        //Bütün metadata keyleri içerisinde ':' barındıracak. Onları süreç değişkeni olarak koymayalım. ex: raf:topic 
+        //FIXME: ana nodu ilgilendiren şeyleri nasıl ayıracağız? raf: ile başlıypor ise ana nodu ilgilendiriyordur!
+        for (Map.Entry<String, Object> e : data.entrySet()) {
+            //Zaten tanıdık bildik bir şey değil ise out'a dolduralım
+            if (!e.getKey().contains(":")) {
                 completeParams.putIfAbsent(e.getKey(), e.getValue());
             }
         }
 
+        //Data alanında olan herşeyi metadata bloğuna koyuyoruz.
+        completeParams.put("metadata", data);
+        
+        LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
 
         //FIXME: eğer geriye task kalmamış ise ne olacak?
@@ -261,7 +309,7 @@ public class TaskController implements Serializable, FormController {
 
     @Override
     public Map<String, Object> getData() {
-        return taskContent;
+        return data;
     }
 
     public String getTaskId() {

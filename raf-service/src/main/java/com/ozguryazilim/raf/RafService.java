@@ -103,7 +103,7 @@ public class RafService implements Serializable {
         
     }
     
-    public RafRecord createFolder(RafRecord record) throws RafException {
+    public RafRecord createRecord(RafRecord record) throws RafException {
         //FIXME: yetki kontrolü
         //TODO: record eklendiğine dair burada bir event fırlatmak lazım.
         return rafRepository.createRecord(record);
@@ -167,6 +167,11 @@ public class RafService implements Serializable {
     }
 
     public void copyObject(List<RafObject> from, RafFolder to) throws RafException {
+        //FIXME: yetki kontrolü
+        rafRepository.copyObject(from, to);
+    }
+    
+    public void copyObject(List<RafObject> from, RafRecord to) throws RafException {
         //FIXME: yetki kontrolü
         rafRepository.copyObject(from, to);
     }

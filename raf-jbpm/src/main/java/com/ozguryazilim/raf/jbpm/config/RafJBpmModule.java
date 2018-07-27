@@ -27,6 +27,7 @@ public class RafJBpmModule {
     
     private static final Logger LOG = LoggerFactory.getLogger(RafJBpmModule.class);
     private static final String KJAR_ID = "com.ozguryazilim.mutfak:raf-jbpm-sample-kjar:1.0.0-SNAPSHOT";
+    private static final String KJAR2_ID = "com.ozguryazilim.mutfak:raf-tspb-kjar:1.0.0-SNAPSHOT";
     
     @Inject
     DeploymentService deploymentService;
@@ -41,7 +42,7 @@ public class RafJBpmModule {
         
         LOG.warn("KJar Yüklenecek");
         
-        String[] gav = KJAR_ID.split(":");
+        String[] gav = KJAR2_ID.split(":");
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(gav[0], gav[1], gav[2]);
         deploymentService.deploy(deploymentUnit);
         

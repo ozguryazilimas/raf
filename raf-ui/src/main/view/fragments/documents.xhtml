@@ -10,23 +10,54 @@
     <ui:remove>
         <!-- Bu fragman verilen listeyi tablo olarak gösterir. Kullanım amacı dialog ve benzeri yerlerde seçili belgeleri göstermektir. -->
     </ui:remove>
-    
+
     <t:accordion icon="fa fa-files-o" label="general.label.Documents">
         <table class="table">
             <p:repeat value="#{rafObjects}" var="ro" >
                 <tr>
-                    <td>
+                    <td style="width: 48px;">
                         <svg class="icon" style="height: 24px; width: 24px;">
                             <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(ro.mimeType)}" />
                         </svg>
                     </td>
                     <td>
-                        <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
-                            #{ro.name}
-                        </p:commandLink>
+                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafDocument'}">
+                            <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
+                                #{ro.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
+                            <p:commandLink action="#{rafRecordViewDialog.openDialog(ro)}" process="@this">
+                                #{ro.title}
+                            </p:commandLink>
+
+
+                        </ui:fragment>
                     </td>
                     <td>#{ro.info}</td>
                 </tr>
+                <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
+                    <p:repeat value="#{ro.documents}" var="doc" >
+                        <tr>
+                            <td style="width: 48px;">
+                                <svg class="icon" style="height: 24px; width: 24px; margin-left: 24px;">
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(doc.mimeType)}" />
+                                </svg>
+                            </td>
+                            <td>
+                                <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
+                                    #{doc.title}
+                                </p:commandLink>
+                            </td>
+                            <td>#{doc.info}</td>
+                            <td>#{doc.category}</td>
+                            <td>
+                                <h:outputText value="Asıl Belge" rendered="#{doc.name eq ro.mainDocument}" />
+                                <h:outputText value="Ek Belge" rendered="#{doc.name ne ro.mainDocument}" />
+                            </td>
+                        </tr>
+                    </p:repeat>
+                </ui:fragment>
             </p:repeat>
         </table>
     </t:accordion>
