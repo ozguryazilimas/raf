@@ -36,6 +36,9 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
     private static final Logger LOG = LoggerFactory.getLogger(RafServiceHandlersProducer.class);
     
     @Inject
+    private RafServiceTaskHandler rafServiceTaskHandler;
+    
+    @Inject
     private RafNotificationTaskHandler rafNotificationTaskHandler;
     
     @Inject
@@ -60,7 +63,7 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
         
         Map<String, WorkItemHandler> result = new HashMap<>();
         
-        result.put("Raf Service Task", new RafServiceTaskHandler());
+        result.put("Raf Service Task", rafServiceTaskHandler);
         result.put("Raf Notification Task", rafNotificationTaskHandler);
         result.put("Raf Import Process Documents", importProcessDocumentsTaskHandler);
         result.put("Raf Export Process Documents", exportProcessDocumentsTaskHandler);

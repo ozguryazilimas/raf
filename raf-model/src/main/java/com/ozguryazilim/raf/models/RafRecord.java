@@ -21,7 +21,7 @@ public class RafRecord extends RafObject{
     
     private String recordType;
     private String documentType;
-    
+    private String recordNo;
     
     private String mainDocument;
     private Boolean electronicDocument; 
@@ -109,6 +109,14 @@ public class RafRecord extends RafObject{
 
     public void setDocuments(List<RafDocument> documents) {
         this.documents = documents;
+    }
+
+    public String getRecordNo() {
+        return recordNo;
+    }
+
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     
     

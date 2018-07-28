@@ -110,6 +110,12 @@ public class RafService implements Serializable {
         
     }
     
+    public void saveRecord(RafRecord record) throws RafException {
+        //FIXME: yetki kontrolü
+        //TODO: record eklendiğine dair burada bir event fırlatmak lazım.
+        rafRepository.saveRecord(record);
+    }
+    
     /**
      * Verilen path için folder oluşturur.
      * 

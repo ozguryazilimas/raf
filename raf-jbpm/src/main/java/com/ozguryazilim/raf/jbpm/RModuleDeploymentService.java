@@ -6,7 +6,6 @@
 package com.ozguryazilim.raf.jbpm;
 
 import com.ozguryazilim.raf.auth.KJarResourceHandler;
-import com.ozguryazilim.raf.forms.FormManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
@@ -33,9 +32,6 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(RModuleDeploymentService.class);
 
-    @Inject
-    private FormManager formManager;
-    
     @Inject
     private Instance<KJarResourceHandler> resourceHandlers;
     

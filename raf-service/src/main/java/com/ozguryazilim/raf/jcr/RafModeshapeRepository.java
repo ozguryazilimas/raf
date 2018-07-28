@@ -70,6 +70,8 @@ public class RafModeshapeRepository implements Serializable {
     private static final String MIXIN_TITLE = "mix:title";
     private static final String MIXIN_TAGGABLE = "raf:taggable";
     private static final String MIXIN_RAF = "raf:raf";
+    private static final String MIXIN_METADATA = "raf:metadata";
+    
 
     private static final String PROP_TITLE = "jcr:title";
     private static final String PROP_DESCRIPTON = "jcr:description";
@@ -87,6 +89,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_PROCESS_ID = "raf:processId";
     private static final String PROP_PROCESS_INST_ID = "raf:processIntanceId";
     private static final String PROP_STATUS = "raf:status";
+    private static final String PROP_RECORD_NO = "raf:recordNo";
     
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
@@ -627,6 +630,7 @@ public class RafModeshapeRepository implements Serializable {
             node.addMixin(MIXIN_TITLE);
             node.addMixin(MIXIN_TAGGABLE);
             node.addMixin(MIXIN_RECORD);
+            node.addMixin(MIXIN_METADATA);
 
             node.setProperty(PROP_TITLE, record.getTitle());
             node.setProperty(PROP_DESCRIPTON, record.getInfo());
@@ -634,11 +638,11 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_DOCUMENT_TYPE, record.getDocumentType());
             
             node.setProperty(PROP_MAIN_DOCUMENT, record.getMainDocument());
-            //FIXME: diğer parçaları da ekleyeeğiz. 
-            //FIXME: metadata'lar nasıl olacak?
-            //FIXME: file kısmı nasıl oalcak?
+            node.setProperty(PROP_PROCESS_ID, record.getProcessId());
+            node.setProperty(PROP_PROCESS_INST_ID, record.getProcessIntanceId());
+            node.setProperty(PROP_LOCATION, record.getLocation());
+            node.setProperty(PROP_RECORD_NO, record.getRecordNo());
             
-
             session.save();
             
             RafRecord result = nodeToRafRecord(node);
@@ -670,7 +674,7 @@ public class RafModeshapeRepository implements Serializable {
 
             n.addMixin(MIXIN_TITLE);
             n.addMixin(MIXIN_TAGGABLE);
-            n.addMixin("raf:metadata");
+            n.addMixin(MIXIN_METADATA);
 
             String[] fa = fileName.split("/");
             n.setProperty(PROP_TITLE, fa[fa.length - 1]);
@@ -791,10 +795,89 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void saveMetadata(String id, RafMetadata metadata) throws RafException {
+    /**
+     * RafRecord nesnesinin üzerinde bulunan property ve metadata'ları kaydeder.
+     * @param object
+     * @throws RafException 
+     */
+    public void saveRecord(RafRecord object) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
+            Node node = session.getNodeByIdentifier(object.getId());
+
+            if (node == null) {
+                //FIXME: bu exception nedir söylemek lazım.
+                throw new RafException();
+            }
+
+            //Gerekli mixinler yoksa ekleyelim. Aslında bu kontrol ne kadar gerekli bilemedim.
+            if (!node.isNodeType(MIXIN_TITLE)) {
+                node.addMixin(MIXIN_TITLE);
+            }
+
+            if (!node.isNodeType(MIXIN_TAGGABLE)) {
+                node.addMixin(MIXIN_TAGGABLE);
+            }
+
+            node.setProperty(PROP_TITLE, object.getTitle());
+            node.setProperty(PROP_DESCRIPTON, object.getInfo());
+
+            node.setProperty(PROP_CATEGORY, object.getCategory());
+            node.setProperty(PROP_CATEGORY_PATH, object.getCategoryPath());
+            //Eğer id null gelir ise primitive çevrimi hata veriyor
+            node.setProperty(PROP_CATEGORY_ID, object.getCategoryId() == null ? 0 : object.getCategoryId());
+            node.setProperty(PROP_TAG, object.getTags().toArray(new String[] {}));
+            //node.setProperty(PROP_TAG, "");
+            
+            node.setProperty(PROP_RECORD_TYPE, object.getRecordType());
+            node.setProperty(PROP_DOCUMENT_TYPE, object.getDocumentType());
+            
+            node.setProperty(PROP_MAIN_DOCUMENT, object.getMainDocument());
+            node.setProperty(PROP_PROCESS_ID, object.getProcessId());
+            node.setProperty(PROP_PROCESS_INST_ID, object.getProcessIntanceId());
+            node.setProperty(PROP_LOCATION, object.getLocation());
+            node.setProperty(PROP_RECORD_NO, object.getRecordNo());
+
+            for( RafMetadata m : object.getMetadatas() ){
+                saveMetadata(object.getId(), m, session);
+            }
+            
+            session.save();
+            session.logout();
+
+            
+            
+        } catch (RepositoryException ex) {
+            throw new RafException();
+        }
+    }
+    
+    public void saveMetadata(String id, RafMetadata metadata) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            saveMetadata(id, metadata, session);
+            
+            session.logout();
+            session.save();
+        } catch (RepositoryException ex) {
+            throw new RafException( ex );
+        }
+    }
+    
+    /**
+     * Asıl metada saklama işini yapar. 
+     * 
+     * Save ve logout işlemleri çağıran yerin sorumluluğunda
+     * 
+     * @param id
+     * @param metadata
+     * @param session
+     * @throws RafException 
+     */
+    protected void saveMetadata(String id, RafMetadata metadata, Session session) throws RafException {
+        
+        try{
             Node metaNode = null;
 
             //Demek ki ilk kez yazılacak.
@@ -820,10 +903,6 @@ public class RafModeshapeRepository implements Serializable {
             MetadataConverter converter = MetadataConverterRegistery.getConverter(metadata.getType());
 
             converter.modelToNode(metadata, metaNode);
-
-            session.save();
-
-            session.logout();
 
         } catch (RepositoryException ex) {
             throw new RafException( ex );
