@@ -18,9 +18,8 @@ public class DateFieldBuilder extends AbstractFieldBuilder{
     public DateField build(Map<String, String> attributes) {
         DateField result = new DateField();
         baseBuild(result, attributes);
-        //FIXME: value parse edilecek
+        //FIXME: value parse edilecek: Tarih için NOW, TODAY gibi keywordler olabilir
         //result.setDefaultValue(attributes.get("defaultValue"));
-        //FIXME: Burada ek olarak suggestion group ve key parse edilecek
         
         return result;
     }
