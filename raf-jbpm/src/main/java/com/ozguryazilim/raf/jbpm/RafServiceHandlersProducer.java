@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.jbpm.workitemhandler.RafImportProcessDocumentsTaskHa
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafNotificationTaskHandler;
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafRecordExportDocumentsHandler;
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafRecordImportDocumentsHandler;
+import com.ozguryazilim.raf.jbpm.workitemhandler.RafRecordNoServiceHandler;
 import com.ozguryazilim.raf.jbpm.workitemhandler.RafServiceTaskHandler;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,9 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
     @Inject 
     private RafRecordExportDocumentsHandler rafRecordExportDocumentsHandler;
     
+    @Inject
+    private RafRecordNoServiceHandler rafRecordNoServiceHandler;
+    
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(String identifier, Map<String, Object> params) {
         
@@ -62,6 +66,7 @@ public class RafServiceHandlersProducer implements WorkItemHandlerProducer{
         result.put("Raf Export Process Documents", exportProcessDocumentsTaskHandler);
         result.put("Raf Record Import Process Documents", rafRecordImportDocumentsHandler);
         result.put("Raf Record Export Process Documents", rafRecordExportDocumentsHandler);
+        result.put("Raf Record No Service", rafRecordNoServiceHandler);
         
         return result;
         
