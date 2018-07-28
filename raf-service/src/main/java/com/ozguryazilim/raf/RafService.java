@@ -166,6 +166,11 @@ public class RafService implements Serializable {
         rafRepository.deleteObject(id);
     }
 
+    public void copyObject(RafObject from, RafFolder to) throws RafException {
+        //FIXME: yetki kontrolü
+        rafRepository.copyObject(from, to);
+    }
+    
     public void copyObject(List<RafObject> from, RafFolder to) throws RafException {
         //FIXME: yetki kontrolü
         rafRepository.copyObject(from, to);

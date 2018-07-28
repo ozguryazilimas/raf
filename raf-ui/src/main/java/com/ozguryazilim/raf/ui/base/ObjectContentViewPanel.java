@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.models.RafObject;
 import org.apache.deltaspike.core.util.ProxyUtils;
 
 /**
@@ -74,4 +75,14 @@ public interface ObjectContentViewPanel extends ContentViewPanel{
     default ContentPanel getAnnotation() {
         return (ContentPanel) ProxyUtils.getUnproxiedClass(this.getClass()).getAnnotation(ContentPanel.class);
     }
+    
+    /**
+     * Veilecek nesneyi kabul ediyor mu?
+     * Buna göre sunum için kullanılabilir ya da kullanılamaz.
+     * @param object
+     * @return 
+     */
+    boolean acceptObject( RafObject object );
+    
+    void setRafObject(RafObject object);
 }

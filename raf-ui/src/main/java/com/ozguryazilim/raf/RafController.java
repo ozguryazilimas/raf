@@ -21,11 +21,13 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.ActionRegistery;
 import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ContentViewPanel;
+import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.raf.ui.contentpanels.RafCollectionCompactViewPanel;
 import com.ozguryazilim.raf.ui.contentpanels.RafDocumentViewPanel;
@@ -36,12 +38,14 @@ import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -102,6 +106,9 @@ public class RafController implements Serializable {
 
     @Inject
     private RafFolderViewPanel folderViewPanel;
+    
+    @Inject
+    private Instance<ObjectContentViewPanel> objectViewPanels;
     
     @Inject
     private RafCollectionCompactViewPanel collectionCompactViewPanel;
@@ -303,6 +310,17 @@ public class RafController implements Serializable {
      */
     protected ContentViewPanel getObjectContentPanel() {
 
+        //FIXME: burada instance sonuçları cachelenmeli aslında. Sistemde sornadna gelen bişiler yok. Ve burası çok sık çağrılıyor
+        Iterator<ObjectContentViewPanel> it = objectViewPanels.iterator();
+        while( it.hasNext() ){
+            ObjectContentViewPanel p = it.next();
+            if( p.acceptObject(context.getSelectedObject()) ){
+                p.setRafObject(context.getSelectedObject());
+                return p;
+            }
+        }
+        
+        /*
         //FIXME: burada previeww panelleri gibi aslında mimeType'a / nodeType'a bakarak doğru paneli seçmek lazım
         if (context.getSelectedObject() instanceof RafDocument) {
             documentViewPanel.setObject((RafDocument)context.getSelectedObject());
@@ -310,7 +328,11 @@ public class RafController implements Serializable {
         } else if (context.getSelectedObject() instanceof RafFolder) {
             folderViewPanel.setObject((RafFolder)context.getSelectedObject());
             return folderViewPanel;
+        } else if (context.getSelectedObject() instanceof RafRecord) {
+            recordViewPanel.setObject((RafRecord)context.getSelectedObject());
+            return recordViewPanel;
         }
+        */
         
         //FIXME: Hiçibişi seçilmemesi durumu riski var.
         LOG.warn("RafObjectViewPanel not found for Object Type '{}'", context.getSelectedObject());
@@ -348,6 +370,8 @@ public class RafController implements Serializable {
             selectFolderById(item.getId());
         } else if (item instanceof RafDocument) {
             selectDocument((RafDocument) item);
+        } else if( item instanceof RafRecord ){
+            selectRecord((RafRecord) item);
         }
 
     }
@@ -375,6 +399,14 @@ public class RafController implements Serializable {
     }
 
     public void selectDocument(RafDocument item) {
+        context.setSelectedObject(item);
+        context.getSeletedItems().clear();
+        context.getSeletedItems().add(item);
+        //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
+        selectedContentPanel = getObjectContentPanel();
+    }
+    
+    public void selectRecord(RafRecord item) {
         context.setSelectedObject(item);
         context.getSeletedItems().clear();
         context.getSeletedItems().add(item);
