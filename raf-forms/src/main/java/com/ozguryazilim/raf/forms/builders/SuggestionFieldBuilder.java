@@ -21,6 +21,9 @@ public class SuggestionFieldBuilder extends AbstractFieldBuilder{
         result.setDefaultValue(attributes.get("defaultValue"));
         //FIXME: Burada ek olarak suggestion group ve key parse edilecek
         
+        result.setGroup(attributes.getOrDefault("group", "forms"));
+        result.setKey(attributes.getOrDefault("key", ""));
+        
         return result;
     }
     
