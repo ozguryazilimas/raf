@@ -27,6 +27,7 @@ public abstract class AbstractField<T extends Serializable> implements Field<T>{
     private String dataKey;
     private Map<String,Object> data;
     private T value;
+    private String columnClass;
 
     public AbstractField() {
     }
@@ -143,6 +144,16 @@ public abstract class AbstractField<T extends Serializable> implements Field<T>{
     public void setValue(T value) {
         data.put(getDataKey(), value);
     }
+
+    public String getColumnClass() {
+        return columnClass;
+    }
+
+    public void setColumnClass(String columnClass) {
+        this.columnClass = columnClass;
+    }
+    
+    
     
     public abstract Class<T> getValueClass();
 

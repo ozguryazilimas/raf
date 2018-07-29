@@ -18,11 +18,11 @@
 
     </ui:remove>
     
-    <div class="prop col-md-6 col-xs-12">
+    <div class="prop #{field.columnClass}">
         <p:outputLabel for="#{field.id}_inp" value="#{messages[field.label]}" styleClass="name #{invalid?'errors':''}" />
         <span class="value">
             <div class="input-group">
-                <p:inputText id="#{field.id}_inp" value="#{field.value.title}" readonly="true" />
+                <p:inputText id="#{field.id}_inp" value="#{field.value.title}" readonly="true" required="#{field.required}"/>
                 <div class="input-group-btn">
                     <p:commandButton action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', field.value )}" 
                                      partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="#{field.readonly}">

@@ -36,7 +36,9 @@ public abstract class AbstractFieldBuilder {
         field.setLabel(attributes.get("label"));
         field.setPlaceholder(attributes.get("placeholder"));
         field.setReadonly("true".equals(attributes.get("readonly")));
-        field.setRequired("true".equals(attributes.get("required(")));
+        field.setRequired("true".equals(attributes.get("required")));
+        field.setColumnClass(attributes.getOrDefault("columnClass","col-md-6 col-xs-12"));
+        
     }
     
 }

@@ -123,8 +123,8 @@
                                     <ui:fragment rendered="#{taskController.selectedTask.taskData.status ne 'Completed'}">
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
                                         <p:repeat value="#{taskController.taskActions}" var="act">
-                                            <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
-                                                             update="taskConsole"/>
+                                            <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" 
+                                                             validateClient="true" styleClass="#{act.style}" update="taskConsole"/>
                                         </p:repeat>
                                     </h:panelGroup>
                                     </ui:fragment>

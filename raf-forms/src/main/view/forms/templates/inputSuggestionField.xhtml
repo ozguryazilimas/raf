@@ -8,7 +8,7 @@
 
     <t:inputSuggestion id="#{field.id}" label="#{field.label}" value="#{field.value}" 
                        group="#{field.group}" key="#{field.key}"
-                       listener="field.value" columnClass="col-xs-12" 
+                       listener="field.value" columnClass="#{field.columnClass}" 
                        required="#{field.required}" readonly="#{field.readonly}" placeholder="#{field.placeholder}"/>
 
 </ui:composition>
