@@ -31,31 +31,27 @@
                     </ui:fragment>
 
                     <span class="text-muted text-sm">
-                        #{userLookup.getUserName(viewBean.object.updateBy)} | 
-                        <t:cellOutputDateTime value="#{viewBean.object.updateDate}" />
+                        #{userLookup.getUserName(viewBean.object.createBy)} | 
+                        <t:cellOutputDateTime value="#{viewBean.object.createDate}" />
                         | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{viewBean.object.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
                     </span>
 
 
-                    <ui:remove>
-                        <ui:repeat value="#{documentViewPanel.additonalMetadatas}" var="mt">
-                            <p:commandLink action="#{documentViewPanel.addMetadata(mt)}" process="@this">
-                                <i class="fa fa-cog" /> #{mt}
-                            </p:commandLink>
-                        </ui:repeat>
-                    </ui:remove>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12" >
 
-                    <ui:remove>
-                        <div >
-                            <ui:include src="#{viewBean.previewWidget}" >
-                                <ui:param name="rafObject" value="#{viewBean.object}" />
-                            </ui:include>
-                        </div>
-                    </ui:remove>
+                    <div >
+                        <ui:include src="#{viewBean.previewWidget}" >
+                            <ui:param name="rafObject" value="#{viewBean.mainDocument}" />
+                        </ui:include>
+                    </div>
+
+                    <ui:include src="/fragments/documentsWidget.xhtml">
+                        <ui:param name="controller" value="#{viewBean}" />
+                    </ui:include>
+
                 </div>
 
                 <ui:remove>
@@ -95,6 +91,7 @@
                         <ui:param name="mpbean" value="#{mp}" />
                     </ui:include>
                 </c:forEach>
+
             </div>
         </div>
 

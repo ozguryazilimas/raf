@@ -141,6 +141,12 @@ public class RafService implements Serializable {
         //FIXME: event fırlatalım ki log yazılabilsin v.b.
         return rafRepository.getRafObject(id);
     }
+    
+    public RafObject getRafObjectByPath(String path) throws RafException {
+        //FIXME: yetki kontrolü gerekli.
+        //FIXME: event fırlatalım ki log yazılabilsin v.b.
+        return rafRepository.getRafObjectByPath(path);
+    }
 
     public InputStream getDocumentContent(String id) throws RafException {
         return rafRepository.getDocumentContent(id);

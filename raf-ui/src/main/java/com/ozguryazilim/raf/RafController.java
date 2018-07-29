@@ -185,7 +185,7 @@ public class RafController implements Serializable {
                 RafFolder fld = null;
 
                 //şimdi objenin tipine bakarak bazı kararlar verelim
-                if (obj instanceof RafDocument) {
+                if (obj instanceof RafDocument || obj instanceof RafRecord) {
 
                     //Folder'ı bir bulalım
                     //TODO: tip kontrolü yapmaya gerek var mı?

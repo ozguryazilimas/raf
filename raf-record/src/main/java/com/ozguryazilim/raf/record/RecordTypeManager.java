@@ -57,5 +57,9 @@ public class RecordTypeManager implements Serializable{
         return new ArrayList(typeMap.values());
     }
     
+    public RafRecordType getRecordType( String name ){
+        return typeMap.get(name);
+    }
+    
     
 }

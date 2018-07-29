@@ -19,7 +19,7 @@ public interface DocumentsWidgetController {
      * Geriye Widget'ın sunacağı RafObject listesini döndürür.
      * @return 
      */
-    List<RafObject> getRafObjects();
+    List<? extends RafObject> getRafObjects();
     
     /**
      * Yeni bir belge buradan yüklenebilir mi?

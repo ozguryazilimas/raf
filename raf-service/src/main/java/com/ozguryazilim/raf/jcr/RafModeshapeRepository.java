@@ -392,8 +392,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Debug için duruyor kalkacak.
             JcrTools jcrTools = new JcrTools();
-            //jcrTools.setDebug(true);
-            //jcrTools.printSubgraph(node);
+            jcrTools.setDebug(true);
+            jcrTools.printSubgraph(node);
 
             session.logout();
 
@@ -746,7 +746,46 @@ public class RafModeshapeRepository implements Serializable {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException(ex);
+        }
+    }
+    
+    public RafObject getRafObjectByPath(String path) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNode(path);
+
+            RafObject result = null;
+
+            if (node == null) {
+                //FIXME: bu exception nedir söylemek lazım.
+                throw new RafException();
+            }
+
+            //FIXME: debug için sonradan kapatılacak
+            JcrTools jcrTools = new JcrTools();
+            jcrTools.setDebug(true);
+            jcrTools.printSubgraph(node);
+            
+            if (node.isNodeType(NODE_FOLDER)) {
+                if( node.isNodeType(MIXIN_RECORD)){
+                    result = nodeToRafRecord(node);
+                } else {
+                    result = nodeToRafFolder(node);
+                }
+            } else if (node.isNodeType(NODE_FILE)) {
+                result = nodeToRafDocument(node);
+            } else {
+                //FIXME:Bilinen bir node bulunamadı.
+                throw new RafException();
+            }
+
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
         }
     }
 
@@ -838,6 +877,7 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_PROCESS_INST_ID, object.getProcessIntanceId());
             node.setProperty(PROP_LOCATION, object.getLocation());
             node.setProperty(PROP_RECORD_NO, object.getRecordNo());
+            node.setProperty(PROP_STATUS, object.getStatus());
 
             for( RafMetadata m : object.getMetadatas() ){
                 saveMetadata(object.getId(), m, session);
@@ -849,7 +889,7 @@ public class RafModeshapeRepository implements Serializable {
             
             
         } catch (RepositoryException ex) {
-            throw new RafException();
+            throw new RafException(ex);
         }
     }
     
@@ -961,11 +1001,17 @@ public class RafModeshapeRepository implements Serializable {
     public void copyObject(RafObject from, RafFolder to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
-
+            if( session.hasPendingChanges() ){
+                LOG.warn("Saklanmamış değişlikler var");
+                session.save();
+            }
+            
+            
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -980,6 +1026,7 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: url encoding
             copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -996,6 +1043,7 @@ public class RafModeshapeRepository implements Serializable {
                 copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
             }
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -1012,6 +1060,7 @@ public class RafModeshapeRepository implements Serializable {
                 copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
             }
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -1026,6 +1075,7 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: url encoding
             move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -1042,6 +1092,7 @@ public class RafModeshapeRepository implements Serializable {
                 move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
             }
 
+            session.save();
             session.logout();
         } catch (RepositoryException ex) {
             throw new RafException(ex);
@@ -1061,10 +1112,7 @@ public class RafModeshapeRepository implements Serializable {
 
         String result = targetBase + "/" + o.getName();
 
-        try {
-            Node targetNode = session.getNode(result);
-        } catch (PathNotFoundException e) {
-            //Beklenen durum. Node yok ve doğru isimle geri döneceğiz. Aksi halde devam edip isim değiştireceğiz.
+        if( !session.itemExists(result)){
             return result;
         }
 
@@ -1195,6 +1243,7 @@ public class RafModeshapeRepository implements Serializable {
             result.setProcessId(getPropertyAsString(node, PROP_PROCESS_ID));
             result.setProcessIntanceId(getPropertyAsLong(node, PROP_PROCESS_INST_ID));
             result.setStatus(getPropertyAsString(node, PROP_STATUS));
+            result.setRecordNo(getPropertyAsString(node, PROP_RECORD_NO));
             result.setElectronicDocument(getPropertyAsBoolean(node, PROP_ELECTRONIC_DOCUMENT));
         }
         

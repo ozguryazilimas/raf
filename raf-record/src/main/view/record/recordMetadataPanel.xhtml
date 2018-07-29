@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+    
+    <t:accordion id="bmd" label="#{recordMetadataPanel.title}" columnClass="col-xs-12">
+        <t:outputText label="record.label.RecordType" value="#{recordMetadataPanel.recordType}" columnClass="col-xs-12"/>
+        <t:outputText label="record.label.DocumentType" value="#{recordMetadataPanel.documentType}" columnClass="col-xs-12"/>
+        <t:outputText label="record.label.RecordNo" value="#{recordMetadataPanel.object.recordNo}" columnClass="col-xs-12"/>
+        <t:outputText label="record.label.Location" value="#{recordMetadataPanel.object.location}" columnClass="col-xs-12"/>
+    </t:accordion>
+
+
+</ui:composition>
+

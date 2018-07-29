@@ -72,6 +72,7 @@ public abstract class AbstractRafObjectViewController<R extends RafObject> imple
         basicMetadataPanel.setObject(getObject());
         
         result.add(basicMetadataPanel);
+        addCustomMetadataPanel( result );
         
         for( RafMetadata md : getObject().getMetadatas()){
             List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(md.getType());
@@ -90,6 +91,14 @@ public abstract class AbstractRafObjectViewController<R extends RafObject> imple
         });
         
         return result;
+    }
+    
+    /**
+     * Alt sınıflar tarafından custom ek panel eklemek için kullanılır.
+     * @param list 
+     */
+    protected void addCustomMetadataPanel( List<AbstractMetadataPanel> list ){
+        
     }
     
     public List<String> getAdditonalMetadatas(){

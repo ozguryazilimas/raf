@@ -45,6 +45,7 @@ public class RafServiceTaskHandler implements WorkItemHandler{
             RafRecord recordObject = (RafRecord) rafService.getRafObject(recordObjectId);
             
             recordObject.setStatus("COMPLETE"); //FIXME: bunun burada setlenmesi ne kadar doğru acaba?
+            recordObject.setRecordNo((String) metadata.get("raf:recordNo"));
             
             /*
                 içerisinde ":" geçen keyleri alıyoruz
@@ -60,7 +61,6 @@ public class RafServiceTaskHandler implements WorkItemHandler{
                     
                     RafMetadata m = getRafMetadata(p, recordObject);
                     m.getAttributes().put(k, e.getValue());
-                    
                 }
             }
             

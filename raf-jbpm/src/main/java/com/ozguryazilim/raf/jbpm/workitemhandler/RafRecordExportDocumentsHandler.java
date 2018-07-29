@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.jbpm.workitemhandler;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafRecord;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,6 +55,24 @@ public class RafRecordExportDocumentsHandler implements WorkItemHandler{
             LOG.debug("Process record documents {} exported to {}", recordObject, targetFolder);
             
             rafService.copyObject(recordObject, targetFolder);
+            
+            //FIXME: copy sırasında elimizdeki recodrObject'i değil daha önceden bişileri ( ilk HT'den ) kopyalıyor. 
+            // Şimdilik sadece metadata eksik onu yeniden kopyalayıp geçici bir çözüme gidiyorum. Debug için daha fazla zaman harcayamayacağım. 
+            //Sorun transaction yönetim ile ilgili olabilir. jBPM ve Modeshape karışımı nedeni ile
+            // UYARI: Bu arada copyRecord'un bulunmasında isimden kaynaklı sorun olabilir. Aynı isimli bir hedef varsa dosya adı otomatik değiştiriliyor rafServis içinde.
+            RafRecord copyRecord = (RafRecord) rafService.getRafObjectByPath(targetFolder.getPath() + "/" + recordObject.getName());
+            
+            copyRecord.setRecordNo(recordObject.getRecordNo());
+            copyRecord.setStatus(recordObject.getStatus());
+            for( RafMetadata m : recordObject.getMetadatas() ){
+                RafMetadata mc = new RafMetadata();
+                mc.setType(m.getType());
+                mc.getAttributes().putAll(m.getAttributes());
+                copyRecord.getMetadatas().add(mc);
+            }
+            
+            rafService.saveRecord(copyRecord);
+            //Çevresinden dolaşın buraya kadar
             
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
