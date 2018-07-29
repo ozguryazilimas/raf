@@ -6,8 +6,6 @@
 package com.ozguryazilim.raf.jbpm.actions;
 
 import com.ozguryazilim.raf.ui.base.AbstractAction;
-import com.ozguryazilim.raf.ui.base.Action;
-import com.ozguryazilim.raf.ui.base.ActionCapability;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -22,14 +20,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * FIXME: süreç başlatma işine daha sonradan tekrar bakılacak. 
+ * 
+ * Sanırım bu actiona ihtiyaç olmayacak!
+ * 
  * @author oyas
  */
+/*
 @Action(icon = "fa-paste",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.NeedClipboard},
         includedMimeType = "raf/folder",
         group = 10,
         order = 3)
+*/
 public class StartProcessAction extends AbstractAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartProcessAction.class);
