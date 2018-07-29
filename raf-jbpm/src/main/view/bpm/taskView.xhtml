@@ -15,8 +15,8 @@
     </ui:include>
 
     <div class="row">
-        <ui:include src="/fragments/documents.xhtml">
-            <ui:param name="rafObjects" value="#{taskController.rafObjectItems}" />
+        <ui:include src="/fragments/documentsWidget.xhtml">
+            <ui:param name="controller" value="#{taskController}" />
         </ui:include>
     </div>
 

@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 @SessionScoped
 @Named
-public class StartProcessDialog implements Serializable, FormController{
+public class StartProcessDialog implements Serializable, FormController, DocumentsWidgetController{
     
     private static final Logger LOG = LoggerFactory.getLogger(StartProcessDialog.class);
     
@@ -157,6 +158,11 @@ public class StartProcessDialog implements Serializable, FormController{
 
     public String getProcessName() {
         return processName;
+    }
+
+    @Override
+    public List<RafObject> getRafObjects() {
+        return selectedRafItems;
     }
 
     

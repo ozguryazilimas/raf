@@ -27,8 +27,8 @@
                 request: {
                     endpoint: '#{request.contextPath}/upload',
                     params: {
-                        raf: "#{rafContext.selectedRaf.code}",
-                        rafPath: "#{rafContext.collection.path}"
+                        raf: "#{fileUploadAction.rafCode}",
+                        rafPath: "#{fileUploadAction.uploadPath}"
                     }
                 },
                 chunking: {

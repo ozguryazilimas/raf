@@ -15,6 +15,7 @@ import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.record.model.RafRecordType;
+import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 @SessionScoped
 @Named
-public class StartRecordDialog implements Serializable, FormController {
+public class StartRecordDialog implements Serializable, FormController, DocumentsWidgetController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartRecordDialog.class);
 
@@ -156,6 +157,11 @@ public class StartRecordDialog implements Serializable, FormController {
 
     public RafRecordType getRecordType() {
         return recordType;
+    }
+
+    @Override
+    public List<RafObject> getRafObjects() {
+        return selectedRafItems;
     }
 
 }

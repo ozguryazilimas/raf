@@ -9,6 +9,8 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.MetadataConverter;
 import com.ozguryazilim.raf.MetadataConverterRegistery;
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -39,7 +41,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import org.apache.commons.io.IOUtils;
-import org.modeshape.common.text.UrlEncoder;
 import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_TYPE_SHARED = "SHARED";
     private static final String RAF_TYPE_PROCESS = "PROCESS";
 
-    private UrlEncoder encoder;
+    private RafEncoder encoder;
     JcrTools jcrTools = new JcrTools();
 
     @PostConstruct
@@ -110,8 +111,7 @@ public class RafModeshapeRepository implements Serializable {
 
     public void start() throws RafException {
         try {
-            encoder = new UrlEncoder();
-            encoder.setSlashEncoded(false);
+            encoder = RafEncoderFactory.getEncoder();
 
             //Engine'de başlatılsın
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -959,6 +959,20 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     public void copyObject(RafObject from, RafFolder to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+    }
+    
+    public void copyObject(RafObject from, RafRecord to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 

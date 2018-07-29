@@ -550,7 +550,11 @@ public class RafController implements Serializable {
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
-            populateFolderCollection(context.getSelectedObject().getId());
+            if( context.getSelectedObject() != null ){
+                populateFolderCollection(context.getSelectedObject().getId());
+            } else {
+                populateFolderCollection(context.getCollection().getId());
+            }
 
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);

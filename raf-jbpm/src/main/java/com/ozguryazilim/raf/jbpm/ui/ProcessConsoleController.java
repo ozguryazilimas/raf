@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 @WindowScoped
 @Named
-public class ProcessConsoleController implements Serializable, FormController{
+public class ProcessConsoleController implements Serializable, FormController, DocumentsWidgetController{
     
     private static final Logger LOG = LoggerFactory.getLogger(ProcessConsoleController.class);
     
@@ -172,6 +173,11 @@ public class ProcessConsoleController implements Serializable, FormController{
 
     public Collection<NodeInstanceDesc> getProcessHistory() {
         return processHistory;
+    }
+
+    @Override
+    public List<RafObject> getRafObjects() {
+        return rafObjectItems;
     }
 
     
