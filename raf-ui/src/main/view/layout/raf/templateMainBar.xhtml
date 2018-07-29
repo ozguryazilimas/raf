@@ -118,9 +118,7 @@
                                     <li >
                                         <p:commandLink action="#{recordController.startRecord(rt)}" process="@this">
                                             <i class="fa fa-random" /> #{rt.title}
-                                            <ui:remove>
-                                                <p:ajax event="dialogReturn" update="raf-view" />
-                                            </ui:remove>
+                                            <p:ajax event="dialogReturn" listener="#{recordController.onRecordStarted}" />
                                         </p:commandLink>
                                     </li>
                                 </p:repeat>

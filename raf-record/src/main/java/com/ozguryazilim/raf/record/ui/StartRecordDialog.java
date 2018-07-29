@@ -27,6 +27,9 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.jbpm.services.api.ProcessService;
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.ProcessInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.primefaces.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +55,14 @@ public class StartRecordDialog implements Serializable, FormController, Document
 
     @Inject
     private ProcessLookupService lookupService;
+    
+    @Inject
+    private RuntimeDataService runtimeDataService;
 
     @Inject
     private RafContext context;
+    
+    
 
     private RafRecordType recordType;
     private Form form;
@@ -106,10 +114,21 @@ public class StartRecordDialog implements Serializable, FormController, Document
         String processId = (String) data.get("processId");
         long processInstanceId = processService.startProcess(lookupService.getDeploymentId(processId), processId, data);
 
+        ProcessInstanceDesc processInstance = runtimeDataService.getProcessInstanceById(processInstanceId);
+        
+        Long taskId = null;
+        for( UserTaskInstanceDesc ut : processInstance.getActiveTasks() ){
+            if( identity.getLoginName().equals(ut.getActualOwner()) ){
+                //Bu task bizim kullanıcımıza ait hadi oraya zıplayalım.
+                taskId = ut.getTaskId();
+            }
+        }
+        
         //FIXME: Burada Açılan task eğer kullanıcının kendisine ait ise oraya redirect lazım.
         FacesMessages.info("Süreç başarı ile başlatıldı"); //FIXME: i18n
-
-        RequestContext.getCurrentInstance().closeDialog(null);
+        
+        //Geriye sonuç olarak taskId döndürüyoruz. RecordController#onRecordStarted methodunda redirect gerçekleşiyor.
+        RequestContext.getCurrentInstance().closeDialog(taskId);
     }
 
     public void cancelDialog() {

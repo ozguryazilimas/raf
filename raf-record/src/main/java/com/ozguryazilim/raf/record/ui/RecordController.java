@@ -5,13 +5,17 @@
  */
 package com.ozguryazilim.raf.record.ui;
 
+import com.ozguryazilim.raf.jbpm.config.BpmPages;
 import com.ozguryazilim.raf.record.RecordTypeManager;
 import com.ozguryazilim.raf.record.model.RafRecordType;
 import java.io.Serializable;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,12 @@ public class RecordController implements Serializable{
     
     @Inject
     private StartRecordDialog startRecordDialog;
+
+    @Inject
+    private NavigationParameterContext navigationParameterContext;
+    
+    @Inject
+    private ViewNavigationHandler vnh;
     
     /**
      * Geriye Kullanılabilir kayıt tipleirni döndürür.
@@ -47,6 +57,20 @@ public class RecordController implements Serializable{
     public void startRecord( RafRecordType recordType){
         LOG.debug("New Record will be started for : {}", recordType);
         startRecordDialog.openDialog(recordType);
+    }
+    
+    /**
+     * Start dialoğu kapandığında çağrılır.
+     * 
+     * Event içerisinde eğer TaskId varsa fodğrudan TaskConsole'a yönlendirilir.
+     * @param event 
+     */
+    public void onRecordStarted(SelectEvent event){
+        Long taskId = (Long) event.getObject();
+        if( taskId != null ){
+            navigationParameterContext.addPageParameter("tid", taskId);
+            vnh.navigateTo(BpmPages.TaskConsole.class);
+        }
     }
     
 }
