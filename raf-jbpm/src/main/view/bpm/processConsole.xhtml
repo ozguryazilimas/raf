@@ -147,50 +147,86 @@
                                                     </ui:include>
                                                 </div>
 
-                                                <div class="row">
-                                                    <div class="col-xs-12">
-                                                        <table class="table">
-                                                            <th>Görev</th>
-                                                            <th>Açıklama</th>
-                                                            <th>Görevli</th>
-                                                            <th>Atama Zamanı</th>
-                                                            <th>Hedef Zaman</th>
-                                                            <th>Durum</th>
-                                                            <p:repeat value="#{processConsoleController.selectedProcessInstance.activeTasks}" var="at" >
-                                                                <tr>
-                                                                    <td>#{at.name}</td>
-                                                                    <td>#{at.description}</td>
-                                                                    <td>#{at.actualOwner}</td>
-                                                                    <td>#{at.activationTime}</td>
-                                                                    <td>#{at.dueDate}</td>
-                                                                    <td>#{at.status}</td>
-                                                                </tr>
-                                                            </p:repeat>
-                                                        </table>
+                                                <ui:fragment rendered="#{not empty processConsoleController.selectedProcessInstance.activeTasks}">
+                                                    <div class="row">
+                                                        <div class="col-xs-12">
+                                                            <table class="table">
+                                                                <th>Görev</th>
+                                                                <th>Açıklama</th>
+                                                                <th>Görevli</th>
+                                                                <th>Atama Zamanı</th>
+                                                                <th>Hedef Zaman</th>
+                                                                <th>Durum</th>
+                                                                <p:repeat value="#{processConsoleController.selectedProcessInstance.activeTasks}" var="at" >
+                                                                    <tr>
+                                                                        <td>
+                                                                            <h:link  outcome="/bpm/taskConsole.xhtml" >
+                                                                                #{at.name}
+                                                                                <i class="fa  fa-external-link-square"></i>
+                                                                                <f:param name="tid" value="#{at.taskId}" />
+                                                                            </h:link>
+                                                                        </td>
+                                                                        <td>#{at.description}</td>
+                                                                        <td>#{userLookup.getUserName(at.actualOwner)}</td>
+                                                                        <td><t:cellOutputDate value="#{at.activationTime}"/></td>
+                                                                        <td><t:cellOutputDate value="#{at.dueDate}" /></td>
+                                                                        <td>#{at.status}</td>
+                                                                    </tr>
+                                                                </p:repeat>
+                                                            </table>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                </ui:fragment>
                                             </div>
                                             <div id="history" class="tab-pane">
                                                 <div class="row">
                                                     <div class="col-xs-12">
                                                         <table class="table">
-                                                            <th>Görev</th>
-                                                            <th>Açıklama</th>
-                                                            <th>Görevli</th>
-                                                            <th>Atama Zamanı</th>
-                                                            <th>Hedef Zaman</th>
-                                                            <th>Durum</th>
-                                                            <p:repeat value="#{processConsoleController.processHistory}" var="ni" >
+                                                            <tr>
+                                                                <th colspan="6">Kullanıcı Görevleri</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th>Görev</th>
+                                                                <th>Kullanıcı</th>
+                                                                <th>Başlangıç</th>
+                                                                <th>Bitiş</th>
+                                                                <th>Süre</th>
+                                                            </tr>
+                                                            <p:repeat value="#{processConsoleController.bamSummary}" var="bam" >
                                                                 <tr>
-                                                                    <td>#{ni.name}</td>
-                                                                    <td>#{ni.nodeId}</td>
-                                                                    <td>#{ni.nodeType}</td>
-                                                                    <td>#{ni.workItemId}</td>
-                                                                    <td>#{ni.id}</td>
-                                                                    <td>#{ni.processInstanceId}</td>
+                                                                    <td>
+                                                                        <i class="fa #{bam.status eq 'Completed' ? 'fa-check-square' : ''}" />
+                                                                    </td>
+                                                                    <td>#{bam.name}</td>
+                                                                    <td>#{userLookup.getUserName(bam.userId)}</td>
+                                                                    <td><t:cellOutputDateTime value="#{bam.startDate}" /></td>
+                                                                    <td><t:cellOutputDateTime value="#{bam.endDate}" /></td>
+                                                                    <td>#{bam.duration}</td>
                                                                 </tr>
                                                             </p:repeat>
                                                         </table>
+
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th colspan="3">Tüm Adımlar</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th>Adım</th>
+                                                                <th>Başlangıç</th>
+                                                            </tr>
+                                                            <p:repeat value="#{processConsoleController.processHistory}" var="ni" >
+                                                                <tr>
+                                                                    <td>
+                                                                        <i class="fa #{ ni.nodeType eq 'HumanTaskNode' ? 'fa-user' : ni.nodeType eq 'StartNode' ? 'fa-flash' : ni.nodeType eq 'EndNode' ?  'fa-power-off' : 'fa-cogs' }" />
+                                                                    </td>
+                                                                    <td>#{ni.name}</td>
+                                                                    <td><t:cellOutputDateTime value="#{ni.dataTimeStamp}" /></td>
+                                                                </tr>
+                                                            </p:repeat>
+                                                        </table>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -201,7 +237,8 @@
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
                                         <p:commandButton id="aabort" value="#{messages['process.button.Abort']}" 
                                                          icon="fa fa-trash" action="#{processConsoleController.abortProcess()}" styleClass="btn btn-danger"
-                                                         update="processConsole"/>
+                                                         update="processConsole"
+                                                         rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"/>
                                         <ui:remove>
                                             <p:repeat value="#{taskController.taskActions}" var="act">
                                                 <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"

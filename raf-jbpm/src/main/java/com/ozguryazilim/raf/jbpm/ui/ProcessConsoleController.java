@@ -6,11 +6,16 @@
 package com.ozguryazilim.raf.jbpm.ui;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.forms.FormManager;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import com.ozguryazilim.raf.forms.ui.FormController;
+import com.ozguryazilim.raf.jbpm.summaries.GetBAMTaskSummariesByProcessIntanceCommand;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
@@ -27,7 +32,11 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.services.task.audit.commands.GetBAMTaskSummariesCommand;
+import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
+import org.jbpm.services.task.audit.service.BAMTaskSummaryQueryBuilderImpl;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskService;
 import org.kie.internal.query.QueryFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +68,9 @@ public class ProcessConsoleController implements Serializable, FormController, D
     @Inject
     private RafService rafService;
     
+    @Inject
+    private transient TaskService taskService;
+    
     //URL ile geldiğinde setlenir ve ardından init kısmında kullanılır.
     private String processIntanceId = "";
     
@@ -67,7 +79,9 @@ public class ProcessConsoleController implements Serializable, FormController, D
     private ProcessInstanceDesc selectedProcessInstance;
     private Map<String, Object> selectedProcessData = new HashMap<>();
     private List<RafObject> rafObjectItems = new ArrayList<>();
+    private RafRecord recordObject;
     private Collection<NodeInstanceDesc> processHistory;
+    List<BAMTaskSummaryImpl> bamSummary;
     private Form form;
     
     
@@ -95,9 +109,13 @@ public class ProcessConsoleController implements Serializable, FormController, D
         //Eğer aktif ise aktif değerleri alalım
         this.selectedProcessData = null;
         if( selectedProcessInstance.getState() == ProcessInstance.STATE_ACTIVE){
-            this.selectedProcessData = processService.getProcessInstanceVariables(processInstanceId);
+            //Geriye dönen UnmodifialbleMap olduğu için yeni bir taneye aktarıyoruz.
+            this.selectedProcessData = new HashMap<>();
+            this.selectedProcessData.putAll( processService.getProcessInstanceVariables(processInstanceId));
             LOG.debug("Process Vars : {} {}", selectedProcessInstance, selectedProcessData);
         }
+        
+        boolean fromHistory = false;
         
         //Aktif değil ise tarihçeden alalım
         if( this.selectedProcessData == null ){
@@ -107,15 +125,18 @@ public class ProcessConsoleController implements Serializable, FormController, D
             for( VariableDesc vd : vs ){
                 this.selectedProcessData.put(vd.getVariableId(), vd.getNewValue());
             }
+            fromHistory = true;
         }
+        
+        Map<String,Object> metadata = new HashMap<>();
         
         
         rafObjectItems.clear();
 
         //FIXME: Burada bir yetki problemi var. Task'ı gören kişi belgeleri göremiyor olabilir! Kontrol edilmeli.
-        //Tarihçeden geldiğinde burada List değil String var :(
+        //Tarihçeden geldiğinde burada List değil String var :( Parse etmek gerekir.
         /*
-        List<String> rafOIDs = (List<String>) selectedProcessData.get("document");
+        List<String> rafOIDs = (List<String>) selectedProcessData.get("documents");
         if (rafOIDs != null) {
             for (String oid : rafOIDs) {
                 try {
@@ -124,14 +145,55 @@ public class ProcessConsoleController implements Serializable, FormController, D
                     LOG.error("Raf Exception", ex);
                 }
             }
+        }*/
+        
+        //Eğer task içinden RafRecord çıkıyor ise onu ekleyelim.
+        String recordObjectId = (String) selectedProcessData.get("recordObject");
+        if (!Strings.isNullOrEmpty(recordObjectId)) {
+            try {
+                recordObject = (RafRecord) rafService.getRafObject(recordObjectId);
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+            if (recordObject != null) {
+                rafObjectItems.add(recordObject);
+                
+                //Tarihçeden okundu ise değerler string olarak geldi. Map değil ve veri eksiği var. O yüzden record üzerinden alalım bilgileri.
+                if( fromHistory ){
+                    
+                    for( RafMetadata m : recordObject.getMetadatas()){
+                        metadata.putAll(m.getAttributes());
+                    }
+                    
+                    metadata.put("raf:recordNo", recordObject.getRecordNo());
+                    metadata.put("raf:location", recordObject.getLocation());
+                    metadata.put("raf:status", recordObject.getStatus());
+                    
+                    selectedProcessData.put("metadata", metadata);
+                } else {
+                    metadata = (Map<String, Object>) selectedProcessData.get("metadata");
+                }
+            }
         }
-        */
+
+        //FIXME: Record yapısı değil normal süreç çalışır ise bu yaptığımız işler patlar. Buna daha doğru bir çözüm bulmak gerek!
+        //Metadata alanlarını flat hale getiriyoruz.
+        selectedProcessData.putAll(metadata);
         
-        //UI'da göstermek için başlatılırken kullanılan formu bulalım.
-        form = formManager.getForm(selectedProcessInstance.getProcessId()+"Starter");
         
+        //FIXME: RecordType ve DocumentType bilgilerini düzeltelim. Ama nasıl? Bu bilgiler raf-record tarafında!
+        
+        //UI'da göstermek için tüm process'e özel olarak hazırlanmış bir form alalım
+        form = formManager.getForm(selectedProcessInstance.getProcessId());
+        for (Field f : form.getFields()) {
+            f.setData(selectedProcessData);
+        }
         
         processHistory = runtimeDataService.getProcessInstanceFullHistoryByType(processInstanceId,  RuntimeDataService.EntryType.START, new QueryFilter(0, 100));
+        
+        bamSummary = taskService.execute(new GetBAMTaskSummariesByProcessIntanceCommand(processInstanceId));
+        
+        LOG.debug("BAM list : {}", bamSummary);
     }
     
     public String getProcessIntanceId() {
@@ -174,6 +236,12 @@ public class ProcessConsoleController implements Serializable, FormController, D
     public Collection<NodeInstanceDesc> getProcessHistory() {
         return processHistory;
     }
+
+    public List<BAMTaskSummaryImpl> getBamSummary() {
+        return bamSummary;
+    }
+    
+    
 
     @Override
     public List<RafObject> getRafObjects() {
