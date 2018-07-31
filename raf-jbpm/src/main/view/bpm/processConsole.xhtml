@@ -130,6 +130,9 @@
                                             <li >
                                                 <a href="#history" data-toggle="tab" aria-expanded="false">Tarihçe</a>
                                             </li>
+                                            <li >
+                                                <a href="#diagram" data-toggle="tab" aria-expanded="false" onclick="loadDiagram();">Diagram</a>
+                                            </li>
                                         </ul>
                                         <div class="tab-content">
                                             <div id="summary" class="tab-pane active">
@@ -229,6 +232,23 @@
 
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div id="diagram" class="tab-pane">
+                                                <div class="row">
+                                                    <div class="col-xs-12">
+
+                                                        <ui:include src="/bpmn/bpmnPreviewWidget.xhtml">
+                                                            <ui:param name="bpmnPath" value="bpmnDiagram/#{processConsoleController.deploymentId}/#{processConsoleController.processId}"/>
+                                                        </ui:include>
+
+                                                        <ui:remove>
+                                                            <iframe src="#{request.contextPath}/bpmn/bpmnPreviewWidget.jsf?bpmn=/bpmnDiagram/#{processConsoleController.deploymentId}/#{processConsoleController.processId}" class="embed-responsive-item"/>
+                                                            ce39f5b2-0771-40b8-9ace-400ce6a8ec12
+                                                            <iframe src="#{request.contextPath}/bpmn/bpmnPreviewWidget.jsf?bpmn=/resource/1f30b483-7006-4b5c-a6c7-292b7d0fce4c" class="embed-responsive-item"/>
+                                                        </ui:remove>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>

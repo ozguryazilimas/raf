@@ -19,7 +19,11 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +31,15 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.services.api.DefinitionService;
+import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.DeployedAsset;
+import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.NodeInstanceDesc;
+import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
 import org.jbpm.services.task.audit.commands.GetBAMTaskSummariesCommand;
@@ -81,11 +91,13 @@ public class ProcessConsoleController implements Serializable, FormController, D
     private List<RafObject> rafObjectItems = new ArrayList<>();
     private RafRecord recordObject;
     private Collection<NodeInstanceDesc> processHistory;
-    List<BAMTaskSummaryImpl> bamSummary;
+    private List<BAMTaskSummaryImpl> bamSummary;
     private Form form;
+    //Bu değerler URLEncoded şeklinde tutuluyor!
+    private String deploymentId;
+    private String processId;
     
-    
-    public void init(){
+    public void init() throws UnsupportedEncodingException{
         if( !Strings.isNullOrEmpty(processIntanceId) ){
             //FIXME: burada exception mümkün. Kontrol etmeli
             selectProcess(Long.parseLong(processIntanceId));
@@ -102,9 +114,13 @@ public class ProcessConsoleController implements Serializable, FormController, D
     }
 
     
-    public void selectProcess( Long processInstanceId ){
+    public void selectProcess( Long processInstanceId ) throws UnsupportedEncodingException{
         this.selectedProcessIntanceId = processInstanceId;
         this.selectedProcessInstance = runtimeDataService.getProcessInstanceById(processInstanceId);
+        
+        
+        this.deploymentId = URLEncoder.encode(selectedProcessInstance.getDeploymentId(), "UTF-8");
+        this.processId = URLEncoder.encode(selectedProcessInstance.getProcessId(), "UTF-8");
 
         //Eğer aktif ise aktif değerleri alalım
         this.selectedProcessData = null;
@@ -248,5 +264,15 @@ public class ProcessConsoleController implements Serializable, FormController, D
         return rafObjectItems;
     }
 
+
+    public String getDeploymentId() {
+        return deploymentId;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+    
+    
     
 }
