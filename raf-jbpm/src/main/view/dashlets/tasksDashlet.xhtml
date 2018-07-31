@@ -1,0 +1,40 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                template="/layout/dashletBase.xhtml">
+
+    <ui:param name="name" value="tasksDashlet" />
+    <ui:param name="bean" value="#{tasksDashlet}" />
+
+    <ui:define name="edit">
+        <ui:remove>
+            <t:inputText label="general.label.FeedCount" value="#{appNewsDashlet.feedCount}" columnClass="col-xs-12"/>
+        </ui:remove>
+    </ui:define>
+
+    <ui:define name="view">
+        <p:outputPanel deferred="true">
+            <ul class="products-list product-list-in-box">
+                <p:repeat value="#{tasksDashlet.tasks}" var="task" >
+                    <li class="item">
+                        <h:link  outcome="/bpm/taskConsole.xhtml" >
+                            <i class="fa fa-task" />
+                            ##{task.processInstanceId} - #{task.subject}
+                            <f:param name="tid" value="#{task.id}" />
+                        </h:link>
+                        
+                        <span class="product-description">
+                            #{task.description}
+                        </span>
+                        <span class="text-sm text-muted">
+                            #{taskController.getProcessName( task.deploymentId, task.processId)} - #{task.name}
+                        </span>
+                    </li>
+                </p:repeat>
+            </ul>
+        </p:outputPanel>
+    </ui:define>
+</ui:composition>
