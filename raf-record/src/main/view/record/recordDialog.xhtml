@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:param name="title" value="#{startRecordDialog.recordTitle}" />
+
+    <ui:define name="form" >
+        <h:form id="pf">
+            <div class="row">
+                <t:inputText label="process.label.Subject" value="#{startRecordDialog.data['subject']}" placeholder="Konu" required="true"/>
+                <t:inputTextarea label="process.label.Description" value="#{startRecordDialog.data['description']}" placeholder="Açıklama" required="true"/>
+                <t:inputCombobox label="process.label.DocumentType" value="#{startRecordDialog.data['documentType']}" >
+                    <f:selectItems value="#{startRecordDialog.recordType.documentTypes}" var="dt" itemLabel="#{dt.title}" itemValue="#{dt.name}" />
+                </t:inputCombobox>
+                
+                <t:inputCombobox label="process.label.Process" value="#{startRecordDialog.data['processId']}" >
+                    <f:selectItems value="#{startRecordDialog.recordType.processes}" var="ps" itemLabel="#{ps.title}" itemValue="#{ps.name}" />
+                </t:inputCombobox>
+            </div>
+
+            <ui:include src="/forms/formEdit.xhtml" >
+                <ui:param name="frm" value="#{startRecordDialog}" />
+            </ui:include>
+
+            
+            <div class="row">
+                <ui:include src="/fragments/documentsWidget.xhtml">
+                    <ui:param name="controller" value="#{startRecordDialog}" />
+                </ui:include>
+            </div>
+            
+
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" >
+                    <p:commandButton id="save" value="#{messages['general.button.Start']}" icon="fa fa-check" action="#{startRecordDialog.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{startRecordDialog.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

@@ -81,7 +81,41 @@
                             </li>
                         </ui:fragment>
 
+                        
+                        <ui:remove>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-archive"></i>
+                                <span>#{messages['action.startRecord']}</span>
+                                <i class="caret"></i>
+                            </a>
 
+                            <ul class="dropdown-menu" role="menu">
+
+                                <p:repeat value="#{recordController.recordTypes}" var="rt" >
+                                    <li >
+                                        <p:commandLink action="#{recordController.startRecord(rt)}" process="@this">
+                                            <i class="fa fa-random" /> #{rt.title}
+                                            <p:ajax event="dialogReturn" listener="#{recordController.onRecordStarted}" />
+                                        </p:commandLink>
+                                    </li>
+                                </p:repeat>
+
+                                <ui:remove>
+                                    <li role="separator" class="divider"></li>
+                                    <li >
+                                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
+                                            <i class="fa fa-plus-circle" />
+                                            #{messages['raf.label.CreateRaf']}
+                                            <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
+                                        </p:commandLink>
+                                    </li>
+                                </ui:remove>
+                            </ul>
+
+                        </li>
+                        </ui:remove>
+                        
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-archive"></i>
@@ -113,6 +147,41 @@
 
                         </li>
 
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-server"></i>
+                                <span>#{messages['raf.label.Records']}</span>
+                                <i class="caret"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+                                <li >
+                                    <h:link  outcome="/bpm/taskConsole.xhtml" >
+                                        <i class="fa fa-tasks"></i>
+                                        #{messages['raf.label.Tasks']}
+                                    </h:link>
+                                </li>
+
+                                <li >
+                                    <h:link  outcome="/bpm/processConsole.xhtml" >
+                                        <i class="fa fa-random"></i>
+                                        #{messages['raf.label.Processes']}
+                                    </h:link>
+                                </li>
+                                
+                                <li role="separator" class="divider"></li>
+                                
+                                <p:repeat value="#{recordController.recordTypes}" var="rt" >
+                                    <li >
+                                        <p:commandLink action="#{recordController.startRecord(rt)}" process="@this">
+                                            <i class="fa fa-folder-open-o" /> #{rt.title}
+                                            <p:ajax event="dialogReturn" listener="#{recordController.onRecordStarted}" />
+                                        </p:commandLink>
+                                    </li>
+                                </p:repeat>
+                                
+                            </ul>
+                        </li>
 
 
                     </ul>

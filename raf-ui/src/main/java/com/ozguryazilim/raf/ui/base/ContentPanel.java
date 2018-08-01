@@ -12,7 +12,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.enterprise.inject.Stereotype;
 import javax.inject.Named;
-import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
@@ -28,7 +27,6 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 public @interface ContentPanel {
     String icon() default "";
     String title() default "";
-    Class<? extends ViewConfig> view();
     String permission() default "";
     String actionIcon() default "";
     String actionTitle() default "";

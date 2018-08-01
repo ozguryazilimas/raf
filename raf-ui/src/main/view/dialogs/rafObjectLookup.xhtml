@@ -1,0 +1,142 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:param name="title" value="Belge Seçim" />
+
+    <ui:define name="form" >
+
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+        <h:outputScript library="raf" name="js/jquery.mousewheel.js" />
+        <h:outputStylesheet library="icons" name="icons.css" />
+
+        <style>
+            .content-view-port{
+                border: 1px silver solid;
+            }
+        </style>
+
+        <div class="row" style="padding-bottom: 4px;">
+            <ui:remove>
+                <div class="col-xs-6">
+                    <h:form id="rafF">
+                        <p:selectOneMenu id="rafs" value="#{rafObjectLookup.selectedRaf}" required="true" >
+                            <f:selectItems value="#{rafObjectLookup.rafs}" var="raf" itemValue="#{raf}" itemLabel="#{messages[raf.name]}" />
+                            <p:ajax event="change" process="@form" update="raf-view" />
+                        </p:selectOneMenu>
+                    </h:form>
+                </div>
+            </ui:remove>
+
+
+
+
+            <div class="col-xs-10">
+                <h:panelGroup id="rafss" layout="block" styleClass="dropdown btn btn-default">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-archive"></i>
+                        <span>#{messages[rafObjectLookup.selectedRaf.name]}</span>
+                        <i class="caret"></i>
+                    </a>
+
+                    <ul class="dropdown-menu" role="menu">
+                        <p:repeat value="#{rafObjectLookup.rafs}" var="raf" >
+                            <li>
+                                <p:commandLink action="#{rafObjectLookup.setSelectedRaf(raf)}" process="@this" update="raf-view rafss">
+                                    <i class="fa fa-archive" /> #{messages[raf.name]}
+                                </p:commandLink>
+                            </li>
+                        </p:repeat>
+                    </ul>
+                </h:panelGroup>
+            </div>
+
+            <div class="col-xs-2">
+
+                <p:commandLink action="#{rafObjectLookup.goUpFolder()}" process="@this" update="raf-view" styleClass="btn btn-default pull-right" style="padding-top: 4px; padding-bottom: 4px;">
+                    <i class="fa fa-level-up" />
+                </p:commandLink>
+            </div>
+        </div>
+        <div class="row">
+
+
+            <h:panelGroup id="raf-view" layout="block" style="height: 340px;">
+                <div class="col-xs-12">
+                    <h:panelGroup id="raf-view-content" layout="block">
+                        <div class="raf-box-content" >
+                            <ui:include src="#{rafObjectLookup.viewId}" >
+                                <ui:param name="viewBean" value="#{rafObjectLookup}" />
+                                <ui:param name="selectionBean" value="#{rafObjectLookup}" />
+                                <ui:param name="controllerBean" value="#{rafObjectLookup}" />
+                            </ui:include>
+                        </div>
+                        <script type="text/javascript">
+                            function setSizes() {
+                                var clientHeight = 360; //jQuery(window).height() - 150;
+                                jQuery('.rav-view').css('height', clientHeight);
+
+                                jQuery('.raf-box-content').css('max-height', clientHeight - 29);
+                                jQuery('.raf-container').css('max-height', clientHeight - 60);
+                                //jQuery('.raf-container-item-group').css('max-height', clientHeight - 60);
+                                jQuery('.raf-container-item-group').css('min-height', clientHeight - 78);
+                                jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 80);
+                                jQuery('.content-view-port').css('max-height', clientHeight - 60);
+                                jQuery('.content-view-port').css('min-height', clientHeight - 60);
+
+
+                                jQuery('.content-view-port').on('mousewheel', function (event) {
+                                    this.scrollLeft -= (event.deltaY * 30);
+                                    event.preventDefault();
+                                });
+
+
+                                jQuery('.raf-container-item-group-item').each(function () {
+                                    var minw = 220;
+                                    var lastChild = jQuery(this).children().last();
+                                    jQuery(this).children().each(function () {
+                                        var o = jQuery(this).outerWidth(true);
+                                        if (o > minw) {
+                                            minw = o;
+                                        }
+                                    });
+                                    var newWidth = lastChild.position().left - jQuery(this).position().left + minw;
+                                    jQuery(this).width(newWidth);
+                                });
+
+                            }
+
+                            setSizes();
+
+                            var resizeTimer;
+                            jQuery(window).resize(function () {
+                                clearTimeout(resizeTimer);
+                                resizeTimer = setTimeout(setSizes, 100);
+                            });
+
+                        </script>
+
+                    </h:panelGroup>
+                </div>
+                <t:inputText label="Seçilen Dosya" value="#{rafObjectLookup.selected.title}" columnsClass="col-xs-12" readonly="true"/>
+            </h:panelGroup>
+
+
+        </div>
+        <h:form id="ff">
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                    <p:commandButton id="close" value="#{messages['general.button.Ok']}" icon="ui-icon-check" action="#{rafObjectLookup.closeDialog()}" process="@this" styleClass="btn btn-primary"/>
+                    <p:commandButton id="cancel" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafObjectLookup.cancelDialog()}" process="@this" styleClass="btn "/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

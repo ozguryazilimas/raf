@@ -53,17 +53,19 @@ public class PasteAction extends AbstractAction{
         if( getContext().getClipboardAction() instanceof CopyAction ){
             try {
                 rafService.copyObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n
-                LOG.error("Cannat copy", ex);
+                LOG.error("Cannot copy", ex);
                 FacesMessages.error("Cannot copy", ex.getLocalizedMessage());
             }
         } else if( getContext().getClipboardAction() instanceof CutAction ){
             try {
                 rafService.moveObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n
-                LOG.error("Cannat move", ex);
+                LOG.error("Cannot move", ex);
                 FacesMessages.error("Cannot move", ex.getLocalizedMessage());
             }
         }

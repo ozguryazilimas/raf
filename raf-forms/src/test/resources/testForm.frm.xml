@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forms>
+    <form id="invoiceMetadata" formKey="invoice:metadata" version="1.0" >
+        <field id="invoice.account" uitype="Suggestion" datatype="String" dataKey="invoice:account" readonly="false" required="true" label="Cari Hesap" placeholder="Cari Hesap Bilgisi" defautlValue="" />
+        <field id="invoice.serial" uitype="Text" datatype="String" dataKey="invoice:serial" readonly="false" required="true" label="Fatura Seri Sıra" placeholder="Fatura Seri Sıra Numarası" defautlValue="" />
+        <field id="invoice.date" uitype="Date" datatype="Date" dataKey="invoice:date" readonly="false" required="true" label="Fatura Tarihi" placeholder="" defautlValue="" />
+        <field id="invoice.taxOffice" uitype="Suggestion" datatype="String" dataKey="invoice:taxOffice" label="Vergi Dairesi" />
+        <field id="invoice.taxNumber" uitype="Text" datatype="String" dataKey="invoice:taxNumber" label="Vergi No" />
+    </form>
+</forms>

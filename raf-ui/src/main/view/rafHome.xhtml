@@ -63,6 +63,15 @@
                         </div>
                     </div>
                 </ui:remove>
+                <ui:remove>
+                    <div>
+                        <t:inputRafObjectLookupDialog value="" label="user.label.DomainGroup"  
+                                                      lookupBean="#{rafObjectLookup}" lookupListener="userHome.entity.domainGroup" 
+                                                      leafSelect="true" required="true" disabled="false"  caption="caption"
+                                                      lookupProfile="selectionType:Folder"
+                                                      columnClass="col-md-6 col-xs-12"/>
+                    </div>
+                </ui:remove>
             </div>
 
             <div class="col-sm-8 col-xs-12">

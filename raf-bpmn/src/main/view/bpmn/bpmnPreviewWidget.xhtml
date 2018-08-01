@@ -1,0 +1,81 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                >
+
+
+    <h:outputScript library="bpmn-assets" name="bpmn-navigated-viewer.production.min.js" />
+    <h:outputStylesheet library="bpmn-assets" name="diagram-js.css" />
+    <h:outputStylesheet library="bpmn-assets" name="bpmn-embedded.css" />
+
+    <style>
+        .bjs-powered-by {
+            display: none;
+        }
+        svg{
+            height: 100%;
+        }
+    </style>
+    <div style="padding: 4px; border: 1px silver solid;">
+        <div class="embed-responsive embed-responsive-4by3" style="">
+            <div id="canvas" class="embed-responsive-item"></div>
+        </div>
+    </div>
+
+    <script>
+
+        var diagramUrl = "#{request.contextPath}/#{bpmnPath}";
+        
+            // viewer instance
+            var bpmnViewer = new BpmnJS({
+                container: jQuery('#canvas'),
+                height: 1800,
+                keyboard: {
+                    bindTo: window
+                }
+            });
+            /**
+             * Open diagram in our viewer instance.
+             *
+             * @param {String} bpmnXML diagram to display
+             */
+            function openDiagram(bpmnXML) {
+                // import diagram
+                bpmnViewer.importXML(bpmnXML, function (err) {
+                    if (err) {
+                        return console.error('could not import BPMN 2.0 diagram', err);
+                    }
+                    // access viewer components
+                    var canvas = bpmnViewer.get('canvas');
+                    var overlays = bpmnViewer.get('overlays');
+                    canvas.viewbox({x: 1, y: 1, width: 500, height: 500});
+                    // zoom to fit full viewport
+                    canvas.zoom('fit-viewport');
+                    // attach an overlay to a node
+                    /*
+                     overlays.add('SCAN_OK', 'note', {
+                     position: {
+                     bottom: 0,
+                     right: 0
+                     },
+                     html: '<div class="diagram-note">Mixed up the labels?</div>'
+                     });
+                     */
+                    // add marker
+                    //canvas.addMarker('SCAN_OK', 'needs-discussion');
+                });
+            }
+
+            function loadDiagram(){
+                // load external diagram file via AJAX and open it
+                jQuery.get(diagramUrl, openDiagram, 'text');
+            }
+    </script>
+
+
+</ui:composition>
+

@@ -8,10 +8,8 @@ package com.ozguryazilim.raf.invoice;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.invoice.config.InvoicePages;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
-import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.util.Date;
 import javax.inject.Inject;
@@ -22,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@MetadataPanel(type = "invoice:metadata", view = InvoicePages.InvoiceMetadataPanel.class, editor = InvoicePages.InvoiceMetadataEditor.class)
+//@MetadataPanel(type = "invoice:metadata", view = InvoicePages.InvoiceMetadataPanel.class, editor = InvoicePages.InvoiceMetadataEditor.class)
 public class InvoiceMetadataPanel extends AbstractMetadataPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(InvoiceMetadataPanel.class);

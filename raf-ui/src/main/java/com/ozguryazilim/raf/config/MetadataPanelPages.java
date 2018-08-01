@@ -22,6 +22,9 @@ public interface MetadataPanelPages extends Pages{
     class DefaultMetadataPanel implements MetadataPanelPages {}
     
     @SecuredPage
+    class DynaFormMetadataPanel implements MetadataPanelPages {}
+    
+    @SecuredPage
     class BasicMetadataPanel implements MetadataPanelPages {}
     
     @SecuredPage

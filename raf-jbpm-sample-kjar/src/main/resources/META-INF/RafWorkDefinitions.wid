@@ -1,0 +1,38 @@
+[
+	[
+		"name" : "Raf Service Task",
+		"parameters" : [
+			"Message" : new StringDataType()
+		],
+		"displayName" : "Raf Service Task",
+		"icon" : "raf.png"
+	],
+	[
+		"name" : "Raf Notification Task",
+		"parameters" : [
+			"To" : new StringDataType(),
+			"Subject" : new StringDataType(),
+			"Body" : new StringDataType()
+		],
+		"displayName" : "Raf Notification Task",
+		"icon" : "raf.png"
+	],
+        [
+		"name" : "Raf Import Process Documents",
+		"parameters" : [
+			"Documents" : new ObjectDataType()
+		],
+		"displayName" : "Raf Import Process Documents",
+		"icon" : "raf.png"
+	],
+        [
+		"name" : "Raf Export Process Documents",
+		"parameters" : [
+                    "Documents" : new ObjectDataType(),
+                    "RootFolder" : new StringDataType(),
+                    "NewFolder"  : new StringDataType()
+		],
+		"displayName" : "Raf Export Process Documents",
+		"icon" : "raf.png"
+	]
+]

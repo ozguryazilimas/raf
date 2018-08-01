@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <ui:remove>
+        <!-- Bu fragman verilen listeyi tablo olarak gösterir. Kullanım amacı dialog ve benzeri yerlerde seçili belgeleri göstermektir. -->
+    </ui:remove>
+
+    <t:accordion id="xdocs" icon="fa fa-files-o" label="general.label.Documents">
+        <f:facet name="toolbar">
+            <p:commandLink action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', '' )}" 
+                                     partialSubmit="true" process="@this" rendered="#{controller.getCanAdd()}">
+                <i class="fa fa-plus-circle" />  
+                <p:ajax event="dialogReturn"  listener="#{controller.onAddDocumentSelect}" update="xdocs" partialSubmit="true" process="@this" />   
+                
+            </p:commandLink>
+            
+            <p:commandLink action="#{controller.upload()}" process="@this" rendered="#{controller.getCanUpload()}">
+                <i class="fa fa-upload" />
+                <p:ajax event="dialogReturn" listener="#{controller.onUploadComplete()}" update="xdocs" partialSubmit="true" process="@this" />   
+            </p:commandLink>
+        </f:facet>
+        <table class="table">
+            <p:repeat value="#{controller.rafObjects}" var="ro" >
+                <tr>
+                    <td style="width: 48px;">
+                        <svg class="icon" style="height: 24px; width: 24px;">
+                            <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(ro.mimeType)}" />
+                        </svg>
+                    </td>
+                    <td>
+                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafDocument'}">
+                            <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
+                                #{ro.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
+                            <p:commandLink action="#{rafRecordViewDialog.openDialog(ro)}" process="@this">
+                                #{ro.title}
+                            </p:commandLink>
+
+
+                        </ui:fragment>
+                    </td>
+                    <td>#{ro.info}</td>
+                </tr>
+                <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
+                    <p:repeat value="#{ro.documents}" var="doc" >
+                        <tr>
+                            <td style="width: 48px;">
+                                <svg class="icon" style="height: 24px; width: 24px; margin-left: 24px;">
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(doc.mimeType)}" />
+                                </svg>
+                            </td>
+                            <td>
+                                <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
+                                    #{doc.title}
+                                </p:commandLink>
+                            </td>
+                            <td>#{doc.info}</td>
+                            <td>#{doc.category}</td>
+                            <td>
+                                <h:outputText value="Asıl Belge" rendered="#{doc.name eq ro.mainDocument}" />
+                                <h:outputText value="Ek Belge" rendered="#{doc.name ne ro.mainDocument}" />
+                            </td>
+                        </tr>
+                    </p:repeat>
+                </ui:fragment>
+            </p:repeat>
+        </table>
+    </t:accordion>
+
+</ui:composition>
+

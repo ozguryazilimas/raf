@@ -5,20 +5,16 @@
  */
 package com.ozguryazilim.raf.action;
 
-import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
-import com.ozguryazilim.telve.messages.FacesMessages;
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +35,24 @@ public class FileUploadAction extends AbstractAction{
     private RafService rafService;
     
     @Inject
+    private RafContext rafContext;
+    
+    @Inject
     private Event<RafUploadEvent> rafUploadEvent;
 
+    private String rafCode;
+    private String uploadPath;
+    private boolean actionExec = Boolean.TRUE;
+
+    @Override
+    protected void initActionModel() {
+        super.initActionModel();
+        
+        rafCode = rafContext.getSelectedRaf().getCode();
+        uploadPath = rafContext.getCollection().getPath();
+        actionExec = Boolean.TRUE;
+    }
+    
     @Override
     protected void initDialogOptions(Map<String, Object> options) {
         options.put("contentHeight", 480);
@@ -49,35 +61,43 @@ public class FileUploadAction extends AbstractAction{
 
     @Override
     protected boolean finalizeAction() {
-        //FIXME: doğru eventi fırlatalım.
-        rafUploadEvent.fire(new RafUploadEvent());
-        return super.finalizeAction(); 
-    }
-    
-    
-    public void handleFileUpload(FileUploadEvent event) {
-        LOG.info("Uploaded File : {}", event.getFile().getFileName());
-
-        String fileNamePath = event.getFile().getFileName();
-        String fileName = fileNamePath.substring(fileNamePath.lastIndexOf(File.separatorChar) + 1);
-
-        
-        try {
-
-            String folderName = getContext().getCollection().getPath();
-            String path = folderName + "/" + fileName;
-
-            LOG.info("File Path : {}", path);
-            rafService.uploadDocument(path, event.getFile().getInputstream());
-
-        } catch (IOException e) {
-            LOG.error("IO Error", e);
-        } catch (RafException ex) {
-            LOG.error("File connot upload", ex);
-            //FIXME: i18n
-            FacesMessages.error("File can not uploaded!");
+        if( actionExec ){
+            //Eğer action düğmesinden çağrılmış ise normal UploadEventi. Böylece RafController yakalar.
+            //FIXME: doğru eventi fırlatalım.
+            rafUploadEvent.fire(new RafUploadEvent());
         }
         
-        
+        return super.finalizeAction(); 
+    }
+
+    /**
+     * Normal akış dışında bir yerden Upload çalıştırmak için kullanılır.
+     * 
+     * Bakınız DocumentsWidgetController implementasyonları. TaskController
+     * 
+     * @param rafCode
+     * @param uploadPath 
+     */
+    public void execute( String rafCode, String uploadPath ){
+        this.rafCode = rafCode;
+        this.uploadPath = uploadPath;
+        actionExec = Boolean.FALSE;
+        openDialog();
+    }
+    
+    public String getRafCode() {
+        return rafCode;
+    }
+
+    public void setRafCode(String rafCode) {
+        this.rafCode = rafCode;
+    }
+
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+    public void setUploadPath(String uploadPath) {
+        this.uploadPath = uploadPath;
     }
 }
