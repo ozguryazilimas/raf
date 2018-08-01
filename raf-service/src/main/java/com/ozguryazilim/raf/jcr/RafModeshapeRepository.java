@@ -696,9 +696,7 @@ public class RafModeshapeRepository implements Serializable {
 
             session.save();
 
-            //n.getProperty("jcr:createdBy").setValue(getUserId());
-            //session.save();
-            result = null; //nodeToFile(n);
+            result = nodeToRafDocument(n);
             session.logout();
             LOG.debug("Dosya JCR'e kondu : {}", fullName);
         } catch (RepositoryException ex) {

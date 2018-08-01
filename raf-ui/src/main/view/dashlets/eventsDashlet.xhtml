@@ -2,49 +2,43 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:p="http://primefaces.org/ui"     
+                xmlns:p="http://primefaces.org/ui"   
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 template="/layout/dashletBase.xhtml">
 
     <ui:param name="name" value="eventsDashlet" />
     <ui:param name="bean" value="#{eventsDashlet}" />
 
     <ui:define name="view">
-        <div class="box-body no-padding">
-            <style>
-                .product-info{
-                    margin-left: 36px ! important;
-                }
-            </style>
-            <ul class="products-list product-list-in-box">
-                <li class="item">
-                    <div class="product-img">
-                        <i class="fa fa-folder fa-2x text-muted" />
-                    </div>
-                    <div class="product-info" style="margin-left: 36px;">
-                        <span> Hakan Uygun tarafından <a href="" class="">Deneme</a> klasörü oluşturuldu </span>
-                        <div class="text-muted text-sm">Detay açıklama</div>
-                        <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
-                    </div>
-                </li>
-                <li class="item">
-                    <div class="product-img">
-                        <i class="fa fa-file fa-2x text-muted" />
-                    </div>
-                    <div class="product-info">
-                        <span> Hakan Uygun tarafından <a href="" class="">test.pdf</a> belgesi yüklendi </span>
-                        <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
-                    </div>
-                </li>
-                <li class="item">
-                    <div class="product-img">
-                        <i class="fa fa-download fa-2x text-muted" />
-                    </div>
-                    <div class="product-info">
-                        <span> Ahmet Yaşar tarafından <a href="" class="">test.pdf</a> belgesi indirildi</span>
-                        <div class="text-muted text-sm">Deneme Rafı | 10.06.2018 22:30</div>
-                    </div>
-                </li>
-            </ul>
-        </div>
+        <p:outputPanel deferred="true">
+            <div class="box-body no-padding">
+                <style>
+                    .product-info{
+                        margin-left: 36px ! important;
+                    }
+                </style>
+
+                <ul class="products-list product-list-in-box">
+                    <p:repeat value="#{eventsDashlet.events}" var="event" >
+                        <li class="item">
+                            <div class="product-img">
+                                <i class="fa #{messages['event.icon.'.concat(event.type)]} fa-2x text-muted" />
+                            </div>
+                            <div class="product-info" style="margin-left: 36px;">
+                                <span>
+                                    <h:outputText value="#{formatedMessage.getMessageFromData(event.message)}" escape="false" />
+                                    <h:link outcome="/raf.xhtml">
+                                        <i class="fa fa-external-link"/>
+                                        <f:param name="o" value="#{event.refId}" />
+                                    </h:link>
+                                </span>
+                                <div class="text-muted text-sm">#{formatedMessage.getMessageFromData(event.info)}</div>
+                                <div class="text-muted text-sm">#{userLookup.getUserName(event.username)} | <t:cellOutputDateTime value="#{event.logTime}" /></div>
+                            </div>
+                        </li>
+                    </p:repeat>
+                </ul>
+            </div>
+        </p:outputPanel>
     </ui:define>
 </ui:composition>

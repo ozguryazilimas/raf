@@ -55,7 +55,7 @@ public class DeleteAction extends AbstractAction{
         for( RafObject o : items){
             deleteObject(o);
         }
-        
+        //FIXME: Burada RafEventLog çalıştırılmalı
         getContext().getSeletedItems().clear();
         
         return true;

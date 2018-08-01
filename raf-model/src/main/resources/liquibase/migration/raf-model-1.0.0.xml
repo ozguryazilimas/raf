@@ -54,5 +54,23 @@
     <changeSet author="huygun" id="201806171041">
         <addForeignKeyConstraint baseColumnNames="RAF_ID" baseTableName="RAF_MEMBER" constraintName="FK_RM_RAFID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEFINITION"/>
     </changeSet>
-        
+    <changeSet author="huygun" id="201807011217">
+        <createTable tableName="RAF_EVENTS">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_EVENTPK"/>
+            </column>
+            <column name="USERNAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOG_TIME" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE" type="VARCHAR(4000)" />
+            <column name="INFO" type="VARCHAR(4000)" />
+            <column name="CODE" type="VARCHAR(100)" />
+            <column name="REFID" type="VARCHAR(200)" />
+            <column name="PATH" type="VARCHAR(4000)" />
+            <column name="TYPE" type="VARCHAR(250)" />
+        </createTable>
+    </changeSet>    
 </databaseChangeLog>

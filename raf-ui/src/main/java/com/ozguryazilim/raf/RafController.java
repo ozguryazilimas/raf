@@ -142,8 +142,33 @@ public class RafController implements Serializable {
     public void init() {
 
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
-        //Eğer bir şey atanmamış ise kişisel raf olsun.
-        if (Strings.isNullOrEmpty(rafCode)) {
+        
+        
+        if(Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId) ){
+            try {
+                //Eğer rafCode gelmemiş ama objectId gelmiş ise Raf'ı object üzerinden bulalım
+                RafObject obj = rafService.getRafObject(objectId);
+                String[] ss = obj.getPath().split("/");
+                // /RAF/hede/xxx geriye ilki boş 3 item dönüyor
+                if( "PRIVATE".equals(ss[1]) ){
+                    rafCode = "PRIVATE";
+                } else if("SHARED".equals(ss[1])){
+                    rafCode = "SHARED";
+                } else if("RAF".equals(ss[1])){
+                    rafCode = ss[2];
+                } else {
+                    //Buraya düştü ise PROCESS ya da saçma bişi olacaktır dolayısı ile
+                    //Buraya normal arayüzle girme yetkisi yok
+                    viewNavigationHandler.navigateTo(Pages.Home.class);
+                    return;
+                }
+                
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+            
+        } else if (Strings.isNullOrEmpty(rafCode)) {
+            //Eğer bir şey atanmamış ise kişisel raf olsun.
             rafCode = "PRIVATE";
         }
 
@@ -153,17 +178,20 @@ public class RafController implements Serializable {
             //FIXME: Burada ne yapmalı?
             LOG.error("Error", ex);
             viewNavigationHandler.navigateTo(Pages.Home.class);
+            return;
         }
 
         try {
             //Uye değilse hemen HomePage'e geri gönderelim.
             if( !memberService.isMemberOf(identity.getLoginName(), rafDefinition) ){
                 viewNavigationHandler.navigateTo(Pages.Home.class);
+                return;
             }
         } catch (RafException ex) {
             LOG.error("Error", ex);
             //Gene de geldiği yere gönderelim.
             viewNavigationHandler.navigateTo(Pages.Home.class);
+            return;
         }
         
         try {
