@@ -8,6 +8,8 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -74,4 +76,9 @@ public class CreateFolderAction extends AbstractAction{
         this.folder = folder;
     }
     
+    public void onNameChange(){
+        RafEncoder encoder = RafEncoderFactory.getEncoder();
+        //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
+        folder.setName(encoder.encode(folder.getTitle()));
+    }
 }
