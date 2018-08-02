@@ -5,8 +5,14 @@
  */
 package com.ozguryazilim.raf.ui.base;
 
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
 import com.ozguryazilim.raf.models.RafDocument;
+import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.telve.messages.FacesMessages;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +30,17 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     
     @Inject
     private FileUploadAction fileUploadAction;
+    
+    @Inject 
+    private RafService rafService;
+    
+    private List<RafVersion> versions = null;
+
+    @Override
+    public void setObject(RafDocument object) {
+        super.setObject(object); 
+        versions = null;
+    }
     
     @Override
     public String getViewId() {
@@ -47,6 +64,21 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     
     public void checkin(){
         fileUploadAction.execute("CHECKIN", getObject().getPath());
+    }
+    
+    public List<RafVersion> getVersionHistory(){
+        
+        if( versions == null ){
+            try {
+                versions = rafService.getVersionHistory(getObject());
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+                FacesMessages.error(ex.getMessage());
+                versions = new ArrayList<>();
+            }
+        }
+        
+        return versions;
     }
     
 }

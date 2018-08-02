@@ -20,6 +20,7 @@ import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.models.RafVersion;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +42,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import org.apache.commons.io.IOUtils;
 import org.modeshape.jcr.api.JcrTools;
@@ -728,6 +731,50 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public List<RafVersion> getVersionHistory(RafDocument object) throws RafException {
+        try {
+            
+            List<RafVersion> result = new ArrayList<>();
+            
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNodeByIdentifier(object.getId());
+            
+
+            if (node == null) {
+                throw new RafException("[RAF-0005] Raf node not found");
+            }
+            
+            if( !node.isNodeType(NODE_FILE)){
+                throw new RafException("[RAF-0029] Not a document type");
+            }
+            
+            Node content = node.getNode(NODE_CONTENT);
+            if( content.isNodeType(MIXIN_VERSIONABLE)){
+                VersionManager versionManager = session.getWorkspace().getVersionManager();
+                VersionHistory vh = versionManager.getVersionHistory(content.getPath());
+                VersionIterator vit = vh.getAllVersions();
+                while( vit.hasNext() ){
+                    Version v = vit.nextVersion();
+                    RafVersion rv = new RafVersion();
+                    rv.setId(v.getIdentifier());
+                    rv.setName(v.getName());
+                    rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
+                    rv.setCreated(v.getProperty("jcr:created").getDate().getTime());
+                    rv.setPath(v.getPath());
+                    
+                    //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
+                    
+                    result.add(rv);
+                }
+            }
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0020] Raf Object not found", ex);
+        }
+    }
+
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         if (Strings.isNullOrEmpty(fileName)) {
             throw new RafException("[RAF-00016] Filename cannot be null");
@@ -1051,7 +1098,7 @@ public class RafModeshapeRepository implements Serializable {
             //Burada tarihçe silmek gerek. Aksi halde bütün dosyalar sistem de kalacak
             //TODO: bu aslında bir sistem ayarı olabilir. Bazı müşteriler gerçekten hiç bir şey silmek istemezler!
             deleteVersionHistory(node);
-            
+
             jcrTools.removeAllChildren(node);
             node.remove();
 
@@ -1066,23 +1113,22 @@ public class RafModeshapeRepository implements Serializable {
 
     /**
      * Node ağacı üzerinde yürüyerek eğer varsa bütün version history'i siler.
+     *
      * @param node
-     * @throws RepositoryException 
+     * @throws RepositoryException
      */
-    private void deleteVersionHistory( Node node ) throws RepositoryException{
-        if( node.isNodeType(MIXIN_VERSIONABLE)){
-            org.modeshape.jcr.api.version.VersionManager vm =  (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
+    private void deleteVersionHistory(Node node) throws RepositoryException {
+        if (node.isNodeType(MIXIN_VERSIONABLE)) {
+            org.modeshape.jcr.api.version.VersionManager vm = (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
             vm.remove(node.getPath());
         }
-        
+
         NodeIterator it = node.getNodes();
-        while( it.hasNext() ){
+        while (it.hasNext()) {
             Node n = it.nextNode();
             deleteVersionHistory(n);
         }
     }
-    
-    
 
     public void copyObject(RafObject from, RafFolder to) throws RafException {
         try {
@@ -1229,9 +1275,11 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
-     * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek checkin kontrolüne gönderir.
+     * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek
+     * checkin kontrolüne gönderir.
+     *
      * @param n
-     * @throws RepositoryException 
+     * @throws RepositoryException
      */
     private void chekinCopiedFolderNodes(Node n) throws RepositoryException {
         NodeIterator it = n.getNodes();
@@ -1246,12 +1294,13 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
-     * nt:file tipinde olan nodelar için jcr:content'in mix:versionable olmasına bakar.
-     * 
+     * nt:file tipinde olan nodelar için jcr:content'in mix:versionable olmasına
+     * bakar.
+     *
      * Gönderilen node da doğrudan checkin alınabilir.
-     * 
+     *
      * @param n
-     * @throws RepositoryException 
+     * @throws RepositoryException
      */
     private void checkinCopiedNode(Node n) throws RepositoryException {
         Node cn = null;
