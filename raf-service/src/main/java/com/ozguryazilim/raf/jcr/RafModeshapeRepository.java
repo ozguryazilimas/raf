@@ -64,6 +64,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String NODE_HIERARCHY = "nt:hierarchyNode";
     private static final String NODE_FOLDER = "nt:folder";
     private static final String NODE_FILE = "nt:file";
+    private static final String NODE_CONTENT = "jcr:content";
 
     private static final String NODE_SEARCH = "nt:base";
 
@@ -695,7 +696,7 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             VersionManager versionManager = session.getWorkspace().getVersionManager();
-            Node content = node.getNode("jcr:content");
+            Node content = node.getNode(NODE_CONTENT);
             if (!content.isNodeType(MIXIN_VERSIONABLE)) {
                 //Eğer daha öncesinde version eklenmiş ise önce onu ekliyoruz!
                 content.addMixin(MIXIN_VERSIONABLE);
@@ -752,7 +753,7 @@ public class RafModeshapeRepository implements Serializable {
             session.save();
 
             //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
-            Node nc = n.getNode("jcr:content");
+            Node nc = n.getNode(NODE_CONTENT);
             String mimeType = getPropertyAsString(nc, "jcr:mimeType");
             if (Strings.isNullOrEmpty(mimeType)) {
                 nc.setProperty("jcr:mimeType", "raf/binary");
@@ -1018,7 +1019,7 @@ public class RafModeshapeRepository implements Serializable {
 
             LOG.debug("Document Content Requested: {}", node.getPath());
 
-            Node content = node.getNode("jcr:content");
+            Node content = node.getNode(NODE_CONTENT);
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1047,6 +1048,10 @@ public class RafModeshapeRepository implements Serializable {
 
             Node node = session.getNodeByIdentifier(id);
 
+            //Burada tarihçe silmek gerek. Aksi halde bütün dosyalar sistem de kalacak
+            //TODO: bu aslında bir sistem ayarı olabilir. Bazı müşteriler gerçekten hiç bir şey silmek istemezler!
+            deleteVersionHistory(node);
+            
             jcrTools.removeAllChildren(node);
             node.remove();
 
@@ -1058,6 +1063,26 @@ public class RafModeshapeRepository implements Serializable {
         }
 
     }
+
+    /**
+     * Node ağacı üzerinde yürüyerek eğer varsa bütün version history'i siler.
+     * @param node
+     * @throws RepositoryException 
+     */
+    private void deleteVersionHistory( Node node ) throws RepositoryException{
+        if( node.isNodeType(MIXIN_VERSIONABLE)){
+            org.modeshape.jcr.api.version.VersionManager vm =  (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
+            vm.remove(node.getPath());
+        }
+        
+        NodeIterator it = node.getNodes();
+        while( it.hasNext() ){
+            Node n = it.nextNode();
+            deleteVersionHistory(n);
+        }
+    }
+    
+    
 
     public void copyObject(RafObject from, RafFolder to) throws RafException {
         try {
@@ -1233,7 +1258,7 @@ public class RafModeshapeRepository implements Serializable {
 
         //Önce doğru tipi bir bulalım. File ise bir alt node olsa gerek
         if (n.isNodeType(NODE_FILE)) {
-            Node c = n.getNode("jcr:content");
+            Node c = n.getNode(NODE_CONTENT);
             if (c.isNodeType(MIXIN_VERSIONABLE)) {
                 cn = c;
 
@@ -1402,7 +1427,7 @@ public class RafModeshapeRepository implements Serializable {
         result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
-        Node cn = node.getNode("jcr:content");
+        Node cn = node.getNode(NODE_CONTENT);
         String s = getPropertyAsString(cn, "jcr:mimeType");
         if (Strings.isNullOrEmpty(s)) {
             s = "raf/binary";
@@ -1425,7 +1450,7 @@ public class RafModeshapeRepository implements Serializable {
             result.setTags(getPropertyAsStringList(node, PROP_TAG));
         }
 
-        Node content = node.getNode("jcr:content");
+        Node content = node.getNode(NODE_CONTENT);
         if (content.isNodeType(MIXIN_VERSIONABLE)) {
             result.setVersionable(Boolean.TRUE);
             VersionManager versionManager = node.getSession().getWorkspace().getVersionManager();
