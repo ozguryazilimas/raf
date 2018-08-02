@@ -30,7 +30,7 @@ public class InvoiceMetadataConverter implements MetadataConverter{
             
             if( !node.isNodeType("invoice:metadata") ){
                 //FIXME: Daha düzgün bir hata çevir.
-                throw new RafException();
+                throw new RafException("[RAF-0032] Raf Node is not Metatata node");
             }
             
             result.setNodeId(node.getIdentifier());
@@ -48,7 +48,7 @@ public class InvoiceMetadataConverter implements MetadataConverter{
             
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error", ex);
         }
     }
 
@@ -64,13 +64,13 @@ public class InvoiceMetadataConverter implements MetadataConverter{
             //node.setProperty("invoice:date", ((Date) data.getAttributes().get("invoice:date")));
             
         } catch (VersionException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error",ex);
         } catch (LockException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error",ex);
         } catch (ConstraintViolationException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error",ex);
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error",ex);
         }
         
     }

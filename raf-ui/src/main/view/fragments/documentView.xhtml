@@ -22,7 +22,7 @@
         <div class="col-md-8 col-xs-12">
             <div class="row">
                 <div class="col-xs-12">
-                    <h2 class="page-header">#{viewBean.object.title} <span class="label label-default text-sm pull-right">1.0</span>
+                    <h2 class="page-header">#{viewBean.object.title} <span class="label #{viewBean.object.checkedout ? 'label-warning' : 'label-default' } text-sm pull-right">#{viewBean.object.version}</span>
                         <span class="text-muted text-sm">#{viewBean.object.name}</span>
                     </h2>
 
@@ -78,13 +78,19 @@
             </div>
         </div>
         <div class="raf-file-meta col-md-4 col-xs-12">
-            <ui:remove>
-                <div class="row">
-                    <div class="col-xs-12">
-                        Buraya Çeşitli Aksiyonlar gelecek. Örneğin Download!
-                    </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    Sürüm Yönetimi araçları buraya gelecek!
+                    <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Yeni sürüm yükle">
+                        <i class="fa fa-sign-in" />
+                    </p:commandLink>
+                    
+                    <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Sürüm İçin Dışarı çıkar">
+                        <i class="fa fa-sign-out" />
+                    </p:commandLink>
+                    
                 </div>
-            </ui:remove>
+            </div>
             <div class="row">
 
                 <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">

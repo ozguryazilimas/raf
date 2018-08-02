@@ -52,7 +52,7 @@ public class RafDefinitionService implements Serializable {
         //Raf daha önce tanımlı mı?
         if (repository.findAnyByCode(rd.getCode()) != null) {
             //Bu isimli bir raf tanımı zaten var.
-            throw new RafException();
+            throw new RafException("[RAF-0040] Raf Alreaddy exist");
         }
 
         RafNode n = rafRepository.createRafNode(rd);

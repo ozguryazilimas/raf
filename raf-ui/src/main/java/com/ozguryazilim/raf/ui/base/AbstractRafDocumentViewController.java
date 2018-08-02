@@ -5,7 +5,9 @@
  */
 package com.ozguryazilim.raf.ui.base;
 
+import com.ozguryazilim.raf.action.FileUploadAction;
 import com.ozguryazilim.raf.models.RafDocument;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,9 @@ import org.slf4j.LoggerFactory;
 public class AbstractRafDocumentViewController extends AbstractRafObjectViewController<RafDocument>{
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRafDocumentViewController.class);
+    
+    @Inject
+    private FileUploadAction fileUploadAction;
     
     @Override
     public String getViewId() {
@@ -38,6 +43,10 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             return PreviewPanelRegistery.getMimeTypePanel("default").getViewId();
         }
         
+    }
+    
+    public void checkin(){
+        fileUploadAction.execute("CHECKIN", getObject().getPath());
     }
     
 }

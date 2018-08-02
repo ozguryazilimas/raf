@@ -69,7 +69,7 @@ public class DefaultMetadataConverter implements MetadataConverter {
 
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error",ex);
         }
     }
 
@@ -97,11 +97,11 @@ public class DefaultMetadataConverter implements MetadataConverter {
 
             }
         } catch (VersionException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error", ex);
         } catch (LockException | ConstraintViolationException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error", ex);
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error", ex);
         }
 
     }

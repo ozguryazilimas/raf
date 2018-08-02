@@ -38,8 +38,11 @@ public class UploadServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        //FIXME: Yetki kontrolü yapılacak. Hem login hem raf için
+        //FIXME: Yetki kontrolü sırasında dikkat!
+        //Eğer işlem checkin ise RAF code olarak CHECKIN geliyor!
+        //Yetki kontrolü için aslında path kontrolü yapmak daha temiz olacak sanırım. Yani raf code kısmı biraz sorunlu!
         
+        //FIXME: Yetki kontrolü yapılacak. Hem login hem raf için
         LOG.debug("Upload Servlet Start");
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(req);
@@ -47,20 +50,19 @@ public class UploadServlet extends HttpServlet {
         if (isMultipart) {
             ServletFileUpload upload = new ServletFileUpload();
 
-            
             try {
                 UploadRequest ur = new UploadRequest();
                 FileItemFactory fileItemFactory = new DiskFileItemFactory();
-                
+
                 // Parse the request
                 FileItemIterator iter = upload.getItemIterator(req);
                 while (iter.hasNext()) {
                     FileItemStream item = iter.next();
                     String name = item.getFieldName();
-                    
+
                     if (item.isFormField()) {
                         InputStream stream = item.openStream();
-                        
+
                         String value = Streams.asString(stream);
                         LOG.debug("Form field {} with value {} detected.", name, value);
 
@@ -98,9 +100,9 @@ public class UploadServlet extends HttpServlet {
                         LOG.debug("File field {} with file name {} detected.", name, item.getName());
                         // Process the input stream
                         FileItem fileItem = fileItemFactory.createItem(item.getFieldName(),
-                                                       item.getContentType(),
-                                                       item.isFormField(),
-                                                       item.getName());
+                                item.getContentType(),
+                                item.isFormField(),
+                                item.getName());
                         Streams.copy(item.openStream(), fileItem.getOutputStream(), true);
                         ur.setData(fileItem);
                     }
@@ -116,7 +118,13 @@ public class UploadServlet extends HttpServlet {
                 } else {
                     //RAF'a yazmaya
                     LOG.debug("{} dosyasını RAF'a yerleştiriyoruz.", ur.getFileName());
-                    uploadToRaf(ur.getRafPath() + "/" + ur.getFileName(),  ur.getData().getInputStream());
+
+                    //Eğer check in işlemi ise doğrudan path'i kullanıyoruz.
+                    if ("CHECKIN".equals(ur.getRaf())) {
+                        checkinToRaf(ur.getRafPath(), ur.getData().getInputStream());
+                    } else {
+                        uploadToRaf(ur.getRafPath() + "/" + ur.getFileName(), ur.getData().getInputStream());
+                    }
                 }
 
                 reponseWriter(req, resp, null);
@@ -127,7 +135,7 @@ public class UploadServlet extends HttpServlet {
         } else {
             //Chunk Kapatma Mesajı
             LOG.debug("Request : {}", req.getParameterMap());
-            
+
             //FIXME: yetki kontrolü
             String raf = req.getParameter("raf");
             String rafPath = req.getParameter("rafPath");
@@ -135,18 +143,24 @@ public class UploadServlet extends HttpServlet {
             String uuid = req.getParameter("qquuid");
             int totalParts = Integer.parseInt(req.getParameter("qqtotalparts"));
             int fileSize = Integer.parseInt(req.getParameter("qqtotalfilesize"));
-            
+
             //Gelen değerleri parse edip Storage'a birleştirmesini söyleceğiz ardından gelen değeri RAF'a göndereceğiz
             ChunkStorage storage = new ChunkStorage();
             try {
                 InputStream file = storage.mergeChunks(uuid, fileName, totalParts, fileSize);
-                
+
                 String path = rafPath + "/" + fileName;
-                uploadToRaf(path, file);
                 
+                //CHECKIN ise farklı operasyon
+                if ("CHECKIN".equals(raf)) {
+                    checkinToRaf(rafPath, file);
+                } else {
+                    uploadToRaf(path, file);
+                }
+
                 //Ve geride bişi bırakmayalım
                 storage.delete(uuid);
-                
+
             } catch (RafException ex) {
                 LOG.error("Hata", ex);
                 reponseWriter(req, resp, ex.getLocalizedMessage());
@@ -167,8 +181,13 @@ public class UploadServlet extends HttpServlet {
         }
     }
 
-    protected void uploadToRaf( String path, InputStream file ) throws RafException{
+    protected void uploadToRaf(String path, InputStream file) throws RafException {
         RafService rafService = BeanProvider.getContextualReference(RafService.class, true);
         rafService.uploadDocument(path, file);
+    }
+
+    protected void checkinToRaf(String path, InputStream file) throws RafException {
+        RafService rafService = BeanProvider.getContextualReference(RafService.class, true);
+        rafService.checkin(path, file);
     }
 }

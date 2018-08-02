@@ -26,7 +26,7 @@ public class PdfMetadataConverter implements MetadataConverter{
             //FIXME: burada pdf:metadata tipinde olup olmadığı kontrol edilcek
             if( !node.isNodeType("pdf:metadata") ){
                 //FIXME: Daha düzgün bir hata çevir.
-                throw new RafException();
+                throw new RafException("[RAF-0032] Raf Node is not Metatata node");
             }
             
             result.setNodeId(node.getIdentifier());
@@ -45,7 +45,7 @@ public class PdfMetadataConverter implements MetadataConverter{
             
             return result;
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0030] Raf Metatata Convert Error", ex);
         }
     }
 
@@ -53,7 +53,7 @@ public class PdfMetadataConverter implements MetadataConverter{
     public void modelToNode(RafMetadata data, Node node) throws RafException {
         //Bu metada update edilmeyecek dolayısı ile doğrudan exception fırlatalım.
         //ReadOnly Metadata pdf:metadata şeklinde
-        throw new RafException();
+        throw new RafException("[RAF-0031] Raf Metatata read only");
     }
     
 }

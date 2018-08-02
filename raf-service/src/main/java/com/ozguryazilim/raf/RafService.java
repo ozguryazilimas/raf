@@ -177,6 +177,15 @@ public class RafService implements Serializable {
         
     }
 
+    public RafDocument checkin(String fileName, InputStream in) throws RafException {
+        //FIXME: yetki kontrolü
+        RafDocument result = (RafDocument) rafRepository.checkin(fileName, in);
+        
+        sendEventLog("CheckInDocument", result);
+        sendAuditLog( result.getId(), "CHECKIN_DOCUMENT", result.getPath() );
+        return result;
+    }
+    
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = rafRepository.uploadDocument(fileName, in);

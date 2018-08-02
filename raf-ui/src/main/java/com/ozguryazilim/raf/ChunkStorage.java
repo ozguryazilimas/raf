@@ -62,7 +62,7 @@ public class ChunkStorage {
             String errorMsg = String.format("Error occurred when saving file with uuid = [%s]", ur);
             log.error(errorMsg, e);
             //FIXME: burayı düzelt.
-            throw new RafException(e);
+            throw new RafException("[RAF-0060] ChunkStorage Error", e);
         }
         
 
@@ -100,7 +100,7 @@ public class ChunkStorage {
             String errorMsg = String.format("Error occurred when merging chunks for uuid = [%s]", uuid);
             log.error(errorMsg, e);
             //FIXME: burayı düzelt
-            throw new RafException(e);
+            throw new RafException("[RAF-0060] ChunkStorage Error",e);
         }
         
         return new FileInputStream( targetFile );
