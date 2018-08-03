@@ -11,10 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import org.jbpm.kie.services.api.FormProviderService;
-import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.services.api.DeploymentService;
-import org.jbpm.services.api.model.DeployedUnit;
-import org.jbpm.services.api.model.DeploymentUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +38,7 @@ public class RafJBpmModule {
         System.setProperty("org.jbpm.ht.custom.callback", TelveUserGroupCallback.class.getName());
         
         LOG.warn("KJar Yüklenecek");
-        
+        /*
         String[] gav = KJAR2_ID.split(":");
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(gav[0], gav[1], gav[2]);
         deploymentService.deploy(deploymentUnit);
@@ -53,7 +50,7 @@ public class RafJBpmModule {
             
             //LOG.info( "Deployed Form : {}", formProviderService.getFormDisplayProcess(du.getDeploymentUnit().getIdentifier(), "DocumentApproveProcess"));
         }
-        
+        */
         LOG.warn("KJar Yüklendi");
     }
     

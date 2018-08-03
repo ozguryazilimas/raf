@@ -43,9 +43,9 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
             
             resourceHandlers.forEach( h -> {
                 if( h.canHandle(fileName)){
-                    LOG.debug("File {} process by handler {}", fileName, h);
+                    LOG.debug("File {} process by handler {}, {}", fileName, h, releaseId);
                     InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
-                    h.handle(is);
+                    h.handle( releaseId.toString(), is);
                 }
             });
             

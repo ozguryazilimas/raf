@@ -50,6 +50,7 @@ public class RecordController implements Serializable{
      */
     public List<RafRecordType> getRecordTypes(){
         //FIXME: yetki kontrolü yapılacak ve cachelenecek
+        //FIXME: aktif olan record tipleri dönülecek!
         return recordTypeManager.getRecordTypes();
     }
     
