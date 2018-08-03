@@ -34,7 +34,9 @@
                                                 <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
                                                     <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
                                                 </svg>
+                                                <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                             </p:commandLink>
+                                            
                                         </div>
                                     </span>
                                     <span class="raf-container-item-item-cnd">
