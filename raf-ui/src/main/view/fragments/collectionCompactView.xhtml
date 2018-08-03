@@ -12,15 +12,15 @@
             <ui:param name="forCollection" value="true" />
         </ui:include>
     </ui:fragment>
-    
+
     <div class="content-view-port">
         <div class="raf-container" >
             <ui:repeat value="#{viewBean.groupNames}" var="group" >
                 <div class="raf-container-item-group">
                     <ui:fragment rendered="#{viewBean.groupBy}">
-                    <div class="raf-container-item-group-header" >
-                        <div>#{group}</div>
-                    </div>
+                        <div class="raf-container-item-group-header" >
+                            <div>#{group}</div>
+                        </div>
                     </ui:fragment>
 
                     <div class="raf-container-item-group-item">
@@ -31,7 +31,7 @@
                                         <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
                                             <p:commandLink action="#{selectionBean.toggle(item)}" 
                                                            update="raf-view-content" ajax="true" process="@this" >
-                                                <svg class="icon icon-2x" >
+                                                <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
                                                     <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
                                                 </svg>
                                             </p:commandLink>
@@ -42,12 +42,13 @@
                                             <span class="text-sm">#{item.title}</span>
                                         </p:commandLink>
 
-                                        <div class="text-muted text-sm">#{item.name}</div>
-                                        <div class="text-muted text-sm">
-                                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
-                                        </div>
+                                        <ui:fragment rendered="#{viewBean.showDetails}">
+                                            
+                                            <div class="text-muted text-sm">#{item.name}</div>
+                                            <div class="text-muted text-sm">
+                                                #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                            </div>
 
-                                        <ui:remove>
                                             <ui:fragment rendered="#{not empty item.info}">
                                                 <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
                                             </ui:fragment>
@@ -64,7 +65,7 @@
                                                     </p:repeat>
                                                 </div>
                                             </ui:fragment>
-                                        </ui:remove>
+                                        </ui:fragment>
 
                                     </span>
                                 </div>

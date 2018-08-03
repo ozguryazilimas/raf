@@ -44,6 +44,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     private Boolean descSort = Boolean.FALSE;
     private Boolean foldersFirst = Boolean.TRUE;
     private Boolean groupBy = Boolean.FALSE;
+    private Boolean showDetails = Boolean.FALSE;
 
     private List<String> groupNames = new ArrayList<>();
     private Map<String, List<RafObject>> groupMap = new HashMap<>();
@@ -274,4 +275,14 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         this.groupBy = groupBy;
         clear();
     }
+
+    public Boolean getShowDetails() {
+        return showDetails;
+    }
+
+    public void setShowDetails(Boolean showDetails) {
+        this.showDetails = showDetails;
+    }
+    
+    
 }
