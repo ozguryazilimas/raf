@@ -11,9 +11,9 @@
     </ui:remove>
 
     <ui:fragment rendered="#{viewBean.supportBreadcrumb}" >
-            <ui:include src="/fragments/breadcrumb.xhtml" >
-                <ui:param name="currentFolderEnabled" value="true" />
-            </ui:include>
+        <ui:include src="/fragments/breadcrumb.xhtml" >
+            <ui:param name="currentFolderEnabled" value="true" />
+        </ui:include>
     </ui:fragment>
 
     <div class="raf-file">
@@ -22,7 +22,7 @@
         <div class="col-md-8 col-xs-12">
             <div class="row">
                 <div class="col-xs-12">
-                    <h2 class="page-header">#{viewBean.object.title} <span class="label label-default text-sm pull-right">1.0</span>
+                    <h2 class="page-header">#{viewBean.object.title} <span class="label #{viewBean.object.checkedout ? 'label-warning' : 'label-default' } text-sm pull-right">#{viewBean.object.version}</span>
                         <span class="text-muted text-sm">#{viewBean.object.name}</span>
                     </h2>
 
@@ -78,13 +78,22 @@
             </div>
         </div>
         <div class="raf-file-meta col-md-4 col-xs-12">
-            <ui:remove>
+            <ui:fragment rendered="#{viewBean.versionManagementEnabled}">
                 <div class="row">
                     <div class="col-xs-12">
-                        Buraya Çeşitli Aksiyonlar gelecek. Örneğin Download!
+                        <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Yeni sürüm yükle">
+                            <i class="fa fa-upload" /> Yeni Sürüm Yükle
+                        </p:commandLink>
+
+                        <ui:remove>
+                            <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Sürüm İçin Dışarı çıkar">
+                                <i class="fa fa-sign-out" />
+                            </p:commandLink>
+                        </ui:remove>
+
                     </div>
                 </div>
-            </ui:remove>
+            </ui:fragment>
             <div class="row">
 
                 <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
@@ -94,6 +103,29 @@
                     </ui:include>
                 </c:forEach>
             </div>
+
+            <ui:fragment rendered="#{not empty viewBean.versionHistory}">
+                <div class="row">
+                    <t:accordion label="Sürüm Tarihçesi" columnClass="col-xs-12" contentClass="">
+                        <ul class="nav nav-pills nav-stacked">
+                            <p:repeat value="#{viewBean.versionHistory}" var="vh" >
+                                <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
+                                    <li>
+                                        <span class="text-bold">#{vh.name}</span> 
+                                        <span>
+                                            <t:cellOutputDateTime value="#{vh.created}" /> 
+                                            #{userLookup.getUserName(vh.createdBy)} 
+                                        </span>
+                                        <span class="text-muted">
+                                            #{vh.comment}
+                                        </span>
+                                    </li>
+                                </ui:fragment>
+                            </p:repeat>
+                        </ul>
+                    </t:accordion>
+                </div>
+            </ui:fragment>
         </div>
 
 

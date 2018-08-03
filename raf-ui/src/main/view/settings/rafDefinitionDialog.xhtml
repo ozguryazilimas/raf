@@ -7,25 +7,36 @@
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 template="/layout/dialogBase.xhtml">
-    
+
     <ui:param name="title" value="Yeni Raf Tanımı" />
-    
+
     <ui:define name="form" >
+
         <h:form id="rafdef">
             <div class="row">
-                
-                <t:inputText label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="Sistemde kullanılacak unique kısa isim."/>
-                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" />
-                <t:inputTextarea label="general.label.Info" value="#{rafDefinitionDialogController.rafDefinition.info}" />
-                
+                <div class="col-xs-12">
+                    <p:messages style="margin: 0px;">
+                        <p:autoUpdate />
+                    </p:messages>
+                </div>
             </div>
-            
-            <h:panelGroup styleClass="row actionButtons" layout="block" style="position: fixed; bottom: 0; display: block;">
-                <ui:insert name="actionButtons" />
-                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{rafDefinitionDialogController.closeDialog()}" styleClass="btn-primary"/>
-                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafDefinitionDialogController.cancelDialog()}" />
-            </h:panelGroup>
+            <div class="row">
+
+                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" required="true">
+                    <p:ajax event="blur" listener="#{rafDefinitionDialogController.onNameChange()}" process="@this" update=":rafdef:code" />
+                </t:inputText>
+                <t:inputText id="code" label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="Sistemde kullanılacak kısa isim" required="true"/>
+                <t:inputTextarea label="general.label.Info" value="#{rafDefinitionDialogController.rafDefinition.info}" />
+
+            </div>
+
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" >
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{rafDefinitionDialogController.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafDefinitionDialogController.cancelDialog()}"  process="@this"/>
+                </h:panelGroup>
+            </div>
         </h:form>
     </ui:define>
-    
+
 </ui:composition>

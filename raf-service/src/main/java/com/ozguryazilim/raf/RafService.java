@@ -17,6 +17,7 @@ import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -177,6 +178,15 @@ public class RafService implements Serializable {
         
     }
 
+    public RafDocument checkin(String fileName, InputStream in) throws RafException {
+        //FIXME: yetki kontrolü
+        RafDocument result = (RafDocument) rafRepository.checkin(fileName, in);
+        
+        sendEventLog("CheckInDocument", result);
+        sendAuditLog( result.getId(), "CHECKIN_DOCUMENT", result.getPath() );
+        return result;
+    }
+    
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = rafRepository.uploadDocument(fileName, in);
@@ -206,6 +216,16 @@ public class RafService implements Serializable {
         return result;
     }
 
+    /**
+     * Geriye verilen RafDocument için eğer varsa Sürüm Tarihçesini döndürür.
+     * @param object
+     * @return
+     * @throws RafException 
+     */
+    public List<RafVersion> getVersionHistory(RafDocument object) throws RafException {
+        return rafRepository.getVersionHistory(object);
+    }
+    
     public InputStream getDocumentContent(String id) throws RafException {
         if( isReadLogEnabled() ){
             sendAuditLog( id, "READ_DOCUMENT_CONTENT", "" );

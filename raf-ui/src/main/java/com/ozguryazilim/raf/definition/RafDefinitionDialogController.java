@@ -8,6 +8,8 @@ package com.ozguryazilim.raf.definition;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.config.RafPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -87,5 +89,11 @@ public class RafDefinitionDialogController implements Serializable {
     public void goCreatedRaf() {
         navigationParameterContext.addPageParameter("id", rafDefinition.getCode());
         viewNavigationHandler.navigateTo(RafPages.class);
+    }
+    
+    public void onNameChange(){
+        RafEncoder encoder = RafEncoderFactory.getEncoder();
+        //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
+        rafDefinition.setCode(encoder.encode(rafDefinition.getName()));
     }
 }

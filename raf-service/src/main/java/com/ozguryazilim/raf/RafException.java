@@ -11,11 +11,12 @@ package com.ozguryazilim.raf;
  */
 public class RafException extends Exception{
 
-    public RafException() {
+    public RafException(String message) {
+        super(message);
     }
 
-    public RafException(Throwable thrwbl) {
-        super(thrwbl);
+    public RafException(String message, Throwable cause) {
+        super(message, cause);
     }
     
 }

@@ -7,31 +7,40 @@
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 template="/layout/dialogBase.xhtml">
-    
+
     <ui:param name="title" value="dialog.title.CreateFolder" />
-    
+
     <ui:define name="form" >
         <h:form id="ff">
             <div class="row">
-                
+                <div class="col-xs-12">
+                    <p:messages style="margin: 0px;">
+                        <p:autoUpdate />
+                    </p:messages>
+                </div>
+            </div>
+            <div class="row">
+
                 <div class="col-xs-12">
                     <span class="text-bold">#{rafContext.collection.title}</span> klasörü içine oluşturulacak
                 </div>
-                
-                <t:inputText label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim"/>
-                <t:inputText label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="Klasör ismi"/>
+
+                <t:inputText label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim" required="true">
+                    <p:ajax event="blur" listener="#{createFolderAction.onNameChange()}" process="@this" update=":ff:code" />
+                </t:inputText>
+                <t:inputText id="code" label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="Klasör ismi" required="true"/>
                 <t:inputTextarea label="general.label.Info" value="#{createFolderAction.folder.info}" placeholder="Açıklama"/>
-                
-                
+
+
             </div>
-            
+
             <div class="row">
-            <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{createFolderAction.closeDialog()}" styleClass="btn-primary"/>
-                <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{createFolderAction.cancelDialog()}" process="@this"/>
-            </h:panelGroup>
-                </div>
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check" action="#{createFolderAction.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{createFolderAction.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
         </h:form>
     </ui:define>
-    
+
 </ui:composition>

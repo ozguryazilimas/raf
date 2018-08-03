@@ -44,6 +44,10 @@ public abstract class RafObject implements Serializable{
     private String updateBy;
     private Date updateDate;
 
+    private String version = "1.0";
+    private Boolean checkedout = Boolean.FALSE;
+    private Boolean versionable = Boolean.FALSE;
+    
     private List<RafMetadata> metadatas = new ArrayList<>();
     
     public String getId() {
@@ -191,6 +195,32 @@ public abstract class RafObject implements Serializable{
         this.rating = rating;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Boolean getCheckedout() {
+        return checkedout;
+    }
+
+    public void setCheckedout(Boolean checkedout) {
+        this.checkedout = checkedout;
+    }
+
+    public Boolean getVersionable() {
+        return versionable;
+    }
+
+    public void setVersionable(Boolean versionable) {
+        this.versionable = versionable;
+    }
+
+    
+    
     @Override
     public int hashCode() {
         int hash = 7;

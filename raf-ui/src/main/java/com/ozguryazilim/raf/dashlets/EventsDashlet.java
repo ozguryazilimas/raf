@@ -34,7 +34,11 @@ public class EventsDashlet extends AbstractDashlet{
 
     @Override
     public void load() {
+        //FIXME: Aslında eventLogService'den limitli almak gerekiyor.
         events = eventLogService.getEventLogByUser(identity.getLoginName());
+        if( events.size() > 10 ){
+            events = events.subList(0, 10);
+        }
     }
 
     public List<RafEventLog> getEvents() {
