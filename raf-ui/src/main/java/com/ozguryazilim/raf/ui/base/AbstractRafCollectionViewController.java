@@ -8,6 +8,7 @@ package com.ozguryazilim.raf.ui.base;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.utils.DateUtils;
 import java.util.ArrayList;
@@ -20,24 +21,25 @@ import javax.inject.Inject;
 
 /**
  * RafCollection için temel view controller sınıfı.
- * 
- * Tek görevi Aldığı sort ve group bilgilerine göre nesneleri sıralamak ve gruplamak.
- * 
+ *
+ * Tek görevi Aldığı sort ve group bilgilerine göre nesneleri sıralamak ve
+ * gruplamak.
+ *
  * @author Hakan Uygun
  */
-public abstract class AbstractRafCollectionViewController implements RafCollectionViewController{
+public abstract class AbstractRafCollectionViewController implements RafCollectionViewController {
 
     private static final String SORT_BY_NAME = "NAME";
     private static final String SORT_BY_DATE = "DATE";
     private static final String SORT_BY_MIMETYPE = "MIMETYPE";
     private static final String SORT_BY_CATEGORY = "CATEGORY";
     private static final String SORT_BY_TAG = "TAG";
-   
+
     @Inject
-    private IconResolver iconResolver; 
-    
+    private IconResolver iconResolver;
+
     private RafCollection collection;
-        
+
     private String sortBy = SORT_BY_NAME;
     private Boolean descSort = Boolean.FALSE;
     private Boolean foldersFirst = Boolean.TRUE;
@@ -45,7 +47,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     private List<String> groupNames = new ArrayList<>();
     private Map<String, List<RafObject>> groupMap = new HashMap<>();
-    
+
     @Override
     public String getIcon() {
         if ("raf/folder".equals(getCollection().getMimeType())) {
@@ -58,7 +60,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public String getTitle() {
         return getCollection().getTitle();
     }
-    
+
     @Override
     public RafCollection getCollection() {
         return collection;
@@ -68,7 +70,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public void setCollection(RafCollection collection) {
         this.collection = collection;
     }
-    
+
     public List<String> getGroupNames() {
         if (groupNames.isEmpty()) {
             //FIXME: Burada arayüzden alınan sıralama ve gruplama yetenekleri kullanılacak
@@ -102,25 +104,28 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                 groupMap.values().stream().forEach(l -> l.sort(new Comparator<RafObject>() {
                     @Override
                     public int compare(RafObject t1, RafObject t2) {
-                        //FIXME: FolderFirst kontrolü
                         //FIXME: Ters sıra kontrolü
+                        // Aslında grup içinde sıralama hep isme göre olmalı sanırım!
+                        return compareTitle(t1, t2 );
+                        /*
                         switch (sortBy) {
                             case SORT_BY_NAME:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                             case SORT_BY_MIMETYPE:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                             case SORT_BY_CATEGORY:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                             case SORT_BY_TAG:
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                             case SORT_BY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                return t1.getCreateDate().compareTo(t2.getCreateDate());
+                                return compareTitle(t1, t2 );
                             default:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                         }
-                        
+                        */
+
                     }
                 }));
                 groupNames.addAll(groupMap.keySet());
@@ -138,31 +143,91 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                 groupMap.put("ALL", getCollection().getItems().stream().sorted(new Comparator<RafObject>() {
                     @Override
                     public int compare(RafObject t1, RafObject t2) {
-                        //FIXME: FolderFirst kontrolü
                         //FIXME: Tesr sıra kontrolü
+                        int r = 0;
                         switch (sortBy) {
                             case SORT_BY_NAME:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                             case SORT_BY_MIMETYPE:
-                                return t1.getMimeType().compareTo(t2.getMimeType());
+                                return compareMimeType(t1, t2 );
                             case SORT_BY_CATEGORY:
                                 //return t1.getCategory().compareTo(t2.getCategory());
                                 //FIXME: category yoksa nasıl sıralayacağız?
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareCategory(t1, t2 );
                             case SORT_BY_TAG:
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTag(t1, t2 );
                             case SORT_BY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                return t1.getCreateDate().compareTo(t2.getCreateDate());
+                                return compareDate(t1, t2 );
                             default:
-                                return t1.getTitle().compareTo(t2.getTitle());
+                                return compareTitle(t1, t2 );
                         }
                     }
                 }).collect(Collectors.toList()));
             }
         }
         return groupNames;
+    }
+
+    private int compareFolder(RafObject t1, RafObject t2) {
+        boolean f1 = (t1 instanceof RafFolder);
+        boolean f2 = (t2 instanceof RafFolder);
+
+        if (f1 && f2) {
+            return 0;
+        } else if (f1 && !f2) {
+            return -1;
+        } else if (!f1 && f2) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private int compareTitle(RafObject t1, RafObject t2) {
+        int r = compareFolder(t1, t2 );
+        return r == 0 ? t1.getTitle().compareToIgnoreCase(t2.getTitle()) : r;
+    }
+    
+    private int compareMimeType(RafObject t1, RafObject t2) {
+        int r = compareFolder(t1, t2 );
+        return r == 0 ? t1.getMimeType().compareTo(t2.getMimeType()) : r;
+    }
+    
+    /**
+     * FIXME: categori sıralaması ile ilgili dert var.
+     * Kategori olmaması ile ilgili
+     * @param t1
+     * @param t2
+     * @return 
+     */
+    private int compareCategory(RafObject t1, RafObject t2) {
+        int r = compareFolder(t1, t2 );
+        return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
+    }
+    
+    /**
+     * FIXME: tag'a göre sıralama daha da büyük dert.
+     * Birden fazla tag olabilir. Nasıl olacak?
+     * @param t1
+     * @param t2
+     * @return 
+     */
+    private int compareTag(RafObject t1, RafObject t2) {
+        int r = compareFolder(t1, t2 );
+        return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
+    }
+    
+    /**
+     * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
+     * @param t1
+     * @param t2
+     * @return 
+     */
+    private int compareDate(RafObject t1, RafObject t2) {
+        int r = compareFolder(t1, t2 );
+        return r == 0 ? t1.getCreateDate().compareTo(t2.getCreateDate()) : r;
     }
     
     public List<RafObject> getGroupItems(String group) {
@@ -173,8 +238,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         groupNames.clear();
         groupMap.clear();
     }
-    
-    
+
     public String getSortBy() {
         return sortBy;
     }
