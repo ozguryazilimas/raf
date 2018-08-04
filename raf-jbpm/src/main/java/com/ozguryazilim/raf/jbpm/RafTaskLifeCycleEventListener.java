@@ -5,15 +5,20 @@
  */
 package com.ozguryazilim.raf.jbpm;
 
+import com.google.common.base.Joiner;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.notification.NotificationCommand;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskEvent;
+import org.kie.api.task.model.Group;
 import org.kie.api.task.model.PeopleAssignments;
+import org.kie.api.task.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,9 +159,28 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
         ncm.setSender("SYSTEM");
         
         //FIXME: Burada pots, bas ve stakeholder'lara da ayrı mesajlar iletmek lazım.
-        //FIME: ActualOwner yok ise NPE gelir. kontrol etmeli.
         ncm.setSubject( "Göreviniz var : " + event.getTask().getName());
-        ncm.setTarget("cs=user;id=" + event.getTask().getTaskData().getActualOwner().getId());
+        //Eğer gerçek bir kişiye atanmış ise ona bildirim göndereceğiz
+        if( event.getTask().getTaskData().getActualOwner() != null ){
+            ncm.setTarget("cs=user;id=" + event.getTask().getTaskData().getActualOwner().getId());
+        } else {
+            //Gerçek kişi yoksa grup olsa gerek
+            PeopleAssignments pas = event.getTask().getPeopleAssignments();
+            LOG.debug("Atanabilecek kullanıcılar : {}", pas.getPotentialOwners());
+            LOG.debug("BAs kullanıcılar : {}", pas.getBusinessAdministrators());
+            
+            List<String> targets = new ArrayList<>();
+            
+            pas.getPotentialOwners().forEach((oe) -> {
+                if( oe instanceof Group ){
+                    targets.add("cs=group;id=" + oe.getId());
+                } else if( oe instanceof User ){
+                    targets.add("cs=user;id=" + oe.getId());
+                }
+            });
+            
+            ncm.setTarget(Joiner.on("||").join(targets));
+        }
         
         Map<String, Object> params = new HashMap<>();
         
