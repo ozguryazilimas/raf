@@ -5,7 +5,7 @@ cd target/deployments/raf.war/
 rm -rf WEB-INF/lib/telve-core-4.0.0.Beta6-SNAPSHOT.jar
 #rm -rf WEB-INF/lib/telve-core-model-4.0.0.Beta6-SNAPSHOT.jar
 #rm -rf WEB-INF/lib/telve-idm-model-4.0.0.Beta6-SNAPSHOT.jar
-#rm -rf WEB-INF/lib/telve-idm-4.0.0.Beta6-SNAPSHOT.jar
+rm -rf WEB-INF/lib/telve-idm-4.0.0.Beta6-SNAPSHOT.jar
 rm -rf WEB-INF/lib/telve-layout-4.0.0.Beta6-SNAPSHOT.jar
 #rm -rf WEB-INF/lib/telve-keycloak-4.0.0.Beta6-SNAPSHOT.jar
 #rm -rf WEB-INF/lib/telve-bpm-4.0.0.Beta6-SNAPSHOT.jar
@@ -26,7 +26,7 @@ rm -rf WEB-INF/lib/raf-record-1.0.0-SNAPSHOT.jar
 ln -s ~/git/telve4/telve-core/target/classes/ WEB-INF/lib/telve-core-4.0.0.Beta6-SNAPSHOT.jar
 #ln -s ~/git/telve4/telve-core-model/target/classes/ WEB-INF/lib/telve-core-model-4.0.0.Beta6-SNAPSHOT.jar
 #ln -s ~/git/telve4/telve-idm-model/target/classes/ WEB-INF/lib/telve-idm-model-4.0.0.Beta6-SNAPSHOT.jar
-#ln -s ~/git/telve4/telve-idm/target/classes/ WEB-INF/lib/telve-idm-4.0.0.Beta6-SNAPSHOT.jar
+ln -s ~/git/telve4/telve-idm/target/classes/ WEB-INF/lib/telve-idm-4.0.0.Beta6-SNAPSHOT.jar
 ln -s ~/git/telve4/telve-layout/target/classes/ WEB-INF/lib/telve-layout-4.0.0.Beta6-SNAPSHOT.jar
 #ln -s ~/git/telve4/telve-keycloak/target/classes/ WEB-INF/lib/telve-keycloak-4.0.0.Beta6-SNAPSHOT.jar
 #ln -s ~/git/telve4/telve-bpm/target/classes/ WEB-INF/lib/telve-bpm-4.0.0.Beta6-SNAPSHOT.jar

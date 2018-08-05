@@ -24,6 +24,11 @@ public class TextField extends AbstractField<String>{
     public Class<String> getValueClass() {
         return String.class;
     }
+
+    @Override
+    public String getType() {
+        return "Text";
+    }
  
     
 }

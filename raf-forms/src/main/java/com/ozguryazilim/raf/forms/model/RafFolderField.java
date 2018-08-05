@@ -17,5 +17,10 @@ public class RafFolderField extends AbstractRafObjectSelectField<RafFolder>{
     public Class<RafFolder> getValueClass() {
         return RafFolder.class;
     }
+
+    @Override
+    public String getType() {
+        return "RafFolder";
+    }
     
 }

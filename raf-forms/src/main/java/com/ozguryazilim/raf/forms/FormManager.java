@@ -5,7 +5,10 @@
  */
 package com.ozguryazilim.raf.forms;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.auth.RafAsset;
+import com.ozguryazilim.raf.forms.model.AbstractField;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
@@ -55,6 +58,32 @@ public class FormManager {
             formMap.put(f.getFormKey(), f);
             LOG.info("Form deployed : {}", f);
         }
+        
+        //FieldID ataması yapalım. Eğer parse edilen form'da field id verilmemiş ise biz verelim.
+        frms.forEach((f) -> {
+            int i = 0;
+            for( Field fl : f.getFields()){
+                if( Strings.isNullOrEmpty(fl.getId()) ){
+                    fl.setId("f_" + i);
+                    i++;
+                }
+            }
+        });
+        
+        
+        //Şimdi de base'den miras alınan fieldları setleyelim.
+        frms.stream().filter((f) -> ( !Strings.isNullOrEmpty(f.getBase()))).forEachOrdered((f) -> {
+            Form bf = getForm(f.getBase());
+            bf.getFields().forEach((fld) -> {
+                try {
+                    AbstractField nf = FieldTypeRegistery.getFieldBuilder(fld.getType()).build(fld);
+                    f.getFields().add(nf);
+                } catch (InstantiationException | IllegalAccessException ex) {
+                    LOG.error("Base Field Copy Error", ex);
+                }
+            });
+        });
+        
 
         List<Form> fl = kjarFormMap.get(kjarId);
         if (fl == null) {

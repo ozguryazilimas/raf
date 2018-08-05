@@ -41,6 +41,11 @@ public class FormBuilder {
         return this;
     }
     
+    public FormBuilder fromBase( String base ){
+        form.setBase(base);
+        return this;
+    }
+    
     public FormBuilder addField( AbstractField field ){
         form.getFields().add(field);
         return this;

@@ -245,6 +245,11 @@ public abstract class RafObject implements Serializable{
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return getTitle();
+    }
     
     
 }

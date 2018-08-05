@@ -79,15 +79,17 @@ public class FormXmlParser {
             String id = ef.attributeValue("id");
             String version = ef.attributeValue("version");
             String title = ef.attributeValue("title");
+            String base = ef.attributeValue("base");
 
-            FormBuilder formBuilder = FormBuilder.createForm(formKey).withId(id).withVersion(version).withTitle(title);
+            FormBuilder formBuilder = FormBuilder.createForm(formKey).withId(id).withVersion(version).withTitle(title).fromBase(base);
 
             List<Element> elements = ef.elements("field");
             for (Element e : elements) {
 
-                String uitype = e.attributeValue("uitype");
+                String uitype = e.attributeValue("type");
 
                 AbstractFieldBuilder fb = FieldTypeRegistery.getFieldBuilder(uitype);
+                if( fb != null ){
 
                 Map<String, String> attributes = new HashMap<>();
                 //Parse and build Fields
@@ -101,6 +103,9 @@ public class FormXmlParser {
                 AbstractField f = fb.build(attributes);
 
                 formBuilder.addField(f);
+                } else {
+                    LOG.error("Field type {} not registered", uitype);
+                }
             }
 
             forms.add(formBuilder.build());

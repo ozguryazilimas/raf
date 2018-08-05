@@ -34,9 +34,9 @@ public class TaskActionRegistery {
     }
     
     static {
-        registerTaskAction(new TaskAction("APPROVE", "fa-check", "btn-primary"));
-        registerTaskAction(new TaskAction("REJECT", "fa-delete", "btn-error"));
+        registerTaskAction(new TaskAction("APPROVE", "task.action.APPROVE", "fa-check", "btn-primary"));
+        registerTaskAction(new TaskAction("REJECT", "task.action.REJECT", "fa-delete", "btn-danger"));
         registerTaskAction(new TaskAction("CONTINUE", "general.button.Ok", "fa-check", "btn-primary"));
-        registerTaskAction(new TaskAction("SIGN", "fa-check", "btn-success"));
+        registerTaskAction(new TaskAction("SIGN", "task.action.SIGN", "fa-check", "btn-success"));
     }
 }

@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public interface Field<T extends Serializable> extends Serializable{
     
+    String getType();
+    
     String getId();
     void setId(String id);
 
@@ -38,6 +40,9 @@ public interface Field<T extends Serializable> extends Serializable{
 
     String getDataKey();
     void setDataKey(String dataKey);
+    
+    String getColumnClass();
+    void setColumnClass(String columnClass);
     
     abstract Class<T> getValueClass();
     
