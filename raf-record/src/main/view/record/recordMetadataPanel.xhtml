@@ -10,12 +10,18 @@
         <!-- Basic Metadata panel -->
         FIXME: i18n
     </ui:remove>
-    
+
     <t:accordion id="bmd" label="#{recordMetadataPanel.title}" columnClass="col-xs-12">
         <t:outputText label="record.label.RecordType" value="#{recordMetadataPanel.recordType}" columnClass="col-xs-12"/>
         <t:outputText label="record.label.DocumentType" value="#{recordMetadataPanel.documentType}" columnClass="col-xs-12"/>
         <t:outputText label="record.label.RecordNo" value="#{recordMetadataPanel.object.recordNo}" columnClass="col-xs-12"/>
         <t:outputText label="record.label.Location" value="#{recordMetadataPanel.object.location}" columnClass="col-xs-12"/>
+        <t:outputAny label="Süreç Detayları" columnClass="col-xs-12">
+            <h:link outcome="/bpm/processConsole.xhtml">
+                #{recordMetadataPanel.processInstanceDesc.processName} - ##{recordMetadataPanel.object.processIntanceId}<i class="fa fa-external-link"/>
+                <f:param name="tid" value="#{recordMetadataPanel.object.processIntanceId}" />
+            </h:link>
+        </t:outputAny>
     </t:accordion>
 
 

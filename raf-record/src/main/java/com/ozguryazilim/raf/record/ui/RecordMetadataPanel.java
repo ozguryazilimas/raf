@@ -13,6 +13,8 @@ import com.ozguryazilim.raf.record.model.RafRecordType;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import javax.inject.Inject;
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +29,13 @@ public class RecordMetadataPanel extends AbstractMetadataPanel{
     @Inject
     private RecordTypeManager recordTypeManager;
     
+    @Inject
+    private RuntimeDataService runtimeDataService;
+    
     private RafRecord object;
     private String recordType;
     private String documentType;
+    private ProcessInstanceDesc processInstanceDesc;
 
     public RafRecord getObject() {
         return object;
@@ -46,6 +52,8 @@ public class RecordMetadataPanel extends AbstractMetadataPanel{
                 break;
             }
         }
+        
+        processInstanceDesc = runtimeDataService.getProcessInstanceById(getObject().getProcessIntanceId());
     }
 
     public String getRecordType() {
@@ -55,6 +63,9 @@ public class RecordMetadataPanel extends AbstractMetadataPanel{
     public String getDocumentType() {
         return documentType;
     }
-    
+
+    public ProcessInstanceDesc getProcessInstanceDesc() {
+        return processInstanceDesc;
+    }
     
 }

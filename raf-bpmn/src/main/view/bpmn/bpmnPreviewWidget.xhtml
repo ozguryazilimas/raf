@@ -16,6 +16,9 @@
         .bjs-powered-by {
             display: none;
         }
+        .highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+                     fill: #f39c12 !important; /* color elements as green */
+        }
         svg{
             height: 100%;
         }
@@ -55,6 +58,7 @@
                     canvas.viewbox({x: 1, y: 1, width: 500, height: 500});
                     // zoom to fit full viewport
                     canvas.zoom('fit-viewport');
+                    canvas.addMarker('#{activeTask}', 'highlight');
                     // attach an overlay to a node
                     /*
                      overlays.add('SCAN_OK', 'note', {
