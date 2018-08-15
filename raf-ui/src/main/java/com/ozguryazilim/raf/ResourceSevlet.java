@@ -5,7 +5,7 @@
  */
 package com.ozguryazilim.raf;
 
-import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafDocument;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,12 +54,18 @@ public class ResourceSevlet extends HttpServlet{
         
         try {
             
-            RafObject doc = service.getRafObject(resourceId);
+            RafDocument doc = (RafDocument) service.getRafObject(resourceId);
             
-            InputStream is = service.getDocumentContent( resourceId );
+            InputStream is = null;
+            //Eğer preview isteniyor ise onu alalım
+            if( req.getPathInfo().endsWith("preview") ){
+                is = service.getPreviewContent( resourceId );
+                resp.setContentType(doc.getPreviewMimeType());
+            } else {
+                is = service.getDocumentContent( resourceId );
+                resp.setContentType(doc.getMimeType());
+            }
             
-            resp.setContentType(doc.getMimeType());
-
             resp.setHeader("Content-disposition", "inline;filename=" + doc.getName());
             //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
 

@@ -1083,6 +1083,36 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
+    
+    
+    public InputStream getPreviewContent(String id) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Preview Content Requested: {}", node.getPath());
+
+            if( !node.hasNode("raf:preview")){
+                throw new RafException("[RAF-0035] Raf Node preview cannot found");
+            }
+            
+            Node content = node.getNode("raf:preview");
+
+            //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+
+            session.logout();
+
+            ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
+
+            return result;
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
 
     /**
      * ID'si verilen nodu siler.
@@ -1516,6 +1546,13 @@ public class RafModeshapeRepository implements Serializable {
             result.getMetadatas().add(mc.nodeToModel(mn));
         }
 
+        //raf:preview var ise onun bilgilerini alalım.
+        if(node.hasNode("raf:preview")){
+            result.setHasPreview(Boolean.TRUE);
+            Node preview = node.getNode("raf:preview");
+            result.setPreviewMimeType(getPropertyAsString(preview, "jcr:mimeType"));
+        }
+        
         return result;
     }
 
