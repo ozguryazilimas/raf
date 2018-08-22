@@ -5,6 +5,7 @@
  */
 package com.ozguryazilim.raf.forms.builders;
 
+import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.SuggestionField;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  *
  * @author oyas
  */
-public class SuggestionFieldBuilder extends AbstractFieldBuilder{
+public class SuggestionFieldBuilder extends AbstractFieldBuilder<SuggestionField>{
 
     public SuggestionField build( Map<String,String> attributes){
         
@@ -23,6 +24,19 @@ public class SuggestionFieldBuilder extends AbstractFieldBuilder{
         
         result.setGroup(attributes.getOrDefault("group", "forms"));
         result.setKey(attributes.getOrDefault("key", ""));
+        
+        return result;
+    }
+
+    @Override
+    public AbstractField build(SuggestionField field) {
+        SuggestionField result = new SuggestionField();
+        baseBuild(field, result);
+        result.setDefaultValue(field.getDefaultValue());
+        //FIXME: Burada ek olarak suggestion group ve key parse edilecek
+        
+        result.setGroup(field.getGroup());
+        result.setKey(field.getKey());
         
         return result;
     }

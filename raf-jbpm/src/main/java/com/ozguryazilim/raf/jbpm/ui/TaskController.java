@@ -251,6 +251,11 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Data alanında olan herşeyi metadata bloğuna koyuyoruz.
         completeParams.put("metadata", data);
 
+        
+        //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
+        completeParams.put("manager", identity.getUserInfo().getManager());
+        
+        
         LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
 

@@ -30,4 +30,8 @@ public class SuggestionField extends TextField{
         this.key = key;
     }
     
+    @Override
+    public String getType() {
+        return "Suggestion";
+    }
 }

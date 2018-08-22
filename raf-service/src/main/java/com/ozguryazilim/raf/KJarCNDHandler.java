@@ -6,9 +6,12 @@
 package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.auth.KJarResourceHandler;
+import com.ozguryazilim.raf.auth.RafAsset;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -33,7 +36,7 @@ public class KJarCNDHandler implements KJarResourceHandler{
     }
 
     @Override
-    public void handle(InputStream is) {
+    public void handle(String kjarId, InputStream is) {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Workspace workspace = session.getWorkspace();
@@ -45,6 +48,18 @@ public class KJarCNDHandler implements KJarResourceHandler{
             LOG.error("Node Types can't register", ex);
         } 
         
+    }
+
+    @Override
+    public void undeploy(String kjarId) {
+        //Register edilmiş CND undeploy edilemez!
+    }
+
+    @Override
+    public List<RafAsset> getAssests(String kjarId) {
+        //FIXME: bu bilgileri geri dönmek lazım mı?
+        //Bu bilgiyi tutacak bir yapı yok!
+        return Collections.emptyList();
     }
     
 }

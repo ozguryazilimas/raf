@@ -17,5 +17,10 @@ public class RafDocumentField extends AbstractRafObjectSelectField<RafDocument>{
     public Class<RafDocument> getValueClass() {
         return RafDocument.class;
     }
+
+    @Override
+    public String getType() {
+        return "RafDocument";
+    }
     
 }

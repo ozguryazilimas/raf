@@ -24,4 +24,8 @@ public class SelectionField extends TextField{
         this.values = values;
     }
     
+    @Override
+    public String getType() {
+        return "Selection";
+    }
 }

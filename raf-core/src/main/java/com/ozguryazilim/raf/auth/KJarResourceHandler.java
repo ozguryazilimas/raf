@@ -6,6 +6,7 @@
 package com.ozguryazilim.raf.auth;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * KJar yüklenirken içinden çıkan resourceları handle etmek için API
@@ -25,5 +26,13 @@ public interface KJarResourceHandler {
      * Verilen input stream handle edilir.
      * @param is 
      */
-    void handle( InputStream is );
+    void handle( String kjarId, InputStream is );
+    
+    /**
+     * Verilen isimle yüklenmiş resourceları undeploy eder.
+     * @param kjarId 
+     */
+    void undeploy( String kjarId );
+    
+    List<RafAsset> getAssests(String kjarId);
 }

@@ -22,6 +22,7 @@ public class Form implements Serializable{
     private String formKey;
     private String version;
     private String title;
+    private String base;
     
     private List<Field> fields = new ArrayList<>();
 
@@ -61,6 +62,15 @@ public class Form implements Serializable{
         this.title = title;
     }
 
+    public String getBase() {
+        return base;
+    }
+
+    public void setBase(String base) {
+        this.base = base;
+    }
+    
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -88,9 +98,9 @@ public class Form implements Serializable{
 
     @Override
     public String toString() {
-        return "Form{" + "id=" + id + ", formKey=" + formKey + ", version=" + version + ", title=" + title + '}';
+        return "Form{" + "id=" + id + ", formKey=" + formKey + ", version=" + version + ", title=" + title + ", base=" + base + ", fields=" + fields + '}';
     }
-    
+
     
     
 }

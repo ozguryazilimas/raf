@@ -65,7 +65,11 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     public String getPreviewWidget() {
         //Eğer mimetype yoksa default isteyelim
         if (getObject() != null) {
-            return PreviewPanelRegistery.getMimeTypePanel(getObject().getMimeType()).getViewId();
+            if( getObject().getHasPreview()){
+                return PreviewPanelRegistery.getMimeTypePanel(getObject().getPreviewMimeType()).getViewId();
+            } else {
+                return PreviewPanelRegistery.getMimeTypePanel(getObject().getMimeType()).getViewId();
+            }
         } else {
             return PreviewPanelRegistery.getMimeTypePanel("default").getViewId();
         }

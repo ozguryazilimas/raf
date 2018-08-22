@@ -8,3 +8,4 @@ target
 *.iml
 nbproject
 .directory
+nb-configuration.xml

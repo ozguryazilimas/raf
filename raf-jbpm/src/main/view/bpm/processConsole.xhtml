@@ -77,14 +77,17 @@
                 <div class="col-md-4 col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
+                            Aktif Süreçler
+                            <ui:remove>
                             Buraya filtre gelecek
+                            </ui:remove>
                         </div>
                         <div class="box-body">
                             <ul class="products-list product-list-in-box">
                                 <p:repeat value="#{processConsoleController.processInstances}" var="pi" >
                                     <li class="item">
                                         <p:commandLink action="#{processConsoleController.selectProcess(pi.id)}" process="@this" styleClass="product-title" update="tfrm">
-                                            ##{pi.id} - #{pi.processName}   #{pi.state} 
+                                            ##{pi.id} - #{pi.processName}   <!-- #{pi.state}  -->
                                         </p:commandLink>
                                         <span class="product-description">
                                             #{pi.processInstanceDescription}
@@ -220,13 +223,15 @@
                                                                 <th>Başlangıç</th>
                                                             </tr>
                                                             <p:repeat value="#{processConsoleController.processHistory}" var="ni" >
-                                                                <tr>
-                                                                    <td>
-                                                                        <i class="fa #{ ni.nodeType eq 'HumanTaskNode' ? 'fa-user' : ni.nodeType eq 'StartNode' ? 'fa-flash' : ni.nodeType eq 'EndNode' ?  'fa-power-off' : 'fa-cogs' }" />
-                                                                    </td>
-                                                                    <td>#{ni.name}</td>
-                                                                    <td><t:cellOutputDateTime value="#{ni.dataTimeStamp}" /></td>
-                                                                </tr>
+                                                                <ui:fragment rendered="#{ ni.nodeType ne 'Join' and ni.nodeType ne 'Split'}">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <i class="fa #{ ni.nodeType eq 'HumanTaskNode' ? 'fa-user' : ni.nodeType eq 'StartNode' ? 'fa-flash' : ni.nodeType eq 'EndNode' ?  'fa-power-off' : 'fa-cogs' }" />
+                                                                        </td>
+                                                                        <td>#{ni.name}</td>
+                                                                        <td><t:cellOutputDateTime value="#{ni.dataTimeStamp}" /></td>
+                                                                    </tr>
+                                                                </ui:fragment>
                                                             </p:repeat>
                                                         </table>
 
@@ -239,6 +244,9 @@
 
                                                         <ui:include src="/bpmn/bpmnPreviewWidget.xhtml">
                                                             <ui:param name="bpmnPath" value="bpmnDiagram/#{processConsoleController.deploymentId}/#{processConsoleController.processId}"/>
+                                                            <ui:remove>
+                                                            <ui:param name="activeTask" value="#{processConsoleController.selectedProcessInstance.activeTasks.get(0).formName}" />
+                                                            </ui:remove>
                                                         </ui:include>
 
                                                         <ui:remove>

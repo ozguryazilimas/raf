@@ -1,0 +1,160 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:param name="dontShowContentHeader" value="true" />
+    <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="Deployment" />
+
+    <ui:define name="metadata">
+        <ui:remove>
+            <f:metadata>
+                <f:viewParam name="tid" value="#{taskController.taskId}" />
+                <f:viewAction action="#{taskController.init()}"/>
+            </f:metadata>
+        </ui:remove>
+    </ui:define>
+
+
+    <ui:define name="extraHead">
+        <ui:remove>
+            <h:outputStylesheet library="raf" name="css/raf.css" />
+            <h:outputScript library="raf" name="js/jquery.mousewheel.js" />
+            <h:outputStylesheet library="icons" name="icons.css" />
+        </ui:remove>
+    </ui:define>
+
+    <ui:define name="customHeader">
+
+        <div class="raf-header-container">
+            <section class="raf-header">
+                <ui:remove>
+                    <div class="raf-header-logo">
+                        <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
+                    </div>
+                    <div class="raf-header-texts">
+                        <div class="raf-header-text text-muted text-sm">
+                            #{messages['raf.label.Raf']}
+                        </div>
+                        <div class="raf-header-info text-bold text-big">
+                            #{messages[rafController.rafDefinition.name]}
+                        </div>
+                    </div>
+                </ui:remove>
+            </section>
+            <section class="raf-header-tools">
+                <ui:remove>
+                    <ui:fragment rendered="#{rafController.showManagerTools()}">
+                        <div class="raf-header-tool-pack">
+                            <div class="raf-header-btns">
+                                <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
+                                    <i class="fa fa-users" />
+                                    <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                                </h:link>
+
+                                <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
+                                    <i class="fa fa-cogs" />
+                                    <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                                </h:link>
+                            </div>
+                        </div>
+                    </ui:fragment>
+                </ui:remove>
+            </section>
+        </div>
+
+    </ui:define>
+
+    <ui:define name="body">
+        <ui:include src="/layout/messages.xhtml" />
+
+        <h:panelGroup id="deploymentConsole" layout="block" >
+            <div class="row">
+                <div class="col-md-4 col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <a href="#" onclick="PF('newDeployment').show()">
+                                <i class="fa fa-plus"/> Yeni Paket Yükle
+                            </a>
+                        </div>
+                        <div class="box-body">
+                            <ul class="products-list product-list-in-box">
+                                <p:repeat value="#{deploymentController.deployedUnits}" var="unit">
+                                    <li class="item">
+                                        <p:commandLink action="#{deploymentController.selectUnit(unit)}" process="@this" styleClass="product-title" update="dfrm">
+                                            #{unit.deploymentUnit.identifier}
+                                        </p:commandLink>
+                                    </li>
+                                </p:repeat>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 col-xs-12">
+                    <h:form id="dfrm">
+                        <ui:fragment rendered="#{not empty deploymentController.selectedUnit}">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">
+                                        #{deploymentController.selectedUnit.deploymentUnit.identifier}
+                                    </h3>
+                                    <span class="pull-right">
+                                        #{deploymentController.selectedUnit.active ? 'Aktif' : 'Pasif'}
+                                    </span>
+                                </div>
+                                <div class="box-body">
+                                    <ul>
+                                        <table class="table">
+                                            <th colspan="3">İçerdiği Kaynaklar</th>
+                                            <p:repeat value="#{deploymentController.deployedAssets}" var="asst">
+                                                <tr>
+                                                    <td>#{asst.name}</td>
+                                                    <td>#{asst.type}</td>
+                                                    <td>#{asst.id}</td>
+                                                </tr>
+                                            </p:repeat>
+                                        </table>
+                                    </ul>
+                                </div>
+                                <div class="box-footer">
+                                    <p:commandButton value="Kaldır" action="#{deploymentController.undeploy()}" process="@this" update="deploymentConsole" styleClass="btn btn-danger"/>
+                                    <p:commandButton value="Pasife Al" action="#{deploymentController.deactivate()}" process="@this" update="deploymentConsole" styleClass="btn btn-danger" rendered="#{deploymentController.selectedUnit.active}"/>
+                                    <p:commandButton value="Aktife Al" action="#{deploymentController.activate()}" process="@this" update="deploymentConsole" styleClass="btn btn-danger" rendered="#{not deploymentController.selectedUnit.active}"/>
+                                </div>
+                            </div>
+                        </ui:fragment>
+                    </h:form>
+                </div>
+            </div>
+        </h:panelGroup>
+
+        <p:dialog header="Yeni Paket" id="newDeployment" widgetVar="newDeployment" width="450" modal="true">
+
+            <h:form id="ndep">
+                <div class="row">
+                    <t:inputText label="Paket Adı" value="#{deploymentController.kjarId}" 
+                                 required="true"
+                                 columnClass="col-xs-12" placeholder="groupId:artifactId:version"/>
+                </div>
+                <div class="row" style="margin-top: 4px;">
+                    <div class="col-xs-12">
+                        <div class="pull-right">
+                            <p:commandButton value="Yükle" action="#{deploymentController.deploy()}" process="@form" update="deploymentConsole" styleClass="btn btn-primary" oncomplete="PF('newDeployment').hide();"/>
+                            <p:commandButton value="Vazgeç" onclick="PF('newDeployment').hide();" styleClass="btn btn-default"/>
+                        </div>
+                    </div>
+                </div>
+            </h:form>
+
+        </p:dialog>
+
+    </ui:define>
+
+
+
+</ui:composition>

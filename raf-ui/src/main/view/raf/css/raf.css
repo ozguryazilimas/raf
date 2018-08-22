@@ -284,18 +284,39 @@
 }
 
 .raf-item-selected{
-    background-color: #3c8dbc !important;
+   /* background-color: #3c8dbc !important;
     color: #fff !important;
+   */
+   /* font: normal normal normal 14px/1 FontAwesome !important; */
 }
 
+.raf-item-select-icon {
+    z-index: 35;
+    position: relative;
+    top: 0px;
+    left: -10px;
+    display: inline-blockblock;
+    width: 0px;
+    height: 0px;
+    /*float: right;*/
+}
+
+/*
+.raf-item-selected > a:before{
+    content: "\f096";
+    font: normal normal normal 14px/1 FontAwesome !important;
+}
+*/
+
 .raf-item-selected > a{
-    background-color: #3c8dbc !important;
-    color: #d2d6de !important;
+  /*  background-color: #3c8dbc !important;*/
+    /*color: #d2d6de !important; */
+    
 }
 
 .raf-item-selected > a:hover{
-    background-color: #3c8dbc !important;
-    color: #fff !important;
+ /*   background-color: #3c8dbc !important;*/
+    
 }
 
 .content-view-port{

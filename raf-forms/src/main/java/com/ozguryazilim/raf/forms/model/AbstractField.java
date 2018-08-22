@@ -48,8 +48,7 @@ public abstract class AbstractField<T extends Serializable> implements Field<T>{
         this.id = dataKey;
         this.dataKey = dataKey;
     }
-    
-    
+
     @Override
     public String getId() {
         return id;
@@ -180,6 +179,11 @@ public abstract class AbstractField<T extends Serializable> implements Field<T>{
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AbstractField{" + "id=" + id + ", label=" + label + ", permission=" + permission + ", dataKey=" + dataKey + '}';
     }
 
     

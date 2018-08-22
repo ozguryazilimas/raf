@@ -16,4 +16,8 @@ public class UserField extends AbstractField<String>{
         return String.class;
     }
     
+    @Override
+    public String getType() {
+        return "User";
+    }
 }

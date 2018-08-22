@@ -255,6 +255,11 @@
                                         </li>
                                         <li role="separator" class="divider"></li>
                                         <li>
+                                            <p:commandLink action="#{rafController.selectedContentPanel.setShowDetails( not rafController.selectedContentPanel.getShowDetails())}" process="@this" update="raf-view-content">
+                                                <i class="fa #{rafController.selectedContentPanel.getShowDetails() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.ShowDetails']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
                                             <p:commandLink action="#{rafController.selectedContentPanel.setDescSort( not rafController.selectedContentPanel.getDescSort())}" process="@this" update="raf-view-content">
                                                 <i class="fa #{rafController.selectedContentPanel.getDescSort() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.DescOrder']}
                                             </p:commandLink>
