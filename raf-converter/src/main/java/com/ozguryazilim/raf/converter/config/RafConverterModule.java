@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.preview.OfficePreviewSequencer;
 import com.ozguryazilim.telve.api.module.TelveModule;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 /**
  *
@@ -22,8 +23,10 @@ public class RafConverterModule {
     
     @PostConstruct
     public void init(){
-        SequencerRegistery.register("OfficePreviewSequencer", OfficePreviewSequencer.class.getCanonicalName(), 
+        if( "true".equals(ConfigResolver.getPropertyValue("raf.preview.office", "true"))){
+            SequencerRegistery.register("OfficePreviewSequencer", OfficePreviewSequencer.class.getCanonicalName(), 
                 "default://*.(odt|odp|ods|xls|doc|ppt|xlsx|docx|pptx)/jcr:content[@jcr:data]");
+        }
         SequencerRegistery.register("ImagePreviewSequencer", ImagePreviewSequencer.class.getCanonicalName(), 
                 "default://*.(jpg|jpeg|gif|bmp|pcx|png|iff|ras|pbm|pgm|ppm|psd)/jcr:content[@jcr:data]");
     }

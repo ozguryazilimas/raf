@@ -7,6 +7,7 @@ package com.ozguryazilim.raf.jod;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.jodconverter.LocalConverter;
 import org.jodconverter.office.LocalOfficeManager;
 import org.jodconverter.office.OfficeException;
@@ -39,9 +40,13 @@ public class OfficeManagerFactory {
 
     public static LocalConverter getLocalConverter() throws OfficeException {
         if( localConverter == null ){
-            //FIXME: burada ayarlardan alınacak bilgiler
+            String range = ConfigResolver.getPropertyValue("raf.preview.office.range", "1-2");
+            
             Map<String, Object> filterData = new HashMap<>();
-            filterData.put("PageRange", "1-2");
+            //Eğer ALL gelirise hepsi çevrilecek demek
+            if( !"ALL".equals(range)){
+                filterData.put("PageRange", range);
+            }
             Map<String, Object> customProperties = new HashMap<>();
             customProperties.put("FilterData", filterData);
             
