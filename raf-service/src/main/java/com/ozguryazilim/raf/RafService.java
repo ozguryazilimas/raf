@@ -17,6 +17,7 @@ import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.models.RafSignature;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
@@ -246,6 +247,16 @@ public class RafService implements Serializable {
         rafRepository.saveMetadata(id, data);
     }
 
+    public void saveSignature(String id, RafSignature signature, InputStream is) throws RafException {
+        sendAuditLog( id, "SAVE_SIGNATURE", "" );
+        rafRepository.saveSignature(id, signature, is);
+    }
+    
+    public InputStream getSignatureContent(String id) throws RafException {
+        sendAuditLog( id, "READ_SIGNATURE", "" );
+        return rafRepository.getSignatureContent(id );
+    }
+    
     /**
      * RafObject üzerinde bulunan title, info v.b. alanları günceller.
      *

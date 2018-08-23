@@ -13,6 +13,8 @@ public class RafDocument extends RafObject{
 
     private Boolean hasPreview = Boolean.FALSE;
     private String previewMimeType;
+    private Boolean signed = Boolean.FALSE;
+    private RafSignature signature;
 
     public Boolean getHasPreview() {
         return hasPreview;
@@ -29,7 +31,21 @@ public class RafDocument extends RafObject{
     public void setPreviewMimeType(String previewMimeType) {
         this.previewMimeType = previewMimeType;
     }
-    
-    
+
+    public Boolean getSigned() {
+        return signed;
+    }
+
+    public void setSigned(Boolean signed) {
+        this.signed = signed;
+    }
+
+    public RafSignature getSignature() {
+        return signature;
+    }
+
+    public void setSignature(RafSignature signature) {
+        this.signature = signature;
+    }
     
 }

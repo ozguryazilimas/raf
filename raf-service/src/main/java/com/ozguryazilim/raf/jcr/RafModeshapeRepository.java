@@ -20,6 +20,7 @@ import com.ozguryazilim.raf.models.RafMimeTypes;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.models.RafSignature;
 import com.ozguryazilim.raf.models.RafVersion;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -1027,7 +1029,9 @@ public class RafModeshapeRepository implements Serializable {
      */
     protected void saveMetadata(String id, RafMetadata metadata, Session session) throws RafException {
 
+        
         try {
+            
             Node metaNode = null;
 
             //Demek ki ilk kez yazılacak.
@@ -1059,6 +1063,50 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public void saveSignature(String id, RafSignature signature, InputStream is) throws RafException {
+        try {
+            Node signatureNode = null;
+            Session session = ModeShapeRepositoryFactory.getSession();
+            //Demek ki ilk kez yazılacak.
+            if (Strings.isNullOrEmpty(signature.getId())) {
+                Node node = session.getNodeByIdentifier(id);
+
+                if (node == null) {
+                    //FIXME: bu exception nedir söylemek lazım.
+                    throw new RafException("[RAF-0005] Raf node not found");
+                }
+
+                if( node.hasNode("raf:signature") ){
+                    signatureNode = node.getNode("raf:signature");
+                } else {
+                    signatureNode = node.addNode("raf:signature", "raf:signature");
+                }
+            } else {
+                //MetadataNode var update için kendisini bulalım
+                signatureNode = session.getNodeByIdentifier(signature.getId());
+
+                if (signatureNode == null) {
+                    //FIXME: bu exception nedir söylemek lazım.
+                    throw new RafException("[RAF-0005] Raf node not found");
+                }
+            }
+
+            Binary signatureBin = session.getValueFactory().createBinary(is);
+            signatureNode.setProperty("jcr:mimeType", "application/x-esign-" + signature.getType());
+            signatureNode.setProperty("jcr:data", signatureBin);
+            signatureNode.setProperty("signature:type", signature.getType());
+            signatureNode.setProperty("signature:format", signature.getFormat());
+            signatureNode.setProperty("signature:status", signature.getStatus());
+
+            session.save();
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0041] Raf Signature cannot saved", ex);
+        }
+    }
+    
+    
     public InputStream getDocumentContent(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -1097,6 +1145,36 @@ public class RafModeshapeRepository implements Serializable {
             }
             
             Node content = node.getNode("raf:preview");
+
+            //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+
+            session.logout();
+
+            ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
+
+            return result;
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
+    
+    public InputStream getSignatureContent(String id) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Signature Content Requested: {}", node.getPath());
+
+            if( !node.hasNode("raf:signature")){
+                throw new RafException("[RAF-0035] Raf Node signature cannot found");
+            }
+            
+            Node content = node.getNode("raf:signature");
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1553,9 +1631,35 @@ public class RafModeshapeRepository implements Serializable {
             result.setPreviewMimeType(getPropertyAsString(preview, "jcr:mimeType"));
         }
         
+        //raf:sign var ise onun bilgilerini alalım.
+        if(node.hasNode("raf:signature")){
+            result.setSigned(Boolean.TRUE);
+            Node sign = node.getNode("raf:signature");
+            RafSignature signature = nodeToRafSignature(sign);
+            result.setSignature(signature);
+        }
+        
         return result;
     }
 
+    protected RafSignature nodeToRafSignature(Node node) throws RepositoryException, RafException {
+        RafSignature result = new RafSignature();
+        
+        result.setId(node.getIdentifier());
+        result.setPath(node.getPath());
+        result.setName(node.getName());
+
+        //bilenen diğer metadata ( createDate v.b. ) toplanmalı
+        //result.setCreatedBy(node.getProperty("jcr:createdBy").getString());
+        //result.setCreated(node.getProperty("jcr:created").getDate().getTime());
+        
+        result.setType(getPropertyAsString(node, "signature:type"));
+        result.setFormat(getPropertyAsString(node, "signature:format"));
+        result.setStatus(getPropertyAsString(node, "signature:status"));
+        
+        return result;
+    }
+    
     private void populateFolders(Node node, List<RafFolder> result) throws RepositoryException {
         NodeIterator it = node.getNodes();
         while (it.hasNext()) {

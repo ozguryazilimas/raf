@@ -8,9 +8,11 @@ package com.ozguryazilim.raf.ui.base;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.esign.SignatureService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -35,6 +37,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     @Inject
     private RafService rafService;
+    
+    @Inject
+    private SignatureService signatureService;
 
     private List<RafVersion> versions = null;
 
@@ -65,6 +70,13 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     public String getPreviewWidget() {
         //Eğer mimetype yoksa default isteyelim
         if (getObject() != null) {
+            
+            try {
+                signatureService.getSignatureDetails(getObject().getId());
+            } catch (RafException | IOException ex) {
+                LOG.error("Hata!!!", ex);
+            }
+            
             if( getObject().getHasPreview()){
                 return PreviewPanelRegistery.getMimeTypePanel(getObject().getPreviewMimeType()).getViewId();
             } else {
