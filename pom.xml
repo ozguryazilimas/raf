@@ -291,5 +291,6 @@
         <module>raf-jbpm-sample-kjar</module>
         <module>raf-forms</module>
         <module>raf-record</module>
+        <module>raf-cmis</module>
     </modules>
 </project>

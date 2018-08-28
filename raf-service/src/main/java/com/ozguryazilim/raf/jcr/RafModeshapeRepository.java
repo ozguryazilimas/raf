@@ -315,6 +315,57 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
+     * @param rafCode
+     * @return
+     * @throws RafException
+     */
+    public RafFolder getFolder(String rafPath) throws RafException {
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+
+            Node node = session.getNode(fullPath);
+
+            //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
+            //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
+            RafFolder f = nodeToRafFolder(node);
+            f.setParentId("#");
+
+            session.logout();
+
+            return f;
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+
+    }
+
+    public List<RafFolder> getChildren(String rafPath) throws RafException {
+
+        List<RafFolder> folderList = new ArrayList<RafFolder>();
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+
+            Node node = session.getNode(fullPath);
+
+            for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
+                Node child = iter.nextNode();
+                RafFolder f = nodeToRafFolder(node);
+                folderList.add(f);
+            }
+        } catch (RepositoryException ex) {
+            throw new RafException(ex);
+        }
+
+        return folderList;
+    }
+
+    /**
      * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
      *
      * @param rafCode
