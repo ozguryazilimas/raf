@@ -52,6 +52,20 @@
 
 
     <ui:define name="includes">
+
+        <p:dialog id="deleteObjDlg" widgetVar="deleteObjDlg" header="#{messages['raf.label.DeleteObjectDialog']}" modal="true">
+            <h:form id="odd">
+                <div class="row">
+                    <t:inputText value="#{rafDefinitionBrowse.objectId}" label="raf.label.ObjectId" columnClass="col-xs-12"/>
+                </div>
+                <div class="row">
+                    <div class="actionButtons">
+                        <p:commandButton action="#{rafDefinitionBrowse.deleteObject(rafDefinitionBrowse.objectId)}" value="#{messages['general.button.Delete']}" />
+                    </div> 
+                </div>
+            </h:form>
+        </p:dialog>
+
     </ui:define>
 
     <ui:define name="context-menu">
@@ -87,6 +101,15 @@
                            disabled="#{rafDefinitionBrowse.selectedItem eq null }" styleClass="#{rafDefinitionBrowse.selectedItem ne null ? '' : 'disabled'}">
                 <i class="fa fa-trash"/>
                 <span>#{messages['general.button.Delete']}</span>
+            </p:commandLink>
+        </li>
+
+        <li>
+            <p:commandLink id="deleteRafObject" 
+                           onclick="PF('deleteObjDlg').show();"
+                           >
+                <i class="fa fa-trash"/>
+                <span>#{messages['raf.button.DeleteObject']}</span>
             </p:commandLink>
         </li>
     </ui:define>

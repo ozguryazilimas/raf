@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf.definition;
 
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafDefinition_;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
@@ -17,6 +19,8 @@ import com.ozguryazilim.telve.query.columns.TextColumn;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Admin tarafından raf yönetim paneli. 
@@ -28,6 +32,8 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 @Browse( feature = RafDefinitionFeature.class )
 public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition>{
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RafDefinitionBrowse.class);
+    
     @Inject
     private RafDefinitionRepository repository;
     
@@ -37,7 +43,12 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
     
+    @Inject
+    private RafService rafService;
+    
     //private SuggestionItem suggestionItem;
+    
+    private String objectId;
     
     @Override
     protected void buildQueryDefinition(QueryDefinition<RafDefinition, RafDefinition> queryDefinition) {
@@ -76,6 +87,23 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
             
             rafDataChangedEvent.fire(new RafDataChangedEvent());
         }
+    }
+    
+    
+    public void deleteObject( String id ){
+        try {
+            rafService.deleteObject(id);
+        } catch (RafException ex) {
+            LOGGER.error("Raf Object cannot delete", ex);
+        }
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
     }
     
 }
