@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
+import com.ozguryazilim.telve.api.module.TelveModuleRegistery;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,5 +102,7 @@ public class RafContext implements Serializable{
         this.clipboardAction = clipboardAction;
     }
 
-    
+    public boolean bpmnSystemEnabled(){
+        return TelveModuleRegistery.isModuleRegistered("RafJBpmModule");
+    }
 }

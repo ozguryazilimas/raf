@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>module</id>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>jars</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

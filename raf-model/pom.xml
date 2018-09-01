@@ -4,7 +4,7 @@
     <parent>
         <artifactId>raf-parent</artifactId>
         <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0.Beta2</version>
     </parent>
     <artifactId>raf-model</artifactId>
     <packaging>jar</packaging>

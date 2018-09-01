@@ -4,12 +4,12 @@
     <parent>
         <artifactId>raf-parent</artifactId>
         <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0.Beta2</version>
     </parent>
 
     <groupId>com.ozguryazilim.mutfak</groupId>
     <artifactId>raf-service</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.Beta2</version>
     <packaging>ejb</packaging>
 
     <name>raf-service</name>
@@ -38,19 +38,22 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-images</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-audio</artifactId>
         </dependency>
-        
+        -->
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-epub</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-video</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-msoffice</artifactId>

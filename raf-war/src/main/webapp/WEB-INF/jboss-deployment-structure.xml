@@ -7,6 +7,7 @@
                   <include path="META-INF**"/>
                 </imports>
             </module>
+            <module name="com.ozguryazilim.raf.jbpm" optional="TRUE" />
             <module name="org.dom4j"/>
             <module name="javax.mail.api"/>
         </dependencies>
