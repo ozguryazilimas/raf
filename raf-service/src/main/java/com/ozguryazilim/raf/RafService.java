@@ -177,7 +177,7 @@ public class RafService implements Serializable {
         return result;
         
     }
-
+    
     public RafDocument checkin(String fileName, InputStream in) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = (RafDocument) rafRepository.checkin(fileName, in);
@@ -266,6 +266,8 @@ public class RafService implements Serializable {
 
     public void deleteObject(String id) throws RafException {
         //FIXME: Yetki kontrolü
+        RafObject obj = rafRepository.getRafObject(id);
+        sendEventLog("DeleteObject", obj);
         sendAuditLog( id, "DELETE_OBJECT", "" );
         rafRepository.deleteObject(id);
     }
