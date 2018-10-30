@@ -5,8 +5,11 @@
  */
 package com.ozguryazilim.raf.webdav;
 
+import com.ozguryazilim.telve.auth.TelveIdmPrinciple;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 /**
  * Default {@link RequestResolver} that performs a direct mapping from all incoming URIs to the same path within a single
@@ -41,6 +44,36 @@ public class SingleRepositoryRequestResolver implements RequestResolver{
     @Override
     public ResolvedRequest resolve( HttpServletRequest request,
                                     String relativePath ) {
+        
+        
+        
+        if( relativePath.contains("PRIVATE") ){
+            relativePath = revolvePrivateRaf( relativePath );
+        } else if( relativePath.contains("SHARED") ){
+            //YApacak bişi yok
+            //TODO: Aslında /RAF/SHARED şeklinde olması sağlanabilir mi acaba? Bu bişi fark ettirir mi?
+        } else if( !"/".equals( relativePath ) && !"".equals(relativePath)){
+            //Geri kalanlar RAF altında yer almalı.
+            relativePath = "/RAF" + relativePath;
+        } else {
+            //FIXME: Buraya WARN seviyesinde logger ekle
+            relativePath = "/";
+        }
+        
+        //Bazen çift // geliyor teke indirelim.
+        relativePath = relativePath.replace("//", "/");
+        
         return new ResolvedRequest(request, repositoryName, workspaceName, relativePath);
     } 
+    
+    
+    
+    protected String revolvePrivateRaf( String path ){
+        Subject currentUser = SecurityUtils.getSubject();
+        if( !currentUser.isAuthenticated() ){
+            //FIXME: Doğru HTTP hata kodunu dönelim
+            //FIXME: Ayrıca talep edilen dosyaya erişim yetkisi var mı o da kontrol edilmeli.
+        }
+        return path.replace("/PRIVATE", "/PRIVATE/"+ ((TelveIdmPrinciple)currentUser.getPrincipal()).getName());
+    }
 }

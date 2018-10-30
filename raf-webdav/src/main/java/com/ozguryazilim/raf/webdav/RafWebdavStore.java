@@ -5,7 +5,15 @@
  */
 package com.ozguryazilim.raf.webdav;
 
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
+import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.auth.TelveIdmPrinciple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
@@ -32,8 +40,9 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
 import org.modeshape.common.i18n.I18n;
-import org.modeshape.common.logging.Logger;
 import org.modeshape.common.util.CheckArg;
 import org.modeshape.common.util.IoUtil;
 import org.modeshape.common.util.StringUtil;
@@ -44,6 +53,8 @@ import org.modeshape.webdav.IWebdavStore;
 import org.modeshape.webdav.StoredObject;
 import org.modeshape.webdav.exceptions.ObjectNotFoundException;
 import org.modeshape.webdav.exceptions.WebdavException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Webdav için Raf Repository implementasyonu.
@@ -80,7 +91,7 @@ public class RafWebdavStore implements IWebdavStore{
     private final RequestResolver requestResolver;
     private final ContentMapper contentMapper;
 
-    private final Logger logger = Logger.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(RafWebdavStore.class);
 
     /**
      * Creates a new store instance
@@ -228,23 +239,51 @@ public class RafWebdavStore implements IWebdavStore{
             logger.trace("WebDAV getChildrenNames(txn,\"" + folderUri + "\")");
             ResolvedRequest resolved = resolveRequest(folderUri);
             logger.trace("WebDAV -> resolves to: " + resolved);
-            if (resolved.getPath() == null) {
+            if (resolved.getPath() == null || "/".equals(resolved.getPath())) {
                 // It does not resolve to the path of a node, so see if the repository/workspace exist ...
-                return childrenFor(transaction, resolved);
+                //return childrenFor(transaction, resolved);
+                
+                //FIXME: Üyesi olunan rafların da listesini vermek lazım.
+                List<String> children = new ArrayList<>();
+                
+                List<RafDefinition> rafs = getRafDefinitionService().getRafsForUser(((TelveIdmPrinciple)SecurityUtils.getSubject().getPrincipal()).getName(), Boolean.TRUE);
+                
+                for( RafDefinition rd : rafs ){
+                    children.add(rd.getCode());
+                }
+                
+                return children.toArray(new String[children.size()]);
             }
 
             Node node = nodeFor(transaction, resolved); // throws exception if not found
             logger.trace("WebDAV -> node: " + node);
 
+            
+            //List<RafFolder> folders = getRafService().getFolderList(resolved.getPath());
+            List<String> children = new ArrayList<>();
+            RafObject ro = getRafService().getRafObjectByPath(resolved.getPath());
+            
+            if( ro instanceof RafFolder ){
+                RafCollection rcol = getRafService().getCollection(ro.getId());
+                for( RafObject rro : rcol.getItems() ){
+                    logger.debug("WebDAV -> RafObject: " + rro.getName());
+                    children.add(rro.getName());
+                }
+            }
+            
+            /*
             if (!isFolder(node)) {
                 return null; // no children
             }
 
             List<String> children = namesOfChildren(node);
+            */
             logger.trace("WebDAV -> children: " + children);
             return children.toArray(new String[children.size()]);
         } catch (RepositoryException re) {
             throw translate(re);
+        } catch (RafException ex) {
+            throw translate(ex);
         }
     }
 
@@ -708,7 +747,7 @@ public class RafWebdavStore implements IWebdavStore{
                     //FIXME: Burası nasıl olmalı?
                     result = getJcrSession(); //RepositoryManager.getSession(request.getRequest(), repositoryName, workspaceName);
                 } catch (RepositoryException e) {
-                    logger().warn(WebdavI18n.cannotGetRepositorySession, repositoryName, e.getMessage());
+                    logger.warn(WebdavI18n.cannotGetRepositorySession.toString(), repositoryName, e.getMessage());
                     throw translate(e);
                 }
                 sessions.put(key, result);
@@ -797,7 +836,7 @@ public class RafWebdavStore implements IWebdavStore{
                         session = getJcrSession();//RepositoryManager.getSession(request.getRequest(), repositoryName, null);
                         return session.getWorkspace().getAccessibleWorkspaceNames();
                     } catch (RepositoryException e) {
-                        logger().warn(WebdavI18n.cannotGetRepositorySession, repositoryName, e.getMessage());
+                        logger.warn( WebdavI18n.cannotGetRepositorySession.toString(), repositoryName, e.getMessage());
                         throw translate(e);
                     } finally {
                         if (session != null) {
@@ -853,6 +892,10 @@ public class RafWebdavStore implements IWebdavStore{
     protected WebdavException translate( RepositoryException exception ) {
         return RafWebdavServlet.translateError(exception);
     }
+    
+    protected WebdavException translate( RafException exception ) {
+        return RafWebdavServlet.translateError(exception);
+    }
 
     protected static final class SessionKey {
         protected final String repositoryName;
@@ -891,5 +934,13 @@ public class RafWebdavStore implements IWebdavStore{
     private Session getJcrSession() throws RepositoryException{
         Session session = ModeShapeRepositoryFactory.getSession();
         return session;
+    }
+    
+    private RafService getRafService(){
+        return BeanProvider.getContextualReference(RafService.class, true);
+    }
+    
+    private RafDefinitionService getRafDefinitionService(){
+        return BeanProvider.getContextualReference(RafDefinitionService.class, true);
     }
 }
