@@ -18,8 +18,8 @@
         
         <telve.version>4.0.0.Beta6-SNAPSHOT</telve.version>
         <modeshape.version>5.4.1.Final</modeshape.version>
-        <drools.version>7.8.0.Final</drools.version>
-        <jbpm.version>7.8.0.Final</jbpm.version>
+        <drools.version>7.13.0.Final</drools.version>
+        <jbpm.version>7.13.0.Final</jbpm.version>
         
         <version.liquibase-hibernate4>3.5</version.liquibase-hibernate4>
         <version.mysql-connector-java>5.1.26</version.mysql-connector-java>

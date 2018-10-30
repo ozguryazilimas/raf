@@ -46,6 +46,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,8 +110,8 @@ public class RafModeshapeRepository implements Serializable {
     public void init() {
         try {
             start();
-            //FIXME: configden alsak? Mesela projectStage developmen ise gibi
-            jcrTools.setDebug(true);
+            String debugMode = ConfigResolver.getProjectStageAwarePropertyValue("raf.repository.debug", "true");
+            jcrTools.setDebug("true".equals(debugMode));
         } catch (RafException ex) {
             LOG.error("ModeShape cannot started", ex);
         }

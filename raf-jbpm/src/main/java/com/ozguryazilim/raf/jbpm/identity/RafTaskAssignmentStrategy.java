@@ -5,7 +5,6 @@
  */
 package com.ozguryazilim.raf.jbpm.identity;
 
-import com.ozguryazilim.telve.idm.entities.UserGroup;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import java.util.List;
@@ -58,6 +57,7 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy{
                     return null;
                 }
                 
+                /*
                 List<com.ozguryazilim.telve.idm.entities.Group> gls = getGroupRepository().findByCode(oe.getId());
                 if( !gls.isEmpty()){
                    List<UserGroup> ugs = getUserGroupRepository().findByGroup(gls.get(0));
@@ -70,6 +70,7 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy{
                    //Eğer birden fazla kişi var ise default davranışa bırakalım!
                    
                 }
+                */
             } else {
                 return new Assignment(oe.getId());
             }

@@ -16,6 +16,7 @@
     
     <properties>
         <telve.version>4.0.0.Beta6-SNAPSHOT</telve.version>
+        <version.thorntail>2.2.0.Final</version.thorntail>
     </properties>
 
     <dependencies>
@@ -65,7 +66,7 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        <!--
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-jbpm</artifactId>
@@ -78,7 +79,7 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        -->
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-pdf</artifactId>
