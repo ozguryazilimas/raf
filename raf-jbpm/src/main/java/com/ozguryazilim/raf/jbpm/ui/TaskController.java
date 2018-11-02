@@ -253,6 +253,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
         
         //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
+        //FIXME: Eğer kullanıcının yöneticisi yok ise merkezi bir kullanıcıya düşürsek mi? Boşta kalan şeylerin yöneticisi şeklinde?
         completeParams.put("manager", identity.getUserInfo().getManager());
         
         

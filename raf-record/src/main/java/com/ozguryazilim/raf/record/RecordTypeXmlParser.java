@@ -27,7 +27,7 @@ public class RecordTypeXmlParser {
     
     private static final Logger LOG = LoggerFactory.getLogger(RecordTypeXmlParser.class);
     
-    public static List<RafRecordType> parse(InputStream is) {
+    public synchronized static List<RafRecordType> parse(InputStream is) {
         List<RafRecordType> recordTypes = new ArrayList<>();
         
         if (is == null) {

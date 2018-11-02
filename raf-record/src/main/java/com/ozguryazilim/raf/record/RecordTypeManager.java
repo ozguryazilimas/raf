@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
  * Sistemde tanımlı olan RecordType tanımlarını ve bu tanımla ilişkili nesleri
  * yönetir.
  *
- * 
- * FIXME: yüklenen paketin aktif olup olmadığına bakılcak! Bunun için bir yapı gerekli!
- * 
+ *
+ * FIXME: yüklenen paketin aktif olup olmadığına bakılcak! Bunun için bir yapı
+ * gerekli!
+ *
  * @author Hakan Uygun
  */
 @ApplicationScoped
@@ -45,21 +46,23 @@ public class RecordTypeManager implements Serializable {
      *
      * @param recordTypes
      */
-    public void register(String kjarId, List<RafRecordType> recordTypes) {
+    public synchronized void register(String kjarId, List<RafRecordType> recordTypes) {
         //FIXME: çakışma durumları kontrol edilmeli.
+
         for (RafRecordType r : recordTypes) {
             typeMap.put(r.getName(), r);
             LOG.info("RecordType Registered : {}", r.getName());
             LOG.debug("RecordType Registered : {}", r);
 
-            List<RafRecordType> rl = kjarTypeMap.get(kjarId);
-            if (rl == null) {
-                kjarTypeMap.put(kjarId, recordTypes);
-            } else {
-                rl.addAll(recordTypes);
-            }
-
         }
+        
+        List<RafRecordType> rl = kjarTypeMap.get(kjarId);
+        if (rl == null) {
+            kjarTypeMap.put(kjarId, recordTypes);
+        } else {
+            rl.addAll(recordTypes);
+        }
+
     }
 
     public void deploy(String kjarId, InputStream is) {
@@ -70,11 +73,11 @@ public class RecordTypeManager implements Serializable {
     public void undeploy(String kjarId) {
         List<RafRecordType> rl = kjarTypeMap.get(kjarId);
         if (rl != null) {
-            
-            for( RafRecordType r : rl ){
+
+            for (RafRecordType r : rl) {
                 typeMap.remove(r.getName());
             }
-            
+
             kjarTypeMap.remove(kjarId);
         }
     }
@@ -89,15 +92,15 @@ public class RecordTypeManager implements Serializable {
 
     public List<RafAsset> getAssests(String kjarId) {
         List<RafAsset> result = new ArrayList<>();
-        
+
         List<RafRecordType> rl = kjarTypeMap.get(kjarId);
         if (rl != null) {
-            for( RafRecordType r : rl ){
-                result.add(new RafAsset( r.getName(), r.getTitle(), "RECORD_TYPE"));
+            for (RafRecordType r : rl) {
+                result.add(new RafAsset(r.getName(), r.getTitle(), "RECORD_TYPE"));
             }
         }
-        
+
         return result;
     }
-    
+
 }
