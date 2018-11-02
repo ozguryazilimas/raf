@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>org.modeshape</groupId>
-            <artifactId>modeshape-web-jcr-webdav</artifactId>
+            <artifactId>modeshape-webdav</artifactId>
             <version>${modeshape.version}</version>
         </dependency>
         

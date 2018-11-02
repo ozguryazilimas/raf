@@ -61,7 +61,7 @@ public class RafWebdavServlet extends WebdavServlet{
         String requestResolverClassName = getParam(INIT_REQUEST_RESOLVER_CLASS_NAME);
         Logger.getLogger(getClass()).debug("WebDAV Servlet resolver class name = " + requestResolverClassName);
         if (requestResolverClassName == null) {
-            this.requestResolver = new SingleRepositoryRequestResolver();
+            this.requestResolver = new RafRequestResolver();
         } else {
             try {
                 Class<? extends RequestResolver> clazz = Class.forName(requestResolverClassName).asSubclass(RequestResolver.class);
