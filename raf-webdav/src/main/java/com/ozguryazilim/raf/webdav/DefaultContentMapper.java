@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf.webdav;
 
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -36,12 +38,20 @@ public class DefaultContentMapper implements ContentMapper{
     private static final String ENCODING_PROP_NAME = "jcr:encoding";
     private static final String MIME_TYPE_PROP_NAME = "jcr:mimeType";
 
+    private static final String NODE_FOLDER = "nt:folder";
+    
     private static final String DEFAULT_CONTENT_PRIMARY_TYPES = "nt:resource, mode:resource";
     private static final String DEFAULT_RESOURCE_PRIMARY_TYPES = "nt:file";
     private static final String DEFAULT_NEW_FOLDER_PRIMARY_TYPE = "nt:folder";
     private static final String DEFAULT_NEW_RESOURCE_PRIMARY_TYPE = "nt:file";
     private static final String DEFAULT_NEW_CONTENT_PRIMARY_TYPE = "nt:resource";
 
+    private static final String MIXIN_TITLE = "mix:title";
+    private static final String MIXIN_TAGGABLE = "raf:taggable";
+    private static final String MIXIN_RAF = "raf:raf";
+    private static final String MIXIN_METADATA = "raf:metadata";
+    private static final String PROP_TITLE = "jcr:title";
+    
     private Collection<String> contentPrimaryTypes;
     private Collection<String> filePrimaryTypes;
     private String newFolderPrimaryType;
@@ -50,6 +60,8 @@ public class DefaultContentMapper implements ContentMapper{
 
     private final Logger logger = Logger.getLogger(getClass());
 
+    private RafEncoder encoder;
+    
     @Override
     public void initialize( ServletContext servletContext ) {
 
@@ -70,6 +82,8 @@ public class DefaultContentMapper implements ContentMapper{
         this.newFolderPrimaryType = newFolderPrimaryType != null ? newFolderPrimaryType : DEFAULT_NEW_FOLDER_PRIMARY_TYPE;
         this.newResourcePrimaryType = newResourcePrimaryType != null ? newResourcePrimaryType : DEFAULT_NEW_RESOURCE_PRIMARY_TYPE;
         this.newContentPrimaryType = newContentPrimaryType != null ? newContentPrimaryType : DEFAULT_NEW_CONTENT_PRIMARY_TYPE;
+        
+        encoder = RafEncoderFactory.getEncoder();
     }
 
     protected String getParam( ServletContext servletContext,
@@ -124,7 +138,7 @@ public class DefaultContentMapper implements ContentMapper{
 
     @Override
     public boolean isFolder( Node node ) throws RepositoryException {
-        return !isFile(node) && !isContent(node);
+        return node.isNodeType(NODE_FOLDER);
     }
 
     /**
@@ -157,21 +171,30 @@ public class DefaultContentMapper implements ContentMapper{
     @Override
     public void createFile( Node parentNode,
                             String fileName ) throws RepositoryException {
-        Node resourceNode = parentNode.addNode(fileName, newResourcePrimaryType);
+        Node resourceNode = parentNode.addNode( encoder.encode(fileName), newResourcePrimaryType);
 
+        resourceNode.addMixin(MIXIN_TITLE);
+        resourceNode.addMixin(MIXIN_TAGGABLE);
+        resourceNode.addMixin(MIXIN_METADATA);
+        
+        resourceNode.setProperty(PROP_TITLE, fileName);
+        
         Node contentNode = resourceNode.addNode(CONTENT_NODE_NAME, newContentPrimaryType);
         contentNode.setProperty(DATA_PROP_NAME, "");
         contentNode.setProperty(MODIFIED_PROP_NAME, Calendar.getInstance());
         contentNode.setProperty(ENCODING_PROP_NAME, "UTF-8");
         contentNode.setProperty(MIME_TYPE_PROP_NAME, "text/plain");
-
+        
     }
 
     @Override
     public void createFolder( Node parentNode,
                               String folderName ) throws RepositoryException {
-        parentNode.addNode(folderName, newFolderPrimaryType);
+        Node folderNode = parentNode.addNode(encoder.encode(folderName), newFolderPrimaryType);
+        folderNode.addMixin(MIXIN_TITLE);
+        folderNode.addMixin(MIXIN_TAGGABLE);
 
+        folderNode.setProperty(PROP_TITLE, folderName);
     }
 
     @Override

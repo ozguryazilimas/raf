@@ -5,6 +5,8 @@
  */
 package com.ozguryazilim.raf.webdav;
 
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.telve.auth.TelveIdmPrinciple;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,8 @@ public class SingleRepositoryRequestResolver implements RequestResolver{
     private String repositoryName;
     private String workspaceName;
 
+    private RafEncoder encoder;
+    
     @Override
     public void initialize( ServletContext context ) {
         repositoryName = context.getInitParameter(INIT_REPOSITORY_NAME);
@@ -39,6 +43,8 @@ public class SingleRepositoryRequestResolver implements RequestResolver{
             //I18n msg = WebdavI18n.requiredParameterMissing;
             //throw new IllegalStateException(msg.text(INIT_WORKSPACE_NAME));
         }
+        
+        encoder = RafEncoderFactory.getEncoder();
     }
 
     @Override
@@ -63,7 +69,7 @@ public class SingleRepositoryRequestResolver implements RequestResolver{
         //Bazen çift // geliyor teke indirelim.
         relativePath = relativePath.replace("//", "/");
         
-        return new ResolvedRequest(request, repositoryName, workspaceName, relativePath);
+        return new ResolvedRequest(request, repositoryName, workspaceName, encoder.encode(relativePath));
     } 
     
     
