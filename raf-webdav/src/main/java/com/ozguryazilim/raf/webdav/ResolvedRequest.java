@@ -77,6 +77,10 @@ public final class ResolvedRequest {
         return new ResolvedRequest(request, repositoryName, workspaceName, path);
     }
 
+    public boolean isRoot(){
+        return path == null || "/".equals(path);
+    }
+    
     /**
      * {@inheritDoc}
      * 

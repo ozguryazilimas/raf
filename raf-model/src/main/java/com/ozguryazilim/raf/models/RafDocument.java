@@ -13,7 +13,7 @@ public class RafDocument extends RafObject{
 
     private Boolean hasPreview = Boolean.FALSE;
     private String previewMimeType;
-
+    
     public Boolean getHasPreview() {
         return hasPreview;
     }
@@ -29,7 +29,5 @@ public class RafDocument extends RafObject{
     public void setPreviewMimeType(String previewMimeType) {
         this.previewMimeType = previewMimeType;
     }
-    
-    
     
 }

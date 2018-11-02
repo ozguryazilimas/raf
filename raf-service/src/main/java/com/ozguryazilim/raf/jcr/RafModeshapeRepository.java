@@ -87,6 +87,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_CATEGORY_ID = "raf:categoryId";
     private static final String PROP_TAG = "raf:tags";
     private static final String PROP_RAF_TYPE = "raf:type";
+    private static final String PROP_DATA = "jcr:data";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -1071,7 +1072,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+            IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), bos);
 
             session.logout();
 
@@ -1551,6 +1552,9 @@ public class RafModeshapeRepository implements Serializable {
             result.setVersion(version.getName());
             jcrTools.printSubgraph(version);
         }
+        
+        result.setLength(content.getProperty( PROP_DATA ).getLength());
+        
 
         NodeIterator it = node.getNodes("*:metadata");
         while (it.hasNext()) {

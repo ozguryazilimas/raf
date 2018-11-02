@@ -10,10 +10,6 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
-import com.ozguryazilim.raf.models.RafCollection;
-import com.ozguryazilim.raf.models.RafFolder;
-import com.ozguryazilim.raf.models.RafObject;
-import com.ozguryazilim.telve.auth.TelveIdmPrinciple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
@@ -158,7 +154,7 @@ public class RafWebdavStore implements IWebdavStore{
             logger.debug("WebDAV create folder at: " + parentUri);
             ResolvedRequest resolvedParent = resolveRequest(parentUri);
             logger.debug("WebDAV create folder at: " + resolvedParent);
-            if (resolvedParent.getPath() == null) {
+            if (resolvedParent.isRoot()) {
                 if (resolvedParent.getRepositoryName() == null) {
                     // Can't create a repository ...
                     throw new WebdavException(WebdavI18n.cannotCreateRepository.text(resourceName));
@@ -174,7 +170,7 @@ public class RafWebdavStore implements IWebdavStore{
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
             contentMapper.createFolder(parentNode, resourceName);
-
+            
         } catch (RepositoryException re) {
             throw translate(re);
         }
@@ -202,7 +198,7 @@ public class RafWebdavStore implements IWebdavStore{
 
         try {
             ResolvedRequest resolvedParent = resolveRequest(parentUri);
-            if (resolvedParent.getPath() == null) {
+            if (resolvedParent.isRoot()) {
                 if (resolvedParent.getRepositoryName() == null) {
                     // Can't create a repository ...
                     throw new WebdavException(WebdavI18n.cannotCreateRepository.text(resourceName));
@@ -239,51 +235,30 @@ public class RafWebdavStore implements IWebdavStore{
             logger.trace("WebDAV getChildrenNames(txn,\"" + folderUri + "\")");
             ResolvedRequest resolved = resolveRequest(folderUri);
             logger.trace("WebDAV -> resolves to: " + resolved);
-            if (resolved.getPath() == null || "/".equals(resolved.getPath())) {
-                // It does not resolve to the path of a node, so see if the repository/workspace exist ...
-                //return childrenFor(transaction, resolved);
-                
-                //FIXME: Üyesi olunan rafların da listesini vermek lazım.
+            if (resolved.isRoot()) {
+                //Root isteniyor dolayısı ile üyesi olunan raf'lar ve yetkili olduğu parçalar veriliyor.
                 List<String> children = new ArrayList<>();
                 
-                List<RafDefinition> rafs = getRafDefinitionService().getRafsForUser(((TelveIdmPrinciple)SecurityUtils.getSubject().getPrincipal()).getName(), Boolean.TRUE);
+                List<RafDefinition> rafs = getRafDefinitionService().getRafsForUser(SecurityUtils.getSubject().getPrincipal().toString(), Boolean.TRUE);
                 
                 for( RafDefinition rd : rafs ){
                     children.add(rd.getCode());
                 }
-                
                 return children.toArray(new String[children.size()]);
             }
-
+                
             Node node = nodeFor(transaction, resolved); // throws exception if not found
             logger.trace("WebDAV -> node: " + node);
 
-            
-            //List<RafFolder> folders = getRafService().getFolderList(resolved.getPath());
-            List<String> children = new ArrayList<>();
-            RafObject ro = getRafService().getRafObjectByPath(resolved.getPath());
-            
-            if( ro instanceof RafFolder ){
-                RafCollection rcol = getRafService().getCollection(ro.getId());
-                for( RafObject rro : rcol.getItems() ){
-                    logger.debug("WebDAV -> RafObject: " + rro.getName());
-                    children.add(rro.getName());
-                }
-            }
-            
-            /*
             if (!isFolder(node)) {
                 return null; // no children
             }
 
             List<String> children = namesOfChildren(node);
-            */
             logger.trace("WebDAV -> children: " + children);
             return children.toArray(new String[children.size()]);
         } catch (RepositoryException re) {
             throw translate(re);
-        } catch (RafException ex) {
-            throw translate(ex);
         }
     }
 
@@ -302,7 +277,7 @@ public class RafWebdavStore implements IWebdavStore{
                                            String resourceUri ) {
         try {
             ResolvedRequest resolved = resolveRequest(resourceUri);
-            if (resolved.getPath() == null) {
+            if (resolved.isRoot()) {
                 // Not a node, so there's no content ...
                 return null;
             }
@@ -324,12 +299,12 @@ public class RafWebdavStore implements IWebdavStore{
                                    String resourceUri ) {
         try {
             ResolvedRequest resolved = resolveRequest(resourceUri);
-            if (resolved.getPath() == null) {
+            if (resolved.isRoot()) {
                 // Not a node, so there's no length ...
                 return -1;
             }
             Node node = nodeFor(transaction, resolved); // throws exception if not found
-
+            
             return contentMapper.getResourceLength(node);
         } catch (IOException ioe) {
             throw new WebdavException(ioe);
@@ -351,8 +326,9 @@ public class RafWebdavStore implements IWebdavStore{
             ResolvedRequest resolved = resolveRequest(uri);
             logger.debug("WebDAV getStoredObject at \"" + uri + "\" resolved to \"" + resolved + "\"");
             String path = resolved.getPath();
-            if (path == null) {
+            if (resolved.isRoot()) {
                 // It does not resolve to the path of a node, so see if the repository/workspace exist ...
+                //TODO: Aslında raf açısından daima repository var!
                 if (repositoryAndWorkspaceExist(transaction, resolved)) {
                     ob.setFolder(true);
                     Date now = new Date();
@@ -390,7 +366,7 @@ public class RafWebdavStore implements IWebdavStore{
                 Date createDate = null;
                 if (node.hasProperty(CREATED_PROP_NAME)) {
                     createDate = node.getProperty(CREATED_PROP_NAME).getDate().getTime();
-                } else {
+            } else {
                     createDate = new Date();
                 }
                 ob.setCreationDate(createDate);
@@ -422,7 +398,7 @@ public class RafWebdavStore implements IWebdavStore{
 
         try {
             ResolvedRequest resolved = resolveRequest(uri);
-            if (resolved.getPath() != null) {
+            if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
                 node.remove();
@@ -464,7 +440,7 @@ public class RafWebdavStore implements IWebdavStore{
 
         try {
             ResolvedRequest resolved = resolveRequest(resourceUri);
-            if (resolved.getPath() == null) {
+            if (resolved.isRoot()) {
                 // The request does not resolve to a node
                 return -1;
             }
@@ -493,12 +469,12 @@ public class RafWebdavStore implements IWebdavStore{
                                                     List<String> propertiesToRemove ) {
         resourceUri = removeTrailingSlash(resourceUri);
         if (shouldIgnoreResource(resourceUri)) {
-            logger().debug("Resource {0} ignored.", resourceUri);
+            logger.debug("Resource {0} ignored.", resourceUri);
             return null;
         }
         try {
             ResolvedRequest resolvedRequest = resolveRequest(resourceUri);
-            if (resolvedRequest.getPath() == null) {
+            if (resolvedRequest.isRoot()) {
                 throw new ObjectNotFoundException("The resource at path " + resourceUri + " does not represent a valid JCR node");
             }
             Node node = nodeFor(transaction, resolvedRequest);
@@ -596,13 +572,13 @@ public class RafWebdavStore implements IWebdavStore{
                 return Collections.emptyMap();
             }
             Node node = nodeFor(transaction, resolvedRequest);
-            Map<String, Object> response = new LinkedHashMap<String, Object>();
+            Map<String, Object> response = new LinkedHashMap<>();
 
             PropertyIterator propertyIterator = node.getProperties();
             while (propertyIterator.hasNext()) {
                 Property property = propertyIterator.nextProperty();
                 if (property.isMultiple()) {
-                    logger().debug(WebdavI18n.warnMultiValuedProperty.text(property.getPath()));
+                    logger.debug(WebdavI18n.warnMultiValuedProperty.text(property.getPath()));
                     continue;
                 }
                 response.put(property.getName(), property.getString());
@@ -619,7 +595,7 @@ public class RafWebdavStore implements IWebdavStore{
         resourceUri = removeTrailingSlash(resourceUri);
         try {
             ResolvedRequest resolvedRequest = resolveRequest(resourceUri);
-            if (resolvedRequest.getPath() == null) {
+            if (resolvedRequest.isRoot()) {
                 return Collections.emptyMap();
             }
             return ((JcrSessionTransaction)transaction).namespacesFor(resolvedRequest);
@@ -708,9 +684,6 @@ public class RafWebdavStore implements IWebdavStore{
         return ((JcrSessionTransaction)transaction).session(request);
     }
 
-    protected final Logger logger() {
-        return logger;
-    }
 
     /**
      * Implementation of the {@link ITransaction} interface that uses a {@link Session JCR session} to load and store webdav

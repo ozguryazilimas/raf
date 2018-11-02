@@ -31,6 +31,7 @@ public abstract class RafObject implements Serializable{
     private String path;
     private String info;
     private String parentId;
+    private Long length = 0l;
     
     private String category;
     private String categoryPath;
@@ -219,8 +220,14 @@ public abstract class RafObject implements Serializable{
         this.versionable = versionable;
     }
 
-    
-    
+    public Long getLength() {
+        return length;
+    }
+
+    public void setLength(Long length) {
+        this.length = length;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
