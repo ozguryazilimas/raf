@@ -292,5 +292,6 @@
         <module>raf-forms</module>
         <module>raf-record</module>
         <module>raf-converter</module>
+        <module>raf-webdav</module>
     </modules>
 </project>
