@@ -69,7 +69,7 @@ public interface ContentMapper {
      * @param folderName the name of the folder that is to be created; may not be null
      * @throws RepositoryException if the node cannot be created
      */
-    void createFolder( Node parentNode,
+    Node createFolder( Node parentNode,
                       String folderName ) throws RepositoryException;
 
     /**
@@ -77,7 +77,7 @@ public interface ContentMapper {
      * @param fileName the name of the file that is to be created; may not be null
      * @throws RepositoryException if the node cannot be created
      */
-    void createFile( Node parentNode,
+    Node createFile( Node parentNode,
                     String fileName ) throws RepositoryException;
 
     /**

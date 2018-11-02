@@ -169,7 +169,7 @@ public class DefaultContentMapper implements ContentMapper{
     }
 
     @Override
-    public void createFile( Node parentNode,
+    public Node createFile( Node parentNode,
                             String fileName ) throws RepositoryException {
         Node resourceNode = parentNode.addNode( encoder.encode(fileName), newResourcePrimaryType);
 
@@ -185,16 +185,19 @@ public class DefaultContentMapper implements ContentMapper{
         contentNode.setProperty(ENCODING_PROP_NAME, "UTF-8");
         contentNode.setProperty(MIME_TYPE_PROP_NAME, "text/plain");
         
+        return resourceNode;
     }
 
     @Override
-    public void createFolder( Node parentNode,
+    public Node createFolder( Node parentNode,
                               String folderName ) throws RepositoryException {
         Node folderNode = parentNode.addNode(encoder.encode(folderName), newFolderPrimaryType);
         folderNode.addMixin(MIXIN_TITLE);
         folderNode.addMixin(MIXIN_TAGGABLE);
 
         folderNode.setProperty(PROP_TITLE, folderName);
+        
+        return folderNode;
     }
 
     @Override

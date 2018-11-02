@@ -9,7 +9,12 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.events.EventLogCommand;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
+import com.ozguryazilim.telve.audit.AuditLogCommand;
+import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
@@ -36,6 +41,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.modeshape.common.i18n.I18n;
@@ -89,6 +95,8 @@ public class RafWebdavStore implements IWebdavStore{
 
     private final Logger logger = LoggerFactory.getLogger(RafWebdavStore.class);
 
+    private Boolean readLogEnabled;
+    
     /**
      * Creates a new store instance
      *
@@ -169,7 +177,11 @@ public class RafWebdavStore implements IWebdavStore{
                 }
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
-            contentMapper.createFolder(parentNode, resourceName);
+            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
+
+            //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
+            sendEventLog("CreateFolder", folderNode.getIdentifier(), folderNode.getPath(), resourceName);
+            sendAuditLog( folderNode.getIdentifier(), "CREATE_FOLDER", folderNode.getPath() );
             
         } catch (RepositoryException re) {
             throw translate(re);
@@ -213,8 +225,12 @@ public class RafWebdavStore implements IWebdavStore{
                 }
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
-            contentMapper.createFile(parentNode, resourceName);
+            Node fileNode = contentMapper.createFile(parentNode, resourceName);
 
+            //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
+            sendEventLog("UploadDocument", fileNode.getIdentifier(), fileNode.getPath(), resourceName);
+            sendAuditLog( fileNode.getIdentifier(), "UPLOAD_DOCUMENT", fileNode.getPath() );
+            
         } catch (RepositoryException re) {
             throw translate(re);
         }
@@ -285,6 +301,11 @@ public class RafWebdavStore implements IWebdavStore{
             if (!isFile(node)) {
                 return null;
             }
+            
+            if( isReadLogEnabled() ){
+                sendAuditLog( node.getIdentifier(), "READ_DOCUMENT_CONTENT", node.getPath() );
+            }
+            
             return contentMapper.getResourceContent(node);
 
         } catch (IOException ioe) {
@@ -401,6 +422,8 @@ public class RafWebdavStore implements IWebdavStore{
             if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
+                sendEventLog("DeleteObject", node.getIdentifier(), node.getPath(), node.getName());
+                sendAuditLog( node.getIdentifier(), "DELETE_OBJECT", node.getPath() );
                 node.remove();
             }
             // Otherwise just return silently
@@ -915,5 +938,43 @@ public class RafWebdavStore implements IWebdavStore{
     
     private RafDefinitionService getRafDefinitionService(){
         return BeanProvider.getContextualReference(RafDefinitionService.class, true);
+    }
+    
+    private CommandSender getCommandSender(){
+        return BeanProvider.getContextualReference(CommandSender.class, true);
+    }
+    
+    private Identity getIdentity(){
+        return BeanProvider.getContextualReference(Identity.class, true);
+    }
+    
+    protected void sendEventLog( String eventType, String id, String path, String resourceName ){
+
+        
+        
+        EventLogCommand command = EventLogCommandBuilder.forRaf("RAF")
+                    .eventType(eventType)
+                    .message("event." + eventType + "$%&" + ( getIdentity() != null ?  getIdentity().getUserName() : "Sistem" ) + "$%&" + resourceName)
+                    .user(getIdentity() != null ? getIdentity().getLoginName() : "SYSTEM")
+                    .build();
+        
+        command.setRefId(id);
+        command.setPath(path);
+        
+        getCommandSender().sendCommand(command);
+        
+    }
+    
+    protected void sendAuditLog( String id, String action, String path ){
+        AuditLogCommand command = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", getIdentity() != null ? getIdentity().getLoginName() : "UNKNOWN", path);
+        getCommandSender().sendCommand(command);
+    }
+
+    protected boolean isReadLogEnabled(){
+        if( readLogEnabled == null ){
+            readLogEnabled = "true".equals( ConfigResolver.getPropertyValue("auditLog.read", "false"));
+        }
+        
+        return readLogEnabled;
     }
 }
