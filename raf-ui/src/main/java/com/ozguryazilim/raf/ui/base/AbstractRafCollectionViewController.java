@@ -11,10 +11,12 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.utils.DateUtils;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -188,7 +190,8 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     private int compareTitle(RafObject t1, RafObject t2) {
         int r = compareFolder(t1, t2 );
-        return r == 0 ? t1.getTitle().compareToIgnoreCase(t2.getTitle()) : r;
+        Collator collator = Collator.getInstance(new Locale("tr", "TR"));
+        return r == 0 ? collator.compare(t1.getTitle(), t2.getTitle()) : r;
     }
     
     private int compareMimeType(RafObject t1, RafObject t2) {
