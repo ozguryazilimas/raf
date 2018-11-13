@@ -293,5 +293,6 @@
         <module>raf-record</module>
         <module>raf-converter</module>
         <module>raf-webdav</module>
+        <module>raf-cmis</module>
     </modules>
 </project>
