@@ -92,10 +92,36 @@ public class RafCmisRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafCmisRepository.class);
 
+    
+    public enum RepositoryType{
+        PRIVATE, SHARED, RAF
+    }
+    
+    private RepositoryType repoType = RepositoryType.RAF;
+    
     public RafCmisRepository(RafDefinition rafdef, final RafCmisTypeManager typeManager) {
 
         this.rafdef = rafdef;
         this.repositoryId = rafdef.getCode();
+
+        //Eğer Shared ise tipi düzeltelim değil ise raf. Kişisel repo için başka bir contructor çağrılacak.
+        if( "SHARED".equals(rafdef.getCode())){
+            repoType = RepositoryType.SHARED;
+        }
+        
+        this.typeManager = typeManager;
+
+        readWriteUserMap = new HashMap<String, Boolean>();
+
+        repositoryInfo10 = createRepositoryInfo(CmisVersion.CMIS_1_0);
+        repositoryInfo11 = createRepositoryInfo(CmisVersion.CMIS_1_1);
+    }
+    
+    public RafCmisRepository( String username, RafDefinition rafdef, final RafCmisTypeManager typeManager) {
+
+        this.rafdef = rafdef;
+        this.repositoryId = username;
+        this.repoType = RepositoryType.PRIVATE;
 
         this.typeManager = typeManager;
 
@@ -117,7 +143,7 @@ public class RafCmisRepository {
         repositoryInfo.setDescription("Raf CMIS Repository");
         repositoryInfo.setProductName("Raf DMS");
         repositoryInfo.setProductVersion("1.0.0");
-        repositoryInfo.setRootFolder(rafdef.getCode());
+        repositoryInfo.setRootFolder(repositoryId);
 
         List<BaseTypeId> changesOnTypes = new ArrayList<>();
         changesOnTypes.add(BaseTypeId.CMIS_FOLDER);
@@ -284,7 +310,7 @@ public class RafCmisRepository {
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
         RafObject rafObject = null;
-        if (rafdef.getCode().equals(objectId)) {
+        if (repositoryId.equals(objectId)) {
             //FIXME: aslında burada sanal bir Folder oluşturmak lazım. Bunun içeriğine de WebDAV'da yaptığımız gibi kullanıcı raflarını koymak lazım.
             //rafObject = getRafService().getRafObjectByPath("/SHARED");
             return getRootFolder(context, objectId, versionServicesId, filter, includeAllowableActions, includeAcl, objectInfos);
@@ -347,7 +373,7 @@ public class RafCmisRepository {
         */
         
         //Eğer root folder ise node id bulmak lazım
-        if (rafdef.getCode().equals(folderId)) {
+        if (repositoryId.equals(folderId)) {
             folderId = rafdef.getNode().getId();
         }
         
@@ -517,7 +543,7 @@ public class RafCmisRepository {
 
         PropertiesImpl prop = new PropertiesImpl();
 
-        String id = rafdef.getCode();
+        String id = repositoryId;
         addPropertyId(prop, typeId, null, PropertyIds.OBJECT_ID, id);
         objectInfo.setId(id);
 
@@ -739,13 +765,13 @@ public class RafCmisRepository {
                         PropertyIds.CONTENT_STREAM_LENGTH, rafObject.getLength());
                 addPropertyString(result, typeId, filter,
                         PropertyIds.CONTENT_STREAM_MIME_TYPE,
-                        MimeTypes.getMIMEType(rafObject.getMimeType()));
+                        rafObject.getMimeType());
                 addPropertyString(result, typeId, filter,
                         PropertyIds.CONTENT_STREAM_FILE_NAME,
                         rafObject.getName());
 
                 objectInfo.setHasContent(true);
-                objectInfo.setContentType(MimeTypes.getMIMEType(rafObject.getMimeType()));
+                objectInfo.setContentType(rafObject.getMimeType());
                 objectInfo.setFileName(rafObject.getName());
             }
 
@@ -896,5 +922,9 @@ public class RafCmisRepository {
     
     private RafDefinitionService getRafDefinitionService(){
         return BeanProvider.getContextualReference(RafDefinitionService.class, true);
+    }
+    
+    public RafDefinition getRafDefinition(){
+        return rafdef;
     }
 }

@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.cmis;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.member.RafMemberService;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 
 import java.util.Collection;
@@ -10,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
@@ -42,6 +44,18 @@ public class RafCmisRepositoryManager {
         if (result == null) {
             throw new CmisObjectNotFoundException("Unknown repository '" + repositoryId + "'!");
         }
+        
+        //Kullanıcı adını alalım
+        String username = SecurityUtils.getSubject().getPrincipal().toString();
+        
+        try {
+            if( !getRafMemberService().isMemberOf(username, result.getRafDefinition()) ){
+                throw new CmisObjectNotFoundException("Unknown repository '" + repositoryId + "'!");
+            }
+        } catch (RafException ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new CmisObjectNotFoundException("Unknown repository '" + repositoryId + "'!");
+        }
 
         return result;
     }
@@ -67,16 +81,23 @@ public class RafCmisRepositoryManager {
         if( !getRepositoryMap().containsKey(username) ){
             try {
                 RafDefinition raf = getRafDefinitionService().getPrivateRaf(username);
-                raf.setCode(username);
-                repositories.put(username, new RafCmisRepository( raf, typeManager));
+                repositories.put(username, new RafCmisRepository( username, raf, typeManager));
             } catch (RafException ex) {
                 LOG.error(ex.getMessage(), ex);
             }
         }
         
-        //FIXME: Yetkiye göre filtreleme yapılacak.
-        
-        return getRepositoryMap().values();
+        //Yetkiye göre filtreleme yapılacak.
+        return getRepositoryMap().values().stream()
+                .filter( r -> {
+                    try {
+                        return getRafMemberService().isMemberOf(username, r.getRafDefinition());
+                    } catch (RafException ex) {
+                        LOG.error(ex.getMessage(), ex);
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
     }
 
     
@@ -118,6 +139,12 @@ public class RafCmisRepositoryManager {
     private RafDefinitionService getRafDefinitionService(){
         return BeanProvider.getContextualReference(RafDefinitionService.class, true);
     }
+    
+    
+    private RafMemberService getRafMemberService(){
+        return BeanProvider.getContextualReference(RafMemberService.class, true);
+    }
+    
     
     @Override
     public String toString() {
