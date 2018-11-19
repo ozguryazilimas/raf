@@ -20,15 +20,11 @@ rm -rf WEB-INF/lib/raf-bpmn-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-invoice-1.0.0-SNAPSHOT.jar
 #rm -rf WEB-INF/lib/raf-jbpm-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-forms-1.0.0-SNAPSHOT.jar
-<<<<<<< HEAD
 #rm -rf WEB-INF/lib/raf-record-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-converter-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-webdav-1.0.0-SNAPSHOT.jar
-
-=======
-rm -rf WEB-INF/lib/raf-record-1.0.0-SNAPSHOT.jar
 rm -rf WEB-INF/lib/raf-cmis-1.0.0-SNAPSHOT.jar
->>>>>>> feature/29599_cmis_destegi
+
 
 ln -s ~/git/telve4/telve-core/target/classes/ WEB-INF/lib/telve-core-4.0.0.Beta6-SNAPSHOT.jar
 #ln -s ~/git/telve4/telve-core-model/target/classes/ WEB-INF/lib/telve-core-model-4.0.0.Beta6-SNAPSHOT.jar

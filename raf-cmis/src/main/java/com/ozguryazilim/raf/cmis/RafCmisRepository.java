@@ -5,20 +5,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.Acl;
 import org.apache.chemistry.opencmis.commons.data.AllowableActions;
@@ -33,6 +37,13 @@ import org.apache.chemistry.opencmis.commons.definitions.TypeDefinition;
 import org.apache.chemistry.opencmis.commons.definitions.TypeDefinitionList;
 import org.apache.chemistry.opencmis.commons.enums.Action;
 import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityAcl;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityChanges;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityContentStreamUpdates;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityJoin;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityOrderBy;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityQuery;
+import org.apache.chemistry.opencmis.commons.enums.CapabilityRenditions;
 import org.apache.chemistry.opencmis.commons.enums.CmisVersion;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisBaseException;
@@ -41,6 +52,7 @@ import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.AccessControlListImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.AllowableActionsImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ContentStreamImpl;
+import org.apache.chemistry.opencmis.commons.impl.dataobjects.CreatablePropertyTypesImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectDataImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectInFolderDataImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectInFolderListImpl;
@@ -52,15 +64,15 @@ import org.apache.chemistry.opencmis.commons.impl.dataobjects.PropertyDateTimeIm
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.PropertyIdImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.PropertyIntegerImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.PropertyStringImpl;
+import org.apache.chemistry.opencmis.commons.impl.dataobjects.RepositoryCapabilitiesImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.RepositoryInfoImpl;
 import org.apache.chemistry.opencmis.commons.impl.server.ObjectInfoImpl;
 import org.apache.chemistry.opencmis.commons.server.CallContext;
 import org.apache.chemistry.opencmis.commons.server.ObjectInfoHandler;
 import org.apache.chemistry.opencmis.commons.spi.Holder;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 public class RafCmisRepository {
 
@@ -80,11 +92,8 @@ public class RafCmisRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafCmisRepository.class);
 
-    @Inject
-    private RafService rafService;
-
     public RafCmisRepository(final String repositoryId,
-                             final String rootPath, final RafCmisTypeManager typeManager) {
+            final String rootPath, final RafCmisTypeManager typeManager) {
 
         this.repositoryId = repositoryId;
 
@@ -103,15 +112,65 @@ public class RafCmisRepository {
 
         RepositoryInfoImpl repositoryInfo = new RepositoryInfoImpl();
 
+        repositoryInfo.setId(repositoryId);
+        repositoryInfo.setName("Raf");
+        repositoryInfo.setVendorName("Özgür Yazılım A.Ş.");
+        repositoryInfo.setCmisVersion(cmisVersion);
+        repositoryInfo.setDescription("Raf CMIS Repository");
+        repositoryInfo.setProductName("Raf DMS");
+        repositoryInfo.setProductVersion("1.0.0");
+        repositoryInfo.setRootFolder("@dolap@");
+
+        List<BaseTypeId> changesOnTypes = new ArrayList<>();
+        changesOnTypes.add(BaseTypeId.CMIS_FOLDER);
+        changesOnTypes.add(BaseTypeId.CMIS_DOCUMENT);
+
+        /* İleride belki CMIS üzerinden aşağıdaki bilgilerin değişimini destekleriz.
+        changesOnTypes.add(BaseTypeId.CMIS_ITEM);
+        changesOnTypes.add(BaseTypeId.CMIS_POLICY);
+        changesOnTypes.add(BaseTypeId.CMIS_RELATIONSHIP);
+         */
+        repositoryInfo.setChangesOnType(changesOnTypes);
+
+        repositoryInfo.setPrincipalAnonymous("anonymous");
+        repositoryInfo.setPrincipalAnyone("anyone");
+
+        RepositoryCapabilitiesImpl capabilities = new RepositoryCapabilitiesImpl();
+        capabilities.setSupportsGetDescendants(Boolean.TRUE);
+        capabilities.setSupportsGetFolderTree(Boolean.TRUE);
+        capabilities.setSupportsUnfiling(Boolean.TRUE);
+        capabilities.setSupportsMultifiling(Boolean.FALSE);
+        capabilities.setSupportsVersionSpecificFiling(Boolean.FALSE);
+
+        capabilities.setAllVersionsSearchable(Boolean.FALSE);
+        //TODO: ACL kısmına ayrıca bakılacak
+        capabilities.setCapabilityAcl(CapabilityAcl.NONE);
+        //TODO: Buraya detaylı bakmak lazım. Özellikle entegrasyonlar property değiştirmek isterler.
+        capabilities.setCapabilityChanges(CapabilityChanges.NONE);
+        //TODO: ChekIn-CheckOut desteği geldiğinde düzelmeli.
+        capabilities.setCapabilityContentStreamUpdates(CapabilityContentStreamUpdates.ANYTIME);
+        capabilities.setCapabilityJoin(CapabilityJoin.NONE);
+        capabilities.setCapabilityOrderBy(CapabilityOrderBy.NONE);
+        //TODO: Bunu da ayrıca destekleyeceğiz. 
+        capabilities.setCapabilityQuery(CapabilityQuery.NONE);
+        //TODO: Bı da ayrıca desteklenebilecek bir özellik sanırım
+        capabilities.setCapabilityRendition(CapabilityRenditions.NONE);
+
+        CreatablePropertyTypesImpl creatablePropertyTypes = new CreatablePropertyTypesImpl();
+        //TODO: Buraya biraz bakmak lazım. Özellikle Redmine/Tekir gibi yerlerin aslında ihtiyacı var.
+        capabilities.setCreatablePropertyTypes(creatablePropertyTypes);
+
+        //TODO: Chekin ve out için lazım
+        capabilities.setIsPwcSearchable(Boolean.FALSE);
+        capabilities.setIsPwcUpdatable(Boolean.FALSE);
+
+        repositoryInfo.setCapabilities(capabilities);
+
         return repositoryInfo;
     }
 
     public String getRepositoryId() {
         return repositoryId;
-    }
-
-    public File getRootDirectory() {
-        return root;
     }
 
     public void setUserReadOnly(String user) {
@@ -139,8 +198,8 @@ public class RafCmisRepository {
     }
 
     public TypeDefinitionList getTypeChildren(CallContext context,
-                                              String typeId, Boolean includePropertyDefinitions,
-                                              BigInteger maxItems, BigInteger skipCount) {
+            String typeId, Boolean includePropertyDefinitions,
+            BigInteger maxItems, BigInteger skipCount) {
         return typeManager.getTypeChildren(context, typeId,
                 includePropertyDefinitions, maxItems, skipCount);
     }
@@ -151,8 +210,8 @@ public class RafCmisRepository {
     }
 
     public String createDocument(CallContext context, Properties properties,
-                                 String folderId, ContentStream contentStream,
-                                 VersioningState versioningState) {
+            String folderId, ContentStream contentStream,
+            VersioningState versioningState) {
 
         String name = RafCmisUtils.getStringProperty(properties, PropertyIds.NAME);
         String fileName = name.substring(name.lastIndexOf(File.separatorChar));
@@ -160,9 +219,9 @@ public class RafCmisRepository {
         RafDocument document = null;
 
         try {
-            String path = rafService.getCollection(folderId).getPath() + "/" + fileName;
+            String path = getRafService().getCollection(folderId).getPath() + "/" + fileName;
             LOG.info("File Path: {}", path);
-            document = rafService.uploadDocument(path, contentStream.getStream());
+            document = getRafService().uploadDocument(path, contentStream.getStream());
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }
@@ -171,18 +230,18 @@ public class RafCmisRepository {
     }
 
     public String createFolder(CallContext context, Properties properties,
-                               String folderId) {
+            String folderId) {
         RafFolder folder = new RafFolder();
         folder.setParentId(folderId);
 
         try {
-            folder.setPath( rafService.getCollection(folderId).getPath() + "/" + folder.getName());
+            folder.setPath(getRafService().getCollection(folderId).getPath() + "/" + folder.getName());
         } catch (RafException ex) {
             LOG.error("Collection alınırken hata ile karşılaşıldı!", ex.getMessage());
         }
 
         try {
-            rafService.createFolder(folder);
+            getRafService().createFolder(folder);
         } catch (RafException ex) {
             LOG.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
         }
@@ -191,15 +250,17 @@ public class RafCmisRepository {
     }
 
     public ObjectData moveObject(CallContext context, Holder<String> objectId,
-                                 String targetFolderId, ObjectInfoHandler objectInfos) throws RafException {
+            String targetFolderId, ObjectInfoHandler objectInfos) throws RafException {
 
-        RafObject from = rafService.getRafObject(objectId.getValue());
+        RafObject from = getRafService().getRafObject(objectId.getValue());
 
-        String path = rafService.getCollection(targetFolderId).getPath();
+        String path = getRafService().getCollection(targetFolderId).getPath();
 
-        RafFolder to = rafService.getFolder(path);
+        RafFolder to = getRafService().getFolder(path);
 
-        rafService.moveObject(from, to);
+        List<RafObject> ls = new ArrayList<>();
+        ls.add(from);
+        getRafService().moveObject(ls, to);
 
         return compileObjectData(context, from, null, false, false,
                 false, objectInfos);
@@ -207,16 +268,16 @@ public class RafCmisRepository {
 
     public void deleteObject(CallContext context, String objectId) {
         try {
-            rafService.deleteObject(objectId);
+            getRafService().deleteObject(objectId);
         } catch (RafException e) {
             LOG.info("Silme işlemi sırasında hata oluştu!");
         }
     }
 
     public ObjectData getObject(CallContext context, String objectId,
-                                String versionServicesId, String filter,
-                                Boolean includeAllowableActions, Boolean includeAcl,
-                                ObjectInfoHandler objectInfos) throws RafException {
+            String versionServicesId, String filter,
+            Boolean includeAllowableActions, Boolean includeAcl,
+            ObjectInfoHandler objectInfos) throws RafException {
 
         boolean iaa = RafCmisUtils.getBooleanParameter(
                 includeAllowableActions, false);
@@ -224,24 +285,31 @@ public class RafCmisRepository {
 
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
-        RafObject rafObject = rafService.getRafObject(objectId);
+        RafObject rafObject = null;
+        if ("@dolap@".equals(objectId)) {
+            //FIXME: aslında burada sanal bir Folder oluşturmak lazım. Bunun içeriğine de WebDAV'da yaptığımız gibi kullanıcı raflarını koymak lazım.
+            rafObject = getRafService().getRafObjectByPath("/SHARED");
+            return getRootFolder(context, objectId, versionServicesId, filter, includeAllowableActions, includeAcl, objectInfos);
+        } else {
+            rafObject = getRafService().getRafObject(objectId);
+        }
 
         return compileObjectData(context, rafObject, filterCollection, iaa, iacl,
                 false, objectInfos);
     }
 
     public ContentStream getContentStream(CallContext context, String objectId,
-                                          BigInteger offset, BigInteger length) {
+            BigInteger offset, BigInteger length) {
 
         InputStream inputStream = null;
         try {
-            inputStream = rafService.getDocumentContent(objectId);
+            inputStream = getRafService().getDocumentContent(objectId);
         } catch (RafException e) {
             LOG.warn("Belge içeriği alınırken hata oluştu!");
         }
         RafObject rafObject = null;
         try {
-            rafObject = rafService.getRafObject(objectId);
+            rafObject = getRafService().getRafObject(objectId);
         } catch (RafException e) {
             LOG.warn("Raf objesi alınırken hata oluştu!");
         }
@@ -267,9 +335,16 @@ public class RafCmisRepository {
     }
 
     public ObjectInFolderList getChildren(CallContext context, String folderId,
-                                          String filter, Boolean includeAllowableActions,
-                                          Boolean includePathSegment, BigInteger maxItems,
-                                          BigInteger skipCount, ObjectInfoHandler objectInfos) throws RafException {
+            String filter, Boolean includeAllowableActions,
+            Boolean includePathSegment, BigInteger maxItems,
+            BigInteger skipCount, ObjectInfoHandler objectInfos) throws RafException {
+
+        LOG.debug("Ask children for '{}'", folderId);
+
+        if ("@dolap@".equals(folderId)) {
+            return getRootChildren(context, folderId, filter, includeAllowableActions,
+                    includePathSegment, maxItems, skipCount, objectInfos);
+        }
 
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
@@ -288,7 +363,7 @@ public class RafCmisRepository {
             max = Integer.MAX_VALUE;
         }
 
-        RafObject rafObject = rafService.getRafObject(folderId);
+        RafObject rafObject = getRafService().getRafObject(folderId);
 
         if (context.isObjectInfoRequired()) {
             compileObjectData(context, rafObject, null, false, false,
@@ -300,9 +375,9 @@ public class RafCmisRepository {
         result.setHasMoreItems(false);
         int count = 0;
 
-        List<RafFolder> children = rafService.getChildren(rafObject.getPath());
+        RafCollection collection = getRafService().getCollection(folderId);
 
-        for (RafFolder child : children) {
+        for (RafObject child : collection.getItems()) {
 
             count++;
 
@@ -331,11 +406,66 @@ public class RafCmisRepository {
         return result;
     }
 
+    /**
+     * Geriye Raf için Root folder altında bulunan sanal klasörleri döndürür.
+     *
+     * PRIVATE, SHARED ve yetkili olunan raf listesi
+     *
+     *
+     * @param context
+     * @param folderId
+     * @param filter
+     * @param includeAllowableActions
+     * @param includePathSegment
+     * @param maxItems
+     * @param skipCount
+     * @param objectInfos
+     * @return
+     * @throws RafException
+     */
+    private ObjectInFolderList getRootChildren(CallContext context, String folderId,
+            String filter, Boolean includeAllowableActions,
+            Boolean includePathSegment, BigInteger maxItems,
+            BigInteger skipCount, ObjectInfoHandler objectInfos) throws RafException {
+        
+        ObjectInFolderListImpl result = new ObjectInFolderListImpl();
+        result.setObjects(new ArrayList<ObjectInFolderData>());
+        result.setHasMoreItems(false);
+
+        Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
+
+        boolean iaa = RafCmisUtils.getBooleanParameter( includeAllowableActions, false);
+        boolean ips = RafCmisUtils.getBooleanParameter(includePathSegment, false);
+
+        //FIXME: kullanıcı adı ve yetkisi kontrol edilerek gelmiş olamalı
+        List<RafDefinition> rafDefs = getRafDefinitionService().getRafsForUser("telve", true);
+        
+        for( RafDefinition rafDef : rafDefs ){
+            ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+            objectInFolder.setObject(compileObjectData(context, rafDef.getNode(), filterCollection, iaa, false, false, objectInfos));
+            objectInFolder.setPathSegment(rafDef.getName());
+            result.getObjects().add(objectInFolder);
+        }
+        
+        //SHARED folder
+        ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+        RafObject sharedRaf = getRafService().getRafObjectByPath("/SHARED");
+        objectInFolder.setObject(compileObjectData(context, sharedRaf, filterCollection, iaa, false, false, objectInfos));
+        objectInFolder.setPathSegment(sharedRaf.getName());
+        result.getObjects().add(objectInFolder);
+        
+        //TODO: Burada PRIVATE folder ve Yetki dahilindeki raf'ların listesi eklenecek
+        
+        
+        result.setNumItems(BigInteger.valueOf(result.getObjects().size()));
+        return result;
+    }
+
     public List<ObjectParentData> getObjectParents(CallContext context,
-                                                   String objectId, String filter,
-                                                   Boolean includeAllowableActions,
-                                                   Boolean includeRelativePathSegment,
-                                                   ObjectInfoHandler objectInfos) throws RafException {
+            String objectId, String filter,
+            Boolean includeAllowableActions,
+            Boolean includeRelativePathSegment,
+            ObjectInfoHandler objectInfos) throws RafException {
 
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
@@ -344,7 +474,7 @@ public class RafCmisRepository {
         boolean irps = RafCmisUtils.getBooleanParameter(
                 includeRelativePathSegment, false);
 
-        RafObject rafObject = rafService.getRafObject(objectId);
+        RafObject rafObject = getRafService().getRafObject(objectId);
 
         String rootPath = root.getAbsolutePath();
 
@@ -357,7 +487,7 @@ public class RafCmisRepository {
                     objectInfos);
         }
 
-        RafObject parent = rafService.getRafObject(rafObject.getParentId());
+        RafObject parent = getRafService().getRafObject(rafObject.getParentId());
         ObjectData object = compileObjectData(context, parent,
                 filterCollection, iaa, false, false, objectInfos);
 
@@ -370,10 +500,88 @@ public class RafCmisRepository {
         return Collections.<ObjectParentData>singletonList(result);
     }
 
+    private ObjectData getRootFolder(CallContext context, String objectId,
+            String versionServicesId, String filter,
+            Boolean includeAllowableActions, Boolean includeAcl,
+            ObjectInfoHandler objectInfos) {
+        ObjectDataImpl result = new ObjectDataImpl();
+        ObjectInfoImpl objectInfo = new ObjectInfoImpl();
+
+        String typeId = BaseTypeId.CMIS_FOLDER.value();
+        objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
+
+        PropertiesImpl prop = new PropertiesImpl();
+
+        String id = "@dolap@";
+        addPropertyId(prop, typeId, null, PropertyIds.OBJECT_ID, id);
+        objectInfo.setId(id);
+
+        String name = "Raf";
+        addPropertyString(prop, typeId, null, PropertyIds.NAME, name);
+        objectInfo.setName(name);
+
+        addPropertyString(prop, typeId, null, PropertyIds.PATH, "/");
+        objectInfo.setHasParent(false);
+
+        if (context.getCmisVersion() != CmisVersion.CMIS_1_0) {
+            addPropertyString(prop, typeId, null, PropertyIds.DESCRIPTION, null);
+            addPropertyIdList(prop, typeId, null, PropertyIds.SECONDARY_OBJECT_TYPE_IDS, null);
+        }
+
+        addPropertyId(prop, typeId, null, PropertyIds.BASE_TYPE_ID, typeId);
+        addPropertyId(prop, typeId, null, PropertyIds.OBJECT_TYPE_ID, typeId);
+
+        addPropertyString(prop, typeId, null, PropertyIds.CREATED_BY, USER_UNKNOWN);
+        addPropertyString(prop, typeId, null, PropertyIds.LAST_MODIFIED_BY, USER_UNKNOWN);
+        objectInfo.setCreatedBy(USER_UNKNOWN);
+
+        GregorianCalendar lastModified = RafCmisUtils.millisToCalendar((new Date()).getTime());
+        addPropertyDateTime(prop, typeId, null, PropertyIds.CREATION_DATE, lastModified);
+        addPropertyDateTime(prop, typeId, null, PropertyIds.LAST_MODIFICATION_DATE, lastModified);
+
+        objectInfo.setCreationDate(lastModified);
+        objectInfo.setLastModificationDate(lastModified);
+
+        addPropertyString(prop, typeId, null, PropertyIds.CHANGE_TOKEN, null);
+
+        objectInfo.setObject(result);
+        objectInfos.addObjectInfo(objectInfo);
+
+        result.setProperties(prop);
+
+        
+         Set<Action> aas = EnumSet.noneOf(Action.class);
+
+        addAction(aas, Action.CAN_GET_OBJECT_PARENTS, false);
+        addAction(aas, Action.CAN_GET_PROPERTIES, true);
+        addAction(aas, Action.CAN_MOVE_OBJECT, false);
+        addAction(aas, Action.CAN_GET_ACL, true);
+        addAction(aas, Action.CAN_GET_CONTENT_STREAM, false);
+        addAction(aas, Action.CAN_GET_ALL_VERSIONS, false);
+        addAction(aas, Action.CAN_GET_CHILDREN, true);
+        addAction(aas, Action.CAN_CREATE_DOCUMENT, false);
+        addAction(aas, Action.CAN_CREATE_FOLDER, false);
+        addAction(aas, Action.CAN_CREATE_ITEM, false);
+        addAction(aas, Action.CAN_CREATE_RELATIONSHIP, false);
+        addAction(aas, Action.CAN_DELETE_OBJECT, false);
+        addAction(aas, Action.CAN_DELETE_TREE, false);
+
+        AllowableActionsImpl actions = new AllowableActionsImpl();
+        actions.setAllowableActions(aas);
+        result.setAllowableActions(actions);
+        
+        
+        AccessControlListImpl acls = new AccessControlListImpl();
+        acls.setExact(Boolean.TRUE);
+        result.setAcl(acls);
+        
+        return result;
+    }
+
     private ObjectData compileObjectData(CallContext context, RafObject rafObject,
-                                         Set<String> filter, boolean includeAllowableActions,
-                                         boolean includeAcl, boolean userReadOnly,
-                                         ObjectInfoHandler objectInfos) {
+            Set<String> filter, boolean includeAllowableActions,
+            boolean includeAcl, boolean userReadOnly,
+            ObjectInfoHandler objectInfos) {
         ObjectDataImpl result = new ObjectDataImpl();
         ObjectInfoImpl objectInfo = new ObjectInfoImpl();
 
@@ -399,18 +607,23 @@ public class RafCmisRepository {
     }
 
     private Properties compileProperties(CallContext context, RafObject rafObject,
-                                         Set<String> orgfilter, ObjectInfoImpl objectInfo) {
+            Set<String> orgfilter, ObjectInfoImpl objectInfo) {
         if (rafObject == null) {
             throw new IllegalArgumentException("Hata oluştu!");
         }
 
-        Set<String> filter = (orgfilter == null ? null : new HashSet<String>(
+        Set<String> filter = (orgfilter == null ? null : new HashSet<>(
                 orgfilter));
 
         String typeId = null;
 
-        typeId = BaseTypeId.CMIS_DOCUMENT.value();
-        objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
+        if (rafObject instanceof RafFolder) {
+            typeId = BaseTypeId.CMIS_FOLDER.value();
+            objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
+        } else {
+            typeId = BaseTypeId.CMIS_DOCUMENT.value();
+            objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
+        }
         objectInfo.setTypeId(typeId);
         objectInfo.setHasAcl(true);
         objectInfo.setHasContent(true);
@@ -434,9 +647,14 @@ public class RafCmisRepository {
             addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
             objectInfo.setId(id);
 
+            addPropertyString(result, typeId, filter, PropertyIds.PARENT_ID, rafObject.getParentId());
+            
             String name = rafObject.getName();
             addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
             objectInfo.setName(name);
+
+            //FIXME: Buraa PATH işini bir hal yola koymak lazım
+            addPropertyString(result, typeId, filter, PropertyIds.PATH, rafObject.getPath());
 
             addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY,
                     USER_UNKNOWN);
@@ -445,7 +663,7 @@ public class RafCmisRepository {
             objectInfo.setCreatedBy(USER_UNKNOWN);
 
             GregorianCalendar lastModified = RafCmisUtils
-                    .millisToCalendar(rafObject.getUpdateDate().getTime());
+                    .millisToCalendar(rafObject.getUpdateDate() != null ? rafObject.getUpdateDate().getTime() : (new Date()).getTime());
             addPropertyDateTime(result, typeId, filter,
                     PropertyIds.CREATION_DATE, lastModified);
             addPropertyDateTime(result, typeId, filter,
@@ -464,13 +682,15 @@ public class RafCmisRepository {
             }
 
             addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID,
-                    BaseTypeId.CMIS_DOCUMENT.value());
+                    typeId);
             addPropertyId(result, typeId, filter,
                     PropertyIds.OBJECT_TYPE_ID,
-                    BaseTypeId.CMIS_DOCUMENT.value());
+                    typeId);
 
+            /*
             addPropertyBoolean(result, typeId, filter,
                     PropertyIds.IS_IMMUTABLE, false);
+             */
             addPropertyBoolean(result, typeId, filter,
                     PropertyIds.IS_LATEST_VERSION, true);
             addPropertyBoolean(result, typeId, filter,
@@ -494,10 +714,11 @@ public class RafCmisRepository {
                         PropertyIds.IS_PRIVATE_WORKING_COPY, false);
             }
 
-            InputStream inputStream = rafService.getDocumentContent(rafObject.getId());
+            /*
+            InputStream inputStream = getRafService().getDocumentContent(rafObject.getId());
             int length = inputStream.available();
-
-            if (length == 0) {
+             */
+            if (rafObject.getLength() == 0) {
                 addPropertyBigInteger(result, typeId, filter,
                         PropertyIds.CONTENT_STREAM_LENGTH, null);
                 addPropertyString(result, typeId, filter,
@@ -510,7 +731,7 @@ public class RafCmisRepository {
                 objectInfo.setFileName(null);
             } else {
                 addPropertyInteger(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_LENGTH, length);
+                        PropertyIds.CONTENT_STREAM_LENGTH, rafObject.getLength());
                 addPropertyString(result, typeId, filter,
                         PropertyIds.CONTENT_STREAM_MIME_TYPE,
                         MimeTypes.getMIMEType(rafObject.getMimeType()));
@@ -526,7 +747,6 @@ public class RafCmisRepository {
             addPropertyId(result, typeId, filter,
                     PropertyIds.CONTENT_STREAM_ID, null);
 
-
             return result;
         } catch (CmisBaseException cbe) {
             throw cbe;
@@ -536,7 +756,7 @@ public class RafCmisRepository {
     }
 
     private void addPropertyId(PropertiesImpl props, String typeId,
-                               Set<String> filter, String id, String value) {
+            Set<String> filter, String id, String value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -545,7 +765,7 @@ public class RafCmisRepository {
     }
 
     private void addPropertyIdList(PropertiesImpl props, String typeId,
-                                   Set<String> filter, String id, List<String> value) {
+            Set<String> filter, String id, List<String> value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -554,7 +774,7 @@ public class RafCmisRepository {
     }
 
     private void addPropertyString(PropertiesImpl props, String typeId,
-                                   Set<String> filter, String id, String value) {
+            Set<String> filter, String id, String value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -563,13 +783,13 @@ public class RafCmisRepository {
     }
 
     private void addPropertyInteger(PropertiesImpl props, String typeId,
-                                    Set<String> filter, String id, long value) {
+            Set<String> filter, String id, long value) {
         addPropertyBigInteger(props, typeId, filter, id,
                 BigInteger.valueOf(value));
     }
 
     private void addPropertyBigInteger(PropertiesImpl props, String typeId,
-                                       Set<String> filter, String id, BigInteger value) {
+            Set<String> filter, String id, BigInteger value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -578,7 +798,7 @@ public class RafCmisRepository {
     }
 
     private void addPropertyBoolean(PropertiesImpl props, String typeId,
-                                    Set<String> filter, String id, boolean value) {
+            Set<String> filter, String id, boolean value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -587,7 +807,7 @@ public class RafCmisRepository {
     }
 
     private void addPropertyDateTime(PropertiesImpl props, String typeId,
-                                     Set<String> filter, String id, GregorianCalendar value) {
+            Set<String> filter, String id, GregorianCalendar value) {
         if (!checkAddProperty(props, typeId, filter, id)) {
             return;
         }
@@ -596,7 +816,7 @@ public class RafCmisRepository {
     }
 
     private boolean checkAddProperty(Properties properties, String typeId,
-                                     Set<String> filter, String id) {
+            Set<String> filter, String id) {
         if ((properties == null) || (properties.getProperties() == null)) {
             throw new IllegalArgumentException("Properties null olmamalı!");
         }
@@ -610,7 +830,9 @@ public class RafCmisRepository {
             throw new IllegalArgumentException("Bilinmeyen type id: " + typeId);
         }
         if (!type.getPropertyDefinitions().containsKey(id)) {
-            throw new IllegalArgumentException("Bilinmeyen property: " + id);
+            //throw new IllegalArgumentException("Bilinmeyen property: " + id);
+            LOG.warn("Unknown CMIS property : {}", id);
+            return false;
         }
 
         String queryName = type.getPropertyDefinitions().get(id).getQueryName();
@@ -627,20 +849,13 @@ public class RafCmisRepository {
     }
 
     private AllowableActions compileAllowableActions(RafObject rafObject,
-                                                     boolean userReadOnly) {
+            boolean userReadOnly) {
         if (rafObject == null) {
             throw new IllegalArgumentException("Dosya null olmamalı!");
         }
 
-        InputStream inputStream = null;
-
-        try {
-            rafService.getDocumentContent(rafObject.getId());
-        } catch (RafException e) {
-            LOG.warn("Belge içeriği alınırken hata oluştu!");
-        }
-
-        boolean isRoot = root.equals(rafObject);
+        //FIXME: Root davranışını kontrol etmemiz lazım. Sadece RafObject ile yapabili rmiyiz bilmiyorum.
+        boolean isRoot = false; //root.equals(rafObject);
 
         Set<Action> aas = EnumSet.noneOf(Action.class);
 
@@ -649,14 +864,9 @@ public class RafCmisRepository {
         addAction(aas, Action.CAN_MOVE_OBJECT, !userReadOnly && !isRoot);
         addAction(aas, Action.CAN_GET_ACL, true);
 
-        try {
-            addAction(aas, Action.CAN_GET_CONTENT_STREAM, inputStream.available() > 0);
-        } catch (IOException e){
-            LOG.warn("Belge içeriği alınırken hata oluştu!");
-        }
+        addAction(aas, Action.CAN_GET_CONTENT_STREAM, rafObject.getLength() > 0);
 
         addAction(aas, Action.CAN_GET_ALL_VERSIONS, true);
-
 
         AllowableActionsImpl result = new AllowableActionsImpl();
         result.setAllowableActions(aas);
@@ -675,5 +885,11 @@ public class RafCmisRepository {
         return result;
     }
 
+    private RafService getRafService() {
+        return BeanProvider.getContextualReference(RafService.class, true);
+    }
+    
+    private RafDefinitionService getRafDefinitionService(){
+        return BeanProvider.getContextualReference(RafDefinitionService.class, true);
+    }
 }
-

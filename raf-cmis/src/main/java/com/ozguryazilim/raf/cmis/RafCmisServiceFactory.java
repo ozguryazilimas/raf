@@ -62,7 +62,7 @@ public class RafCmisServiceFactory extends AbstractServiceFactory {
 
     @Override
     public CmisService getService(CallContext context) {
-        userManager.authenticate(context);
+        //userManager.authenticate(context);
         CallContextAwareCmisService service = threadLocalService.get();
         if (service == null) {
             RafCmisService fileShareService = new RafCmisService(repositoryManager);
@@ -100,7 +100,7 @@ public class RafCmisServiceFactory extends AbstractServiceFactory {
 
                 LOG.info("Adding login '{}'.", username);
 
-                userManager.addLogin(username, password);
+                //userManager.addLogin(username, password);
             } else if (key.startsWith(PREFIX_REPOSITORY)) {
                 String repositoryId = key.substring(PREFIX_REPOSITORY.length()).trim();
                 int x = repositoryId.lastIndexOf('.');
@@ -132,6 +132,11 @@ public class RafCmisServiceFactory extends AbstractServiceFactory {
                 }
             }
         }
+        
+        LOG.info("Adding repository '{}': {}", "Raf", "/");
+
+        RafCmisRepository fsr = new RafCmisRepository("Raf", "/", typeManager);
+        repositoryManager.addRepository(fsr);
     }
 
     private List<String> split(String csl) {

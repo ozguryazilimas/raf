@@ -10,6 +10,8 @@
             <module name="com.ozguryazilim.raf.jbpm" optional="TRUE" />
             <module name="org.dom4j"/>
             <module name="javax.mail.api"/>
+            <module name="org.apache.cxf" />
+            <module name="org.apache.cxf.impl" />
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

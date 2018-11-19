@@ -9,7 +9,7 @@
     <listener>
         <listener-class>org.apache.chemistry.opencmis.server.impl.CmisRepositoryContextListener</listener-class>
     </listener>
-
+<!--
     <servlet>
         <servlet-name>cmisws10</servlet-name>
         <servlet-class>org.apache.chemistry.opencmis.server.impl.webservices.CmisWebServicesServlet</servlet-class>
@@ -31,7 +31,7 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
+-->
     <servlet>
         <servlet-name>cmisatom11</servlet-name>
         <servlet-class>org.apache.chemistry.opencmis.server.impl.atompub.CmisAtomPubServlet</servlet-class>
@@ -59,29 +59,30 @@
         <load-on-startup>2</load-on-startup>
     </servlet>
 
+<!--
     <servlet-mapping>
         <servlet-name>cmisws10</servlet-name>
-        <url-pattern>/services/*</url-pattern>
+        <url-pattern>/cmis/1.0/soap/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>cmisws11</servlet-name>
-        <url-pattern>/services11/*</url-pattern>
+        <url-pattern>/cmis/1.1/soap/*</url-pattern>
     </servlet-mapping>
-
+-->
     <servlet-mapping>
         <servlet-name>cmisatom10</servlet-name>
-        <url-pattern>/atom/*</url-pattern>
+        <url-pattern>/cmis/1.0/atom/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>cmisatom11</servlet-name>
-        <url-pattern>/atom11/*</url-pattern>
+        <url-pattern>/cmis/1.1/atom/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>cmisbrowser</servlet-name>
-        <url-pattern>/browser/*</url-pattern>
+        <url-pattern>/cmis/1.1/browser/*</url-pattern>
     </servlet-mapping>
 
 </web-fragment>

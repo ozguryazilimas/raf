@@ -6,6 +6,12 @@ import org.apache.chemistry.opencmis.commons.server.CallContext;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * FIXME: Burada Shiro ile bağlantılı olarak callContext üzerinden gelen bilgi ile auth yapılmalı, ki Identity, Subject v.s. dolu hale gelsin.
+ * @author oyas
+ */
+
+
 public class RafCmisUserManager {
 
     private final Map<String, String> logins;

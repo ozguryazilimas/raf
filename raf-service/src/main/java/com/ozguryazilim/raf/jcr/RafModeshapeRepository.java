@@ -339,7 +339,7 @@ public class RafModeshapeRepository implements Serializable {
 
             return f;
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0004] Raf Folders not found",ex);
         }
 
     }
@@ -361,7 +361,7 @@ public class RafModeshapeRepository implements Serializable {
                 folderList.add(f);
             }
         } catch (RepositoryException ex) {
-            throw new RafException(ex);
+            throw new RafException("[RAF-0004] Raf Folders not found", ex);
         }
 
         return folderList;

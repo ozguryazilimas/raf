@@ -91,7 +91,7 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
                     includeAllowableActions, includePathSegment, maxItems,
                     skipCount, this);
         } catch (RafException e) {
-            LOG.warn("Children nodelar alınırken hata oluştu!");
+            LOG.error(e.getMessage(), e);
         }
 
         return children;
@@ -151,7 +151,7 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
             object =  getRepository().getObject(getCallContext(), objectId, null,
                     filter, includeAllowableActions, includeAcl, this);
         } catch (RafException e) {
-            LOG.warn("Raf alınırken hata oluştu!");
+            LOG.error(e.getMessage(), e);
         }
 
         return object;

@@ -20,6 +20,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,6 +30,8 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 @ApplicationScoped
 public class RafDefinitionService implements Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RafDefinitionService.class);
+    
     @Inject
     private Identity identity;
 
@@ -44,7 +48,11 @@ public class RafDefinitionService implements Serializable {
 
     @PostConstruct
     public void init() {
-        populateRafs();
+        try {
+            populateRafs();
+        } catch (RafException ex) {
+            LOG.error("Cannot populate rafs", ex );
+        }
     }
 
     public void createNewRaf(RafDefinition rd) throws RafException {
@@ -162,12 +170,20 @@ public class RafDefinitionService implements Serializable {
         return restult;
     }
 
-    protected void populateRafs() {
+    protected void populateRafs() throws RafException {
         rafs = repository.findAll();
+        for( RafDefinition raf : rafs ){
+            RafNode rn = rafRepository.getRafNode(raf.getCode());
+            raf.setNode(rn);
+        }
     }
 
     public void refresh() {
-        populateRafs();
+        try {
+            populateRafs();
+        } catch (RafException ex) {
+            LOG.error("Raf bilgileri toplanamadı", ex);
+        }
     }
 
 }
