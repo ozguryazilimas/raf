@@ -80,8 +80,6 @@ public class RafCmisRepository {
 
     private final String repositoryId;
 
-    private final File root;
-
     private final RafCmisTypeManager typeManager;
 
     private final Map<String, Boolean> readWriteUserMap;
@@ -89,15 +87,15 @@ public class RafCmisRepository {
     private final RepositoryInfo repositoryInfo10;
 
     private final RepositoryInfo repositoryInfo11;
+    
+    private RafDefinition rafdef;
 
     private static final Logger LOG = LoggerFactory.getLogger(RafCmisRepository.class);
 
-    public RafCmisRepository(final String repositoryId,
-            final String rootPath, final RafCmisTypeManager typeManager) {
+    public RafCmisRepository(RafDefinition rafdef, final RafCmisTypeManager typeManager) {
 
-        this.repositoryId = repositoryId;
-
-        root = new File(rootPath);
+        this.rafdef = rafdef;
+        this.repositoryId = rafdef.getCode();
 
         this.typeManager = typeManager;
 
@@ -113,13 +111,13 @@ public class RafCmisRepository {
         RepositoryInfoImpl repositoryInfo = new RepositoryInfoImpl();
 
         repositoryInfo.setId(repositoryId);
-        repositoryInfo.setName("Raf");
+        repositoryInfo.setName(rafdef.getName());
         repositoryInfo.setVendorName("Özgür Yazılım A.Ş.");
         repositoryInfo.setCmisVersion(cmisVersion);
         repositoryInfo.setDescription("Raf CMIS Repository");
         repositoryInfo.setProductName("Raf DMS");
         repositoryInfo.setProductVersion("1.0.0");
-        repositoryInfo.setRootFolder("@dolap@");
+        repositoryInfo.setRootFolder(rafdef.getCode());
 
         List<BaseTypeId> changesOnTypes = new ArrayList<>();
         changesOnTypes.add(BaseTypeId.CMIS_FOLDER);
@@ -138,7 +136,7 @@ public class RafCmisRepository {
         RepositoryCapabilitiesImpl capabilities = new RepositoryCapabilitiesImpl();
         capabilities.setSupportsGetDescendants(Boolean.TRUE);
         capabilities.setSupportsGetFolderTree(Boolean.TRUE);
-        capabilities.setSupportsUnfiling(Boolean.TRUE);
+        capabilities.setSupportsUnfiling(Boolean.FALSE);
         capabilities.setSupportsMultifiling(Boolean.FALSE);
         capabilities.setSupportsVersionSpecificFiling(Boolean.FALSE);
 
@@ -286,9 +284,9 @@ public class RafCmisRepository {
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
         RafObject rafObject = null;
-        if ("@dolap@".equals(objectId)) {
+        if (rafdef.getCode().equals(objectId)) {
             //FIXME: aslında burada sanal bir Folder oluşturmak lazım. Bunun içeriğine de WebDAV'da yaptığımız gibi kullanıcı raflarını koymak lazım.
-            rafObject = getRafService().getRafObjectByPath("/SHARED");
+            //rafObject = getRafService().getRafObjectByPath("/SHARED");
             return getRootFolder(context, objectId, versionServicesId, filter, includeAllowableActions, includeAcl, objectInfos);
         } else {
             rafObject = getRafService().getRafObject(objectId);
@@ -341,11 +339,18 @@ public class RafCmisRepository {
 
         LOG.debug("Ask children for '{}'", folderId);
 
-        if ("@dolap@".equals(folderId)) {
+        /* Şu anda her raf ayrı repo olduğuna göre aslında içerikleri normal birer folder'a dönüşmüş durumda.
+        if (rafdef.getCode().equals(folderId)) {
             return getRootChildren(context, folderId, filter, includeAllowableActions,
                     includePathSegment, maxItems, skipCount, objectInfos);
         }
-
+        */
+        
+        //Eğer root folder ise node id bulmak lazım
+        if (rafdef.getCode().equals(folderId)) {
+            folderId = rafdef.getNode().getId();
+        }
+        
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
         boolean iaa = RafCmisUtils.getBooleanParameter(
@@ -476,7 +481,7 @@ public class RafCmisRepository {
 
         RafObject rafObject = getRafService().getRafObject(objectId);
 
-        String rootPath = root.getAbsolutePath();
+        String rootPath = "/";
 
         if (rootPath.equals(rafObject.getPath())) {
             return Collections.emptyList();
@@ -512,11 +517,11 @@ public class RafCmisRepository {
 
         PropertiesImpl prop = new PropertiesImpl();
 
-        String id = "@dolap@";
+        String id = rafdef.getCode();
         addPropertyId(prop, typeId, null, PropertyIds.OBJECT_ID, id);
         objectInfo.setId(id);
 
-        String name = "Raf";
+        String name = rafdef.getCode();
         addPropertyString(prop, typeId, null, PropertyIds.NAME, name);
         objectInfo.setName(name);
 

@@ -11,9 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class RafCmisServiceFactory extends AbstractServiceFactory {
@@ -52,7 +49,11 @@ public class RafCmisServiceFactory extends AbstractServiceFactory {
         userManager = new RafCmisUserManager();
         typeManager = new RafCmisTypeManager();
 
-        readConfiguration(parameters);
+        //Burada normalde config içerisinden bilgiler ile kullanıcı ve repository tanımları okunuyor
+        //Ama raf için kullanıcı bilgileri Shiro/DeltaSpike/Telve üzerinden yönetiliyor
+        //Keza rapository olarak da her bir raf tanımı alınıyor!
+        //Üstelik bu bilgilerde repositoryManager tarafından lazy olarak toplanacak!
+        //readConfiguration(parameters);
     }
 
     @Override
@@ -78,77 +79,4 @@ public class RafCmisServiceFactory extends AbstractServiceFactory {
         return service;
     }
 
-    private void readConfiguration(Map<String, String> parameters) {
-        List<String> keys = new ArrayList<String>(parameters.keySet());
-        Collections.sort(keys);
-
-        for (String key : keys) {
-            if (key.startsWith(PREFIX_LOGIN)) {
-                String usernameAndPassword = parameters.get(key);
-                if (usernameAndPassword == null) {
-                    continue;
-                }
-
-                String username = usernameAndPassword;
-                String password = "";
-
-                int x = usernameAndPassword.indexOf(':');
-                if (x > -1) {
-                    username = usernameAndPassword.substring(0, x);
-                    password = usernameAndPassword.substring(x + 1);
-                }
-
-                LOG.info("Adding login '{}'.", username);
-
-                //userManager.addLogin(username, password);
-            } else if (key.startsWith(PREFIX_REPOSITORY)) {
-                String repositoryId = key.substring(PREFIX_REPOSITORY.length()).trim();
-                int x = repositoryId.lastIndexOf('.');
-                if (x > 0) {
-                    repositoryId = repositoryId.substring(0, x);
-                }
-
-                if (repositoryId.length() == 0) {
-                    throw new IllegalArgumentException("No repository id!");
-                }
-
-                if (key.endsWith(SUFFIX_READWRITE)) {
-                    RafCmisRepository fsr = repositoryManager.getRepository(repositoryId);
-                    for (String user : split(parameters.get(key))) {
-                        fsr.setUserReadWrite(user);
-                    }
-                } else if (key.endsWith(SUFFIX_READONLY)) {
-                    RafCmisRepository fsr = repositoryManager.getRepository(repositoryId);
-                    for (String user : split(parameters.get(key))) {
-                        fsr.setUserReadOnly(user);
-                    }
-                } else {
-                    String root = parameters.get(key);
-
-                    LOG.info("Adding repository '{}': {}", repositoryId, root);
-
-                    RafCmisRepository fsr = new RafCmisRepository(repositoryId, root, typeManager);
-                    repositoryManager.addRepository(fsr);
-                }
-            }
-        }
-        
-        LOG.info("Adding repository '{}': {}", "Raf", "/");
-
-        RafCmisRepository fsr = new RafCmisRepository("Raf", "/", typeManager);
-        repositoryManager.addRepository(fsr);
-    }
-
-    private List<String> split(String csl) {
-        if (csl == null) {
-            return Collections.emptyList();
-        }
-
-        List<String> result = new ArrayList<String>();
-        for (String s : csl.split(",")) {
-            result.add(s.trim());
-        }
-
-        return result;
-    }
 }
