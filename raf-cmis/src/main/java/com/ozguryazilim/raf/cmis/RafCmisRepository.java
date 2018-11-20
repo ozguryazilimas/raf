@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.cmis;
 
+import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import java.util.Collections;
 import java.util.Date;
@@ -27,7 +29,9 @@ import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.Acl;
 import org.apache.chemistry.opencmis.commons.data.AllowableActions;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
+import org.apache.chemistry.opencmis.commons.data.ExtensionsData;
 import org.apache.chemistry.opencmis.commons.data.ObjectData;
+import org.apache.chemistry.opencmis.commons.data.ObjectInFolderContainer;
 import org.apache.chemistry.opencmis.commons.data.ObjectInFolderData;
 import org.apache.chemistry.opencmis.commons.data.ObjectInFolderList;
 import org.apache.chemistry.opencmis.commons.data.ObjectParentData;
@@ -54,6 +58,7 @@ import org.apache.chemistry.opencmis.commons.impl.dataobjects.AllowableActionsIm
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ContentStreamImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.CreatablePropertyTypesImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectDataImpl;
+import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectInFolderContainerImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectInFolderDataImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectInFolderListImpl;
 import org.apache.chemistry.opencmis.commons.impl.dataobjects.ObjectParentDataImpl;
@@ -91,6 +96,8 @@ public class RafCmisRepository {
     private RafDefinition rafdef;
 
     private static final Logger LOG = LoggerFactory.getLogger(RafCmisRepository.class);
+
+    
 
     
     public enum RepositoryType{
@@ -309,17 +316,35 @@ public class RafCmisRepository {
 
         Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
 
-        RafObject rafObject = null;
+        RafObject rafObject;
         if (repositoryId.equals(objectId)) {
-            //FIXME: aslında burada sanal bir Folder oluşturmak lazım. Bunun içeriğine de WebDAV'da yaptığımız gibi kullanıcı raflarını koymak lazım.
-            //rafObject = getRafService().getRafObjectByPath("/SHARED");
-            return getRootFolder(context, objectId, versionServicesId, filter, includeAllowableActions, includeAcl, objectInfos);
+            return getRootFolder(context, filter, includeAllowableActions, includeAcl, objectInfos);
         } else {
             rafObject = getRafService().getRafObject(objectId);
         }
 
-        return compileObjectData(context, rafObject, filterCollection, iaa, iacl,
-                false, objectInfos);
+        return compileObjectData(context, rafObject, filterCollection, iaa, iacl, false, objectInfos);
+    }
+    
+    public ObjectData getObjectByPath(CallContext context, String path,
+            String versionServicesId, String filter,
+            Boolean includeAllowableActions, Boolean includeAcl,
+            ObjectInfoHandler objectInfos) throws RafException {
+
+        boolean iaa = RafCmisUtils.getBooleanParameter(
+                includeAllowableActions, false);
+        boolean iacl = RafCmisUtils.getBooleanParameter(includeAcl, false);
+
+        Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
+
+        RafObject rafObject;
+        if ( "/".equals(path)) {
+            return getRootFolder(context, filter, includeAllowableActions, includeAcl, objectInfos);
+        } else {
+            rafObject = getRafService().getRafObjectByPath( jcrPath(path));
+        }
+
+        return compileObjectData(context, rafObject, filterCollection, iaa, iacl, false, objectInfos);
     }
 
     public ContentStream getContentStream(CallContext context, String objectId,
@@ -402,7 +427,7 @@ public class RafCmisRepository {
         }
 
         ObjectInFolderListImpl result = new ObjectInFolderListImpl();
-        result.setObjects(new ArrayList<ObjectInFolderData>());
+        result.setObjects(new ArrayList<>());
         result.setHasMoreItems(false);
         int count = 0;
 
@@ -433,6 +458,71 @@ public class RafCmisRepository {
         }
 
         result.setNumItems(BigInteger.valueOf(count));
+
+        return result;
+    }
+    
+    /**
+     * Bir ağaç olarak verilen folder altındaki herşeyi döndürür.
+     * 
+     * FIXME: Implementasyon hatalı. Depth dikkate alınmıyor, alt bileşen ağaçları doğru hesaplanmıyor.
+     * 
+     * Aslında ObjectInFolderContainer kavramı RafCollection yapısına benzer fakat ağaç formunda oluşabiliyor.
+     * 
+     * @param context
+     * @param folderId
+     * @param depth
+     * @param filter
+     * @param includeAllowableActions
+     * @param includePathSegment
+     * @param objectInfos
+     * @return
+     * @throws RafException 
+     */
+    public List<ObjectInFolderContainer> getDescendants(CallContext context, String folderId, BigInteger depth,
+            String filter, Boolean includeAllowableActions,
+            Boolean includePathSegment, ObjectInfoHandler objectInfos) throws RafException {
+
+        LOG.debug("Ask des for '{}'", folderId);
+
+        //FIXME: Aslında burada verilen depth değerine göre aşağıya inmek gerekiyor ama biz şimdilik sadece depth = 1 şeklinde düşünelim.
+        
+        //Eğer root folder ise node id bulmak lazım
+        if (repositoryId.equals(folderId)) {
+            folderId = rafdef.getNode().getId();
+        }
+        
+        Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
+
+        boolean iaa = RafCmisUtils.getBooleanParameter(
+                includeAllowableActions, false);
+        boolean ips = RafCmisUtils.getBooleanParameter(includePathSegment,
+                false);
+
+        RafObject rafObject = getRafService().getRafObject(folderId);
+
+        if (context.isObjectInfoRequired()) {
+            compileObjectData(context, rafObject, null, false, false,
+                    false, objectInfos);
+        }
+
+        List<ObjectInFolderContainer> result = new ArrayList<>();
+
+        RafCollection collection = getRafService().getCollection(folderId);
+
+        for (RafObject child : collection.getItems()) {
+
+            
+            ObjectInFolderDataImpl objectInFolder = new ObjectInFolderDataImpl();
+            objectInFolder.setObject(compileObjectData(context, child,
+                    filterCollection, iaa, false, false, objectInfos));
+            if (ips) {
+                objectInFolder.setPathSegment(child.getName());
+            }
+
+            ObjectInFolderContainerImpl objectInFolderContainer = new ObjectInFolderContainerImpl(objectInFolder);
+            result.add(objectInFolderContainer);
+        }
 
         return result;
     }
@@ -492,6 +582,17 @@ public class RafCmisRepository {
         return result;
     }
 
+    public ObjectData getFolderParent(CallContext context, String folderId, String filter, ObjectInfoHandler objectInfos, ExtensionsData extension) throws RafException {
+        Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
+        
+        if( repositoryId.equals(folderId) ){
+            return null;
+        } else {
+            //ObjectInfoHandler objectInfos = new ObjectInfoImpl();
+            return getObject(context, folderId, null, filter, Boolean.FALSE, Boolean.TRUE, objectInfos);
+        }
+    }
+    
     public List<ObjectParentData> getObjectParents(CallContext context,
             String objectId, String filter,
             Boolean includeAllowableActions,
@@ -531,13 +632,35 @@ public class RafCmisRepository {
         return Collections.<ObjectParentData>singletonList(result);
     }
 
-    private ObjectData getRootFolder(CallContext context, String objectId,
-            String versionServicesId, String filter,
+    private ObjectData getRootFolder(CallContext context, String filter,
             Boolean includeAllowableActions, Boolean includeAcl,
             ObjectInfoHandler objectInfos) {
         ObjectDataImpl result = new ObjectDataImpl();
         ObjectInfoImpl objectInfo = new ObjectInfoImpl();
 
+        boolean iaa = RafCmisUtils.getBooleanParameter(includeAllowableActions, false);
+        boolean iacl = RafCmisUtils.getBooleanParameter(includeAcl, false);
+
+        Set<String> filterCollection = RafCmisUtils.splitFilter(filter);
+
+        result.setProperties(compileFolderProperties(context, rafdef.getNode(), filterCollection, objectInfo));
+
+        if (includeAllowableActions) {
+            //FIXME: kullanıcı yetki şeysi düzeltilmeli!
+            result.setAllowableActions(compileAllowableActions(rafdef.getNode(), false));
+        }
+
+        if (includeAcl) {
+            result.setAcl(compileAcl(rafdef.getNode()));
+            result.setIsExactAcl(true);
+        }
+
+        if (context.isObjectInfoRequired()) {
+            objectInfo.setObject(result);
+            objectInfos.addObjectInfo(objectInfo);
+        }
+        
+        /*
         String typeId = BaseTypeId.CMIS_FOLDER.value();
         objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
 
@@ -605,7 +728,7 @@ public class RafCmisRepository {
         AccessControlListImpl acls = new AccessControlListImpl();
         acls.setExact(Boolean.TRUE);
         result.setAcl(acls);
-        
+        */
         return result;
     }
 
@@ -637,24 +760,101 @@ public class RafCmisRepository {
         return result;
     }
 
-    private Properties compileProperties(CallContext context, RafObject rafObject,
-            Set<String> orgfilter, ObjectInfoImpl objectInfo) {
-        if (rafObject == null) {
-            throw new IllegalArgumentException("Hata oluştu!");
+    private Properties compileFolderProperties(CallContext context, RafObject rafObject, Set<String> filter, ObjectInfoImpl objectInfo) {
+        
+        String typeId;
+
+        
+        typeId = BaseTypeId.CMIS_FOLDER.value();
+        objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
+        
+        objectInfo.setTypeId(typeId);
+        objectInfo.setHasAcl(true);
+        objectInfo.setHasContent(false);
+        objectInfo.setHasParent(true);
+        objectInfo.setVersionSeriesId(null);
+        objectInfo.setIsCurrentVersion(true);
+        objectInfo.setRelationshipSourceIds(null);
+        objectInfo.setRelationshipTargetIds(null);
+        objectInfo.setRenditionInfos(null);
+        objectInfo.setSupportsDescendants(true);
+        objectInfo.setSupportsFolderTree(true);
+        objectInfo.setSupportsPolicies(false);
+        objectInfo.setSupportsRelationships(false);
+        objectInfo.setWorkingCopyId(null);
+        objectInfo.setWorkingCopyOriginalId(null);
+
+        try {
+            PropertiesImpl result = new PropertiesImpl();
+
+            if( rafObject instanceof RafNode ){
+                String id = repositoryId;
+                addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
+                objectInfo.setId(id);
+                //RootFolder için her zaman "/"
+                addPropertyString(result, typeId, filter, PropertyIds.PATH, "/");
+                objectInfo.setHasParent(false);
+            } else {
+                String id = rafObject.getId();
+                addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
+                objectInfo.setId(id);
+                //TODO: Burada bir sorunumuz var. RootFolder ID'si sorun yaratacak sanırım. Bir üst Node'un Raf nodu olduğunu öğrenmek lazım!
+                addPropertyString(result, typeId, filter, PropertyIds.PARENT_ID, rafObject.getParentId());
+                //FIXME: Buraa PATH işini bir hal yola koymak lazım. Bir PathManager'a ihtiyaç var. JCR Path dış dünyaya duyuruluyor.
+                addPropertyString(result, typeId, filter, PropertyIds.PATH, cmisPath( rafObject.getPath()));
+            }
+
+            String name = rafObject.getName();
+            addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
+            objectInfo.setName(name);
+
+            
+            //TODO: Bu list aslında static olabilir. İçerdiği tiplere de ayrıca bakmak lazım.
+            List<String> childTypes = new ArrayList<>();
+            childTypes.add(BaseTypeId.CMIS_FOLDER.value());
+            childTypes.add(BaseTypeId.CMIS_DOCUMENT.value());
+            addPropertyTypes(result, typeId, filter, PropertyIds.ALLOWED_CHILD_OBJECT_TYPE_IDS, childTypes);
+
+            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, Strings.isNullOrEmpty(rafObject.getCreateBy()) ?  USER_UNKNOWN : rafObject.getCreateBy());
+            addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, Strings.isNullOrEmpty(rafObject.getUpdateBy()) ?  USER_UNKNOWN : rafObject.getUpdateBy());
+            objectInfo.setCreatedBy(rafObject.getCreateBy());
+            
+
+            GregorianCalendar updateDate = RafCmisUtils.millisToCalendar(rafObject.getCreateDate()!= null ? rafObject.getCreateDate().getTime() : (new Date()).getTime());
+            GregorianCalendar createDate = RafCmisUtils.millisToCalendar(rafObject.getUpdateDate() != null ? rafObject.getUpdateDate().getTime() : (new Date()).getTime());
+            addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, createDate);
+            addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, updateDate);
+            objectInfo.setCreationDate(createDate);
+            objectInfo.setLastModificationDate(updateDate);
+
+            //TODO: Değişiklik bilgirimi kısmı ile ayrıca ilgilenmeliyiz.
+            addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
+
+            if (context.getCmisVersion() != CmisVersion.CMIS_1_0) {
+                addPropertyString(result, typeId, filter, PropertyIds.DESCRIPTION, rafObject.getInfo());
+                //TODO: Buarada RafNode, RafRecord için bişiler yapmalı mı?
+                addPropertyIdList(result, typeId, filter, PropertyIds.SECONDARY_OBJECT_TYPE_IDS, null);
+            }
+
+            addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, typeId);
+            addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, typeId);
+
+            return result;
+        } catch (CmisBaseException cbe) {
+            throw cbe;
+        } catch (Exception e) {
+            throw new CmisRuntimeException(e.getMessage(), e);
         }
+    }
+    
+    private Properties compileDocumentProperties(CallContext context, RafObject rafObject, Set<String> filter, ObjectInfoImpl objectInfo) {
+        
+        String typeId;
 
-        Set<String> filter = (orgfilter == null ? null : new HashSet<>(
-                orgfilter));
-
-        String typeId = null;
-
-        if (rafObject instanceof RafFolder) {
-            typeId = BaseTypeId.CMIS_FOLDER.value();
-            objectInfo.setBaseType(BaseTypeId.CMIS_FOLDER);
-        } else {
-            typeId = BaseTypeId.CMIS_DOCUMENT.value();
-            objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
-        }
+        
+        typeId = BaseTypeId.CMIS_DOCUMENT.value();
+        objectInfo.setBaseType(BaseTypeId.CMIS_DOCUMENT);
+        
         objectInfo.setTypeId(typeId);
         objectInfo.setHasAcl(true);
         objectInfo.setHasContent(true);
@@ -678,111 +878,94 @@ public class RafCmisRepository {
             addPropertyId(result, typeId, filter, PropertyIds.OBJECT_ID, id);
             objectInfo.setId(id);
 
+            //TODO: Burada bir sorunumuz var. RootFolder ID'si sorun yaratacak sanırım.
             addPropertyString(result, typeId, filter, PropertyIds.PARENT_ID, rafObject.getParentId());
             
             String name = rafObject.getName();
             addPropertyString(result, typeId, filter, PropertyIds.NAME, name);
             objectInfo.setName(name);
 
-            //FIXME: Buraa PATH işini bir hal yola koymak lazım
-            addPropertyString(result, typeId, filter, PropertyIds.PATH, rafObject.getPath());
+            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY, rafObject.getCreateBy());
+            addPropertyString(result, typeId, filter, PropertyIds.LAST_MODIFIED_BY, rafObject.getUpdateBy());
+            objectInfo.setCreatedBy(rafObject.getCreateBy());
 
-            addPropertyString(result, typeId, filter, PropertyIds.CREATED_BY,
-                    USER_UNKNOWN);
-            addPropertyString(result, typeId, filter,
-                    PropertyIds.LAST_MODIFIED_BY, USER_UNKNOWN);
-            objectInfo.setCreatedBy(USER_UNKNOWN);
+            GregorianCalendar updateDate = RafCmisUtils.millisToCalendar(rafObject.getCreateDate()!= null ? rafObject.getCreateDate().getTime() : (new Date()).getTime());
+            GregorianCalendar createDate = RafCmisUtils.millisToCalendar(rafObject.getUpdateDate() != null ? rafObject.getUpdateDate().getTime() : (new Date()).getTime());
+            addPropertyDateTime(result, typeId, filter, PropertyIds.CREATION_DATE, createDate);
+            addPropertyDateTime(result, typeId, filter, PropertyIds.LAST_MODIFICATION_DATE, updateDate);
+            objectInfo.setCreationDate(createDate);
+            objectInfo.setLastModificationDate(updateDate);
 
-            GregorianCalendar lastModified = RafCmisUtils
-                    .millisToCalendar(rafObject.getUpdateDate() != null ? rafObject.getUpdateDate().getTime() : (new Date()).getTime());
-            addPropertyDateTime(result, typeId, filter,
-                    PropertyIds.CREATION_DATE, lastModified);
-            addPropertyDateTime(result, typeId, filter,
-                    PropertyIds.LAST_MODIFICATION_DATE, lastModified);
-            objectInfo.setCreationDate(lastModified);
-            objectInfo.setLastModificationDate(lastModified);
-
-            addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN,
-                    null);
+            //TODO: Değişiklik bilgirimi kısmı ile ayrıca ilgilenmeliyiz.
+            addPropertyString(result, typeId, filter, PropertyIds.CHANGE_TOKEN, null);
 
             if (context.getCmisVersion() != CmisVersion.CMIS_1_0) {
-                addPropertyString(result, typeId, filter,
-                        PropertyIds.DESCRIPTION, null);
-                addPropertyIdList(result, typeId, filter,
-                        PropertyIds.SECONDARY_OBJECT_TYPE_IDS, null);
+                addPropertyString(result, typeId, filter, PropertyIds.DESCRIPTION, rafObject.getInfo());
+                //TODO: Buarada RafNode, RafRecord için bişiler yapmalı mı?
+                addPropertyIdList(result, typeId, filter, PropertyIds.SECONDARY_OBJECT_TYPE_IDS, null);
             }
 
-            addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID,
-                    typeId);
-            addPropertyId(result, typeId, filter,
-                    PropertyIds.OBJECT_TYPE_ID,
-                    typeId);
+            addPropertyId(result, typeId, filter, PropertyIds.BASE_TYPE_ID, typeId);
+            addPropertyId(result, typeId, filter, PropertyIds.OBJECT_TYPE_ID, typeId);
 
-            /*
-            addPropertyBoolean(result, typeId, filter,
-                    PropertyIds.IS_IMMUTABLE, false);
-             */
-            addPropertyBoolean(result, typeId, filter,
-                    PropertyIds.IS_LATEST_VERSION, true);
-            addPropertyBoolean(result, typeId, filter,
-                    PropertyIds.IS_MAJOR_VERSION, true);
-            addPropertyBoolean(result, typeId, filter,
-                    PropertyIds.IS_LATEST_MAJOR_VERSION, true);
-            addPropertyString(result, typeId, filter,
-                    PropertyIds.VERSION_LABEL, rafObject.getName());
-            addPropertyId(result, typeId, filter,
-                    PropertyIds.VERSION_SERIES_ID, rafObject.getId());
-            addPropertyBoolean(result, typeId, filter,
-                    PropertyIds.IS_VERSION_SERIES_CHECKED_OUT, false);
-            addPropertyString(result, typeId, filter,
-                    PropertyIds.VERSION_SERIES_CHECKED_OUT_BY, null);
-            addPropertyString(result, typeId, filter,
-                    PropertyIds.VERSION_SERIES_CHECKED_OUT_ID, null);
-            addPropertyString(result, typeId, filter,
-                    PropertyIds.CHECKIN_COMMENT, "");
+            
+            addPropertyBoolean(result, typeId, filter,PropertyIds.IS_IMMUTABLE, false);
+            
+            //TODO: Version ve CheckOut kısımları ile ilgilenmek gerek
+            addPropertyBoolean(result, typeId, filter, PropertyIds.IS_LATEST_VERSION, true);
+            addPropertyBoolean(result, typeId, filter, PropertyIds.IS_MAJOR_VERSION, true);
+            addPropertyBoolean(result, typeId, filter, PropertyIds.IS_LATEST_MAJOR_VERSION, true);
+            addPropertyString(result, typeId, filter, PropertyIds.VERSION_LABEL, rafObject.getVersion());
+            addPropertyId(result, typeId, filter,PropertyIds.VERSION_SERIES_ID, rafObject.getVersion());
+            addPropertyBoolean(result, typeId, filter, PropertyIds.IS_VERSION_SERIES_CHECKED_OUT, false);
+            addPropertyString(result, typeId, filter,PropertyIds.VERSION_SERIES_CHECKED_OUT_BY, null);
+            addPropertyString(result, typeId, filter, PropertyIds.VERSION_SERIES_CHECKED_OUT_ID, null);
+            addPropertyString(result, typeId, filter, PropertyIds.CHECKIN_COMMENT, "");
             if (context.getCmisVersion() != CmisVersion.CMIS_1_0) {
-                addPropertyBoolean(result, typeId, filter,
-                        PropertyIds.IS_PRIVATE_WORKING_COPY, false);
+                addPropertyBoolean(result, typeId, filter, PropertyIds.IS_PRIVATE_WORKING_COPY, false);
             }
 
-            /*
-            InputStream inputStream = getRafService().getDocumentContent(rafObject.getId());
-            int length = inputStream.available();
-             */
             if (rafObject.getLength() == 0) {
-                addPropertyBigInteger(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_LENGTH, null);
-                addPropertyString(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_MIME_TYPE, null);
-                addPropertyString(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_FILE_NAME, null);
+                addPropertyBigInteger(result, typeId, filter, PropertyIds.CONTENT_STREAM_LENGTH, null);
+                addPropertyString(result, typeId, filter, PropertyIds.CONTENT_STREAM_MIME_TYPE, null);
+                addPropertyString(result, typeId, filter, PropertyIds.CONTENT_STREAM_FILE_NAME, null);
 
                 objectInfo.setHasContent(false);
                 objectInfo.setContentType(null);
                 objectInfo.setFileName(null);
             } else {
-                addPropertyInteger(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_LENGTH, rafObject.getLength());
-                addPropertyString(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_MIME_TYPE,
-                        rafObject.getMimeType());
-                addPropertyString(result, typeId, filter,
-                        PropertyIds.CONTENT_STREAM_FILE_NAME,
-                        rafObject.getName());
+                addPropertyInteger(result, typeId, filter, PropertyIds.CONTENT_STREAM_LENGTH, rafObject.getLength());
+                addPropertyString(result, typeId, filter, PropertyIds.CONTENT_STREAM_MIME_TYPE, rafObject.getMimeType());
+                addPropertyString(result, typeId, filter, PropertyIds.CONTENT_STREAM_FILE_NAME, rafObject.getName());
 
                 objectInfo.setHasContent(true);
                 objectInfo.setContentType(rafObject.getMimeType());
                 objectInfo.setFileName(rafObject.getName());
             }
 
-            addPropertyId(result, typeId, filter,
-                    PropertyIds.CONTENT_STREAM_ID, null);
+            addPropertyId(result, typeId, filter, PropertyIds.CONTENT_STREAM_ID, null);
 
             return result;
         } catch (CmisBaseException cbe) {
             throw cbe;
         } catch (Exception e) {
             throw new CmisRuntimeException(e.getMessage(), e);
+        }
+    }
+    
+    private Properties compileProperties(CallContext context, RafObject rafObject, Set<String> orgfilter, ObjectInfoImpl objectInfo) {
+        if (rafObject == null) {
+            throw new IllegalArgumentException("Hata oluştu!");
+        }
+
+        Set<String> filter = (orgfilter == null ? null : new HashSet<>(orgfilter));
+
+        String typeId = null;
+
+        if (rafObject instanceof RafFolder) {
+            return compileFolderProperties(context, rafObject, filter, objectInfo);
+        } else {
+            return compileDocumentProperties(context, rafObject, filter, objectInfo);
         }
     }
 
@@ -845,9 +1028,17 @@ public class RafCmisRepository {
 
         props.addProperty(new PropertyDateTimeImpl(id, value));
     }
+    
+    private void addPropertyTypes(PropertiesImpl props, String typeId,
+            Set<String> filter, String id, List<String> values) {
+        if (!checkAddProperty(props, typeId, filter, id)) {
+            return;
+        }
 
-    private boolean checkAddProperty(Properties properties, String typeId,
-            Set<String> filter, String id) {
+        props.addProperty(new PropertyIdImpl(id, values));
+    }
+
+    private boolean checkAddProperty(Properties properties, String typeId, Set<String> filter, String id) {
         if ((properties == null) || (properties.getProperties() == null)) {
             throw new IllegalArgumentException("Properties null olmamalı!");
         }
@@ -879,26 +1070,51 @@ public class RafCmisRepository {
         return true;
     }
 
-    private AllowableActions compileAllowableActions(RafObject rafObject,
-            boolean userReadOnly) {
+    private AllowableActions compileAllowableActions(RafObject rafObject, boolean userReadOnly) {
         if (rafObject == null) {
             throw new IllegalArgumentException("Dosya null olmamalı!");
         }
 
         //FIXME: Root davranışını kontrol etmemiz lazım. Sadece RafObject ile yapabili rmiyiz bilmiyorum.
-        boolean isRoot = false; //root.equals(rafObject);
+        boolean isRoot = rafObject instanceof RafNode;
 
         Set<Action> aas = EnumSet.noneOf(Action.class);
 
-        addAction(aas, Action.CAN_GET_OBJECT_PARENTS, !isRoot);
-        addAction(aas, Action.CAN_GET_PROPERTIES, true);
-        addAction(aas, Action.CAN_MOVE_OBJECT, !userReadOnly && !isRoot);
-        addAction(aas, Action.CAN_GET_ACL, true);
-
-        addAction(aas, Action.CAN_GET_CONTENT_STREAM, rafObject.getLength() > 0);
-
-        addAction(aas, Action.CAN_GET_ALL_VERSIONS, true);
-
+        if( rafObject instanceof RafDocument ){
+            addAction(aas, Action.CAN_GET_OBJECT_PARENTS, true);
+            addAction(aas, Action.CAN_GET_PROPERTIES, true);
+            addAction(aas, Action.CAN_MOVE_OBJECT, !userReadOnly);
+            addAction(aas, Action.CAN_GET_ACL, true);
+            addAction(aas, Action.CAN_GET_CONTENT_STREAM, rafObject.getLength() > 0);
+            addAction(aas, Action.CAN_GET_ALL_VERSIONS, false);
+            addAction(aas, Action.CAN_GET_CHILDREN, true);
+            addAction(aas, Action.CAN_CREATE_DOCUMENT, false);
+            addAction(aas, Action.CAN_CREATE_FOLDER, false);
+            addAction(aas, Action.CAN_CREATE_ITEM, false);
+            addAction(aas, Action.CAN_CREATE_RELATIONSHIP, false);
+            addAction(aas, Action.CAN_DELETE_OBJECT, !userReadOnly);
+            addAction(aas, Action.CAN_DELETE_TREE, false);
+        } else {
+            addAction(aas, Action.CAN_GET_OBJECT_PARENTS, !isRoot);
+            addAction(aas, Action.CAN_GET_PROPERTIES, true);
+            
+            //RafNode ( Yani root ve RafRecord tipleri için izin vermeyelim )
+            if( rafObject instanceof RafFolder ){
+                addAction(aas, Action.CAN_MOVE_OBJECT, !userReadOnly);
+                addAction(aas, Action.CAN_DELETE_OBJECT, !userReadOnly);
+            }
+            
+            addAction(aas, Action.CAN_GET_ACL, true);
+            addAction(aas, Action.CAN_GET_CONTENT_STREAM, false);
+            addAction(aas, Action.CAN_GET_ALL_VERSIONS, false);
+            addAction(aas, Action.CAN_GET_CHILDREN, true);
+            addAction(aas, Action.CAN_CREATE_DOCUMENT, !userReadOnly);
+            addAction(aas, Action.CAN_CREATE_FOLDER, !userReadOnly);
+            addAction(aas, Action.CAN_CREATE_ITEM, !userReadOnly);
+            addAction(aas, Action.CAN_CREATE_RELATIONSHIP, false);
+            addAction(aas, Action.CAN_DELETE_TREE, !userReadOnly);
+        }
+        
         AllowableActionsImpl result = new AllowableActionsImpl();
         result.setAllowableActions(aas);
 
@@ -926,5 +1142,64 @@ public class RafCmisRepository {
     
     public RafDefinition getRafDefinition(){
         return rafdef;
+    }
+    
+    
+    /**
+     * JCR üzerinden gelen PATH bilgisini CMIS için düzenler.
+     * 
+     * /RAF/{repositoryId} = /
+     * /SHARED = {repositoryId} = /
+     * /PRIVATE/{repositoryId} = /
+     * 
+     * @param path
+     * @return 
+     */
+    protected String cmisPath( String path ){
+        
+        // /RAF/Deneme
+        // /RAF/Deneme/
+        // /RAF/Deneme/Test
+        // /RAF/Deneme/Test/
+        
+        String result;
+        if( path.startsWith("/RAF")){
+            result = path.replace("/RAF/"+repositoryId, "");
+        } else if(path.startsWith("/SHARED")){
+            result = path.replace("/SHARED", "");
+        } else if(path.startsWith("/PRIVATE")){
+            result = path.replace("/PRIVATE/"+repositoryId, "");
+        } else {
+            LOG.warn("Doğru bir path bilgisi değil : {}", path);
+            result = path;
+        }
+        
+        if( !result.startsWith("/")){
+            result = "/" + result;
+        }
+        
+        return result;
+    }
+    
+    protected String jcrPath( String path ){
+        String result;
+        
+        switch (repoType) {
+            case RAF:
+                result = "/RAF/" + repositoryId + path;
+                break;
+            case SHARED:
+                result = "/SHARED" + path;
+                break;
+            case PRIVATE:
+                result = "/PRIVATE/" + repositoryId + path;
+                break;
+            default:
+                LOG.warn("Doğru bir path bilgisi değil : {}", path);
+                result = path;
+                break;
+        }
+        
+        return result;
     }
 }

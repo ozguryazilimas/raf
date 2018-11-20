@@ -98,6 +98,20 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
     }
 
     @Override
+    public List<ObjectInFolderContainer> getDescendants(String repositoryId, String folderId, BigInteger depth, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePathSegment, ExtensionsData extension) {
+        List<ObjectInFolderContainer> children = null;
+        try {
+            children = getRepository().getDescendants(getCallContext(), folderId, depth, filter, includeAllowableActions, includePathSegment, this);
+        } catch (RafException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return children;
+    }
+
+    
+    
+    @Override
     public List<ObjectParentData> getObjectParents(String repositoryId,
                                                    String objectId, String filter, Boolean includeAllowableActions,
                                                    IncludeRelationships includeRelationships, String renditionFilter,
@@ -114,6 +128,18 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
         return parents;
     }
 
+    @Override
+    public ObjectData getFolderParent(String repositoryId, String folderId, String filter, ExtensionsData extension) {
+        try {
+            return getRepository().getFolderParent( getCallContext(), folderId, filter, this, extension);
+        } catch (RafException ex) {
+            LOG.error("Folder Parent not Found", ex);
+            return null;
+        }
+    }
+
+    
+    
     @Override
     public String createDocument(String repositoryId, Properties properties,
                                  String folderId, ContentStream contentStream,
@@ -157,6 +183,21 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
         return object;
     }
 
+    @Override
+    public ObjectData getObjectByPath(String repositoryId, String path, String filter, Boolean includeAllowableActions, IncludeRelationships includeRelationships, String renditionFilter, Boolean includePolicyIds, Boolean includeAcl, ExtensionsData extension) {
+        ObjectData object = null;
+
+        try {
+            object =  getRepository().getObjectByPath(getCallContext(), path, null, filter, includeAllowableActions, includeAcl, this);
+        } catch (RafException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return object;
+    }
+
+    
+    
     @Override
     public Properties getProperties(String repositoryId, String objectId,
                                     String filter, ExtensionsData extension) {
