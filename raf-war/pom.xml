@@ -3,27 +3,23 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>raf-parent</artifactId>
-        <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>com.ozguryazilim.raf</groupId>
+        <version>${revision}${changelist}</version>
     </parent>
 
-    <groupId>com.ozguryazilim.mutfak</groupId>
     <artifactId>raf-war</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>raf-war</name>
     
     <properties>
-        <telve.version>4.0.0.Beta6-SNAPSHOT</telve.version>
         <version.thorntail>2.2.0.Final</version.thorntail>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.ozguryazilim.mutfak</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-web</artifactId>
-            <version>${telve.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
@@ -31,9 +27,8 @@
             <artifactId>modeshape-extractor-tika</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.ozguryazilim.mutfak</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-idm</artifactId>
-            <version>${telve.version}</version>
             <type>ejb</type>
         </dependency>
         <dependency>

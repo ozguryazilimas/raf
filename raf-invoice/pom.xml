@@ -3,23 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>raf-parent</artifactId>
-        <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>com.ozguryazilim.raf</groupId>
+        <version>${revision}${changelist}</version>
     </parent>
 
-    <groupId>com.ozguryazilim.mutfak</groupId>
     <artifactId>raf-invoice</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>ejb</packaging>
 
     <name>raf-invoice</name>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>telve-core</artifactId>
-            <version>${telve.version}</version>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-core</artifactId>

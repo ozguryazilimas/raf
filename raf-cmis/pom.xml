@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>raf-parent</artifactId>
-        <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ozguryazilim.mutfak</groupId>
+    <parent>
+        <artifactId>raf-parent</artifactId>
+        <groupId>com.ozguryazilim.raf</groupId>
+        <version>${revision}${changelist}</version>
+    </parent>
+    
+
     <artifactId>raf-cmis</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>ejb</packaging>
 
     <name>raf-cmis</name>
@@ -22,9 +22,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-core</artifactId>
-            <version>${telve.version}</version>
+            <type>ejb</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

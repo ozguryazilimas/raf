@@ -10,3 +10,4 @@ nbproject
 .directory
 nb-configuration.xml
 pom.xml.versionsBackup
+.flattened-pom.xml

@@ -3,35 +3,29 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>raf-parent</artifactId>
-        <groupId>com.ozguryazilim.mutfak</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>com.ozguryazilim.raf</groupId>
+        <version>${revision}${changelist}</version>
     </parent>
 
-    <groupId>com.ozguryazilim.mutfak</groupId>
     <artifactId>raf-jbpm</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>ejb</packaging>
 
     <name>raf-jbpm</name>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-core</artifactId>
-            <version>${telve.version}</version>
-            <scope>provided</scope>
+            <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-dashboard</artifactId>
-            <version>${telve.version}</version>
-            <scope>provided</scope>
+            <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>kahve</artifactId>
-            <version>${telve.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -43,13 +37,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-service</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-ui</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         
         <!--
