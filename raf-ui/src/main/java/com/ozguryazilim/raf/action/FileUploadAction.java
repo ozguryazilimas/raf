@@ -1,15 +1,22 @@
 package com.ozguryazilim.raf.action;
 
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.config.ActionPages;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.telve.messages.FacesMessages;
+import com.ozguryazilim.telve.uploader.ui.FileUploadDialog;
+import com.ozguryazilim.telve.uploader.ui.FileUploadHandler;
+import java.io.IOException;
 import java.util.Map;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import me.desair.tus.server.TusFileUploadService;
+import me.desair.tus.server.exception.TusException;
+import me.desair.tus.server.upload.UploadInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +24,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(dialog = ActionPages.FileUploadDialog.class, 
-        icon = "fa-upload",
+@Action( icon = "fa-upload",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
         order = 0)
-public class FileUploadAction extends AbstractAction{
+public class FileUploadAction extends AbstractAction implements FileUploadHandler{
     
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadAction.class);
     
@@ -35,6 +41,12 @@ public class FileUploadAction extends AbstractAction{
     @Inject
     private Event<RafUploadEvent> rafUploadEvent;
 
+    @Inject
+    private FileUploadDialog fileUploadDialog;
+
+    @Inject
+    private TusFileUploadService fileUploadService;
+    
     private String rafCode;
     private String uploadPath;
     private boolean actionExec = Boolean.TRUE;
@@ -77,8 +89,31 @@ public class FileUploadAction extends AbstractAction{
         this.rafCode = rafCode;
         this.uploadPath = uploadPath;
         actionExec = Boolean.FALSE;
-        openDialog();
+        //openDialog();
+        fileUploadDialog.openDialog(this, "");
     }
+
+    
+    /**
+     * Burada kütüphanenin dialoğu kullanıldığı için her zaman için geriye true dönecek.
+     * 
+     * @return 
+     */
+    @Override
+    public boolean hasDialog() {
+        return true;
+    }
+
+    
+    /**
+     * Telve uploader'ın dialoğunu açalım.
+     */
+    @Override
+    protected void openDialog() {
+        fileUploadDialog.openDialog(this, "");
+    }
+    
+    
     
     public String getRafCode() {
         return rafCode;
@@ -94,5 +129,24 @@ public class FileUploadAction extends AbstractAction{
 
     public void setUploadPath(String uploadPath) {
         this.uploadPath = uploadPath;
+    }
+
+    @Override
+    public void handleFileUpload(String uri) {
+        LOG.debug("File Upload complete : {}", uri);
+        
+        
+        try {
+            UploadInfo uploadInfo = fileUploadService.getUploadInfo(uri);
+            LOG.debug("Uploaded File : {}", uploadInfo.getFileName());
+            rafService.uploadDocument( getUploadPath() + "/" + uploadInfo.getFileName(), fileUploadService.getUploadedBytes(uri));
+            fileUploadService.deleteUpload(uri);
+            //FIXME: burası her dosya yüklenmesinde çağrılıyor. Aslında Telve-Uploader dialogun kapandığına dair bilgi vermeli. #31635 işine bakın
+            finalizeAction();
+        } catch (IOException | TusException | RafException ex) {
+            //FIXME: i18n
+            FacesMessages.error("Files Cannot Uploaded");
+            LOG.error("File Upload Error", ex);
+        }
     }
 }

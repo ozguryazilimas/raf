@@ -16,6 +16,4 @@ public interface ActionPages extends Pages{
     @SecuredPage
     class CreateFolderDialog implements Pages {}
     
-    @SecuredPage
-    class FileUploadDialog implements Pages {}
 }
