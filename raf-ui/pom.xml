@@ -29,6 +29,11 @@
             <type>ejb</type>
         </dependency>
         <dependency>
+            <groupId>com.ozguryazilim.telve</groupId>
+            <artifactId>telve-uploader</artifactId>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-core</artifactId>
             <version>${project.version}</version>
