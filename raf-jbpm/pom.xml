@@ -17,15 +17,18 @@
             <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-core</artifactId>
             <type>ejb</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>telve-dashboard</artifactId>
             <type>ejb</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.ozguryazilim.telve</groupId>
             <artifactId>kahve</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -37,11 +40,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-service</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-ui</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         
         <!--

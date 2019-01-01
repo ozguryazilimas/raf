@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.ozguryazilim.telve</groupId>
         <artifactId>telve-app-parent</artifactId>
-        <version>4.0.0-Beta-7</version> 
+        <version>4.0.0-Beta-11</version> 
     </parent>
 
     <groupId>com.ozguryazilim.raf</groupId>
@@ -143,7 +143,6 @@
         <module>raf-invoice</module>
         <module>raf-bpmn</module>
         <module>raf-jbpm</module>
-        <module>raf-jbpm-sample-kjar</module>
         <module>raf-forms</module>
         <module>raf-record</module>
         <module>raf-converter</module>
@@ -151,5 +150,40 @@
         <module>raf-cmis</module>
         
     </modules>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Bütün java dosyalarından lisans header'larını kaldırır. -->
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <header>com/mycila/maven/plugin/license/templates/LGPL-3.txt</header>
+                    <keywords>license</keywords>
+                    <properties>
+                        <owner>${project.organization.name}</owner>
+                        <url>${project.organization.url}</url>
+                    </properties>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>license-headers</id>
+                        <goals>
+                            <goal>remove</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>
