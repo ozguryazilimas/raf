@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ozguryazilim.raf.jbpm.ui;
 
 import com.google.common.base.Splitter;
@@ -32,10 +27,11 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.model.ProcessDefinition;
-import org.jbpm.services.api.query.QueryService;
 import org.kie.api.task.model.Comment;
+import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.task.query.TaskSummaryQueryBuilder;
 import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +56,6 @@ public class TaskController implements Serializable, FormController, DocumentsWi
     private UserTaskService taskService;
 
     @Inject
-    private QueryService queryService;
-
-    @Inject
     private RafService rafService;
 
     @Inject
@@ -70,6 +63,28 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Inject
     private FileUploadAction fileUploadAction;
+
+    private static final Status[] allActiveStatuses = new Status[]{
+            Status.Created,
+            Status.Ready,
+            Status.Reserved,
+            Status.InProgress
+    };
+
+    private static final Status[] allInactiveStatuses = new Status[]{
+            Status.Suspended,
+            Status.Completed,
+            Status.Failed,
+            Status.Error,
+            Status.Exited,
+            Status.Obsolete
+    };
+
+    private TaskFilter filter;
+
+    public TaskFilter getFilter() {
+        return filter;
+    }
 
     private Long selectedTaskId = 0l;
     private Task selectedTask;
@@ -92,11 +107,44 @@ public class TaskController implements Serializable, FormController, DocumentsWi
             //FIXME: burada exception mümkün. Kontrol etmeli
             selectTask(Long.parseLong(taskId));
         }
+        if (filter == null) {
+            filter = new TaskFilter();
+        }
     }
 
     public List<TaskSummary> getTasks() {
+        TaskSummaryQueryBuilder queryBuilder;
+        if (filter.getShowAll()) {
+            queryBuilder = runtimeDataService.taskSummaryQuery("Administrator").and();
+        } else {
+            queryBuilder = runtimeDataService.taskSummaryQuery(identity.getLoginName()).and();
+        }
 
-        List<TaskSummary> result = runtimeDataService.getTasksAssignedAsPotentialOwner(identity.getLoginName(), null);
+        TaskTypes taskType = filter.getTaskType();
+        if (taskType == TaskTypes.INACTIVE) {
+            queryBuilder.equals().status(allInactiveStatuses);
+        } else if (taskType != TaskTypes.ALL) {
+            queryBuilder.equals().status(allActiveStatuses);
+        }
+
+        if (filter.getProcessId() != null) {
+            queryBuilder.equals().processInstanceId(filter.getProcessId());
+        }
+
+        if (!Strings.isNullOrEmpty(filter.getKeyword())) {
+            String keywordRegex = "*" + filter.getKeyword() + "*";
+            queryBuilder.newGroup().or().regex().description(keywordRegex).subject(keywordRegex).endGroup();
+        }
+        queryBuilder.descending(TaskSummaryQueryBuilder.OrderBy.processInstanceId);
+
+        List<TaskSummary> result = queryBuilder.build().getResultList();
+
+        // null olan degerleri taskSummaryQueryBuilder ile alamiyoruz, potentialOwners alani ise her zaman null geliyor
+        if (taskType == TaskTypes.POTENTIAL) {
+            result.removeIf(taskSummary -> taskSummary.getActualOwner() != null);
+        } else if (taskType == TaskTypes.ASSIGNED) {
+            result.removeIf(taskSummary -> taskSummary.getActualOwner() == null);
+        }
 
         return result;
     }
