@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<permissions>
+    <permissionGroup name="tasks">
+        <permission target="allTasks">
+            <action name="update"/>
+        </permission>
+    </permissionGroup>
+</permissions>
