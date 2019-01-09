@@ -72,5 +72,30 @@
             <column name="PATH" type="VARCHAR(4000)" />
             <column name="TYPE" type="VARCHAR(250)" />
         </createTable>
-    </changeSet>    
+    </changeSet>
+    <changeSet author="adilcan" id="201901091042">
+        <createTable tableName="RAF_DEPARTMENT">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_DEPTPK"/>
+            </column>
+            <column name="ISACTIVE" type="BOOLEAN"/>
+            <column name="CODE" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INFO" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PATH" type="VARCHAR(255)"/>
+            <column name="PID" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="adilcan" id="201901091042">
+        <addColumn tableName="RAF_MEMBER">
+            <column name="DEPARTMENT_ID" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="adilcan" id="201901091043">
+        <addForeignKeyConstraint baseColumnNames="DEPARTMENT_ID" baseTableName="RAF_MEMBER" constraintName="FK_RM_DEPTID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEPARTMENT"/>
+    </changeSet>
 </databaseChangeLog>

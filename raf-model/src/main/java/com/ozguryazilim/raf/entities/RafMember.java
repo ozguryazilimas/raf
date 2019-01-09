@@ -17,42 +17,48 @@ import javax.validation.constraints.Size;
 
 /**
  * Raf üyelerinin bilgilerini ve üyelik rollerini tutar.
- * 
+ *
  * @author Hakan Uygun
  */
 @Entity
 @Table(name = "RAF_MEMBER")
-public class RafMember extends EntityBase{
-    
+public class RafMember extends EntityBase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "genericSeq")
     @Column(name = "ID")
     private Long id;
-    
+
     @ManyToOne()
     @JoinColumn(name = "RAF_ID", foreignKey = @ForeignKey(name = "FK_RM_RAFID"))
     private RafDefinition raf;
-    
+
     /**
      * Üye kullanıcının loginname'i
      */
-    @Column(name = "MEMBER_NAME", length= 100, nullable = false )
-    @NotNull @Size(min = 1, max = 100) 
-    private String memberName; 
-    
+    @Column(name = "MEMBER_NAME", length = 100, nullable = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    private String memberName;
+
     /**
      * Üye tipi
      */
-    @Column(name = "MEMBER_TYPE", nullable = false )
+    @Column(name = "MEMBER_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
     private RafMemberType memberType;
-    
+
     /**
      * Üye kullanıcının bu raf içerisinde rolü
      */
-    @Column(name = "ROLE", length= 100, nullable = false )
-    @NotNull @Size(min = 1, max = 100) 
-    private String role; 
+    @Column(name = "ROLE", length = 100, nullable = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    private String role;
+
+    @ManyToOne()
+    @JoinColumn(name = "DEPARTMENT_ID", foreignKey = @ForeignKey(name = "FK_RM_DEPTID"))
+    private RafDepartment department;
 
     public Long getId() {
         return id;
@@ -86,8 +92,6 @@ public class RafMember extends EntityBase{
         this.memberType = memberType;
     }
 
-    
-
     public String getRole() {
         return role;
     }
@@ -95,6 +99,13 @@ public class RafMember extends EntityBase{
     public void setRole(String role) {
         this.role = role;
     }
-    
-    
+
+    public RafDepartment getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(RafDepartment department) {
+        this.department = department;
+    }
+
 }

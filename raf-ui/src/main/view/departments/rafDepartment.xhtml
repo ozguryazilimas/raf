@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                template="/layout/treeParamEdit.xhtml">
+
+    <ui:param name="homeBean" value="#{rafDepartmentHome}" />
+    <ui:param name="homeBeanName" value="rafDepartmentHome" />
+    <ui:param name="entityName" value="rafDepartment" />
+    <ui:param name="itemCaption" value="name" />
+
+    <ui:define name="form">
+        <div class="row">
+            <t:inputText label="general.label.Name" value="#{rafDepartmentHome.entity.name}" styleClass="large" required="true"/>
+        </div>
+        <div class="row">     
+            <t:inputTextarea label="general.label.Info" maxlength="255" value="#{rafDepartmentHome.entity.info}" />
+            <t:inputCheckboxGroup label="general.label.Status">
+                <p:selectBooleanCheckbox value="#{rafDepartmentHome.entity.active}" itemLabel="#{messages['general.label.Active']}" />
+            </t:inputCheckboxGroup>
+        </div>  
+
+    </ui:define>
+
+    <ui:define name="context-menu">
+        <li>
+            <p:commandLink action="#{homeBean.newRafDepartment()}" 
+                           update=":form:nodeEditor"
+                           partialSubmit="true" process="@this">
+                <i class="fa fa-sitemap"></i>
+                <h:outputText value=" #{messages['general.button.New']}" />
+            </p:commandLink>
+        </li>
+        <li>
+            <p:commandLink action="#{homeBean.newRootRafDepartment()}" 
+                           styleClass="context-command" 
+                           update=":form:nodeEditor"
+                           partialSubmit="true" process="@this">
+                <i class="fa fa-sitemap"></i>
+                <h:outputText value=" #{messages['general.button.NewRoot']}" />
+            </p:commandLink>
+        </li>
+    </ui:define>
+
+
+</ui:composition>
