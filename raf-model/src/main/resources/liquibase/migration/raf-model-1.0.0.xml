@@ -90,12 +90,12 @@
             <column name="PID" type="BIGINT"/>
         </createTable>
     </changeSet>
-    <changeSet author="adilcan" id="201901091042">
+    <changeSet author="adilcan" id="201901091043">
         <addColumn tableName="RAF_MEMBER">
             <column name="DEPARTMENT_ID" type="BIGINT"/>
         </addColumn>
     </changeSet>
-    <changeSet author="adilcan" id="201901091043">
+    <changeSet author="adilcan" id="201901091044">
         <addForeignKeyConstraint baseColumnNames="DEPARTMENT_ID" baseTableName="RAF_MEMBER" constraintName="FK_RM_DEPTID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEPARTMENT"/>
     </changeSet>
 </databaseChangeLog>
