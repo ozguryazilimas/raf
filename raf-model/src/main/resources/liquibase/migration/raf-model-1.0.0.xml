@@ -90,12 +90,24 @@
             <column name="PID" type="BIGINT"/>
         </createTable>
     </changeSet>
-    <changeSet author="adilcan" id="201901091043">
-        <addColumn tableName="RAF_MEMBER">
+    <changeSet author="adilcan" id="201806171043">
+        <createTable tableName="RAF_DEPARTMENT_MEMBER">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_DEPT_MEMBER_PK"/>
+            </column>
+            <column name="MEMBER_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MEMBER_TYPE" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(100)">
+            <constraints nullable="true"/>
+            </column>
             <column name="DEPARTMENT_ID" type="BIGINT"/>
-        </addColumn>
+        </createTable>
     </changeSet>
     <changeSet author="adilcan" id="201901091044">
-        <addForeignKeyConstraint baseColumnNames="DEPARTMENT_ID" baseTableName="RAF_MEMBER" constraintName="FK_RM_DEPTID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEPARTMENT"/>
+        <addForeignKeyConstraint baseColumnNames="DEPARTMENT_ID" baseTableName="RAF_DEPARTMENT_MEMBER" constraintName="FK_RDM_DEPTID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEPARTMENT"/>
     </changeSet>
 </databaseChangeLog>
