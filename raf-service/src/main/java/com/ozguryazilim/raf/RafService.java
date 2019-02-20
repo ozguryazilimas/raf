@@ -18,7 +18,6 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -55,26 +54,9 @@ public class RafService implements Serializable {
     }
 
     public RafCollection getCollection(String id) throws RafException {
-        //FIXME: yetki kontrolleri, sıralama v.b.
+        //FIXME: yetki kontrolleri
         RafCollection result = rafRepository.getCollectionById(id);
 
-        result.getItems().sort(new Comparator<RafObject>() {
-                @Override
-                public int compare(RafObject o1, RafObject o2) {
-                    int m1 = "raf/folder".equals(o1.getMimeType()) ? -1 : 1;
-                    int m2 = "raf/folder".equals(o2.getMimeType()) ? -1 : 1;
-                    
-                    //Eğer mimeType'lar aynıysa o zaman isme göre sırala
-                    if( m1 == m2 ){
-                        return o1.getTitle().compareTo(o2.getTitle());
-                    }
-                    
-                    return m1 < m2 ? -1 : m1 > 2 ? 1 : 0;
-                }
-            }
-        );
-
-        //FIXME: Okuma logu tutulup tutulmayacağını aslında configden almak lazım
         if( isReadLogEnabled() ){
             sendAuditLog(id, "GET_FOLDER_CONTENT", result.getPath() );
         }
