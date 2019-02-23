@@ -76,10 +76,42 @@
                 <div class="col-md-4 col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-                            Aktif Görevler
-                            <ui:remove>
-                            Buraya filtre gelecek
-                            </ui:remove>
+                            <h:form>
+                                <div class="box-body">
+                                    <t:inputAny label="taskFilter.label.keyword">
+                                        <p:inputText value="#{taskController.filter.keyword}"/>
+                                    </t:inputAny>
+                                    <t:inputAny label="taskFilter.label.processId">
+                                        <p:inputText value="#{taskController.filter.processId}"/>
+                                    </t:inputAny>
+                                    <t:inputAny label="taskFilter.label.taskType">
+                                        <p:selectOneMenu value="#{taskController.filter.taskType}">
+                                            <f:selectItems value="#{taskController.filter.taskType.values()}"
+                                                           var="taskType"
+                                                           itemLabel="#{messages['taskType.enum.'.concat(taskType)]}"/>
+                                            <p:ajax update="taskConsole" event="change"/>
+                                        </p:selectOneMenu>
+                                    </t:inputAny>
+                                    <t:inputAny label="taskFilter.label.taskOwner"
+                                                rendered="#{identity.isPermitted('allTasks:update')}">
+                                        <p:selectOneMenu value="#{taskController.filter.showAll}">
+                                            <f:selectItem itemLabel="#{messages['taskFilter.option.allTasks']}"
+                                                          itemValue="true"/>
+                                            <f:selectItem itemLabel="#{messages['taskFilter.option.myTasks']}"
+                                                          itemValue="false"/>
+                                            <p:ajax update="taskConsole" event="change"/>
+                                        </p:selectOneMenu>
+                                    </t:inputAny>
+                                </div>
+                                <div class="box-footer">
+                                    <h:panelGroup styleClass="actionButtons" layout="block">
+                                        <p:commandButton update="taskConsole" icon="fa fa-search"
+                                                         value="#{messages['general.label.SearchKey']}"
+                                                         styleClass="btn btn-primary pull-right"/>
+                                    </h:panelGroup>
+                                </div>
+                            </h:form>
+                            <b>#{messages['taskConsole.caption.tasks']}</b>
                         </div>
                         <div class="box-body">
                             <ul class="products-list product-list-in-box">
