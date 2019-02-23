@@ -1,61 +1,38 @@
 package com.ozguryazilim.raf.entities;
 
 import com.ozguryazilim.telve.entities.EntityBase;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-/**
- * Raf üyelerinin bilgilerini ve üyelik rollerini tutar.
- *
- * @author Hakan Uygun
- */
 @Entity
-@Table(name = "RAF_MEMBER")
-public class RafMember extends EntityBase {
+@Table(name = "RAF_DEPARTMENT_MEMBER")
+public class RafDepartmentMember extends EntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "genericSeq")
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne()
-    @JoinColumn(name = "RAF_ID", foreignKey = @ForeignKey(name = "FK_RM_RAFID"))
-    private RafDefinition raf;
+    @OneToOne
+    @JoinColumn(name = "DEPARTMENT_ID", foreignKey = @ForeignKey(name = "FK_RDM_DEPTID"))
+    private RafDepartment department;
 
-    /**
-     * Üye kullanıcının loginname'i
-     */
     @Column(name = "MEMBER_NAME", length = 100, nullable = false)
     @NotNull
     @Size(min = 1, max = 100)
     private String memberName;
 
-    /**
-     * Üye tipi
-     */
-    @Column(name = "MEMBER_TYPE", nullable = false)
+    @Column(name = "MEMBER_TYPE")
     @Enumerated(EnumType.STRING)
     private RafMemberType memberType;
 
-    /**
-     * Üye kullanıcının bu raf içerisinde rolü
-     */
-    @Column(name = "ROLE", length = 100, nullable = false)
-    @NotNull
+    @Column(name = "ROLE", length = 100)
     @Size(min = 1, max = 100)
     private String role;
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -64,12 +41,12 @@ public class RafMember extends EntityBase {
         this.id = id;
     }
 
-    public RafDefinition getRaf() {
-        return raf;
+    public RafDepartment getDepartment() {
+        return department;
     }
 
-    public void setRaf(RafDefinition raf) {
-        this.raf = raf;
+    public void setDepartment(RafDepartment department) {
+        this.department = department;
     }
 
     public String getMemberName() {
@@ -95,5 +72,4 @@ public class RafMember extends EntityBase {
     public void setRole(String role) {
         this.role = role;
     }
-
 }
