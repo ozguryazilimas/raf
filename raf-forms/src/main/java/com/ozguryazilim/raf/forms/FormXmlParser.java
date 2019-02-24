@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.forms;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.forms.builders.AbstractFieldBuilder;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.Form;
@@ -76,6 +77,10 @@ public class FormXmlParser {
             String title = ef.attributeValue("title");
             String base = ef.attributeValue("base");
 
+            if( Strings.isNullOrEmpty(id) ){
+                id = formKey;
+            }
+            
             FormBuilder formBuilder = FormBuilder.createForm(formKey).withId(id).withVersion(version).withTitle(title).fromBase(base);
 
             List<Element> elements = ef.elements("field");
