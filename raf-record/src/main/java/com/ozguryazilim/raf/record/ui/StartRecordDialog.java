@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.record.ui;
 
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.department.RafDepartmentService;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
@@ -57,7 +58,8 @@ public class StartRecordDialog implements Serializable, FormController, Document
     @Inject
     private RafContext context;
     
-    
+    @Inject
+    private RafDepartmentService departmentService;
 
     private RafRecordType recordType;
     private Form form;
@@ -102,6 +104,8 @@ public class StartRecordDialog implements Serializable, FormController, Document
 
         data.put("recordType", recordType.getName());
         data.put("initiator", identity.getLoginName());
+        
+        data.put("department", departmentService.getDerpartmentName(identity.getLoginName()));
         //Belgeleri de parametre olarak ekleyelim.
         serializeRafObjects();
         

@@ -72,4 +72,19 @@ public class RafDepartmentService implements Serializable {
         return departmentMemberRepository.findByMemberName(memberName);
     }
     
+    /**
+     * Geriye kullanıcı deparman adını döndürür.
+     * @param memberName
+     * @return 
+     */
+    public String getDerpartmentName( String memberName ){
+        String result = "";
+        List<RafDepartmentMember> ls = getMemberships( memberName );
+        
+        if( !ls.isEmpty()){
+            result = ls.get(0).getDepartment().getCode();
+        }
+        return result;
+    }
+    
 }
