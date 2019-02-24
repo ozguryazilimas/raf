@@ -3,8 +3,10 @@ package com.ozguryazilim.raf.record.ui;
 import com.ozguryazilim.raf.jbpm.config.BpmPages;
 import com.ozguryazilim.raf.record.RecordTypeManager;
 import com.ozguryazilim.raf.record.model.RafRecordType;
+import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
@@ -39,6 +41,9 @@ public class RecordController implements Serializable{
     @Inject
     private ViewNavigationHandler vnh;
     
+    @Inject
+    private Identity identity;
+    
     /**
      * Geriye Kullanılabilir kayıt tipleirni döndürür.
      * @return 
@@ -46,7 +51,14 @@ public class RecordController implements Serializable{
     public List<RafRecordType> getRecordTypes(){
         //FIXME: yetki kontrolü yapılacak ve cachelenecek
         //FIXME: aktif olan record tipleri dönülecek!
-        return recordTypeManager.getRecordTypes();
+        
+        List<RafRecordType> result = recordTypeManager.getRecordTypes();
+        
+        //Aslında rol kontrolü yapıyoruz!
+        result = result.stream().filter( r -> r.getPermission().equals("ALL") || identity.getRoles().contains(r.getPermission()))
+                .collect(Collectors.toList());
+        
+        return result;
     }
     
     

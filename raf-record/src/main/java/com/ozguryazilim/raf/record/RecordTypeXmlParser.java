@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.record;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.record.model.RafRecordDocumentType;
 import com.ozguryazilim.raf.record.model.RafRecordProcess;
 import com.ozguryazilim.raf.record.model.RafRecordType;
@@ -65,7 +66,12 @@ public class RecordTypeXmlParser {
         recordType.setTitle(e.attributeValue("title"));
         recordType.setMetadata(e.attributeValue("metadata"));
         recordType.setForm(e.attributeValue("form"));
+        recordType.setPermission(e.attributeValue("permission"));
         recordType.setOrder( Integer.parseInt( e.attributeValue("order")));
+        
+        if( Strings.isNullOrEmpty(recordType.getPermission())){
+            recordType.setPermission("ALL");
+        }
         
         Element docTypes = e.element("documentTypes");
         List<Element> elements = docTypes.elements("documentType");
