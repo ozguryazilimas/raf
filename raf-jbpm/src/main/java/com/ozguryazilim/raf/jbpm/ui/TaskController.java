@@ -294,6 +294,12 @@ public class TaskController implements Serializable, FormController, DocumentsWi
             if (!e.getKey().contains(":")) {
                 completeParams.putIfAbsent(e.getKey(), e.getValue());
             }
+            
+            //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
+            //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
+            if( e.getKey().contains("departman")){
+                completeParams.putIfAbsent("departman", e.getValue());
+            }
         }
 
         //Data alanında olan herşeyi metadata bloğuna koyuyoruz.
