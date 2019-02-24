@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.record.model.RafRecordType;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +79,14 @@ public class RecordTypeManager implements Serializable {
     }
 
     public List<RafRecordType> getRecordTypes() {
-        return new ArrayList(typeMap.values());
+        List<RafRecordType> result = new ArrayList(typeMap.values());
+        result.sort( new Comparator<RafRecordType>() {
+            @Override
+            public int compare(RafRecordType t, RafRecordType t1) {
+                return  t.getOrder().compareTo(t1.getOrder());
+            }
+        });
+        return result;
     }
 
     public RafRecordType getRecordType(String name) {

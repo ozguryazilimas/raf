@@ -65,6 +65,7 @@ public class RecordTypeXmlParser {
         recordType.setTitle(e.attributeValue("title"));
         recordType.setMetadata(e.attributeValue("metadata"));
         recordType.setForm(e.attributeValue("form"));
+        recordType.setOrder( Integer.parseInt( e.attributeValue("order")));
         
         Element docTypes = e.element("documentTypes");
         List<Element> elements = docTypes.elements("documentType");
