@@ -14,7 +14,7 @@ public class RafDepartment extends TreeNodeEntityBase<RafDepartment> {
     @Column(name = "ID")
     private Long id;
 
-    @OneToMany
+    @OneToMany(mappedBy = "department", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<RafDepartmentMember> members;
 
     @Override
