@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.department;
 
 import com.ozguryazilim.raf.entities.RafDepartment;
+import com.ozguryazilim.raf.entities.RafDepartmentMember;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,9 @@ public class RafDepartmentService implements Serializable {
 
     @Inject
     private RafDepartmentRepository departmentRepository;
+    
+    @Inject
+    private RafDepartmentMemberRepository departmentMemberRepository;
 
     private List<RafDepartment> departments;
 
@@ -62,4 +66,25 @@ public class RafDepartmentService implements Serializable {
     public void saveDepartment(RafDepartment department) {
         departmentRepository.save(department);
     }
+    
+    public List<RafDepartmentMember> getMemberships( String memberName ){
+        //TODO: Burada cahcleme v.s. yapmak lazım.
+        return departmentMemberRepository.findByMemberName(memberName);
+    }
+    
+    /**
+     * Geriye kullanıcı deparman adını döndürür.
+     * @param memberName
+     * @return 
+     */
+    public String getDerpartmentName( String memberName ){
+        String result = "";
+        List<RafDepartmentMember> ls = getMemberships( memberName );
+        
+        if( !ls.isEmpty()){
+            result = ls.get(0).getDepartment().getCode();
+        }
+        return result;
+    }
+    
 }

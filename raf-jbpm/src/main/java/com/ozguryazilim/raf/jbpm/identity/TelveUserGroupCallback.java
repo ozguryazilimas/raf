@@ -1,5 +1,7 @@
 package com.ozguryazilim.raf.jbpm.identity;
 
+import com.ozguryazilim.raf.department.RafDepartmentService;
+import com.ozguryazilim.raf.entities.RafDepartmentMember;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserService;
 import java.util.ArrayList;
@@ -17,6 +19,9 @@ public class TelveUserGroupCallback implements UserGroupCallback{
 
     @Inject
     private UserService userService;
+    
+    @Inject
+    private RafDepartmentService departmentService;
     
     private List<String> adminstratorGroups;
     
@@ -46,7 +51,18 @@ public class TelveUserGroupCallback implements UserGroupCallback{
             }
             return adminstratorGroups;
         }
-        return userService.getUserGroups(userId);
+        
+        List<String> result = new ArrayList<>();
+
+        //Deparman üyelikleri rol ile birlikte grup tanımı olarak ekleniyor
+        List<RafDepartmentMember> ls = departmentService.getMemberships( userId );
+        for( RafDepartmentMember dm : ls ){
+            result.add( dm.getDepartment().getCode() + "-" + dm.getRole());
+        }
+        
+        result.addAll(userService.getUserGroups(userId));
+        
+        return result;
     }
     
 }

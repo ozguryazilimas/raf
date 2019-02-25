@@ -8,7 +8,6 @@ import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 
 import javax.enterprise.context.Dependent;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @Dependent
@@ -16,5 +15,5 @@ public abstract class RafDepartmentMemberRepository extends RepositoryBase<RafDe
 
     abstract List<RafDepartmentMember> findByDepartment(RafDepartment department);
 
-    abstract Optional<RafDepartmentMember> findByMemberName(String memberName);
+    abstract List<RafDepartmentMember> findByMemberName(String memberName);
 }

@@ -16,6 +16,8 @@ public class RafRecordType implements Serializable{
     private String title;
     private String metadata;
     private String form;
+    private Integer order = 0;
+    private String permission;
     
     private List<RafRecordDocumentType> documentTypes = new ArrayList<>();
     private List<RafRecordProcess> processes = new ArrayList<>();
@@ -67,6 +69,24 @@ public class RafRecordType implements Serializable{
     public void setProcesses(List<RafRecordProcess> processes) {
         this.processes = processes;
     }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+    
+    
 
     @Override
     public int hashCode() {
