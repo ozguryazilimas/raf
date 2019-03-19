@@ -13,7 +13,7 @@
 
     <ui:define name="form">
         <div class="row">
-            <t:inputText label="general.label.Name" value="#{rafDepartmentHome.entity.name}" styleClass="large" required="true"/>
+            <t:inputText label="general.label.Name" value="#{rafDepartmentHome.entity.name}" required="true"/>
         </div>
         <div class="row">     
             <t:inputTextarea label="general.label.Info" maxlength="255" value="#{rafDepartmentHome.entity.info}" />
@@ -36,13 +36,13 @@
                             <p:commandLink action="#{rafDepartmentHome.addNewMember()}" style="text-decoration:none;padding:4px;"
                                            partialSubmit="true" process="@this" styleClass="fa fa-plus-circle btn-add"
                                            title="#{messages['general.label.Add']}"
-                                           update=":form:depmemd" 
+                                           update=":depmemd" 
                                            oncomplete="PF('depmemd').show();">
                                 
                             </p:commandLink>
                         </f:facet>
                         <p:commandLink action="#{rafDepartmentHome.editMember(rowIx)}" 
-                                       update=":form:depmemd" 
+                                       update=":depmemd" 
                                        title="#{messages['general.label.EditLine']}"
                                        partialSubmit="true" process="@this"
                                        oncomplete="PF('depmemd').show();">
@@ -60,7 +60,13 @@
             </div>
         </div>
 
+        
+        
+    </ui:define>
+
+    <ui:define name="includes">
         <p:dialog id="depmemd" widgetVar="depmemd" header="Üye Ekle">
+            <h:form id="dfrm">
             <div class="row">
                 <t:inputUser label="Kullanıcı" value="#{rafDepartmentHome.selectedMember.memberName}" columnClass="col-xs-12" required="true"/>
                 <t:inputSuggestion label="Rol" value="#{rafDepartmentHome.selectedMember.role}" 
@@ -75,7 +81,7 @@
                                      value="#{messages['general.button.Save']}" accesskey="s"
                                      action="#{rafDepartmentHome.saveMember()}"
                                      oncomplete="if (args &amp;&amp; !args.validationFailed){ PF('depmemd').hide();}"                                     
-                                     update="members"
+                                     update=":form:members"
                                      icon="fa fa-save" 
                                      validateClient="true"
                                      styleClass="btn-primary"
@@ -89,10 +95,10 @@
                                      ajax="true"/>
 
                 </div>
+                </h:form>
         </p:dialog>
-        
     </ui:define>
-
+    
     <ui:define name="context-menu">
         <li>
             <p:commandLink action="#{homeBean.newRafDepartment()}" 
