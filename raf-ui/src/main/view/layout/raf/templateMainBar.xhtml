@@ -135,14 +135,16 @@
                                     </li>
                                 </p:repeat>
 
-                                <li role="separator" class="divider"></li>
-                                <li >
-                                    <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="Raf Ekle">
-                                        <i class="fa fa-plus-circle" />
-                                        #{messages['raf.label.CreateRaf']}
-                                        <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
-                                    </p:commandLink>
-                                </li>
+                                <ui:fragment rendered="#{identity.hasPermission('raf', 'insert')}">
+                                    <li role="separator" class="divider"></li>
+                                    <li >
+                                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="#{messages['raf.label.CreateRaf']}">
+                                            <i class="fa fa-plus-circle" />
+                                            #{messages['raf.label.CreateRaf']}
+                                            <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
+                                        </p:commandLink>
+                                    </li>
+                                </ui:fragment>
                             </ul>
 
                         </li>

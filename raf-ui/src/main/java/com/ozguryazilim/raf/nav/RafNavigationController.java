@@ -39,9 +39,9 @@ public class RafNavigationController implements Serializable{
         //FIXME: aslında burdaki kod service katmanına alınmalı. RafDefinition Service üzerinden bu bilgilere ulaşılmalı
         
         hasPersonalRaf = "true".equals( ConfigResolver.getPropertyValue("raf.personal.enabled", "true"));
-        hasSharedRaf = "true".equals( ConfigResolver.getPropertyValue("raf.shared.enabled", "true"));
+        hasSharedRaf = "true".equals( ConfigResolver.getPropertyValue("raf.shared.enabled", "true")) && identity.hasPermission("sharedRaf", "select");
         
-        //FIXME: Burada yetki kontrolü yapılacak.
+        //Yetki kontrolü rafDefinitonService üzerinde yapılıyor
         rafs = rafDefinitionService.getRafsForUser(identity.getLoginName());
     }
 
