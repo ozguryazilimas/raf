@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ozguryazilim.raf</groupId>
+        <artifactId>raf-parent</artifactId>
+        <version>${revision}${changelist}</version>
+    </parent>
+
+    <groupId>com.ozguryazilim.raf</groupId>
+    <artifactId>raf-help-war</artifactId>
+    <packaging>war</packaging>
+
+    <name>raf-help-war</name>
+
+    <properties>
+        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.ozguryazilim.telve</groupId>
+            <artifactId>telve-help-web</artifactId>
+            <type>war</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ozguryazilim.telve.help</groupId>
+            <artifactId>telve-core-help</artifactId>
+            <version>4.0.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ozguryazilim.telve.help</groupId>
+            <artifactId>telve-idm-help</artifactId>
+            <version>4.0.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ozguryazilim.raf.help</groupId>
+            <artifactId>raf-core-help</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ozguryazilim.raf.help</groupId>
+            <artifactId>raf-user-manual</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ozguryazilim.raf.help</groupId>
+            <artifactId>raf-admin-manual</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!--
+        <dependency>
+            <groupId>org.tobarsegais</groupId>
+            <artifactId>tobar-segais-manual</artifactId>
+            <version>1.17-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        -->
+    </dependencies>
+
+    
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/bundles</outputDirectory>
+                            <includeScope>provided</includeScope>
+                            <includeArtifactIds>telve-core-help,telve-idm-help,raf-core-help,raf-admin-manual,raf-user-manual</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>demo</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>9.4.15.v20190215</version>
+                        <configuration>
+                            <war>${project.build.directory}/${project.build.finalName}.war</war>
+                            <stopKey>alpha</stopKey>
+                            <stopPort>9099</stopPort>
+                            <daemon>false</daemon>
+                        </configuration>
+                        <!--
+                        <executions>
+                            <execution>
+                                <id>start-jetty</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>deploy-war</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-jetty</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                                                -->
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
+</project>
