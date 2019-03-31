@@ -7,62 +7,22 @@
         <version>${revision}${changelist}</version>
     </parent>
 
-    <artifactId>raf-war</artifactId>
+    <artifactId>raf-record-war</artifactId>
     <packaging>war</packaging>
 
-    <name>raf-war</name>
+    <name>raf-record-war</name>
     
     <properties>
-        <version.thorntail>2.2.0.Final</version.thorntail>
+        <app.title>RAF Record</app.title>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.ozguryazilim.telve</groupId>
-            <artifactId>telve-web</artifactId>
+            <groupId>com.ozguryazilim.raf</groupId>
+            <artifactId>raf-war</artifactId>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <dependency>
-            <groupId>org.modeshape</groupId>
-            <artifactId>modeshape-extractor-tika</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.ozguryazilim.telve</groupId>
-            <artifactId>telve-idm</artifactId>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-core</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-model</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-service</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-ui</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-forms</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        
-        <!-- Kendi war paketi var record grubunun 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-jbpm</artifactId>
@@ -75,45 +35,6 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-pdf</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-bpmn</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-invoice</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-converter</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-webdav</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-cmis</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-                -->
     </dependencies>  
     
     <build>
