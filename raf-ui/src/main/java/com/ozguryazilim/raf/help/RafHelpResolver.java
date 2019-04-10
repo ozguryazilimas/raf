@@ -33,12 +33,15 @@ public class RafHelpResolver implements HelpResolver{
         
         String rafId = parameterMap.get("id");
         
-        switch ( rafId ){
-            case "PRIVATE": return "/docs?topic=private_raf.html";
-            case "SHARED": return "/docs?topic=shared_raf.html";
-            default: return "/docs?topic=raf.html";
+        if( rafId != null ){
+            switch ( rafId ){
+                case "PRIVATE": return "/docs?topic=private_raf.html";
+                case "SHARED": return "/docs?topic=shared_raf.html";
+                default: return "/docs?topic=raf.html";
+            }
+        } else {
+            return "/docs?topic=raf.html";
         }
-        
     }
 
     @Override
