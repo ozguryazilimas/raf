@@ -106,7 +106,7 @@ public class RafModeshapeRepository implements Serializable {
     public void init() {
         try {
             start();
-            String debugMode = ConfigResolver.getProjectStageAwarePropertyValue("raf.repository.debug", "true");
+            String debugMode = ConfigResolver.getProjectStageAwarePropertyValue("raf.repository.debug", "false");
             jcrTools.setDebug("true".equals(debugMode));
         } catch (RafException ex) {
             LOG.error("ModeShape cannot started", ex);
