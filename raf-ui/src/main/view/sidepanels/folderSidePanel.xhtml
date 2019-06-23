@@ -38,8 +38,13 @@
                         selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
                     })
                     .on('loaded.jstree', function () {
-                        jQuery('#data').jstree('open_all');
+                        //jQuery('#data').jstree('open_all');
                         //setNodeSelections();
+
+                        jstree = jQuery('#data').jstree();
+                        root_node = jstree.get_node('#').children[0];
+                        jstree.select_node(root_node);
+                        jstree.open_node(root_node);
                     })
                     .jstree({
                         "plugins": ["wholerow", "types", "sort"],

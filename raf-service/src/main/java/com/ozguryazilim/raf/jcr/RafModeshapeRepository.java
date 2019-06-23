@@ -1619,16 +1619,33 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    private void populateFolders(Node node, List<RafFolder> result) throws RepositoryException {
-        NodeIterator it = node.getNodes();
-        while (it.hasNext()) {
-            Node n = it.nextNode();
-            //MIXIN_RECORD tipinde olanlar folder değildir!
-            if (n.isNodeType(NODE_FOLDER) && !n.isNodeType(MIXIN_RECORD)) {
-                result.add(nodeToRafFolder(n));
-                populateFolders(n, result);
+    private void populateFolders(Node node, List<RafFolder> result) throws RafException {
+        
+        try {
+            Session session = node.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            String expression = "SELECT * FROM [" + NODE_FOLDER + "] WHERE ISDESCENDANTNODE('" + node.getPath() + "')";
+
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+
+                //Node tipine göre doğru conversion.
+                if (n.isNodeType(NODE_FOLDER) && !n.isNodeType(MIXIN_RECORD)) {
+                    result.add(nodeToRafFolder(n));
+                }
             }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
+
+        
 
     }
 
