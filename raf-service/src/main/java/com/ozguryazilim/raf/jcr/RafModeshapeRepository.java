@@ -100,14 +100,17 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_TYPE_PROCESS = "PROCESS";
 
     private RafEncoder encoder;
+    private Boolean debugMode = Boolean.FALSE;
+    
     JcrTools jcrTools = new JcrTools();
 
     @PostConstruct
     public void init() {
         try {
             start();
-            String debugMode = ConfigResolver.getProjectStageAwarePropertyValue("raf.repository.debug", "false");
-            jcrTools.setDebug("true".equals(debugMode));
+            String debugModeProp = ConfigResolver.getProjectStageAwarePropertyValue("raf.repository.debug", "false");
+            debugMode = "true".equals(debugModeProp);
+            jcrTools.setDebug(this.debugMode);
         } catch (RafException ex) {
             LOG.error("ModeShape cannot started", ex);
         }
@@ -439,7 +442,7 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             session.logout();
 
@@ -719,7 +722,7 @@ public class RafModeshapeRepository implements Serializable {
                 session.save();
             }
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             return result;
 
@@ -758,7 +761,7 @@ public class RafModeshapeRepository implements Serializable {
 
             }
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             //şimdi yeni belgeyi ekleyelim
             versionManager.checkout(content.getPath());
@@ -766,7 +769,7 @@ public class RafModeshapeRepository implements Serializable {
             session.save();
             versionManager.checkin(content.getPath());
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             result = nodeToRafDocument(node);
 
@@ -888,7 +891,7 @@ public class RafModeshapeRepository implements Serializable {
                 throw new RafException("[RAF-0005] Raf node not found");
             }
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             if (node.isNodeType(NODE_FOLDER)) {
                 if (node.isNodeType(MIXIN_RECORD)) {
@@ -924,7 +927,7 @@ public class RafModeshapeRepository implements Serializable {
                 throw new RafException("[RAF-0005] Raf node not found");
             }
 
-            jcrTools.printSubgraph(node);
+            printSubgraph(node);
 
             if (node.isNodeType(NODE_FOLDER)) {
                 if (node.isNodeType(MIXIN_RECORD)) {
@@ -1596,7 +1599,7 @@ public class RafModeshapeRepository implements Serializable {
             result.setCheckedout(versionManager.isCheckedOut(content.getPath()));
             Version version = versionManager.getBaseVersion(content.getPath());
             result.setVersion(version.getName());
-            jcrTools.printSubgraph(version);
+            printSubgraph(version);
         }
         
         result.setLength(content.getProperty( PROP_DATA ).getLength());
@@ -1668,7 +1671,7 @@ public class RafModeshapeRepository implements Serializable {
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
-            LOG.debug("Property not found : {}", prop);
+            LOG.trace("Property not found : {}", prop);
         }
 
         return null;
@@ -1693,7 +1696,7 @@ public class RafModeshapeRepository implements Serializable {
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
-            LOG.debug("Property not found : {}", prop);
+            LOG.trace("Property not found : {}", prop);
         }
 
         return null;
@@ -1718,7 +1721,7 @@ public class RafModeshapeRepository implements Serializable {
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
-            LOG.debug("Property not found : {}", prop);
+            LOG.trace("Property not found : {}", prop);
         }
 
         return null;
@@ -1748,10 +1751,15 @@ public class RafModeshapeRepository implements Serializable {
             }
         } catch (PathNotFoundException ex) {
             //Aslında yapacak bişi yok. Attribute olmayabilir o zaman geriye null döneceğiz.
-            LOG.debug("Property not found : {}", prop);
+            LOG.trace("Property not found : {}", prop);
         }
 
         return result;
     }
 
+    private void printSubgraph( Node node ) throws RepositoryException{
+        if( debugMode ){
+            jcrTools.printSubgraph(node);
+        }
+    }
 }
