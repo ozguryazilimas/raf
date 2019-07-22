@@ -18,6 +18,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -302,8 +303,9 @@ public class RafService implements Serializable {
     }
 
     public List<RafFolder> getRootFolders(String path) throws RafException {
-        List<RafFolder> result = rafRepository.getChildren(path);
+        List<RafFolder> result = new ArrayList<>();
         result.add(getFolder(path));
+        result.addAll(rafRepository.getChildren(path));
         return result;
     }
     

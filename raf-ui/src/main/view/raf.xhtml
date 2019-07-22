@@ -104,19 +104,19 @@
 
                                             <ui:remove>Not: Confirmation yüzünden böyle garip bişi var!</ui:remove>
                                             <ui:fragment rendered="#{act.supportConfirmation}">
-                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{messages[act.title]}"
+                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
                                                     <i class="fa #{act.icon}" />
                                                     <p:confirm header="#{messages['confirmation.header.'.concat(act.name)]}" message="#{messages['confirmation.message.'.concat(act.name)]}" icon="fa fa-alert" />
-                                                    <p:ajax event="dialogReturn" update="raf-view" />
+                                                    <p:ajax event="dialogReturn" update="raf-view-content" />
                                                 </p:commandLink>
                                             </ui:fragment>
 
                                             <ui:fragment rendered="#{not act.supportConfirmation}">
-                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view" title="#{messages[act.title]}"
+                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
                                                     <i class="fa #{act.icon}" />
-                                                    <p:ajax event="dialogReturn" update="raf-view" />
+                                                    <p:ajax event="dialogReturn" update="raf-view-content" />
                                                 </p:commandLink>
                                             </ui:fragment>
 
@@ -181,7 +181,7 @@
                                             <li>
                                                 <p:commandLink action="#{documentViewPanel.addMetadata(md)}" process="@this">
                                                     <i class="fa fa-cube" /> #{md}
-                                                    <p:ajax event="dialogReturn" update="raf-view" />
+                                                    <p:ajax event="dialogReturn" update="raf-view-content" />
                                                 </p:commandLink>
                                             </li>
                                         </ui:repeat>

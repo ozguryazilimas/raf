@@ -34,7 +34,7 @@
                         Bir üst klasör'e kıs yol çok anlamlı değil.
                         <ui:fragment rendered="#{folderBreadcrumbController.parentFolder ne null}" >
                             <li>
-                                <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.parentFolder)}" update="raf-view" ajax="true" process="@this">
+                                <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.parentFolder)}" update="raf-view-content" ajax="true" process="@this">
                                     <i class="fa fa-level-up" />
                                 </p:commandLink>
                             </li>
@@ -43,7 +43,7 @@
 
                     <ui:repeat value="#{folderBreadcrumbController.breadcrumbItems}" var="item">
                         <li>
-                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this">
+                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this">
                                 #{item.title}
                             </p:commandLink>
                         </li>
@@ -51,7 +51,7 @@
                     </ui:repeat>
 
                     <li>
-                        <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
+                        <p:commandLink action="#{rafController.selectItem(folderBreadcrumbController.currentFolder)}" update="raf-view-content" ajax="true" process="@this" disabled="#{currentFolderEnabled ne 'true'}">
                             #{folderBreadcrumbController.currentFolder.title}
                         </p:commandLink>
                     </li>
@@ -64,7 +64,7 @@
                     <li></li>
                     <ui:repeat value="#{objectBreadcrumbController.breadcrumbItems}" var="item">
                         <li>
-                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this">
+                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this">
                                 #{item.title}
                             </p:commandLink>
                         </li>
@@ -72,7 +72,7 @@
                     </ui:repeat>
 
                     <li>
-                        <p:commandLink action="#{rafController.selectItem(objectBreadcrumbController.currentFolder)}" update="raf-view" ajax="true" process="@this" >
+                        <p:commandLink action="#{rafController.selectItem(objectBreadcrumbController.currentFolder)}" update="raf-view-content" ajax="true" process="@this" >
                             #{objectBreadcrumbController.currentFolder.title}
                         </p:commandLink>
                     </li>

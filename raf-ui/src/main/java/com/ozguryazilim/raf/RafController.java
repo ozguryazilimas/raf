@@ -463,13 +463,23 @@ public class RafController implements Serializable {
      */
     private RafFolder findFolder(String id) {
 
-        for (RafFolder f : context.getFolders()) {
+        try {
+            /* FIXME: Folder listesi artık context üzerinde bu şekilde tutulmuyor.
+            for (RafFolder f : context.getFolders()) {
             if (id.equals(f.getId())) {
-                return f;
+            return f;
             }
+            }
+            
+            return null;
+            */
+            
+            return (RafFolder) rafService.getRafObject(id);
+        } catch (RafException ex) {
+            LOG.error("Folder not found", ex);
+            return null;
         }
-
-        return null;
+        
     }
 
     public void selectNode() {

@@ -16,6 +16,7 @@
     
     <div id="data" />
 
+    <ui:remove>
     <script>
         data = [
             <ui:repeat value="#{folderSidePanel.folders}" var="folder">
@@ -27,6 +28,7 @@
         </ui:remove>
         
     </script>
+        </ui:remove>
 
     <script type="text/javascript">
 
@@ -55,10 +57,11 @@
                         },
                         'core': {
                             'data': {
-                                'url' : "folderlist",
+                                'url' : "rest/folderData",
                                 'data' : function(node) {
                                     return {
-                                        'id' : node.id
+                                        'id' : node.id,
+                                        'raf' : '#{rafController.rafCode}'
                                     };
                                 }
                             }

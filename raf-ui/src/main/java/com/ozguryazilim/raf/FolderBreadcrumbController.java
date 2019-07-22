@@ -29,22 +29,25 @@ import org.apache.deltaspike.core.api.scope.WindowScoped;
 @Named
 public class FolderBreadcrumbController implements Serializable {
 
-    @Inject @UserAware
+    @Inject
+    @UserAware
     private Kahve kahve;
-    
+
     @Inject
     private RafContext context;
 
+    @Inject
+    private RafService rafService;
+
     private List<RafFolder> items;
-    
+
     private RafFolder parentFolder;
     private RafFolder currentFolder;
-    
+
     private Boolean showBreadcrumb = Boolean.TRUE;
-    
-    
+
     @PostConstruct
-    public void init(){
+    public void init() {
         showBreadcrumb = kahve.get("raf.showBreadcrumb", Boolean.TRUE).getAsBoolean();
     }
 
@@ -64,25 +67,27 @@ public class FolderBreadcrumbController implements Serializable {
                 String[] ss = context.getCollection().getPath().split("/");
 
                 String p = "";
-                
+
                 for (String s : ss) {
                     //Eğer içi boşsa yani ilk "/" ise pass geçelim. Yoksa //RAF/AAA gibi şeyler oluyor.
-                    if( Strings.isNullOrEmpty(s)) continue;
+                    if (Strings.isNullOrEmpty(s)) {
+                        continue;
+                    }
                     p = p + "/" + s;
                     RafFolder f = findFolder(p);
                     if (f != null) {
                         items.add(f);
                     }
                 }
-                
+
                 //En son olan current diye atanacak.
-                if( items.size() > 0 ){
-                    currentFolder = items.remove(items.size() -1);
+                if (items.size() > 0) {
+                    currentFolder = items.remove(items.size() - 1);
                 }
-                
+
                 //Şimdi sonuncusu ise bir üst folder
-                if( items.size() > 0 ){
-                    parentFolder = items.get(items.size() -1);
+                if (items.size() > 0) {
+                    parentFolder = items.get(items.size() - 1);
                 }
             }
         }
@@ -98,8 +103,6 @@ public class FolderBreadcrumbController implements Serializable {
         return currentFolder;
     }
 
-    
-    
     /**
      * Context'e bulunan RafFolder içinden pathi verilen folder'ı bulur. Bulamaz
      * ise null döner.
@@ -109,33 +112,34 @@ public class FolderBreadcrumbController implements Serializable {
      */
     private RafFolder findFolder(String path) {
 
+        /* FIXME: Folder tutma yöntemi değişti artık böyle değil ama bir cahce yapısı da lazım. */
         for (RafFolder f : context.getFolders()) {
             if (path.equals(f.getPath())) {
                 return f;
             }
         }
-
         return null;
+
     }
-    
-    public void listener( @Observes RafFolderChangeEvent event){
+
+    public void listener(@Observes RafFolderChangeEvent event) {
         items = null;
         currentFolder = null;
         parentFolder = null;
     }
-    
-    public void listener( @Observes RafChangedEvent event){
+
+    public void listener(@Observes RafChangedEvent event) {
         items = null;
         currentFolder = null;
         parentFolder = null;
     }
-    
-    public void toggleShow(){
+
+    public void toggleShow() {
         showBreadcrumb = !showBreadcrumb;
         kahve.put("raf.showBreadcrumb", showBreadcrumb);
     }
-    
-    public Boolean getShowBreadcrumb(){
+
+    public Boolean getShowBreadcrumb() {
         return showBreadcrumb;
     }
 }
