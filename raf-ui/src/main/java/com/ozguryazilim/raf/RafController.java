@@ -246,7 +246,7 @@ public class RafController implements Serializable {
         }
 
         try {
-            context.setFolders(rafService.getFolderList(context.getSelectedRaf().getNode().getPath()));
+            context.setFolders(rafService.getRootFolders(context.getSelectedRaf().getNode().getPath()));
         } catch (RafException ex) {
             //FIXME: ne yapacağız?
             LOG.error("Raf Exception", ex);
@@ -593,11 +593,14 @@ public class RafController implements Serializable {
         LOG.info("RafFolderCreateEvent");
         //Collection'ı yeniden çekmek lazım.
         //selectFolderById(context.getCollection().getId());
+        
+        /* FIXME: Folder yükleme yapısında değişiklik yapılıyor. Daha kontrollü bir şekilde düzeltilmeli.
         try {
             context.setFolders(rafService.getFolderList(context.getSelectedRaf().getNode().getPath()));
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }
+        */
     }
 
     protected void populateFolderCollection(String folderId) throws RafException {

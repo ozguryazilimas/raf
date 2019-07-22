@@ -52,6 +52,12 @@ public class RafService implements Serializable {
         sendAuditLog("", "GET_FOLDER_LIST", rafPath );
         return rafRepository.getFolderList(rafPath);
     }
+    
+    public List<RafFolder> getChildFolderList(String rafPath) throws RafException {
+        //FIXME: yetki kontrolleri, sıralama v.b.
+        sendAuditLog("", "GET_FOLDER_LIST", rafPath );
+        return rafRepository.getChildFolderList(rafPath);
+    }
 
     public RafCollection getCollection(String id) throws RafException {
         //FIXME: yetki kontrolleri
@@ -295,6 +301,12 @@ public class RafService implements Serializable {
         return rafRepository.getFolder(rafPath);
     }
 
+    public List<RafFolder> getRootFolders(String path) throws RafException {
+        List<RafFolder> result = rafRepository.getChildren(path);
+        result.add(getFolder(path));
+        return result;
+    }
+    
     public List<RafFolder> getChildren(String path) throws RafException {
         return rafRepository.getChildren(path);
     }

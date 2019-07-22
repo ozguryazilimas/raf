@@ -54,7 +54,15 @@
                             }
                         },
                         'core': {
-                            'data': data},
+                            'data': {
+                                'url' : "folderlist",
+                                'data' : function(node) {
+                                    return {
+                                        'id' : node.id
+                                    };
+                                }
+                            }
+                        },
                         'sort': function(a, b) {
                             a1 = this.get_node(a).text.charAt(0);
                             b1 = this.get_node(b).text.charAt(0);

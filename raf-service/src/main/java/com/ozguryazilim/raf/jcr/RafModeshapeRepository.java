@@ -355,8 +355,10 @@ public class RafModeshapeRepository implements Serializable {
 
             for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
                 Node child = iter.nextNode();
-                RafFolder f = nodeToRafFolder(node);
-                folderList.add(f);
+                if (child.isNodeType(NODE_FOLDER) && !child.isNodeType(MIXIN_RECORD)) {
+                    RafFolder f = nodeToRafFolder(child);
+                    folderList.add(f);
+                }
             }
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0004] Raf Folders not found", ex);
@@ -390,6 +392,41 @@ public class RafModeshapeRepository implements Serializable {
             result.add(f);
 
             populateFolders(node, result);
+
+            session.logout();
+
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0004] Raf Folders not found", ex);
+        }
+
+    }
+    
+    /**
+     * Sadece Verilen path altında bulunan folderların listesini döndürür.
+     * 
+     * @param rafPath
+     * @return
+     * @throws RafException 
+     */
+    public List<RafFolder> getChildFolderList(String rafPath) throws RafException {
+
+        List<RafFolder> result = new ArrayList<>();
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+
+            Node node = session.getNode(fullPath);
+
+            //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
+            //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
+            //RafFolder f = nodeToRafFolder(node);
+            //f.setParentId("#");
+            //result.add(f);
+
+            populateChildFolders(node, result);
 
             session.logout();
 
@@ -1635,6 +1672,28 @@ public class RafModeshapeRepository implements Serializable {
             QueryResult queryResult = query.execute();
 
             NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+
+                //Node tipine göre doğru conversion.
+                if (n.isNodeType(NODE_FOLDER) && !n.isNodeType(MIXIN_RECORD)) {
+                    result.add(nodeToRafFolder(n));
+                }
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        
+
+    }
+    
+    private void populateChildFolders(Node node, List<RafFolder> result) throws RafException {
+        
+        try {
+                        
+            NodeIterator it = node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
 
