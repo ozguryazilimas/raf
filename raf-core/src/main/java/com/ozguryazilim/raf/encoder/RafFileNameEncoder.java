@@ -56,6 +56,12 @@ public class RafFileNameEncoder implements RafEncoder{
                 case ' ' : 
                     sb.append('_');
                     break;
+                case '[' : 
+                    sb.append('(');
+                    break;
+                case ']' : 
+                    sb.append(')');
+                    break;
                 default:
                     sb.append(source[i]);
             }
