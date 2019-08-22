@@ -3,12 +3,15 @@ package com.ozguryazilim.raf.ui.base;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
@@ -74,6 +77,18 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     public void checkin() {
         fileUploadAction.execute("CHECKIN", getObject().getPath());
     }
+    
+    
+    public void checkInListener( @Observes RafCheckInEvent event ){
+        if (getObject() == null) return;
+        
+        try { 
+            setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+            versions = null;
+        } catch (RafException ex) {
+            LOG.error("Version Upload Error", ex);
+        }
+    }
 
     public List<RafVersion> getVersionHistory() {
 
@@ -81,6 +96,14 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             if (getVersionManagementEnabled()) {
                 try {
                     versions = rafService.getVersionHistory(getObject());
+                    
+                    //FIXME: Aslında burada sort order string üzerinden doğru çalışmaz ama sürüm sayısı az iken idare eder.
+                    versions.sort(new Comparator<RafVersion>() {
+                        @Override
+                        public int compare(RafVersion t, RafVersion t1) {
+                            return t.getName().compareTo(t1.getName()) * -1;
+                        }
+                    });
                 } catch (RafException ex) {
                     LOG.error("Raf Exception", ex);
                     FacesMessages.error(ex.getMessage());

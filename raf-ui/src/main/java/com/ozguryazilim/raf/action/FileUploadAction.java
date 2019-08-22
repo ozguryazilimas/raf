@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -40,6 +41,9 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
     
     @Inject
     private Event<RafUploadEvent> rafUploadEvent;
+    
+    @Inject
+    private Event<RafCheckInEvent> rafCheckInEvent;
 
     @Inject
     private FileUploadDialog fileUploadDialog;
@@ -72,6 +76,8 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
             //Eğer action düğmesinden çağrılmış ise normal UploadEventi. Böylece RafController yakalar.
             //FIXME: doğru eventi fırlatalım.
             rafUploadEvent.fire(new RafUploadEvent());
+        } else {
+            rafCheckInEvent.fire(new RafCheckInEvent()); 
         }
         
         return super.finalizeAction(); 
@@ -139,7 +145,13 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         try {
             UploadInfo uploadInfo = fileUploadService.getUploadInfo(uri);
             LOG.debug("Uploaded File : {}", uploadInfo.getFileName());
-            rafService.uploadDocument( getUploadPath() + "/" + uploadInfo.getFileName(), fileUploadService.getUploadedBytes(uri));
+            
+            if( "CHECKIN".equals(rafCode)) {
+                rafService.checkin(getUploadPath(), fileUploadService.getUploadedBytes(uri));
+            } else {
+                rafService.uploadDocument( getUploadPath() + "/" + uploadInfo.getFileName(), fileUploadService.getUploadedBytes(uri));
+            }
+            
             fileUploadService.deleteUpload(uri);
             //FIXME: burası her dosya yüklenmesinde çağrılıyor. Aslında Telve-Uploader dialogun kapandığına dair bilgi vermeli. #31635 işine bakın
             finalizeAction();
