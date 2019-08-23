@@ -36,7 +36,7 @@ public class RafEventLogService {
         //Ortak alana konanlar herkese listelensin. 
         //TODO: Bunu kullanıcı seçimine versek mi?
         paths.add("/SHARED/%" );
-        
+        //Repository'den şu anda max 10 adet dönüyor
         return logRepository.findByPaths(username, paths);
     }
     

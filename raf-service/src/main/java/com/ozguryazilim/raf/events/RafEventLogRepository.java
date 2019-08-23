@@ -20,6 +20,13 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
  
     public abstract List<RafEventLog> findByUsername( String username);
     
+
+    /**
+     * FIXME: Şu anda kafadan 10 ile sınırlandırıldı. Daha sonrası için düzenlenmesi gerek.
+     * @param username
+     * @param paths
+     * @return 
+     */
     public List<RafEventLog> findByPaths( String username, List<String> paths ){
         Criteria<RafEventLog,RafEventLog> crit = criteria();
         
@@ -30,8 +37,8 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
         
         crit.or(partCrits);
         crit.orderDesc(RafEventLog_.logTime);
-        //FIXME: burada limit ihtiyacımız var. Tüm eentleri döndürmeyelim.
-        return crit.getResultList();
+        
+        return crit.createQuery().setMaxResults(10).getResultList();
     }
     
 }

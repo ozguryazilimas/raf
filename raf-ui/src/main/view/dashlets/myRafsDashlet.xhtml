@@ -9,18 +9,20 @@
     <ui:param name="bean" value="#{myRafsDashlet}" />
 
     <ui:define name="view">
-        <div class="box-body no-padding">
-            <ul class="nav nav-pills nav-stacked">
-                <p:repeat value="#{myRafsDashlet.rafs}" var="raf" >
-                    <li >
-                        <h:link  outcome="/raf.xhtml" title="#{raf.code}">
-                            <i class="fa fa-archive"></i>
-                            <f:param name="id" value="#{raf.code}" />
-                            #{messages[raf.name]}
-                        </h:link>
-                    </li>
-                </p:repeat>
-            </ul>
-        </div>
+        <p:outputPanel deferred="true">
+            <div class="box-body no-padding">
+                <ul class="nav nav-pills nav-stacked">
+                    <p:repeat value="#{myRafsDashlet.rafs}" var="raf" >
+                        <li >
+                            <h:link  outcome="/raf.xhtml" title="#{raf.code}">
+                                <i class="fa fa-archive"></i>
+                                <f:param name="id" value="#{raf.code}" />
+                                #{messages[raf.name]}
+                            </h:link>
+                        </li>
+                    </p:repeat>
+                </ul>
+            </div>
+        </p:outputPanel>
     </ui:define>
 </ui:composition>
