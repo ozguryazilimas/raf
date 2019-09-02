@@ -3,16 +3,25 @@ package com.ozguryazilim.raf.ui.base;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +42,15 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     @Inject
     private RafService rafService;
+    
+    @Inject
+    private FacesContext facesContext;
+    
+    @Inject
+    private CommandSender commandSender;
+    
+    @Inject
+    private Identity identity;
 
     private List<RafVersion> versions = null;
 
@@ -115,6 +133,43 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         }
 
         return versions;
+    }
+    
+    //FIXME: Bu methodu komple bir Action ( Örneğin DownloadAction ) haline getirmek makul bir davranış olacak sanırım.
+    public void downloadHistoryContent( String version ){
+        try {
+            InputStream is = rafService.getDocumentVersionContent(getObject().getId(), version);
+
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            response.setContentType(getObject().getMimeType());
+
+            //FIXME: Dosya uzantısını doğru vermek lazım. Ama mimeType ile çalışmak lazım bir yandan da :( 
+            // Dosya adına sürüm numarasını da bir şekilde eklemek faydalı olabilir. + "-" + version
+            response.setHeader("Content-disposition", "attachment;filename=" + getObject().getName());
+            
+            //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
+            //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
+
+            try (OutputStream out = response.getOutputStream()) {
+                IOUtils.copy(is, out);
+                out.flush();
+            }
+
+            //FIXME: aslında eski sürümü olduğunu belirmek lazım.
+            commandSender.sendCommand( EventLogCommandBuilder.forRaf("RAF")
+                .eventType("DownloadDocument")
+                .forRafObject(getObject())
+                .message("event.DownloadDocument$%&" + identity.getUserName()+ "$%&" + getObject().getTitle())
+                .user(identity.getLoginName())
+                .build());
+            
+            facesContext.responseComplete();
+        } catch (RafException | IOException ex) {
+            //FIXME: i18n
+            LOG.error("File cannot downloded", ex);
+            FacesMessages.error("File cannot downloaded");
+        }
+        
     }
 
     public Boolean getVersionManagementEnabled() {

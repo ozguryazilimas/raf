@@ -106,26 +106,33 @@
             </div>
 
             <ui:fragment rendered="#{not empty viewBean.versionHistory}">
-                <div class="row">
-                    <t:accordion label="Sürüm Tarihçesi" columnClass="col-xs-12" contentClass="">
-                        <ul class="nav nav-pills nav-stacked">
-                            <p:repeat value="#{viewBean.versionHistory}" var="vh" >
-                                <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
-                                    <li>
-                                        <span class="text-bold">#{vh.name}</span> 
-                                        <span>
-                                            <t:cellOutputDateTime value="#{vh.created}" /> 
-                                            #{userLookup.getUserName(vh.createdBy)} 
-                                        </span>
-                                        <span class="text-muted">
-                                            #{vh.comment}
-                                        </span>
-                                    </li>
-                                </ui:fragment>
-                            </p:repeat>
-                        </ul>
-                    </t:accordion>
-                </div>
+                <h:form id="hist">
+                    <div class="row">
+                        <t:accordion label="raf.label.Versions" columnClass="col-xs-12" contentClass="">
+                            <ul class="nav nav-pills nav-stacked">
+                                <p:repeat value="#{viewBean.versionHistory}" var="vh" >
+                                    <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
+                                        <li>
+                                            <p:commandLink action="#{viewBean.downloadHistoryContent(vh.name)}" ajax="false">
+                                                <i class="fa fa-history" />
+                                                <span class="text-bold">
+                                                    #{vh.name}
+                                                </span> 
+                                                <span>
+                                                    <t:cellOutputDateTime value="#{vh.created}" /> 
+                                                    #{userLookup.getUserName(vh.createdBy)} 
+                                                </span>
+                                                <span class="text-muted">
+                                                    #{vh.comment}
+                                                </span>
+                                            </p:commandLink>
+                                        </li>
+                                    </ui:fragment>
+                                </p:repeat>
+                            </ul>
+                        </t:accordion>
+                    </div>
+                </h:form>
             </ui:fragment>
         </div>
 
