@@ -863,6 +863,38 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public InputStream getVersionContent( String id, String versionName ) throws RafException{
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            VersionManager versionManager = session.getWorkspace().getVersionManager();
+            
+            Node node = session.getNodeByIdentifier(id);
+            Node content = node.getNode(NODE_CONTENT);
+            
+            if( !content.isNodeType(MIXIN_VERSIONABLE)){
+                throw new RafException("[RAF-0124] Raf Node History content cannot found");
+            }
+            
+            //Sadece CONTENT kısmının tarihçesini saklıyoruz. Dolayısı ile onun path'ine ihtiyacımız var.
+            VersionHistory vh = versionManager.getVersionHistory( content.getPath());
+            
+            Version v = vh.getVersion(versionName);
+            
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(v.getFrozenNode().getProperty(PROP_DATA).getBinary().getStream(), bos);
+
+            session.logout();
+
+            ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
+
+            return result;
+            
+        } catch (IOException | RepositoryException ex) {
+            LOG.error("RafException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         if (Strings.isNullOrEmpty(fileName)) {
             throw new RafException("[RAF-00016] Filename cannot be null");

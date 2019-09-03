@@ -45,6 +45,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,10 +126,35 @@ public class RafController implements Serializable {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
         showSidePanel = kahve.get("raf.showSidePanel", Boolean.TRUE).getAsBoolean();
         
-        selectedContentPanel= collectionCompactViewPanel;
-        selectedCollectionContentPanel = collectionCompactViewPanel;
+
+        //Kahveden sınıf ismine bakıp doğrusunu seçelim.
+        String colViewName = kahve.get("raf.collectionView", "RafCollectionCompactViewPanel").getAsString();
+        colViewName = decapitalize( colViewName );
+        selectedContentPanel = BeanProvider.getContextualReference(colViewName, true, ContentViewPanel.class);
+        selectedCollectionContentPanel = selectedContentPanel;
+        //selectedContentPanel= collectionCompactViewPanel;
+        //selectedCollectionContentPanel = collectionCompactViewPanel;
     }
 
+    
+    /**
+     * 
+     * FIXME: bu davranış bir Util sınıfa gitmeli. Telve seviyesinde bir yerlerde olmalı. Guava'dan da kurtulmak için lazım.
+     * 
+     * Copied from https://stackoverflow.com/questions/4052840/most-efficient-way-to-make-the-first-character-of-a-string-lower-case
+     * @param string
+     * @return 
+     */
+    private static String decapitalize(String string){
+        if (string == null || string.length() == 0) {
+            return string;
+        }
+        
+        char c[] = string.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c);
+    }
+    
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
      *
@@ -322,6 +348,8 @@ public class RafController implements Serializable {
         this.selectedContentPanel = selectedContentPanel;
         if (selectedContentPanel.getSupportCollection()) {
             this.selectedCollectionContentPanel = selectedContentPanel;
+            LOG.debug("Selected Collection View : {}", selectedContentPanel.getName());
+            kahve.put("raf.collectionView", selectedContentPanel.getName());
         }
     }
 
@@ -473,8 +501,12 @@ public class RafController implements Serializable {
             
             return null;
             */
+           
+            // Burada Bulunan RafFolder'ı context folder listesine ekleyelim. En azından bulunanlar chache girmiş olur.
+            RafFolder res = (RafFolder) rafService.getRafObject(id);
+            context.getFolders().add(res);
             
-            return (RafFolder) rafService.getRafObject(id);
+            return res;
         } catch (RafException ex) {
             LOG.error("Folder not found", ex);
             return null;

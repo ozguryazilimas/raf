@@ -41,7 +41,7 @@ public class IconResolver implements Serializable{
             );
     
     public String getIcon( String mimeType ){
-        LOG.debug("Icon ask for MimeType : {}", mimeType);
+        LOG.trace("Icon ask for MimeType : {}", mimeType);
         switch (mimeType) {
             case "raf/folder":
                 return "folder";
@@ -60,51 +60,9 @@ public class IconResolver implements Serializable{
                     return s;
                 } else {
                     //FIXME: burda aslında ana gruplara bakılabilir text-*, video* v.b. en son olarak da Unknown
+                    LOG.debug("Icon ask for MimeType and not found: {}", mimeType);
                     return "text-plain";
                 }
-                
-                
-                
-                /*
-                
-            case "application/pdf":
-                return "fa-file-pdf-o";
-            
-            case "image/png":
-            case "image/bmp":
-            case "image/jpg":
-            case "image/jpeg":
-                return "fa-file-image-o";
-            
-            case "text/plain":
-            case "text/x-web-markdown":
-            case "text/x-asciidoc":
-                return "fa-file-text-o";
-                
-            case "application/xml":
-            case "application/x-sh":
-            case "text/html":
-                return "fa-file-code-o";
-                
-                
-            case "application/msword":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            case "application/vnd.oasis.opendocument.text":
-                return "fa-file-word-o";
-                
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-            case "application/vnd.ms-excel":
-            case "application/vnd.oasis.opendocument.spreadsheet":
-                return "fa-file-excel-o";
-            
-            case "application/vnd.ms-powerpoint":
-            case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            case "application/vnd.oasis.opendocument.presentation":
-                return "fa-file-powerpoint-o";
-                
-            default:
-                return "fa-file-o";
-            */
         }
     }
     

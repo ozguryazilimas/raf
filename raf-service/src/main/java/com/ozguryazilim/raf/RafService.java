@@ -223,6 +223,13 @@ public class RafService implements Serializable {
         }
         return rafRepository.getPreviewContent(id);
     }
+    
+    public InputStream getDocumentVersionContent( String id, String version) throws RafException {
+        if( isReadLogEnabled() ){
+            sendAuditLog( id, "READ_DOCUMENT_CONTENT", "" );
+        }
+        return rafRepository.getVersionContent(id, version);
+    }
 
     public void saveMetadata(String id, RafMetadata data) throws RafException {
         //FIXME: Yetki kontrolü + event
