@@ -473,8 +473,12 @@ public class RafController implements Serializable {
             
             return null;
             */
+           
+            // Burada Bulunan RafFolder'ı context folder listesine ekleyelim. En azından bulunanlar chache girmiş olur.
+            RafFolder res = (RafFolder) rafService.getRafObject(id);
+            context.getFolders().add(res);
             
-            return (RafFolder) rafService.getRafObject(id);
+            return res;
         } catch (RafException ex) {
             LOG.error("Folder not found", ex);
             return null;
