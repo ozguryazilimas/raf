@@ -588,7 +588,7 @@ public class RafController implements Serializable {
      * @param event
      */
     public void deleteListener(@Observes RafObjectDeleteEvent event) {
-        LOG.info("RafObjectDeleteEvent");
+        LOG.debug("RafObjectDeleteEvent");
         //Ne olursa olsun. Bişi silinmiş ise selectedObject kalmamıştır
         context.setSelectedObject(null);
         //Silinen nesneyi context collection'ınından çıkaralım
@@ -605,7 +605,7 @@ public class RafController implements Serializable {
      * @param event
      */
     public void uploadListener(@Observes RafUploadEvent event) {
-        LOG.info("RafUploadEvent");
+        LOG.debug("RafUploadEvent");
         //Collection'ı yeniden çekmek lazım.
         selectFolderById(context.getCollection().getId());
 

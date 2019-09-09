@@ -1249,7 +1249,6 @@ public class RafModeshapeRepository implements Serializable {
             //TODO: bu aslında bir sistem ayarı olabilir. Bazı müşteriler gerçekten hiç bir şey silmek istemezler!
             deleteVersionHistory(node);
 
-            jcrTools.removeAllChildren(node);
             node.remove();
 
             session.save();
@@ -1270,13 +1269,23 @@ public class RafModeshapeRepository implements Serializable {
     private void deleteVersionHistory(Node node) throws RepositoryException {
         if (node.isNodeType(MIXIN_VERSIONABLE)) {
             org.modeshape.jcr.api.version.VersionManager vm = (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
+            
+            //İlginç bir şekilde modeshape version listesini temizlemiyor. Bizim temizlememizi bekliyor.
+            VersionHistory versionHistory = vm.getVersionHistory(node.getPath());
+            VersionIterator vi = versionHistory.getAllVersions();
+            while ( vi.hasNext() ) {
+                Version v = vi.nextVersion();
+                versionHistory.removeVersion(v.getName());
+            }
+            
             vm.remove(node.getPath());
-        }
+        } else {
+            NodeIterator it = node.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
 
-        NodeIterator it = node.getNodes();
-        while (it.hasNext()) {
-            Node n = it.nextNode();
-            deleteVersionHistory(n);
+                deleteVersionHistory(n);
+            }
         }
     }
 

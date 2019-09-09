@@ -39,7 +39,7 @@ public class DeleteAction extends AbstractAction{
     
     @Override
     protected void initActionModel() {
-        LOG.info("Delete Execute");
+        LOG.debug("Delete Execute");
         super.initActionModel(); //To change body of generated methods, choose Tools | Templates.
     }
 
