@@ -43,6 +43,7 @@ import javax.jcr.version.VersionManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1648,6 +1649,9 @@ public class RafModeshapeRepository implements Serializable {
         if (Strings.isNullOrEmpty(s)) {
             s = "raf/binary";
         }
+        //Node üzerindeki SHA-1 değerini alalım.
+        result.setHash(((BinaryValue) cn.getProperty(PROP_DATA).getBinary()).getHexHash());
+        
         result.setMimeType(s);
 
         result.setUpdateBy(cn.getProperty("jcr:lastModifiedBy").getString());

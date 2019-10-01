@@ -8,6 +8,7 @@ public class RafDocument extends RafObject{
 
     private Boolean hasPreview = Boolean.FALSE;
     private String previewMimeType;
+    private String hash;
     
     public Boolean getHasPreview() {
         return hasPreview;
@@ -24,5 +25,14 @@ public class RafDocument extends RafObject{
     public void setPreviewMimeType(String previewMimeType) {
         this.previewMimeType = previewMimeType;
     }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+    
     
 }

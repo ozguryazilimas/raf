@@ -15,6 +15,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
@@ -88,15 +89,28 @@ public class RafUploadRest implements Serializable{
         }
     }
     
+    /**
+     * Geriye Object ID'si ve eğer mümkünse hash değerini döndürür.
+     * @param raf
+     * @param folderPath
+     * @return
+     * @throws RafException 
+     */
     @GET
     @Path("/{raf}/{folderPath}")
-    public Response getFolderId( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath ) throws RafException{
+    public Response getObjectData( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath, @QueryParam("p") String docPath ) throws RafException{
         
         //FIXME: yetki kontrolü
         //FIXME: hata kontrolü
         
+        LOG.debug("Raf : {}, Requested object path: {}", raf, folderPath);
+        
         RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
-        RafObject o = rafService.getRafObjectByPath(rafDefinition.getNode().getPath() + "/" + folderPath );
+        RafObject o = rafService.getRafObjectByPath(rafDefinition.getNode().getPath() + "/" + docPath );
+        
+        if( o instanceof RafDocument ){
+            return Response.ok(((RafDocument)o).getHash()).build();
+        }
         
         return Response.ok(o.getId()).build();
     }
