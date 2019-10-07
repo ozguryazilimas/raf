@@ -9,6 +9,8 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -98,12 +100,14 @@ public class RafUploadRest implements Serializable{
      */
     @GET
     @Path("/{raf}/{folderPath}")
-    public Response getObjectData( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath, @QueryParam("p") String docPath ) throws RafException{
+    public Response getObjectData( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath, @QueryParam("p") String docPath ) throws RafException, UnsupportedEncodingException{
         
         //FIXME: yetki kontrolü
         //FIXME: hata kontrolü
         
         LOG.debug("Raf : {}, Requested object path: {}", raf, folderPath);
+        
+        docPath = URLDecoder.decode(docPath, "UTF-8");
         
         RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
         RafObject o = rafService.getRafObjectByPath(rafDefinition.getNode().getPath() + "/" + docPath );
