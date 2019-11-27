@@ -7,7 +7,6 @@ import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
@@ -19,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +43,18 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
                 LOG.error("File importer command configuration is not valid!");
                 return;
             }
-
+            String localPath = command.getLocalPath();
+            String rafPath = command.getRafPath();
+            if ("/".equals(localPath.substring(localPath.length() - 1, localPath.length()))) {
+                localPath = localPath.substring(0, localPath.lastIndexOf("/"));
+            }
+            if ("/".equals(rafPath.substring(rafPath.length() - 1, rafPath.length()))) {
+                rafPath = rafPath.substring(0, rafPath.lastIndexOf("/"));
+            }
             List<File> fileList = new ArrayList();
-            recursiveFileScanner(command.getLocalPath(), fileList);
+            recursiveFileScanner(localPath, fileList);
             List<File> transferedFileList = new ArrayList();
-            transferFiles(fileList, command.getLocalPath(), command.getRafPath(), transferedFileList);
+            transferFiles(fileList, localPath, rafPath, transferedFileList);
         } catch (Exception e) {
             LOG.error("There was an error during FileImporterCommand", e);
         }
@@ -70,8 +75,18 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
     private void transferFiles(List<File> fileList, String startDir, String raf, List<File> transferedFileList) {
         try {
             RafEncoder re = RafEncoderFactory.getEncoder();
-            RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
+            String[] splittedRaf = raf.split("/");
+            String rafName = splittedRaf[0];
+            RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafName);
             String rafPath = rafDefinition.getNode().getPath();
+            if (rafPath.contains("PRIVATE") && rafPath.contains("SYSTEM")) {
+                rafPath = rafPath.replace("/SYSTEM", "");
+            }
+            if (splittedRaf.length > 1) {
+                for (int i = 1; i < splittedRaf.length; i++) {
+                    rafPath = rafPath.concat("/").concat(splittedRaf[i]);
+                }
+            }
             LOG.debug("Directory is {}", startDir);
             double fileCount = fileList.size();
             double i = 0.d;
