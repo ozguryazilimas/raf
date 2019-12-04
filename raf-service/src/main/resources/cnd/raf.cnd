@@ -33,3 +33,8 @@
 
 [raf:updatable] mixin
     - raf:updatePeriod (STRING)
+
+[raf:checkin] mixin
+  - raf:checkInDate (date)
+  - raf:checkInUser (string)
+  - raf:checkInState (boolean)

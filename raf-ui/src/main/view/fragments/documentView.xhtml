@@ -81,7 +81,7 @@
             <ui:fragment rendered="#{viewBean.versionManagementEnabled}">
                 <div class="row">
                     <div class="col-xs-12">
-                        <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
+                        <p:commandLink rendered="#{not viewBean.rafCheckStatus}" action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
                             <i class="fa fa-upload" /> #{messages['action.title.UploadNewVersion']}
                             <p:ajax event="dialogReturn" update="raf-view-content" />
                         </p:commandLink>

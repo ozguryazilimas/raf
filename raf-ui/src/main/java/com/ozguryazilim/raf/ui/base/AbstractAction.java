@@ -208,6 +208,16 @@ public class AbstractAction implements Serializable {
                 //Herşeye OK miş
                 if ("*".equals(im)) {
                     return true;
+                } else if (im.contains(",")) {
+                    //mimeType virgül içeriyor, demekki birden fazla tip isteniyor.
+                    String[] mimeTypes = im.split(",");
+                    boolean result = false;
+                    int i = 0;
+                    while (!result && i < mimeTypes.length) {
+                        result = mm.startsWith(mimeTypes[i]);
+                        i++;
+                    }
+                    return result;
                 } else if (mm.startsWith(im)) {
                     //Evet kabul edilebilir mimeType
                     return true;
@@ -235,6 +245,16 @@ public class AbstractAction implements Serializable {
                 //Herşeye OK miş
                 if ("*".equals(im)) {
                     return true;
+                } else if (im.contains(",")) {
+                    //mimeType virgül içeriyor, demekki birden fazla tip isteniyor.
+                    String[] mimeTypes = im.split(",");
+                    boolean result = false;
+                    int i = 0;
+                    while (!result && i < mimeTypes.length) {
+                        result = mm.startsWith(mimeTypes[i]);
+                        i++;
+                    }
+                    return result;
                 } else if (mm.startsWith(im)) {
                     //Evet kabul edilebilir mimeType
                     return true;

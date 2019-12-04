@@ -19,6 +19,7 @@ import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -47,6 +48,18 @@ public class RafService implements Serializable {
     private Identity identity;
 
     private Boolean readLogEnabled;
+
+    public RafObject setRafCheckOutValue(String path, Boolean checkOut, String userName, Date checkTime) throws RafException {
+        return rafRepository.setRafCheckOutValue(path, checkOut, userName, checkTime);
+    }
+
+    public Boolean getRafCheckStatus(String path) throws RafException {
+        return Boolean.TRUE.equals(rafRepository.getRafCheckStatus(path));
+    }
+
+    public String getRafCheckerUser(String path) throws RafException {
+        return rafRepository.getRafCheckerUser(path);
+    }
 
     public List<RafFolder> getFolderList(String rafPath) throws RafException {
         //FIXME: yetki kontrolleri, sıralama v.b.
@@ -160,6 +173,15 @@ public class RafService implements Serializable {
         sendAuditLog(result.getId(), "CREATE_FOLDER", result.getPath());
         return result;
 
+    }
+
+    public RafDocument checkout(String path) throws RafException {
+        //FIXME: yetki kontrolü
+        RafDocument result = (RafDocument) rafRepository.checkout(path);
+
+        sendEventLog("CheckOutDocument", result);
+        sendAuditLog(result.getId(), "CHECKOUT_DOCUMENT", result.getPath());
+        return result;
     }
 
     public RafDocument checkin(String fileName, InputStream in) throws RafException {
