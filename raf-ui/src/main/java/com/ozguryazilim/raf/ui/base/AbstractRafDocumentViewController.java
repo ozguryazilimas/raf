@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
@@ -102,6 +103,54 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         }
     }
 
+    public String getRafCheckerUser() {
+        try {
+            return rafService.getRafCheckerUser(getObject().getPath());
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+            return "";
+        }
+    }
+
+    public String getRafCheckOutPreviousVersion() {
+        try {
+            return rafService.getRafCheckOutPreviousVersion(getObject().getPath());
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+            return "";
+        }
+    }
+
+    public Boolean getCanRafCheckIn() {
+        return (identity.isPermitted("admin") || identity.getUserName().equals(getRafCheckerUser()));
+    }
+
+    public void rafCheckOK() {
+        try {
+            rafService.checkin(getObject().getPath());
+            rafService.setRafCheckOutValue(getObject().getPath(), false, identity.getUserName(), new Date());
+            setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+            FacesMessages.error("Düzenleme onaylanırken hata oluştu.");//FIXME : i118
+        }
+    }
+
+    public void rafCheckCancel() {
+        try {
+            String previousVersion = rafService.getRafCheckOutPreviousVersion(getObject().getPath());
+            if (previousVersion != null) {
+                rafService.checkin(getObject().getPath());
+                rafService.turnBackToVersion(getObject().getPath(), previousVersion);
+                rafService.setRafCheckOutValue(getObject().getPath(), false, identity.getUserName(), new Date());
+                setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+            }
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+            FacesMessages.error("Düzenleme iptal edilirken hata oluştu.");//FIXME : i118
+        }
+    }
+
     public void checkin() {
         fileUploadAction.execute("CHECKIN", getObject().getPath());
     }
@@ -110,7 +159,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         if (getObject() == null) {
             return;
         }
-
         try {
             setObject((RafDocument) rafService.getRafObject(getObject().getId()));
             versions = null;

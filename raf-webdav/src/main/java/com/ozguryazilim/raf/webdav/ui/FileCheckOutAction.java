@@ -43,6 +43,7 @@ public class FileCheckOutAction extends AbstractAction {
             if (rafService.getRafCheckStatus(rafObject.getPath())) {
                 FacesMessages.error("Dosya başka bir kullanıcı tarafından kilitlenmiş.", String.format("Kilitleyen kullanıcı : %s", rafService.getRafCheckerUser(rafObject.getPath()))); //FIXME : i118
             } else {
+                rafService.checkout(rafObject.getPath());//dosya uygulamaya alındı ise dışarıda yazmaya kapalı olmalı bu yüzden checkin yapılıp read only false getiriliyor.
                 rafService.setRafCheckOutValue(rafObject.getPath(), Boolean.TRUE, identity.getUserName(), new Date());
                 FacesMessages.info("Dosya kilitlendi."); //FIXME : i118
             }

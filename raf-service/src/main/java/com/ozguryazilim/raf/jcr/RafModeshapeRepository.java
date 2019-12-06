@@ -101,6 +101,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_CHECKIN_DATE = "raf:checkInDate";
     private static final String PROP_RAF_CHECKIN_USER = "raf:checkInUser";
     private static final String PROP_RAF_CHECKIN_STATE = "raf:checkInState";
+    private static final String PROP_RAF_CHECKIN_PREVIOUS_VERSION = "raf:previousVersion";
 
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
@@ -775,6 +776,36 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public RafObject checkin(String path) throws RafException {
+        RafObject result = null;
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            Node node = session.getNode(path);
+            if (node.isNodeType(NODE_FOLDER) && !node.isNodeType(MIXIN_RECORD)) {
+                //Folder'lar versionlanmaz! Dolayısı ile checkout edilmez
+                throw new RafException("[RAF-00010] Folder node cannot checkout");
+            }
+            VersionManager vm = session.getWorkspace().getVersionManager();
+            Node content = node.getNode(NODE_CONTENT);
+            if (!content.isNodeType(MIXIN_VERSIONABLE)) {
+                //Eğer daha öncesinde version eklenmiş ise önce onu ekliyoruz!
+                content.addMixin(MIXIN_VERSIONABLE);
+            }
+            vm.checkin(content.getPath());
+            //FIXME: devamında ne olacak?
+            session.save();
+            printSubgraph(node);
+            result = nodeToRafDocument(node);
+            return result;
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-00011] Raf Node cannot checkout", ex);
+        }
+    }
+
+    //checkin with new version...
     public RafObject checkin(String path, InputStream in) throws RafException {
         RafObject result = null;
 
@@ -802,7 +833,6 @@ public class RafModeshapeRepository implements Serializable {
                 //Artık sürüm takibi yapılabilir!
                 //Ve ilk sürümü de bir kenara alalım
                 versionManager.checkin(content.getPath());
-
             }
 
             printSubgraph(node);
@@ -816,7 +846,6 @@ public class RafModeshapeRepository implements Serializable {
             printSubgraph(node);
 
             result = nodeToRafDocument(node);
-
             return result;
 
         } catch (RepositoryException ex) {
@@ -856,7 +885,6 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
                     rv.setCreated(v.getProperty("jcr:created").getDate().getTime());
                     rv.setPath(v.getPath());
-
                     //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
                     result.add(rv);
                 }
@@ -1264,6 +1292,19 @@ public class RafModeshapeRepository implements Serializable {
 
     }
 
+    public void deleteVersion(String path, String versionName) throws RepositoryException {
+        Session session = ModeShapeRepositoryFactory.getSession();
+        Node node = session.getNode(path).getNode(NODE_CONTENT);
+        if (node.isNodeType(MIXIN_VERSIONABLE)) {
+            org.modeshape.jcr.api.version.VersionManager vm = (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
+            //İlginç bir şekilde modeshape version listesini temizlemiyor. Bizim temizlememizi bekliyor.
+            VersionHistory versionHistory = vm.getVersionHistory(node.getPath());
+            versionHistory.removeVersion(versionName);
+            session.save();
+        }
+        session.logout();
+    }
+
     /**
      * Node ağacı üzerinde yürüyerek eğer varsa bütün version history'i siler.
      *
@@ -1273,7 +1314,6 @@ public class RafModeshapeRepository implements Serializable {
     private void deleteVersionHistory(Node node) throws RepositoryException {
         if (node.isNodeType(MIXIN_VERSIONABLE)) {
             org.modeshape.jcr.api.version.VersionManager vm = (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
-
             //İlginç bir şekilde modeshape version listesini temizlemiyor. Bizim temizlememizi bekliyor.
             VersionHistory versionHistory = vm.getVersionHistory(node.getPath());
             VersionIterator vi = versionHistory.getAllVersions();
@@ -1281,7 +1321,6 @@ public class RafModeshapeRepository implements Serializable {
                 Version v = vi.nextVersion();
                 versionHistory.removeVersion(v.getName());
             }
-
             vm.remove(node.getPath());
         } else {
             NodeIterator it = node.getNodes();
@@ -1888,6 +1927,28 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public String getRafCheckOutPreviousVersion(String path) {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNode(path);
+            String result = "";
+            if (node == null) {
+                result = "";
+            } else {
+                if (!node.isNodeType(MIXIN_RAFCHECKIN)) {
+                    result = "";
+                } else {
+                    result = node.getProperty(PROP_RAF_CHECKIN_PREVIOUS_VERSION).getString();
+                }
+            }
+            session.logout();
+            return result;
+        } catch (Exception ex) {
+            LOG.error("Exception", ex);
+            return "";
+        }
+    }
+
     public String getRafCheckerUser(String path) {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -1931,13 +1992,48 @@ public class RafModeshapeRepository implements Serializable {
             Calendar c = Calendar.getInstance();
             c.setTime(checkTime);
             node.setProperty(PROP_RAF_CHECKIN_DATE, c);
-
+            result = nodeToRafDocument(node);
+            List<RafVersion> versions = getVersionHistory((RafDocument) result);
+            //en son sürüm = edit için eklenen sürümdür, dolayısı ile bize edit sürümnden bir önceki sürüm lazım.
+            node.setProperty(PROP_RAF_CHECKIN_PREVIOUS_VERSION, (versions != null && !versions.isEmpty()) ? versions.get(versions.size() - 2).getName() : "");
             session.save();
             result = nodeToRafDocument(node);
             session.logout();
             return result;
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0021] Raf properties cannot saved", ex);
+        }
+    }
+
+    public RafObject turnBackToVersion(String path, String versionName) throws RafException {
+        try {
+            RafObject result;
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNode(path);
+            if (node == null) {
+                throw new RafException("[RAF-0005] Raf node not found");
+            }
+            VersionManager vm = session.getWorkspace().getVersionManager();
+            Node content = node.getNode(NODE_CONTENT);
+            VersionHistory vh = vm.getVersionHistory(content.getPath());
+            Version targetVersion = vh.getVersion(versionName);
+            VersionIterator vi = vh.getAllVersions();
+            vm.restore(targetVersion, false);
+            while (vi.hasNext()) {
+                Version version = vi.nextVersion();
+                version.getDepth();
+                targetVersion.getDepth();
+                if (!"jcr:rootVersion".equals(version.getName()) && version.getCreated().after(targetVersion.getCreated())) {
+                    vh.removeVersion(version.getName());
+                }
+            }
+            vm.checkout(content.getPath());
+            vm.checkin(content.getPath());
+            result = nodeToRafDocument(node);
+            session.logout();
+            return result;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0021] Raf cannot turn to version", ex);
         }
     }
 }

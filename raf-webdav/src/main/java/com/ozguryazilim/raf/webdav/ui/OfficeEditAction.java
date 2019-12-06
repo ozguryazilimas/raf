@@ -2,13 +2,17 @@ package com.ozguryazilim.raf.webdav.ui;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
+import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +37,9 @@ public class OfficeEditAction extends AbstractAction {
 
     @Inject
     Identity identity;
+
+    @Inject
+    private Event<RafCheckInEvent> rafCheckInEvent;
 
     private String getOSFromUserAgent(HttpServletRequest request) {
         String os = "Windows";
@@ -83,38 +90,62 @@ public class OfficeEditAction extends AbstractAction {
         return webDavProto;
     }
 
+    private void increaseVersionForEdit(String filePath) {
+        try {
+            InputStream is = rafService.getDocumentContent(getContext().getSelectedObject().getId());
+            rafService.checkin(filePath, is);
+        } catch (RafException ex) {
+            LOG.error("WebDAV IO Exption", ex);
+        }
+    }
+
+    private void setCheckOutForUser(String filePath) {
+        try {
+            rafService.checkout(filePath);//read only modunu kapatmak için..
+            rafService.setRafCheckOutValue(filePath, Boolean.TRUE, identity.getUserName(), new Date());
+        } catch (RafException ex) {
+            LOG.error("WebDAV IO Exption", ex);
+        }
+    }
+
+    private void officeEditAction(String filePath) {
+        String projectPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String os = getOSFromUserAgent(request);
+        String webDavProto = getWebDavProtoForOS(os, request);
+        String webDavRequestPath = buildWebDAvRequestPath(filePath);
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        try {
+            String redirectTo = webDavProto + projectPath + "/webdav" + webDavRequestPath;
+            LOG.debug("WebDAV redirection : {}", redirectTo);
+            if ("Windows".equals(os)) {
+                String script = "location.href='".concat(redirectTo).concat("'");
+                PrimeFaces.current().executeScript(script);
+            } else {
+                response.sendRedirect(redirectTo.replace("///", "//"));
+            }
+        } catch (IOException ex) {
+            LOG.error("WebDAV IO Exption", ex);
+        }
+    }
+
     @Override
     protected boolean finalizeAction() {
 
-        LOG.debug("Check in control: {}", getContext().getSelectedObject().getName());
-
         try {
+            LOG.debug("Check in control: {}", getContext().getSelectedObject().getName());
             String filePath = getContext().getSelectedObject().getPath();
             String checkerUser = rafService.getRafCheckerUser(filePath);
-            if (rafService.getRafCheckStatus(filePath) && !identity.getUserName().equals(checkerUser)) {
+            boolean checkStatus = rafService.getRafCheckStatus(filePath);
+            if (checkStatus && !identity.getUserName().equals(checkerUser)) {
                 FacesMessages.error("Dosya başka bir kullanıcı tarafından kilitlenmiş.", String.format("Kilitleyen kullanıcı : %s", checkerUser)); //FIXME : i118
             } else {
-                String projectPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
-
-                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                String os = getOSFromUserAgent(request);
-                //FIXME: aslında burada protokol isimlerini configden alsak iyi olacak MSOffice için bu değerler farklı olabilir.
-                String webDavProto = getWebDavProtoForOS(os, request);
-                String webDavRequestPath = buildWebDAvRequestPath(filePath);
-
-                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-                try {
-                    String redirectTo = webDavProto + projectPath + "/webdav" + webDavRequestPath;
-                    LOG.debug("WebDAV redirection : {}", redirectTo);
-                    if ("Windows".equals(os)) {
-                        String script = "location.href='".concat(redirectTo).concat("'");
-                        PrimeFaces.current().executeScript(script);
-                    } else {
-                        response.sendRedirect(redirectTo.replace("///", "//"));
-                    }
-                } catch (IOException ex) {
-                    LOG.error("WebDAV IO Exption", ex);
+                if (!checkStatus) {
+                    increaseVersionForEdit(filePath);
+                    setCheckOutForUser(filePath);
                 }
+                officeEditAction(filePath);
+                rafCheckInEvent.fire(new RafCheckInEvent());
             }
         } catch (RafException ex) {
             LOG.error("RafException", ex);

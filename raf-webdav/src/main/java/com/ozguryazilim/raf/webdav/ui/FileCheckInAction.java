@@ -43,6 +43,7 @@ public class FileCheckInAction extends AbstractAction {
             if (!rafService.getRafCheckStatus(rafObject.getPath())) {
                 FacesMessages.error("Dosyanın yazma kilidi zaten açık.");//FIXME : i118
             } else {
+                rafService.checkin(rafObject.getPath());//dosya uygulamaya alındı ise dışarıda yazmaya kapalı olmalı bu yüzden checkin yapılıp read only duruma getiriliyor.
                 rafService.setRafCheckOutValue(rafObject.getPath(), Boolean.FALSE, identity.getUserName(), new Date());
                 FacesMessages.info("Dosya kilidi açıldı.");//FIXME : i118
             }

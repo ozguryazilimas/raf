@@ -105,7 +105,34 @@
                 </c:forEach>
             </div>
 
-            <ui:fragment rendered="#{not empty viewBean.versionHistory}">
+            <ui:fragment rendered="#{viewBean.rafCheckStatus}">
+                <h:form id="checkinform">
+                    <t:accordion icon="fa fa-lock" label="Dosya başka bir kullanıcı tarafından kullanılıyor" columnClass="col-xs-12">                    
+                        <div class="row">
+                            <div class="col-xs-12">
+                                Düzenleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>
+                                <ui:fragment rendered="#{viewBean.canRafCheckIn}">
+                                    <p:commandLink action="#{viewBean.rafCheckOK()}" process="@this" update="raf-view-content" styleClass="btn">
+                                        <i class="fa fa-check-circle" /> Değişiklikleri Onayla
+                                        <p:confirm header="Onay" message="Değişiklikleri onaylamak istediğinize emin misiniz?" icon="fa fa-check-circle" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{viewBean.rafCheckCancel()}" process="@this" update="raf-view-content" styleClass="btn">
+                                        <i class="fa fa-remove" /> Değişikilkleri İptal Et
+                                        <p:confirm header="İptal" message="Değişiklikleri iptal etmek ve düzenleme öncesi versiyona dönmek istediğinize emin misiniz?" icon="fa fa-remove" />
+                                    </p:commandLink>
+
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                        <p:commandButton value="Evet" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check-circle" />
+                                        <p:commandButton value="Hayır" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-remove" />
+                                    </p:confirmDialog>
+                                </ui:fragment>
+                            </div>
+                        </div>                    
+                    </t:accordion>
+                </h:form>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not viewBean.rafCheckStatus and not empty viewBean.versionHistory}">
                 <h:form id="hist">
                     <div class="row">
                         <t:accordion label="raf.label.Versions" columnClass="col-xs-12" contentClass="">

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 /**
@@ -59,6 +60,18 @@ public class RafService implements Serializable {
 
     public String getRafCheckerUser(String path) throws RafException {
         return rafRepository.getRafCheckerUser(path);
+    }
+
+    public RafObject turnBackToVersion(String path, String versionName) throws RafException {
+        return rafRepository.turnBackToVersion(path, versionName);
+    }
+
+    public String getRafCheckOutPreviousVersion(String path) throws RafException {
+        return rafRepository.getRafCheckOutPreviousVersion(path);
+    }
+
+    public void deleteVersion(String path, String versionName) throws RepositoryException {
+        rafRepository.deleteVersion(path, versionName);
     }
 
     public List<RafFolder> getFolderList(String rafPath) throws RafException {
@@ -184,6 +197,16 @@ public class RafService implements Serializable {
         return result;
     }
 
+    public RafDocument checkin(String path) throws RafException {
+        //FIXME: yetki kontrolü
+        RafDocument result = (RafDocument) rafRepository.checkin(path);
+
+        sendEventLog("CheckInDocument", result);
+        sendAuditLog(result.getId(), "CHECKIN_DOCUMENT", result.getPath());
+        return result;
+    }
+
+    //checkin with new version
     public RafDocument checkin(String fileName, InputStream in) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = (RafDocument) rafRepository.checkin(fileName, in);

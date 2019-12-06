@@ -38,3 +38,4 @@
   - raf:checkInDate (date)
   - raf:checkInUser (string)
   - raf:checkInState (boolean)
+  - raf:previousVersion (string)

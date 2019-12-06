@@ -7,6 +7,8 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
+import com.ozguryazilim.raf.models.RafDocument;
+import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -36,6 +38,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.version.VersionException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -61,11 +64,6 @@ import org.slf4j.LoggerFactory;
  * @author Hakan Uygun
  */
 public class RafWebdavStore implements IWebdavStore {
-
-    private static final String MIXIN_RAFCHECKIN = "raf:checkin";
-    private static final String PROP_RAF_CHECKIN_DATE = "raf:checkInDate";
-    private static final String PROP_RAF_CHECKIN_USER = "raf:checkInUser";
-    private static final String PROP_RAF_CHECKIN_STATE = "raf:checkInState";
 
     /**
      * OS X attempts to create ".DS_Store" files to store a folder's icon
@@ -480,11 +478,19 @@ public class RafWebdavStore implements IWebdavStore {
                 return -1;
             }
 
-            //Checkin kontrolü yapılsın.
-            if (node.isNodeType(MIXIN_RAFCHECKIN)) {
-                if (node.getProperty(PROP_RAF_CHECKIN_STATE).getBoolean() && !getIdentity().getUserName().equals(node.getProperty(PROP_RAF_CHECKIN_USER).getString())) {
-                    throw new AccessDeniedException(String.format("Dosya şu anda %s kullanıcısı tarafından kullanılıyor. Kayıt işlemi yapamazsınız.", node.getProperty(PROP_RAF_CHECKIN_USER).getString()));//FIXME: i118
-                }
+            boolean checkStatus = false;
+            String checkerUser = "";
+            try {
+                //Checkin kontrolü yapılsın.
+                checkStatus = getRafService().getRafCheckStatus(resolved.getPath());
+                checkerUser = getRafService().getRafCheckerUser(resolved.getPath());
+
+            } catch (RafException ex) {
+                logger.error("Raf Exception", ex);
+            }
+
+            if (checkStatus && !getIdentity().getUserName().equals(checkerUser)) {
+                throw new AccessDeniedException(String.format("Dosya şu anda %s kullanıcısı tarafından kullanılıyor. Kayıt işlemi yapamazsınız.", checkerUser));//FIXME: i118
             }
 
             return contentMapper.setContent(node, resourceName, content, contentType, characterEncoding);
