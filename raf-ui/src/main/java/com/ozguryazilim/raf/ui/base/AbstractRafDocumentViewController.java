@@ -6,6 +6,7 @@ import com.ozguryazilim.raf.action.FileUploadAction;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.models.RafDocument;
+import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -124,29 +125,33 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         return (identity.isPermitted("admin") || identity.getUserName().equals(getRafCheckerUser()));
     }
 
-    public void rafCheckOK() {
+    public void lockFile() {
+        RafObject rafObject = getObject();
         try {
-            rafService.checkin(getObject().getPath());
-            rafService.setRafCheckOutValue(getObject().getPath(), false, identity.getUserName(), new Date());
-            setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+            if (rafService.getRafCheckStatus(rafObject.getPath())) {
+                FacesMessages.error("Dosya başka bir kullanıcı tarafından kilitlenmiş.", String.format("Kilitleyen kullanıcı : %s", rafService.getRafCheckerUser(rafObject.getPath()))); //FIXME : i118
+            } else {
+                rafService.setRafCheckOutValue(rafObject.getPath(), Boolean.TRUE, identity.getUserName(), new Date());
+                setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+                FacesMessages.info("Dosya kilitlendi."); //FIXME : i118                
+            }
         } catch (RafException ex) {
-            LOG.error("RafException", ex);
-            FacesMessages.error("Düzenleme onaylanırken hata oluştu.");//FIXME : i118
+            LOG.error("Raf Exception", ex);
         }
     }
 
-    public void rafCheckCancel() {
+    public void unlockFile() {
+        RafObject rafObject = getObject();
         try {
-            String previousVersion = rafService.getRafCheckOutPreviousVersion(getObject().getPath());
-            if (previousVersion != null) {
-                rafService.checkin(getObject().getPath());
-                rafService.turnBackToVersion(getObject().getPath(), previousVersion);
-                rafService.setRafCheckOutValue(getObject().getPath(), false, identity.getUserName(), new Date());
+            if (!rafService.getRafCheckStatus(rafObject.getPath())) {
+                FacesMessages.error("Dosyanın yazma kilidi zaten açık.");//FIXME : i118
+            } else {
+                rafService.setRafCheckOutValue(rafObject.getPath(), Boolean.FALSE, identity.getUserName(), new Date());
                 setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+                FacesMessages.info("Dosya kilidi açıldı.");//FIXME : i118                
             }
         } catch (RafException ex) {
-            LOG.error("RafException", ex);
-            FacesMessages.error("Düzenleme iptal edilirken hata oluştu.");//FIXME : i118
+            LOG.error("Raf Exception", ex);
         }
     }
 

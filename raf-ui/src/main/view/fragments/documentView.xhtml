@@ -106,26 +106,31 @@
             </div>
 
             <ui:fragment rendered="#{viewBean.rafCheckStatus}">
-                <h:form id="checkinform">
-                    <t:accordion icon="fa fa-lock" label="Dosya başka bir kullanıcı tarafından kullanılıyor" columnClass="col-xs-12">                    
+                <h:form id="checkoutform">
+                    <t:accordion columnClass="col-xs-12">                    
                         <div class="row">
                             <div class="col-xs-12">
-                                Düzenleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>
-                                <ui:fragment rendered="#{viewBean.canRafCheckIn}">
-                                    <p:commandLink action="#{viewBean.rafCheckOK()}" process="@this" update="raf-view-content" styleClass="btn">
-                                        <i class="fa fa-check-circle" /> Değişiklikleri Onayla
-                                        <p:confirm header="Onay" message="Değişiklikleri onaylamak istediğinize emin misiniz?" icon="fa fa-check-circle" />
-                                    </p:commandLink>
-                                    <p:commandLink action="#{viewBean.rafCheckCancel()}" process="@this" update="raf-view-content" styleClass="btn">
-                                        <i class="fa fa-remove" /> Değişikilkleri İptal Et
-                                        <p:confirm header="İptal" message="Değişiklikleri iptal etmek ve düzenleme öncesi versiyona dönmek istediğinize emin misiniz?" icon="fa fa-remove" />
-                                    </p:commandLink>
+                                <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
+                                Kilitleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>                                
+                                <p:commandLink rendered="#{viewBean.canRafCheckIn}" action="#{viewBean.unlockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                                    <i class="fa fa-unlock" />
+                                    Dosya Kilidini Aç
+                                </p:commandLink>
+                            </div>
+                        </div>                    
+                    </t:accordion>
+                </h:form>
+            </ui:fragment>
 
-                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                                        <p:commandButton value="Evet" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check-circle" />
-                                        <p:commandButton value="Hayır" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-remove" />
-                                    </p:confirmDialog>
-                                </ui:fragment>
+            <ui:fragment rendered="#{not viewBean.rafCheckStatus}">
+                <h:form id="checkinform">
+                    <t:accordion columnClass="col-xs-12">                    
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                                    <i class="fa fa-lock" />
+                                    Dosyayı Kilitle
+                                </p:commandLink>
                             </div>
                         </div>                    
                     </t:accordion>

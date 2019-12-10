@@ -167,12 +167,13 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
             }
 
             fileUploadService.deleteUpload(uri);
-            //FIXME: burası her dosya yüklenmesinde çağrılıyor. Aslında Telve-Uploader dialogun kapandığına dair bilgi vermeli. #31635 işine bakın
-            finalizeAction();
+            //FIXME: burası her dosya yüklenmesinde çağrılıyor. Aslında Telve-Uploader dialogun kapandığına dair bilgi vermeli. #31635 işine bakın            
         } catch (IOException | TusException | RafException ex) {
             //FIXME: i18n
             FacesMessages.error("Files Cannot Uploaded");
             LOG.error("File Upload Error", ex);
+        } finally {
+            finalizeAction();
         }
     }
 }
