@@ -7,8 +7,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
-import com.ozguryazilim.raf.models.RafDocument;
-import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.NoSuchWorkspaceException;
@@ -38,7 +38,6 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.version.VersionException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -180,9 +179,15 @@ public class RafWebdavStore implements IWebdavStore {
                     throw new WebdavException(msg.text(resourceName, resolvedParent.getRepositoryName()));
                 }
             }
-            Node parentNode = nodeFor(transaction, resolvedParent);
-            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
 
+            Node parentNode = nodeFor(transaction, resolvedParent);
+            if (!hasRafWritePermission(getRafDefinitionFromPath(parentNode.getPath()))) {
+                String msg = "User has not Raf write permission";
+                logger.debug(msg);
+                throw new RepositoryException(msg);
+            }
+
+            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
             sendEventLog("CreateFolder", folderNode.getIdentifier(), folderNode.getPath(), resourceName);
             sendAuditLog(folderNode.getIdentifier(), "CREATE_FOLDER", folderNode.getPath());
@@ -229,6 +234,13 @@ public class RafWebdavStore implements IWebdavStore {
                 }
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
+
+            if (!hasRafWritePermission(getRafDefinitionFromPath(parentNode.getPath()))) {
+                String msg = "User has not Raf write permission";
+                logger.debug(msg);
+                throw new RepositoryException(msg);
+            }
+
             Node fileNode = contentMapper.createFile(parentNode, resourceName);
 
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
@@ -246,6 +258,40 @@ public class RafWebdavStore implements IWebdavStore {
             return uri.substring(0, uri.length() - 1);
         }
         return uri;
+    }
+
+    private Boolean hasRafWritePermission(RafDefinition rafDefinition) {
+        try {
+            return rafDefinition.getId() > 0 && (getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "MANAGER", rafDefinition)
+                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "CONTRIBUTER", rafDefinition)
+                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "EDITOR", rafDefinition));
+        } catch (RafException ex) {
+            logger.error("RafException", ex);
+            return false;
+        }
+    }
+
+    private Boolean hasRafDeletePermission(RafDefinition rafDefinition) {
+        try {
+            return rafDefinition.getId() > 0 && (getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "MANAGER", rafDefinition)
+                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "EDITOR", rafDefinition));
+        } catch (RafException ex) {
+            logger.error("RafException", ex);
+            return false;
+        }
+    }
+
+    private RafDefinition getRafDefinitionFromPath(String absPath) {
+        String[] splittedPath = absPath.split("/");
+        if (splittedPath != null && splittedPath.length > 1) {
+            try {
+                return getRafDefinitionService().getRafDefinitionByCode(splittedPath[2]);
+            } catch (RafException ex) {
+                logger.error("RafException", ex);
+                return null;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -427,6 +473,13 @@ public class RafWebdavStore implements IWebdavStore {
             if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
+
+                if (!hasRafDeletePermission(getRafDefinitionFromPath(node.getPath()))) {
+                    String msg = "User has not Raf delete permission";
+                    logger.debug(msg);
+                    throw new RepositoryException(msg);
+                }
+
                 sendEventLog("DeleteObject", node.getIdentifier(), node.getPath(), node.getName());
                 sendAuditLog(node.getIdentifier(), "DELETE_OBJECT", node.getPath());
                 node.remove();
@@ -969,6 +1022,10 @@ public class RafWebdavStore implements IWebdavStore {
 
     private RafService getRafService() {
         return BeanProvider.getContextualReference(RafService.class, true);
+    }
+
+    private RafMemberService getRafMemberService() {
+        return BeanProvider.getContextualReference(RafMemberService.class, true);
     }
 
     private RafDefinitionService getRafDefinitionService() {

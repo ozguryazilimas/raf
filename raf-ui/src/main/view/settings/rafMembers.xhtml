@@ -44,12 +44,12 @@
                             <i class="fa fa-archive" />
                             <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
                         </h:link>
-                        
+
                         <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
                             <i class="fa fa-users" />
                             <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
                         </h:link>
-                        
+
                         <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
                             <i class="fa fa-cogs" />
                             <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
@@ -111,6 +111,7 @@
                             <t:inputCombobox label="general.label.Role" value="#{rafMemberController.role}" required="true" columnClass="col-xs-12">
                                 <f:selectItem itemLabel="Okuyucu" itemValue="CONSUMER" />
                                 <f:selectItem itemLabel="Katkıcı" itemValue="CONTRIBUTER" />
+                                <f:selectItem itemLabel="Editör" itemValue="EDITOR" />
                                 <f:selectItem itemLabel="Yönetici" itemValue="MANAGER" />
                             </t:inputCombobox>
                         </div>
@@ -165,20 +166,20 @@
                                     </p:commandLink>
                                 </td>
                             </tr>
-                            
+
                             <p:repeat value="#{rafMemberController.getGroupUsers(member.memberName)}" var="gusr" >
-                            <tr>
-                                <td>
-                                    <i class="fa fa-user" style="margin-left: 16px;"/>
-                                    #{userLookup.getUserName(gusr)}
-                                </td>
-                                <td style="text-align: right">
-                                    #{messages['member.role.'.concat(member.role)]}
-                                </td>
-                                <td class="actionColumn">
-                                    
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-user" style="margin-left: 16px;"/>
+                                        #{userLookup.getUserName(gusr)}
+                                    </td>
+                                    <td style="text-align: right">
+                                        #{messages['member.role.'.concat(member.role)]}
+                                    </td>
+                                    <td class="actionColumn">
+
+                                    </td>
+                                </tr>
                             </p:repeat>
                         </ui:fragment>
                     </p:repeat>

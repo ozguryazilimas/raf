@@ -7,48 +7,73 @@ import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Seçili klasör içine yeni bir kalsör ekler.
- * 
+ *
  * @author Hakan Uygun
  */
 @Action(dialog = ActionPages.CreateFolderDialog.class,
         icon = "fa-plus",
-        capabilities = { ActionCapability.Ajax, ActionCapability.CollectionViews },
+        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
         order = 1)
-public class CreateFolderAction extends AbstractAction{
-    
+public class CreateFolderAction extends AbstractAction {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CreateFolderAction.class);
+
     @Inject
     private RafService rafService;
-    
+
     @Inject
     private Event<RafFolderDataChangeEvent> folderCreateEvent;
-    
+
     @Inject
     private Event<RafFolderChangeEvent> folderChangeEvent;
-    
+
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private RafMemberService memberService;
+
     private RafFolder folder;
+
+    @Override
+    public boolean applicable(boolean forCollection) {
+        try {
+            boolean hasRafRole = getContext().getSelectedRaf().getId() > 0 && (memberService.hasMemberRole(identity.getLoginName(), "MANAGER", getContext().getSelectedRaf())
+                    || memberService.hasMemberRole(identity.getLoginName(), "CONTRIBUTER", getContext().getSelectedRaf())
+                    || memberService.hasMemberRole(identity.getLoginName(), "EDITOR", getContext().getSelectedRaf()));
+            return hasRafRole && super.applicable(forCollection);
+        } catch (RafException ex) {
+            LOG.error("Error", ex);
+            return super.applicable(forCollection);
+        }
+    }
 
     @Override
     protected void initActionModel() {
         folder = new RafFolder();
-        
+
         folder.setParentId(getContext().getCollection().getId());
     }
 
     @Override
     protected boolean finalizeAction() {
-        folder.setPath( getContext().getCollection().getPath() + "/" + folder.getName());
-        
+        folder.setPath(getContext().getCollection().getPath() + "/" + folder.getName());
+
         try {
             rafService.createFolder(folder);
         } catch (RafException ex) {
@@ -56,13 +81,13 @@ public class CreateFolderAction extends AbstractAction{
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
             return false;
         }
-        
+
         folderCreateEvent.fire(new RafFolderDataChangeEvent());
         folderChangeEvent.fire(new RafFolderChangeEvent());
-        
+
         return true;
     }
-    
+
     public RafFolder getFolder() {
         return folder;
     }
@@ -70,8 +95,8 @@ public class CreateFolderAction extends AbstractAction{
     public void setFolder(RafFolder folder) {
         this.folder = folder;
     }
-    
-    public void onNameChange(){
+
+    public void onNameChange() {
         RafEncoder encoder = RafEncoderFactory.getEncoder();
         //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
         folder.setName(encoder.encode(folder.getTitle()));
