@@ -1,13 +1,17 @@
 package com.ozguryazilim.raf.ui.base;
 
+import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -54,9 +58,36 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     @Inject
     private Identity identity;
 
+    @Inject
+    private RafMemberService memberService;
+
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
+    @Inject
+    private RafContext rafContext;
+
     private List<RafVersion> versions = null;
 
     private Boolean versionManagementEnabled;
+
+    public Boolean getHasRafWritePermission() {
+        if (rafContext != null) {
+            try {
+                boolean permission = false;
+                if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(rafContext.getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafContext.getSelectedObject().getPath())) {
+                    permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedObject().getPath());
+                } else {
+                    permission = rafContext.getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedRaf());
+                }
+                return permission;
+            } catch (RafException ex) {
+                LOG.error("RafException", ex);
+                return false;
+            }
+        }
+        return false;
+    }
 
     @PostConstruct
     public void init() {

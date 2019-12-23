@@ -177,9 +177,10 @@ public class RafWebdavStore implements IWebdavStore {
                     throw new WebdavException(msg.text(resourceName, resolvedParent.getRepositoryName()));
                 }
             }
-            Node parentNode = nodeFor(transaction, resolvedParent);
-            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
 
+            Node parentNode = nodeFor(transaction, resolvedParent);
+
+            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
             sendEventLog("CreateFolder", folderNode.getIdentifier(), folderNode.getPath(), resourceName);
             sendAuditLog(folderNode.getIdentifier(), "CREATE_FOLDER", folderNode.getPath());
@@ -226,6 +227,7 @@ public class RafWebdavStore implements IWebdavStore {
                 }
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
+
             Node fileNode = contentMapper.createFile(parentNode, resourceName);
 
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
@@ -424,6 +426,7 @@ public class RafWebdavStore implements IWebdavStore {
             if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
+
                 sendEventLog("DeleteObject", node.getIdentifier(), node.getPath(), node.getName());
                 sendAuditLog(node.getIdentifier(), "DELETE_OBJECT", node.getPath());
                 node.remove();
