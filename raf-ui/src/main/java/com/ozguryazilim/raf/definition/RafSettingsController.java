@@ -26,32 +26,32 @@ import org.slf4j.LoggerFactory;
  */
 @WindowScoped
 @Named
-public class RafSettingsController implements Serializable{
+public class RafSettingsController implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafSettingsController.class);
-    
-     @Inject
+
+    @Inject
     private Identity identity;
-    
+
     @Inject
     private ViewNavigationHandler viewNavigationHandler;
-    
+
     @Inject
     private NavigationParameterContext navigationParameterContext;
-    
+
     @Inject
     private RafMemberService memberService;
-    
+
     @Inject
     private RafDefinitionService definitionService;
-    
+
     @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
-    
+
     private RafDefinition rafDefinition;
     private String rafCode;
-    
-    public void init(){
+
+    public void init() {
         if (Strings.isNullOrEmpty(rafCode)) {
             rafCode = "PRIVATE";
         }
@@ -63,12 +63,12 @@ public class RafSettingsController implements Serializable{
             LOG.error("Error", ex);
             viewNavigationHandler.navigateTo(Pages.Home.class);
         }
-        
+
         try {
             //Uye değilse hemen HomePage'e geri gönderelim.
-            if( !memberService.isMemberOf(identity.getLoginName(), rafDefinition) ){
+            if (!memberService.isMemberOf(identity.getLoginName(), rafDefinition)) {
                 viewNavigationHandler.navigateTo(Pages.Home.class);
-            } else if( !memberService.hasMemberRole(identity.getLoginName(), "MANAGER", rafDefinition)){
+            } else if (!memberService.hasManagerRole(identity.getLoginName(), rafDefinition)) {
                 navigationParameterContext.addPageParameter("id", rafDefinition.getCode());
                 viewNavigationHandler.navigateTo(RafPages.class);
             }
@@ -95,24 +95,24 @@ public class RafSettingsController implements Serializable{
     public void setRafDefinition(RafDefinition rafDefinition) {
         this.rafDefinition = rafDefinition;
     }
-    
-    public Class<? extends ViewConfig> save(){
-        
+
+    public Class<? extends ViewConfig> save() {
+
         try {
-            definitionService.save( rafDefinition);
+            definitionService.save(rafDefinition);
             rafDataChangedEvent.fire(new RafDataChangedEvent());
-        
+
             return RafPages.class;
         } catch (RafException ex) {
             LOG.error("Raf Update error", ex);
             FacesMessages.error("Raf Update error", ex.getLocalizedMessage());
         }
-        
+
         return null;
     }
-    
-    public Class<? extends ViewConfig> cancel(){
-        
+
+    public Class<? extends ViewConfig> cancel() {
+
         return RafPages.class;
     }
 }

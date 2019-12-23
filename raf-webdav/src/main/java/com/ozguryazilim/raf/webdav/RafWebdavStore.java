@@ -181,11 +181,6 @@ public class RafWebdavStore implements IWebdavStore {
             }
 
             Node parentNode = nodeFor(transaction, resolvedParent);
-            if (!hasRafWritePermission(getRafDefinitionFromPath(parentNode.getPath()))) {
-                String msg = "User has not Raf write permission";
-                logger.debug(msg);
-                throw new RepositoryException(msg);
-            }
 
             Node folderNode = contentMapper.createFolder(parentNode, resourceName);
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
@@ -235,12 +230,6 @@ public class RafWebdavStore implements IWebdavStore {
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
 
-            if (!hasRafWritePermission(getRafDefinitionFromPath(parentNode.getPath()))) {
-                String msg = "User has not Raf write permission";
-                logger.debug(msg);
-                throw new RepositoryException(msg);
-            }
-
             Node fileNode = contentMapper.createFile(parentNode, resourceName);
 
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
@@ -258,40 +247,6 @@ public class RafWebdavStore implements IWebdavStore {
             return uri.substring(0, uri.length() - 1);
         }
         return uri;
-    }
-
-    private Boolean hasRafWritePermission(RafDefinition rafDefinition) {
-        try {
-            return rafDefinition.getId() > 0 && (getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "MANAGER", rafDefinition)
-                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "CONTRIBUTER", rafDefinition)
-                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "EDITOR", rafDefinition));
-        } catch (RafException ex) {
-            logger.error("RafException", ex);
-            return false;
-        }
-    }
-
-    private Boolean hasRafDeletePermission(RafDefinition rafDefinition) {
-        try {
-            return rafDefinition.getId() > 0 && (getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "MANAGER", rafDefinition)
-                    || getRafMemberService().hasMemberRole(getIdentity().getLoginName(), "EDITOR", rafDefinition));
-        } catch (RafException ex) {
-            logger.error("RafException", ex);
-            return false;
-        }
-    }
-
-    private RafDefinition getRafDefinitionFromPath(String absPath) {
-        String[] splittedPath = absPath.split("/");
-        if (splittedPath != null && splittedPath.length > 1) {
-            try {
-                return getRafDefinitionService().getRafDefinitionByCode(splittedPath[2]);
-            } catch (RafException ex) {
-                logger.error("RafException", ex);
-                return null;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -473,12 +428,6 @@ public class RafWebdavStore implements IWebdavStore {
             if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
-
-                if (!hasRafDeletePermission(getRafDefinitionFromPath(node.getPath()))) {
-                    String msg = "User has not Raf delete permission";
-                    logger.debug(msg);
-                    throw new RepositoryException(msg);
-                }
 
                 sendEventLog("DeleteObject", node.getIdentifier(), node.getPath(), node.getName());
                 sendAuditLog(node.getIdentifier(), "DELETE_OBJECT", node.getPath());
@@ -1022,10 +971,6 @@ public class RafWebdavStore implements IWebdavStore {
 
     private RafService getRafService() {
         return BeanProvider.getContextualReference(RafService.class, true);
-    }
-
-    private RafMemberService getRafMemberService() {
-        return BeanProvider.getContextualReference(RafMemberService.class, true);
     }
 
     private RafDefinitionService getRafDefinitionService() {

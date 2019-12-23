@@ -1,14 +1,14 @@
 package com.ozguryazilim.raf.action;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
@@ -16,10 +16,8 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.uploader.ui.FileUploadDialog;
 import com.ozguryazilim.telve.uploader.ui.FileUploadHandler;
-import com.ozguryazilim.telve.view.Pages;
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import me.desair.tus.server.TusFileUploadService;
@@ -65,6 +63,9 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
     @Inject
     private RafMemberService memberService;
 
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
     private String rafCode;
     private String uploadPath;
     private boolean actionExec = Boolean.TRUE;
@@ -73,10 +74,15 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean hasRafRole = rafContext.getSelectedRaf().getId() > 0 && (memberService.hasMemberRole(identity.getLoginName(), "MANAGER", rafContext.getSelectedRaf())
-                    || memberService.hasMemberRole(identity.getLoginName(), "CONTRIBUTER", rafContext.getSelectedRaf())
-                    || memberService.hasMemberRole(identity.getLoginName(), "EDITOR", rafContext.getSelectedRaf()));
-            return hasRafRole && super.applicable(forCollection);
+            boolean permission = false;
+
+            if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+            } else {
+                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            }
+
+            return permission && super.applicable(forCollection);
         } catch (RafException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);

@@ -17,6 +17,7 @@ import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.ActionRegistery;
@@ -70,22 +71,25 @@ public class RafController implements Serializable {
 
     @Inject
     private ViewNavigationHandler viewNavigationHandler;
-    
+
     @Inject
     private RafDefinitionService rafDefinitionService;
 
     @Inject
     private RafService rafService;
-    
+
     @Inject
     private RafMemberService memberService;
+
+    @Inject
+    private RafPathMemberService rafObjectMemberService;
 
     @Inject
     private RafContext context;
 
     @Inject
     private Event<RafChangedEvent> rafChangedEvent;
-    
+
     @Inject
     private Event<RafCollectionChangeEvent> rafCollectionChangeEvent;
 
@@ -102,10 +106,10 @@ public class RafController implements Serializable {
 
     @Inject
     private RafFolderViewPanel folderViewPanel;
-    
+
     @Inject
     private Instance<ObjectContentViewPanel> objectViewPanels;
-    
+
     @Inject
     private RafCollectionCompactViewPanel collectionCompactViewPanel;
 
@@ -118,43 +122,43 @@ public class RafController implements Serializable {
     private Boolean showFolders = Boolean.TRUE;
     private Boolean showSidePanel = Boolean.TRUE;
     private Boolean showManagerTools = Boolean.TRUE;
+    private Boolean showRafObjectManagerTools = Boolean.TRUE;
 
-    
-    
     @PostConstruct
     public void initDefaults() {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
         showSidePanel = kahve.get("raf.showSidePanel", Boolean.TRUE).getAsBoolean();
-        
 
         //Kahveden sınıf ismine bakıp doğrusunu seçelim.
         String colViewName = kahve.get("raf.collectionView", "RafCollectionCompactViewPanel").getAsString();
-        colViewName = decapitalize( colViewName );
+        colViewName = decapitalize(colViewName);
         selectedContentPanel = BeanProvider.getContextualReference(colViewName, true, ContentViewPanel.class);
         selectedCollectionContentPanel = selectedContentPanel;
         //selectedContentPanel= collectionCompactViewPanel;
         //selectedCollectionContentPanel = collectionCompactViewPanel;
     }
 
-    
     /**
-     * 
-     * FIXME: bu davranış bir Util sınıfa gitmeli. Telve seviyesinde bir yerlerde olmalı. Guava'dan da kurtulmak için lazım.
-     * 
-     * Copied from https://stackoverflow.com/questions/4052840/most-efficient-way-to-make-the-first-character-of-a-string-lower-case
+     *
+     * FIXME: bu davranış bir Util sınıfa gitmeli. Telve seviyesinde bir
+     * yerlerde olmalı. Guava'dan da kurtulmak için lazım.
+     *
+     * Copied from
+     * https://stackoverflow.com/questions/4052840/most-efficient-way-to-make-the-first-character-of-a-string-lower-case
+     *
      * @param string
-     * @return 
+     * @return
      */
-    private static String decapitalize(String string){
+    private static String decapitalize(String string) {
         if (string == null || string.length() == 0) {
             return string;
         }
-        
+
         char c[] = string.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
     }
-    
+
     /**
      * Sayfa çağrıldığında init olması için çağrılır.
      *
@@ -163,19 +167,17 @@ public class RafController implements Serializable {
     public void init() {
 
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
-        
-        
-        if(Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId) ){
+        if (Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId)) {
             try {
                 //Eğer rafCode gelmemiş ama objectId gelmiş ise Raf'ı object üzerinden bulalım
                 RafObject obj = rafService.getRafObject(objectId);
                 String[] ss = obj.getPath().split("/");
                 // /RAF/hede/xxx geriye ilki boş 3 item dönüyor
-                if( "PRIVATE".equals(ss[1]) ){
+                if ("PRIVATE".equals(ss[1])) {
                     rafCode = "PRIVATE";
-                } else if("SHARED".equals(ss[1])){
+                } else if ("SHARED".equals(ss[1])) {
                     rafCode = "SHARED";
-                } else if("RAF".equals(ss[1])){
+                } else if ("RAF".equals(ss[1])) {
                     rafCode = ss[2];
                 } else {
                     //Buraya düştü ise PROCESS ya da saçma bişi olacaktır dolayısı ile
@@ -183,11 +185,11 @@ public class RafController implements Serializable {
                     viewNavigationHandler.navigateTo(Pages.Home.class);
                     return;
                 }
-                
+
             } catch (RafException ex) {
                 LOG.error("Raf Exception", ex);
             }
-            
+
         } else if (Strings.isNullOrEmpty(rafCode)) {
             //Eğer bir şey atanmamış ise kişisel raf olsun.
             rafCode = "PRIVATE";
@@ -204,7 +206,7 @@ public class RafController implements Serializable {
 
         try {
             //Uye değilse hemen HomePage'e geri gönderelim.
-            if( !memberService.isMemberOf(identity.getLoginName(), rafDefinition) ){
+            if (!memberService.isMemberOf(identity.getLoginName(), rafDefinition)) {
                 viewNavigationHandler.navigateTo(Pages.Home.class);
                 return;
             }
@@ -214,14 +216,13 @@ public class RafController implements Serializable {
             viewNavigationHandler.navigateTo(Pages.Home.class);
             return;
         }
-        
+
         try {
-            showManagerTools = rafDefinition.getId() > 0 && memberService.hasMemberRole(identity.getLoginName(), "MANAGER", rafDefinition);
+            showManagerTools = rafDefinition.getId() > 0 && memberService.hasManagerRole(identity.getLoginName(), rafDefinition);
         } catch (RafException ex) {
             showManagerTools = Boolean.FALSE;
         }
-        
-        
+
         //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
         context.setSelectedRaf(rafDefinition);
 
@@ -252,6 +253,12 @@ public class RafController implements Serializable {
                 populateFolderCollection(fld.getId());
 
                 context.setSelectedObject(obj);
+
+                try {
+                    showRafObjectManagerTools = !Strings.isNullOrEmpty(getObjectId()) && rafDefinition.getId() > 0 && (memberService.hasManagerRole(identity.getLoginName(), rafDefinition) || rafObjectMemberService.hasManagerRole(identity.getLoginName(), obj.getPath()));
+                } catch (RafException ex) {
+                    showRafObjectManagerTools = Boolean.FALSE;
+                }
 
             } catch (RafException ex) {
                 LOG.error("Raf Exception", ex);
@@ -363,14 +370,14 @@ public class RafController implements Serializable {
 
         //FIXME: burada instance sonuçları cachelenmeli aslında. Sistemde sornadna gelen bişiler yok. Ve burası çok sık çağrılıyor
         Iterator<ObjectContentViewPanel> it = objectViewPanels.iterator();
-        while( it.hasNext() ){
+        while (it.hasNext()) {
             ObjectContentViewPanel p = it.next();
-            if( p.acceptObject(context.getSelectedObject()) ){
+            if (p.acceptObject(context.getSelectedObject())) {
                 p.setRafObject(context.getSelectedObject());
                 return p;
             }
         }
-        
+
         /*
         //FIXME: burada previeww panelleri gibi aslında mimeType'a / nodeType'a bakarak doğru paneli seçmek lazım
         if (context.getSelectedObject() instanceof RafDocument) {
@@ -383,8 +390,7 @@ public class RafController implements Serializable {
             recordViewPanel.setObject((RafRecord)context.getSelectedObject());
             return recordViewPanel;
         }
-        */
-        
+         */
         //FIXME: Hiçibişi seçilmemesi durumu riski var.
         LOG.warn("RafObjectViewPanel not found for Object Type '{}'", context.getSelectedObject());
         return null;
@@ -409,7 +415,7 @@ public class RafController implements Serializable {
         } else {
             return selectedCollectionContentPanel;
         }
-        
+
         return selectedCollectionContentPanel;
     }
 
@@ -421,7 +427,7 @@ public class RafController implements Serializable {
             selectFolderById(item.getId());
         } else if (item instanceof RafDocument) {
             selectDocument((RafDocument) item);
-        } else if( item instanceof RafRecord ){
+        } else if (item instanceof RafRecord) {
             selectRecord((RafRecord) item);
         }
 
@@ -456,7 +462,7 @@ public class RafController implements Serializable {
         //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
         selectedContentPanel = getObjectContentPanel();
     }
-    
+
     public void selectRecord(RafRecord item) {
         context.setSelectedObject(item);
         context.getSeletedItems().clear();
@@ -473,8 +479,8 @@ public class RafController implements Serializable {
         //FIXME: Doğru paneli nasıl seçeceğiz?
         selectedContentPanel = getCollectionContentPanel();
     }
-    
-    public void closeObjectPanel(){
+
+    public void closeObjectPanel() {
         //FIXME: bundan pek emin değilim. SelectedObject'e null mu atamalı?
         context.setSelectedObject(null);
         //ObjectPanel'e geçerken obje aynı zamanda seçiliyor kapatırken de silelim
@@ -500,18 +506,18 @@ public class RafController implements Serializable {
             }
             
             return null;
-            */
-           
+             */
+
             // Burada Bulunan RafFolder'ı context folder listesine ekleyelim. En azından bulunanlar chache girmiş olur.
             RafFolder res = (RafFolder) rafService.getRafObject(id);
             context.getFolders().add(res);
-            
+
             return res;
         } catch (RafException ex) {
             LOG.error("Folder not found", ex);
             return null;
         }
-        
+
     }
 
     public void selectNode() {
@@ -595,7 +601,7 @@ public class RafController implements Serializable {
         context.getCollection().getItems().remove(event.getPayload());
         //Seçili olan panel'i düzeltelim ve collection panele geçelim
         selectedContentPanel = getCollectionContentPanel();
-            
+
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
@@ -615,7 +621,7 @@ public class RafController implements Serializable {
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
-            if( context.getSelectedObject() != null ){
+            if (context.getSelectedObject() != null) {
                 populateFolderCollection(context.getSelectedObject().getId());
             } else {
                 populateFolderCollection(context.getCollection().getId());
@@ -635,14 +641,14 @@ public class RafController implements Serializable {
         LOG.info("RafFolderCreateEvent");
         //Collection'ı yeniden çekmek lazım.
         //selectFolderById(context.getCollection().getId());
-        
+
         /* FIXME: Folder yükleme yapısında değişiklik yapılıyor. Daha kontrollü bir şekilde düzeltilmeli.
         try {
             context.setFolders(rafService.getFolderList(context.getSelectedRaf().getNode().getPath()));
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }
-        */
+         */
     }
 
     protected void populateFolderCollection(String folderId) throws RafException {
@@ -660,7 +666,7 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
-        
+
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
@@ -678,12 +684,12 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
-        
+
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
     protected void populateTagCollection(String tag) throws RafException {
-        RafCollection collection = rafService.getTagCollection( tag, context.getSelectedRaf().getNode().getPath());
+        RafCollection collection = rafService.getTagCollection(tag, context.getSelectedRaf().getNode().getPath());
 
         if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
@@ -696,10 +702,10 @@ public class RafController implements Serializable {
         }
 
         context.setCollection(collection);
-        
+
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
-    
+
     /* FIXME: şimdilik arayüzde sadece category id yeterli gibi duruyor.
     protected void populateCategoryCollection( String category) throws RafException{
         
@@ -729,7 +735,7 @@ public class RafController implements Serializable {
     public Boolean getShowFolders() {
         return showFolders;
     }
-    
+
     public void toggleSidePanel() {
         showSidePanel = !showSidePanel;
 
@@ -739,8 +745,13 @@ public class RafController implements Serializable {
     public Boolean getShowSidePanel() {
         return showSidePanel;
     }
-    
-    public boolean showManagerTools(){
+
+    public boolean showManagerTools() {
         return showManagerTools;
     }
+
+    public Boolean getShowRafObjectManagerTools() {
+        return showRafObjectManagerTools;
+    }
+
 }

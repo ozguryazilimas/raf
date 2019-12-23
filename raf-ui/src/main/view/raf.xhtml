@@ -57,7 +57,7 @@
                             </h:link>
                         </div>
                     </div>
-                </ui:fragment>
+                </ui:fragment>               
             </section>
         </div>
 
@@ -151,23 +151,23 @@
 
                         <ui:remove>
                             <!-- FIXME: süreç başlatma işi için sonradan tekrar bakacağız  -->
-                        <div style="margin-left: 10px; display: inline-block;">
-                            <div class="dropdown" style="display: inline-block;">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{messages['action.startProcess']}">
-                                    <i class="fa fa-random" />
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                                    <ui:repeat value="#{processController.processes}" var="pd" >
-                                        <li>
-                                            <p:commandLink action="#{processController.startProcess(pd)}" process="@this">
-                                                <i class="fa fa-random" /> #{processController.getProcessName(pd)}
-                                                <p:ajax event="dialogReturn" update="raf-view" />
-                                            </p:commandLink>
-                                        </li>
-                                    </ui:repeat>
-                                </ul>
+                            <div style="margin-left: 10px; display: inline-block;">
+                                <div class="dropdown" style="display: inline-block;">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{messages['action.startProcess']}">
+                                        <i class="fa fa-random" />
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        <ui:repeat value="#{processController.processes}" var="pd" >
+                                            <li>
+                                                <p:commandLink action="#{processController.startProcess(pd)}" process="@this">
+                                                    <i class="fa fa-random" /> #{processController.getProcessName(pd)}
+                                                    <p:ajax event="dialogReturn" update="raf-view" />
+                                                </p:commandLink>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
                         </ui:remove>
 
                         <ui:fragment rendered="#{rafController.selectedContentPanel.supportMetadata}">

@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.action;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
@@ -9,6 +10,7 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
@@ -48,15 +50,23 @@ public class CreateFolderAction extends AbstractAction {
     @Inject
     private RafMemberService memberService;
 
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
     private RafFolder folder;
 
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean hasRafRole = getContext().getSelectedRaf().getId() > 0 && (memberService.hasMemberRole(identity.getLoginName(), "MANAGER", getContext().getSelectedRaf())
-                    || memberService.hasMemberRole(identity.getLoginName(), "CONTRIBUTER", getContext().getSelectedRaf())
-                    || memberService.hasMemberRole(identity.getLoginName(), "EDITOR", getContext().getSelectedRaf()));
-            return hasRafRole && super.applicable(forCollection);
+            boolean permission = false;
+
+            if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+            } else {
+                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            }
+
+            return permission && super.applicable(forCollection);
         } catch (RafException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);

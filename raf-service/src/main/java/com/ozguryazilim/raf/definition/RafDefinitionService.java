@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class RafDefinitionService implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafDefinitionService.class);
-    
+
     @Inject
     private Identity identity;
 
@@ -46,7 +46,7 @@ public class RafDefinitionService implements Serializable {
         try {
             populateRafs();
         } catch (RafException ex) {
-            LOG.error("Cannot populate rafs", ex );
+            LOG.error("Cannot populate rafs", ex);
         }
     }
 
@@ -167,7 +167,7 @@ public class RafDefinitionService implements Serializable {
 
     protected void populateRafs() throws RafException {
         rafs = repository.findAll();
-        for( RafDefinition raf : rafs ){
+        for (RafDefinition raf : rafs) {
             RafNode rn = rafRepository.getRafNode(raf.getCode());
             raf.setNode(rn);
         }

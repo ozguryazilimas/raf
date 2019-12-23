@@ -2,68 +2,15 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui"                   
-                template="#{themeManager.layoutTemplate}">
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/layout/dialogBase.xhtml">
 
-    <ui:param name="dontShowContentHeader" value="true" />
-    <ui:param name="showContextMenu" value="false" />
-    <ui:param name="pageTitle" value="#{rafMemberController.rafDefinition.name}" />
+    <ui:param name="title" value="dialog.title.ObjectMembers" />
 
-    <ui:define name="metadata">
-        <f:metadata>
-            <f:viewParam name="id" value="#{rafMemberController.rafCode}" />
-            <f:viewAction action="#{rafMemberController.init()}"/>
-        </f:metadata>
-    </ui:define>
-
-    <ui:define name="extraHead">
-        <h:outputStylesheet library="raf" name="css/raf.css" />
-    </ui:define>
-
-    <ui:define name="customHeader">
-        <div class="raf-header-container">
-            <section class="raf-header">
-                <div class="raf-header-logo">
-                    <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
-                </div>
-                <div class="raf-header-texts">
-                    <div class="raf-header-text text-muted text-sm">
-                        #{messages['raf.label.Raf']}
-                    </div>
-                    <div class="raf-header-info text-bold text-big">
-                        #{messages[rafMemberController.rafDefinition.name]}
-                    </div>
-                </div>
-            </section>
-            <section class="raf-header-tools">
-                <div class="raf-header-tool-pack">
-                    <div class="raf-header-btns">
-                        <h:link outcome="/raf.xhtml" title="#{messages['raf.label.Raf']}">
-                            <i class="fa fa-archive" />
-                            <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
-                        </h:link>
-
-                        <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
-                            <i class="fa fa-users" />
-                            <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
-                        </h:link>
-
-                        <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
-                            <i class="fa fa-cogs" />
-                            <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
-                        </h:link>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </ui:define>
-
-    <ui:define name="body">
-        <ui:include src="/layout/messages.xhtml" />
-
-
+    <ui:define name="form">       
 
         <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
@@ -76,10 +23,10 @@
             </ul>
             <div class="tab-content">
                 <div id="add-user" class="tab-pane active">
-                    <h:form id="memf">
+                    <h:form id="memf">                        
                         <div class="row">
                             <t:inputAny label="general.label.Users" columnClass="col-xs-12">
-                                <p:autoComplete id="users" multiple="true" value="#{rafMemberController.selectedUsers}" completeMethod="#{rafMemberController.completeUser}"
+                                <p:autoComplete id="users" multiple="true" value="#{rafObjectMemberController.selectedUsers}" completeMethod="#{rafObjectMemberController.completeUser}"
                                                 var="user" itemLabel="#{user.userName}" itemValue="#{user}"  forceSelection="true" required="true"
                                                 converter="userInfoConverter" >
                                     <p:column>
@@ -88,7 +35,8 @@
                                 </p:autoComplete>
                             </t:inputAny>
 
-                            <t:inputCombobox label="general.label.Role" value="#{rafMemberController.role}" required="true" columnClass="col-xs-12">
+                            <t:inputCombobox label="general.label.Role" value="#{rafObjectMemberController.role}" required="true" columnClass="col-xs-12">
+                                <f:selectItem itemLabel="Yetkisiz" itemValue="UNAUTHORIZED" />
                                 <f:selectItem itemLabel="Okuyucu" itemValue="CONSUMER" />
                                 <f:selectItem itemLabel="Katkıcı" itemValue="CONTRIBUTER" />
                                 <f:selectItem itemLabel="Editör" itemValue="EDITOR" />
@@ -97,19 +45,20 @@
                         </div>
                         <div class="row">
                             <h:panelGroup styleClass="actionButtons col-xs-12" layout="block">
-                                <p:commandButton value="#{messages['general.button.Add']}" action="#{rafMemberController.addSelectedUsers()}" icon="fa fa-plus" styleClass="btn btn-primary" update="memf memg :members"/>
+                                <p:commandButton value="#{messages['general.button.Add']}" action="#{rafObjectMemberController.addSelectedUsers()}" icon="fa fa-plus" styleClass="btn btn-primary" update="memf memg :members"/>
                             </h:panelGroup>
                         </div>
                     </h:form>
                 </div>
                 <div id="add-group" class="tab-pane">
-                    <h:form id="memg">
+                    <h:form id="memg">                        
                         <div class="row">
-                            <t:inputLookupDialog value="#{rafMemberController.userGroup}" label="general.label.Group"  
-                                                 lookupBean="#{groupLookup}" lookupListener="rafMemberController.userGroup" 
+                            <t:inputLookupDialog value="#{rafObjectMemberController.userGroup}" label="general.label.Group"  
+                                                 lookupBean="#{groupLookup}" lookupListener="rafObjectMemberController.userGroup" 
                                                  leafSelect="false" 
                                                  columnClass="col-md-6 col-xs-12"/>
-                            <t:inputCombobox label="general.label.Role" value="#{rafMemberController.role}" required="true" columnClass="col-xs-12">
+                            <t:inputCombobox label="general.label.Role" value="#{rafObjectMemberController.role}" required="true" columnClass="col-xs-12">
+                                <f:selectItem itemLabel="Yetkisiz" itemValue="UNAUTHORIZED" />
                                 <f:selectItem itemLabel="Okuyucu" itemValue="CONSUMER" />
                                 <f:selectItem itemLabel="Katkıcı" itemValue="CONTRIBUTER" />
                                 <f:selectItem itemLabel="Editör" itemValue="EDITOR" />
@@ -118,7 +67,7 @@
                         </div>
                         <div class="row">
                             <h:panelGroup styleClass="actionButtons col-xs-12" layout="block">
-                                <p:commandButton value="#{messages['general.button.Add']}" action="#{rafMemberController.addSelectedGroup()}" icon="fa fa-plus" styleClass="btn btn-primary" update="memf memg :members"/>
+                                <p:commandButton value="#{messages['general.button.Add']}" action="#{rafObjectMemberController.addSelectedGroup()}" icon="fa fa-plus" styleClass="btn btn-primary" update="memf memg :members"/>
                             </h:panelGroup>
                         </div>
                     </h:form>
@@ -135,7 +84,7 @@
             <h:panelGroup id="members" layout="block" styleClass="box-body">
 
                 <table class="table">
-                    <p:repeat value="#{rafMemberController.members}" var="member" >
+                    <p:repeat value="#{rafObjectMemberController.members}" var="member" >
                         <ui:fragment rendered="#{member.memberType eq 'USER'}">
                             <tr>
                                 <td>
@@ -146,7 +95,7 @@
                                     #{messages['member.role.'.concat(member.role)]}
                                 </td>
                                 <td class="actionColumn">
-                                    <p:commandLink action="#{rafMemberController.deleteMember(member)}" process="@this" update="members">
+                                    <p:commandLink action="#{rafObjectMemberController.deleteMember(member)}" process="@this" update="members">
                                         <i class="fa fa-trash"/>
                                     </p:commandLink>
                                 </td>
@@ -162,13 +111,13 @@
                                     #{messages['member.role.'.concat(member.role)]}
                                 </td>
                                 <td class="actionColumn">
-                                    <p:commandLink action="#{rafMemberController.deleteMember(member)}" process="@this" update="members">
+                                    <p:commandLink action="#{rafObjectMemberController.deleteMember(member)}" process="@this" update="members">
                                         <i class="fa fa-trash"/>
                                     </p:commandLink>
                                 </td>
                             </tr>
 
-                            <p:repeat value="#{rafMemberController.getGroupUsers(member.memberName)}" var="gusr" >
+                            <p:repeat value="#{rafObjectMemberController.getGroupUsers(member.memberName)}" var="gusr" >
                                 <tr>
                                     <td>
                                         <i class="fa fa-user" style="margin-left: 16px;"/>
