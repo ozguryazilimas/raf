@@ -1,0 +1,15 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:outputLabel value="Dosyaların Alınacağı Yerel Klasör"/>
+    <p:inputText value="#{fileImporterCommandEditor.command.localPath}"/>
+
+    <p:outputLabel value="Dosyaların Aktarılacağı RAF"/>
+    <p:inputText value="#{fileImporterCommandEditor.command.rafPath}"/>
+
+    <p:outputLabel value="Dosya Yapısının Kaydedileceği Dosya"/>
+    <p:inputText value="#{fileImporterCommandEditor.command.fileListRecorderFilePath}"/>
+
+
+</ui:composition>

@@ -15,19 +15,21 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
  */
 @TelveModule
 public class RafConverterModule {
-    
+
     @PostConstruct
-    public void init(){
-        if( "true".equals(ConfigResolver.getPropertyValue("raf.preview.office", "true"))){
-            SequencerRegistery.register("OfficePreviewSequencer", OfficePreviewSequencer.class.getCanonicalName(), 
-                "default://*.(odt|odp|ods|xls|doc|ppt|xlsx|docx|pptx)/jcr:content[@jcr:data]");
+    public void init() {
+        if ("true".equals(ConfigResolver.getPropertyValue("raf.preview.office", "true"))) {
+            SequencerRegistery.register("OfficePreviewSequencer", OfficePreviewSequencer.class.getCanonicalName(),
+                    "default://*.(odt|odp|ods|xls|doc|ppt|xlsx|docx|pptx)/jcr:content[@jcr:data]");
         }
-        SequencerRegistery.register("ImagePreviewSequencer", ImagePreviewSequencer.class.getCanonicalName(), 
-                "default://*.(jpg|jpeg|gif|bmp|pcx|png|iff|ras|pbm|pgm|ppm|psd)/jcr:content[@jcr:data]");
+        if ("true".equals(ConfigResolver.getPropertyValue("raf.preview.image", "true"))) {
+            SequencerRegistery.register("ImagePreviewSequencer", ImagePreviewSequencer.class.getCanonicalName(),
+                    "default://*.(jpg|jpeg|gif|bmp|pcx|png|iff|ras|pbm|pgm|ppm|psd)/jcr:content[@jcr:data]");
+        }
     }
-    
+
     @PreDestroy
-    public void done(){
+    public void done() {
         //Kapanırken eğer office açıksa kapatalım
         OfficeManagerFactory.stopOfficeManager();
     }
