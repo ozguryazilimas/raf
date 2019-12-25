@@ -33,9 +33,6 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
     @Inject
     RafDefinitionService rafDefinitionService;
 
-    @Inject
-    private CommandSender commandSender;
-
     @Override
     public void execute(FileImporterCommand command) {
         try {
@@ -53,8 +50,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
             }
             List<File> fileList = new ArrayList();
             recursiveFileScanner(localPath, fileList);
-            List<File> transferedFileList = new ArrayList();
-            transferFiles(fileList, localPath, rafPath, transferedFileList);
+            transferFiles(fileList, localPath, rafPath);
         } catch (Exception e) {
             LOG.error("There was an error during FileImporterCommand", e);
         }
@@ -72,7 +68,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
         }
     }
 
-    private void transferFiles(List<File> fileList, String startDir, String raf, List<File> transferedFileList) {
+    private void transferFiles(List<File> fileList, String startDir, String raf) {
         try {
             RafEncoder re = RafEncoderFactory.getEncoder();
             String[] splittedRaf = raf.split("/");
@@ -90,7 +86,6 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
             LOG.debug("Directory is {}", startDir);
             double fileCount = fileList.size();
             double i = 0.d;
-            double transferred = 0.d;
             double percentage;
             for (File file : fileList) {
                 if (file.exists() && file.canRead()) {
@@ -106,11 +101,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
                         if (ro != null || fileName.startsWith("~") || fileName.contains("Thumbs.db")) {
                             LOG.debug("File is exists");
                         } else {
-//                            TransferFileCommand command = new TransferFileCommand(rafFilePath, fileName, rafFolder, file);
-//                            commandSender.sendCommand(command);
                             transferFile(rafFilePath, rafFolder, file);
-                            transferred++;
-//                            Thread.sleep(1000);
                         }
                     } catch (Exception e) {
                         LOG.debug("transferFile exception", e);
@@ -132,7 +123,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
             RafObject ro = rafService.getRafObjectByPath(rafFilePath);
             return ro;
         } catch (RafException ex) {
-//            LOG.debug("Raf exception", ex);
+            LOG.debug("Raf exception", ex);
             return null;
         }
     }
@@ -142,7 +133,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
             RafFolder rf = rafService.getFolder(rafFolder);
             return rf;
         } catch (RafException ex) {
-//            LOG.debug("Raf exception", ex);
+            LOG.debug("Raf exception", ex);
             return null;
         }
     }

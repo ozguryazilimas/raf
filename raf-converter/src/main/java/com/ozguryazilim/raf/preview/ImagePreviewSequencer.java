@@ -57,51 +57,7 @@ public class ImagePreviewSequencer extends Sequencer {
                 previewNode.setProperty("jcr:data", preview);
             }
 
-            LOG.debug("preview generating success..");
-        } catch (Exception e) {
-            LOG.warn("Preview cannot generated", e);
-            return false;
-        }
 
-        //Yapılan değişiklikler kayıt edilsin.
-        return true;
-    }
-
-    public boolean executeBackup(Property inputProperty, Node outputNode, Context context) throws Exception {
-
-        try {
-            LOG.debug("{} preview file is creating..", inputProperty.getName());
-
-            Binary binaryValue = inputProperty.getBinary();
-            CheckArg.isNotNull(binaryValue, "binary");
-
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-            BufferedImage src = ImageIO.read(binaryValue.getStream());
-            LOG.debug("src readed..");
-            BufferedImage scaledImg = Scalr.resize(src, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-            LOG.debug("image scaled..");
-
-            ImageIO.write(scaledImg, "png", os);
-            LOG.debug("image writed to os..");
-
-//            src.flush();
-//            scaledImg.flush();
-            LOG.debug("tmp image streams closed..");
-
-            ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-            LOG.debug("bytearrayinputstream generated..");
-
-            Node previewNode = getPreviewNode(outputNode);
-
-            LOG.debug("getting preview node..");
-
-            Binary preview = outputNode.getSession().getValueFactory().createBinary(is);
-
-//            os.close();
-//            is.close();
-            previewNode.setProperty("jcr:mimeType", "image/png");
-            previewNode.setProperty("jcr:data", preview);
             LOG.debug("preview generating success..");
         } catch (Exception e) {
             LOG.warn("Preview cannot generated", e);
