@@ -75,7 +75,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         if (rafContext != null) {
             try {
                 boolean permission = false;
-                if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(rafContext.getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafContext.getSelectedObject().getPath())) {
+                if (rafContext.getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(rafContext.getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafContext.getSelectedObject().getPath())) {
                     permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedObject().getPath());
                 } else {
                     permission = rafContext.getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedRaf());
