@@ -233,7 +233,8 @@ public class RafController implements Serializable {
                 RafObject obj = rafService.getRafObject(objectId);
 
                 RafFolder fld = null;
-
+                //Selected object panel seçininden önce yapılmalı, zira panel object tipine göre tespit ediliyor.
+                context.setSelectedObject(obj);
                 //şimdi objenin tipine bakarak bazı kararlar verelim
                 if (obj instanceof RafDocument || obj instanceof RafRecord) {
 
@@ -251,8 +252,6 @@ public class RafController implements Serializable {
                 }
 
                 populateFolderCollection(fld.getId());
-
-                context.setSelectedObject(obj);
 
                 try {
                     showRafObjectManagerTools = !Strings.isNullOrEmpty(getObjectId()) && rafDefinition.getId() > 0 && (memberService.hasManagerRole(identity.getLoginName(), rafDefinition) || rafObjectMemberService.hasManagerRole(identity.getLoginName(), obj.getPath()));
