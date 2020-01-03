@@ -1,19 +1,18 @@
-package com.ozguryazilim.raf.member;
+package com.ozguryazilim.raf.action;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.config.RafPages;
-import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.entities.RafMember;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
+import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +22,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
-import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,24 +32,18 @@ import org.slf4j.LoggerFactory;
  */
 @WindowScoped
 @Named
-public class RafMemberController implements Serializable {
+public class RafObjectMemberController implements Serializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RafMemberController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RafObjectMemberController.class);
 
     @Inject
     private Identity identity;
 
     @Inject
-    private ViewNavigationHandler viewNavigationHandler;
+    private RafService rafService;
 
     @Inject
-    private NavigationParameterContext navigationParameterContext;
-
-    @Inject
-    private RafDefinitionService definitionService;
-
-    @Inject
-    private RafMemberService memberService;
+    private RafPathMemberService memberService;
 
     @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
@@ -60,8 +51,8 @@ public class RafMemberController implements Serializable {
     @Inject
     private UserLookup userLookup;
 
-    private RafDefinition rafDefinition;
-    private String rafCode;
+    private RafObject rafObject;
+    private String path;
 
     //Kullanıcı seçimi için userLookup üzerinden toparlanıp cache'lenecek. 
     private List<UserInfo> users;
@@ -72,58 +63,42 @@ public class RafMemberController implements Serializable {
     private Group userGroup;
 
     public void init() {
-        if (Strings.isNullOrEmpty(rafCode)) {
-            rafCode = "PRIVATE";
-        }
 
         try {
-            rafDefinition = definitionService.getRafDefinitionByCode(rafCode);
+            if (!Strings.isNullOrEmpty(path)) {
+                rafObject = rafService.getRafObjectByPath(path);
+            }
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
             LOG.error("Error", ex);
-            viewNavigationHandler.navigateTo(Pages.Home.class);
-        }
-
-        try {
-            //Uye değilse hemen HomePage'e geri gönderelim.
-            if (!memberService.isMemberOf(identity.getLoginName(), rafDefinition)) {
-                viewNavigationHandler.navigateTo(Pages.Home.class);
-            } else if (!memberService.hasManagerRole(identity.getLoginName(), rafDefinition)) {
-                navigationParameterContext.addPageParameter("id", rafDefinition.getCode());
-                viewNavigationHandler.navigateTo(RafPages.class);
-            }
-        } catch (RafException ex) {
-            LOG.error("Error", ex);
-            //Gene de geldiği yere gönderelim.
-            viewNavigationHandler.navigateTo(Pages.Home.class);
         }
 
         selectedUsers.clear();
         //FIXME: burda default rol ataması yapılabilir belki?
         role = "";
-
+        populateUsers();
     }
 
-    public String getRafCode() {
-        return rafCode;
+    public String getPath() {
+        return path;
     }
 
-    public void setRafCode(String rafCode) {
-        this.rafCode = rafCode;
+    public void setPath(String path) {
+        this.path = path;
     }
 
-    public RafDefinition getRafDefinition() {
-        return rafDefinition;
+    public RafObject getRafObject() {
+        return rafObject;
     }
 
-    public void setRafDefinition(RafDefinition rafDefinition) {
-        this.rafDefinition = rafDefinition;
+    public void setRafObject(RafObject rafObject) {
+        this.rafObject = rafObject;
     }
 
-    public List<RafMember> getMembers() {
+    public List<RafPathMember> getMembers() {
         //FIXME: burada ikide bir sorgu çekmenin anlamı yok. Cacheleyelim.
         try {
-            return memberService.getMembers(rafDefinition);
+            return memberService.getMembers(path);
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Raf Exception", ex);
@@ -185,7 +160,7 @@ public class RafMemberController implements Serializable {
                 .collect(Collectors.toList());
 
         try {
-            memberService.addMembers(rafDefinition, members, RafMemberType.USER, role);
+            memberService.addMembers(path, members, RafMemberType.USER, role);
             selectedUsers.clear();
             userGroup = null;
             role = "";
@@ -213,7 +188,7 @@ public class RafMemberController implements Serializable {
         }
 
         try {
-            memberService.addMember(rafDefinition, userGroup.getCode(), RafMemberType.GROUP, role);
+            memberService.addMember(path, userGroup.getCode(), RafMemberType.GROUP, role);
             selectedUsers.clear();
             userGroup = null;
             role = "";
@@ -229,7 +204,7 @@ public class RafMemberController implements Serializable {
         return memberService.getGroupUsers(userGroupName);
     }
 
-    public void deleteMember(RafMember member) {
+    public void deleteMember(RafPathMember member) {
         try {
             memberService.removeMember(member);
         } catch (RafException ex) {

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
@@ -54,35 +55,39 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Webdav için Raf Repository implementasyonu.
- * 
+ *
  * Buradaki kodlar büyük oranda modehshape projesinden kopyalanmıştır.
- * 
+ *
  * @author Hakan Uygun
  */
-public class RafWebdavStore implements IWebdavStore{
-    
+public class RafWebdavStore implements IWebdavStore {
+
     /**
-     * OS X attempts to create ".DS_Store" files to store a folder's icon positions and background image. We choose not to store
-     * these in our implementation, so we ignore requests to create them.
+     * OS X attempts to create ".DS_Store" files to store a folder's icon
+     * positions and background image. We choose not to store these in our
+     * implementation, so we ignore requests to create them.
      */
     private static final String DS_STORE_SUFFIX = ".DS_Store";
 
     private static final ThreadLocal<HttpServletRequest> THREAD_LOCAL_REQUEST = new ThreadLocal<HttpServletRequest>();
 
-    /** OSX workaround */
+    /**
+     * OSX workaround
+     */
     private static final Map<String, byte[]> OSX_DOUBLE_DATA = Collections.synchronizedMap(new WeakHashMap<String, byte[]>());
 
     private static final String CREATED_PROP_NAME = "jcr:created";
 
     /**
-     * List of namespace prefixes that should not be returned in the XML response as a) they cannot appear in the actual elements
-     * and b) there are certain clients which can misbehave if they see them in the response (e.g. the Windows Client and the XML
-     * prefix)
+     * List of namespace prefixes that should not be returned in the XML
+     * response as a) they cannot appear in the actual elements and b) there are
+     * certain clients which can misbehave if they see them in the response
+     * (e.g. the Windows Client and the XML prefix)
      */
     protected static final Set<String> EXCLUDED_NAMESPACE_PREFIXES = org.modeshape.common.collection.Collections.unmodifiableSet(NamespaceRegistry.PREFIX_XML,
-                                                                                                                                 "xs",
-                                                                                                                                 "xsi",
-                                                                                                                                 "xmlns");
+            "xs",
+            "xsi",
+            "xmlns");
 
     private final RequestResolver requestResolver;
     private final ContentMapper contentMapper;
@@ -90,15 +95,15 @@ public class RafWebdavStore implements IWebdavStore{
     private final Logger logger = LoggerFactory.getLogger(RafWebdavStore.class);
 
     private Boolean readLogEnabled;
-    
+
     /**
      * Creates a new store instance
      *
      * @param requestResolver a {@link RequestResolver} instance, never null
      * @param contentMapper a {@link ContentMapper} instance, never null
      */
-    public RafWebdavStore( RequestResolver requestResolver,
-                                 ContentMapper contentMapper ) {
+    public RafWebdavStore(RequestResolver requestResolver,
+            ContentMapper contentMapper) {
         super();
 
         this.requestResolver = requestResolver;
@@ -106,34 +111,36 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     /**
-     * Updates thread-local storage for the current thread to reference the given request.
+     * Updates thread-local storage for the current thread to reference the
+     * given request.
      *
-     * @param request the request to store in thread-local storage; null to clear the storage
+     * @param request the request to store in thread-local storage; null to
+     * clear the storage
      */
-    static void setRequest( HttpServletRequest request ) {
+    static void setRequest(HttpServletRequest request) {
         THREAD_LOCAL_REQUEST.set(request);
     }
 
     @Override
-    public ITransaction begin( Principal principal ) {
+    public ITransaction begin(Principal principal) {
         return new JcrSessionTransaction(principal);
     }
 
     @Override
-    public void commit( ITransaction transaction ) {
+    public void commit(ITransaction transaction) {
         CheckArg.isNotNull(transaction, "transaction");
 
         assert transaction instanceof JcrSessionTransaction;
-        ((JcrSessionTransaction)transaction).commit();
+        ((JcrSessionTransaction) transaction).commit();
     }
 
     @Override
-    public void rollback( ITransaction transaction ) {
+    public void rollback(ITransaction transaction) {
         // No op. By not saving the session, we will let the session expire without committing any changes
     }
 
     @Override
-    public void checkAuthentication( ITransaction transaction ) {
+    public void checkAuthentication(ITransaction transaction) {
         // No op.
     }
 
@@ -145,8 +152,8 @@ public class RafWebdavStore implements IWebdavStore{
      * @see IWebdavStore#createFolder(org.modeshape.webdav.ITransaction, String)
      */
     @Override
-    public void createFolder( ITransaction transaction,
-                              String folderUri ) {
+    public void createFolder(ITransaction transaction,
+            String folderUri) {
         folderUri = removeTrailingSlash(folderUri);
         int ind = folderUri.lastIndexOf('/');
         String parentUri = folderUri.substring(0, ind + 1);
@@ -170,21 +177,22 @@ public class RafWebdavStore implements IWebdavStore{
                     throw new WebdavException(msg.text(resourceName, resolvedParent.getRepositoryName()));
                 }
             }
-            Node parentNode = nodeFor(transaction, resolvedParent);
-            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
 
+            Node parentNode = nodeFor(transaction, resolvedParent);
+
+            Node folderNode = contentMapper.createFolder(parentNode, resourceName);
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
             sendEventLog("CreateFolder", folderNode.getIdentifier(), folderNode.getPath(), resourceName);
-            sendAuditLog( folderNode.getIdentifier(), "CREATE_FOLDER", folderNode.getPath() );
-            
+            sendAuditLog(folderNode.getIdentifier(), "CREATE_FOLDER", folderNode.getPath());
+
         } catch (RepositoryException re) {
             throw translate(re);
         }
     }
 
     @Override
-    public void createResource( ITransaction transaction,
-                                String resourceUri ) {
+    public void createResource(ITransaction transaction,
+            String resourceUri) {
         resourceUri = removeTrailingSlash(resourceUri);
 
         // Mac OS X workaround from Drools Guvnor
@@ -219,19 +227,20 @@ public class RafWebdavStore implements IWebdavStore{
                 }
             }
             Node parentNode = nodeFor(transaction, resolvedParent);
+
             Node fileNode = contentMapper.createFile(parentNode, resourceName);
 
             //FIXME: aslında bu command'leri biriktirip, commit ile birlikte göndermek gerekiyor.
             sendEventLog("UploadDocument", fileNode.getIdentifier(), fileNode.getPath(), resourceName);
-            sendAuditLog( fileNode.getIdentifier(), "UPLOAD_DOCUMENT", fileNode.getPath() );
-            
+            sendAuditLog(fileNode.getIdentifier(), "UPLOAD_DOCUMENT", fileNode.getPath());
+
         } catch (RepositoryException re) {
             throw translate(re);
         }
 
     }
 
-    private String removeTrailingSlash( String uri ) {
+    private String removeTrailingSlash(String uri) {
         if (!StringUtil.isBlank(uri) && uri.length() > 1 && uri.endsWith("/")) {
             return uri.substring(0, uri.length() - 1);
         }
@@ -239,8 +248,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public String[] getChildrenNames( ITransaction transaction,
-                                      String folderUri ) {
+    public String[] getChildrenNames(ITransaction transaction,
+            String folderUri) {
         try {
             logger.trace("WebDAV getChildrenNames(txn,\"" + folderUri + "\")");
             ResolvedRequest resolved = resolveRequest(folderUri);
@@ -248,15 +257,15 @@ public class RafWebdavStore implements IWebdavStore{
             if (resolved.isRoot()) {
                 //Root isteniyor dolayısı ile üyesi olunan raf'lar ve yetkili olduğu parçalar veriliyor.
                 List<String> children = new ArrayList<>();
-                
+
                 List<RafDefinition> rafs = getRafDefinitionService().getRafsForUser(SecurityUtils.getSubject().getPrincipal().toString(), Boolean.TRUE);
-                
-                for( RafDefinition rd : rafs ){
+
+                for (RafDefinition rd : rafs) {
                     children.add(rd.getCode());
                 }
                 return children.toArray(new String[children.size()]);
             }
-                
+
             Node node = nodeFor(transaction, resolved); // throws exception if not found
             logger.trace("WebDAV -> node: " + node);
 
@@ -272,7 +281,7 @@ public class RafWebdavStore implements IWebdavStore{
         }
     }
 
-    protected static List<String> namesOfChildren( Node node ) throws RepositoryException {
+    protected static List<String> namesOfChildren(Node node) throws RepositoryException {
         List<String> children = new LinkedList<String>();
         for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
             Node child = iter.nextNode();
@@ -283,8 +292,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public InputStream getResourceContent( ITransaction transaction,
-                                           String resourceUri ) {
+    public InputStream getResourceContent(ITransaction transaction,
+            String resourceUri) {
         try {
             ResolvedRequest resolved = resolveRequest(resourceUri);
             if (resolved.isRoot()) {
@@ -295,11 +304,11 @@ public class RafWebdavStore implements IWebdavStore{
             if (!isFile(node)) {
                 return null;
             }
-            
-            if( isReadLogEnabled() ){
-                sendAuditLog( node.getIdentifier(), "READ_DOCUMENT_CONTENT", node.getPath() );
+
+            if (isReadLogEnabled()) {
+                sendAuditLog(node.getIdentifier(), "READ_DOCUMENT_CONTENT", node.getPath());
             }
-            
+
             return contentMapper.getResourceContent(node);
 
         } catch (IOException ioe) {
@@ -310,8 +319,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public long getResourceLength( ITransaction transaction,
-                                   String resourceUri ) {
+    public long getResourceLength(ITransaction transaction,
+            String resourceUri) {
         try {
             ResolvedRequest resolved = resolveRequest(resourceUri);
             if (resolved.isRoot()) {
@@ -319,7 +328,7 @@ public class RafWebdavStore implements IWebdavStore{
                 return -1;
             }
             Node node = nodeFor(transaction, resolved); // throws exception if not found
-            
+
             return contentMapper.getResourceLength(node);
         } catch (IOException ioe) {
             throw new WebdavException(ioe);
@@ -329,8 +338,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public StoredObject getStoredObject( ITransaction transaction,
-                                         String uri ) {
+    public StoredObject getStoredObject(ITransaction transaction,
+            String uri) {
         if (uri.length() == 0) {
             uri = "/";
         }
@@ -381,12 +390,13 @@ public class RafWebdavStore implements IWebdavStore{
                 Date createDate = null;
                 if (node.hasProperty(CREATED_PROP_NAME)) {
                     createDate = node.getProperty(CREATED_PROP_NAME).getDate().getTime();
-            } else {
+                } else {
                     createDate = new Date();
                 }
                 ob.setCreationDate(createDate);
                 ob.setLastModified(contentMapper.getLastModified(node));
                 ob.setResourceLength(contentMapper.getResourceLength(node));
+                ob.setMimeType(node.getNode("jcr:content").getProperty("jcr:mimeType").getString());
             } else {
                 ob.setNullResource(true);
             }
@@ -402,8 +412,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public void removeObject( ITransaction transaction,
-                              String uri ) {
+    public void removeObject(ITransaction transaction,
+            String uri) {
         // Mac OS X workaround from Drools Guvnor
         String resourceName = resourceNameFromResourcePath(uri);
         if (resourceName.startsWith("._")) {
@@ -416,8 +426,9 @@ public class RafWebdavStore implements IWebdavStore{
             if (!resolved.isRoot()) {
                 // It does resolve to the path of a node, so try to find the node and remove it ...
                 Node node = nodeFor(transaction, resolved);
+
                 sendEventLog("DeleteObject", node.getIdentifier(), node.getPath(), node.getName());
-                sendAuditLog( node.getIdentifier(), "DELETE_OBJECT", node.getPath() );
+                sendAuditLog(node.getIdentifier(), "DELETE_OBJECT", node.getPath());
                 node.remove();
             }
             // Otherwise just return silently
@@ -428,17 +439,17 @@ public class RafWebdavStore implements IWebdavStore{
         }
     }
 
-    protected String resourceNameFromResourcePath( String path ) {
+    protected String resourceNameFromResourcePath(String path) {
         int ind = path.lastIndexOf('/');
         return path.substring(ind + 1);
     }
 
     @Override
-    public long setResourceContent( ITransaction transaction,
-                                    String resourceUri,
-                                    InputStream content,
-                                    String contentType,
-                                    String characterEncoding ) {
+    public long setResourceContent(ITransaction transaction,
+            String resourceUri,
+            InputStream content,
+            String contentType,
+            String characterEncoding) {
         // Mac OS X workaround from Drools Guvnor
         if (shouldIgnoreResource(resourceUri)) {
             return 0;
@@ -467,6 +478,21 @@ public class RafWebdavStore implements IWebdavStore{
                 return -1;
             }
 
+            boolean checkStatus = false;
+            String checkerUser = "";
+            try {
+                //Checkin kontrolü yapılsın.
+                checkStatus = getRafService().getRafCheckStatus(resolved.getPath());
+                checkerUser = getRafService().getRafCheckerUser(resolved.getPath());
+
+            } catch (RafException ex) {
+                logger.error("Raf Exception", ex);
+            }
+
+            if (checkStatus && !getIdentity().getUserName().equals(checkerUser)) {
+                throw new AccessDeniedException(String.format("Dosya şu anda %s kullanıcısı tarafından kullanılıyor. Kayıt işlemi yapamazsınız.", checkerUser));//FIXME: i118
+            }
+
             return contentMapper.setContent(node, resourceName, content, contentType, characterEncoding);
         } catch (RepositoryException re) {
             throw translate(re);
@@ -475,15 +501,15 @@ public class RafWebdavStore implements IWebdavStore{
         }
     }
 
-    private boolean shouldIgnoreResource( String resourceUri ) {
+    private boolean shouldIgnoreResource(String resourceUri) {
         return resourceUri.endsWith(".DS_Store");
     }
 
     @Override
-    public Map<String, String> setCustomProperties( ITransaction transaction,
-                                                    String resourceUri,
-                                                    Map<String, Object> propertiesToSet,
-                                                    List<String> propertiesToRemove ) {
+    public Map<String, String> setCustomProperties(ITransaction transaction,
+            String resourceUri,
+            Map<String, Object> propertiesToSet,
+            List<String> propertiesToRemove) {
         resourceUri = removeTrailingSlash(resourceUri);
         if (shouldIgnoreResource(resourceUri)) {
             logger.debug("Resource {0} ignored.", resourceUri);
@@ -503,7 +529,7 @@ public class RafWebdavStore implements IWebdavStore{
                 String jcrPropertyName = jcrPropertyName(transaction, resolvedRequest, propertyName);
                 Object value = propertiesToSet.get(propertyName);
                 if (value instanceof Collection) {
-                    Collection<?> collection = (Collection<?>)value;
+                    Collection<?> collection = (Collection<?>) value;
                     String[] jcrValue = new String[collection.size()];
                     int i = 0;
                     for (Object collectionObject : collection) {
@@ -545,9 +571,9 @@ public class RafWebdavStore implements IWebdavStore{
         }
     }
 
-    private String jcrPropertyName( ITransaction transaction,
-                                    ResolvedRequest resolvedRequest,
-                                    String webdavPropertyName ) throws RepositoryException {
+    private String jcrPropertyName(ITransaction transaction,
+            ResolvedRequest resolvedRequest,
+            String webdavPropertyName) throws RepositoryException {
         String[] parts = webdavPropertyName.split("\\:");
         if (parts.length == 0) {
             return webdavPropertyName;
@@ -577,8 +603,8 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public Map<String, Object> getCustomProperties( ITransaction transaction,
-                                                    String resourceUri ) {
+    public Map<String, Object> getCustomProperties(ITransaction transaction,
+            String resourceUri) {
         resourceUri = removeTrailingSlash(resourceUri);
         if (shouldIgnoreResource(resourceUri)) {
             return Collections.emptyMap();
@@ -607,15 +633,15 @@ public class RafWebdavStore implements IWebdavStore{
     }
 
     @Override
-    public Map<String, String> getCustomNamespaces( ITransaction transaction,
-                                                    String resourceUri ) {
+    public Map<String, String> getCustomNamespaces(ITransaction transaction,
+            String resourceUri) {
         resourceUri = removeTrailingSlash(resourceUri);
         try {
             ResolvedRequest resolvedRequest = resolveRequest(resourceUri);
             if (resolvedRequest.isRoot()) {
                 return Collections.emptyMap();
             }
-            return ((JcrSessionTransaction)transaction).namespacesFor(resolvedRequest);
+            return ((JcrSessionTransaction) transaction).namespacesFor(resolvedRequest);
         } catch (RepositoryException e) {
             throw translate(e);
         }
@@ -623,88 +649,100 @@ public class RafWebdavStore implements IWebdavStore{
 
     /**
      * @param node the node to check; may not be null
-     * @return true if {@code node} represents a file (as opposed to a folder or file content)
-     * @throws RepositoryException if an error occurs checking the node's primary type
+     * @return true if {@code node} represents a file (as opposed to a folder or
+     * file content)
+     * @throws RepositoryException if an error occurs checking the node's
+     * primary type
      */
-    private boolean isFile( Node node ) throws RepositoryException {
+    private boolean isFile(Node node) throws RepositoryException {
         return contentMapper.isFile(node);
     }
 
     /**
      * @param node the node to check; may not be null
-     * @return true if {@code node} represents a folder (as opposed to a file or file content)
-     * @throws RepositoryException if an error occurs checking the node's primary type
+     * @return true if {@code node} represents a folder (as opposed to a file or
+     * file content)
+     * @throws RepositoryException if an error occurs checking the node's
+     * primary type
      */
-    private boolean isFolder( Node node ) throws RepositoryException {
+    private boolean isFolder(Node node) throws RepositoryException {
         return contentMapper.isFolder(node);
     }
 
     /**
-     * Resolve the URI into a repository name, workspace name, and node path. Note that some URIs might not resolve to a
-     * repository (but no workspace or path), a workspace (but no path), or even a repository.
+     * Resolve the URI into a repository name, workspace name, and node path.
+     * Note that some URIs might not resolve to a repository (but no workspace
+     * or path), a workspace (but no path), or even a repository.
      *
      * @param uri the URI from the request
      * @return the resolved information; never null
      * @throws WebdavException if the URI is invalid or otherwise not acceptable
      */
-    private ResolvedRequest resolveRequest( String uri ) throws WebdavException {
+    private ResolvedRequest resolveRequest(String uri) throws WebdavException {
         HttpServletRequest request = THREAD_LOCAL_REQUEST.get();
         return requestResolver.resolve(request, uri);
     }
 
     /**
-     * Get the node that corresponds to the resolved request, using the supplied active transaction.
+     * Get the node that corresponds to the resolved request, using the supplied
+     * active transaction.
      *
      * @param transaction the active transaction; may not be null
-     * @param request the resolved request; may not be null and must contain a repository name and workspace name
+     * @param request the resolved request; may not be null and must contain a
+     * repository name and workspace name
      * @return the node; never null
-     * @throws RepositoryException if the node does not exist, or if there is another problem obtaining the node
+     * @throws RepositoryException if the node does not exist, or if there is
+     * another problem obtaining the node
      */
-    private Node nodeFor( ITransaction transaction,
-                          ResolvedRequest request ) throws RepositoryException {
-        return ((JcrSessionTransaction)transaction).nodeFor(request);
+    private Node nodeFor(ITransaction transaction,
+            ResolvedRequest request) throws RepositoryException {
+        return ((JcrSessionTransaction) transaction).nodeFor(request);
     }
 
     /**
-     * Determine if the repository and/or workspace named in the supplied request do exist.
+     * Determine if the repository and/or workspace named in the supplied
+     * request do exist.
      *
      * @param transaction the active transaction; may not be null
-     * @param request the resolved request; may not be null and must contain a repository name and workspace name
-     * @return true if the repository and/or workspace do exist, or false otherwise
+     * @param request the resolved request; may not be null and must contain a
+     * repository name and workspace name
+     * @return true if the repository and/or workspace do exist, or false
+     * otherwise
      * @throws RepositoryException if is a problem accessing the repository
      */
-    private boolean repositoryAndWorkspaceExist( ITransaction transaction,
-                                                 ResolvedRequest request ) throws RepositoryException {
-        return ((JcrSessionTransaction)transaction).repositoryAndWorkspaceExist(request);
+    private boolean repositoryAndWorkspaceExist(ITransaction transaction,
+            ResolvedRequest request) throws RepositoryException {
+        return ((JcrSessionTransaction) transaction).repositoryAndWorkspaceExist(request);
     }
 
     /**
      * Determine the names of the children given the supplied request
      *
      * @param transaction the active transaction; may not be null
-     * @param request the resolved request; may not be null and must contain a repository name and workspace name
+     * @param request the resolved request; may not be null and must contain a
+     * repository name and workspace name
      * @return the children names, or null if there are no children
      * @throws RepositoryException if is a problem accessing the repository
      */
-    private String[] childrenFor( ITransaction transaction,
-                                  ResolvedRequest request ) throws RepositoryException {
-        return ((JcrSessionTransaction)transaction).childrenFor(request);
+    private String[] childrenFor(ITransaction transaction,
+            ResolvedRequest request) throws RepositoryException {
+        return ((JcrSessionTransaction) transaction).childrenFor(request);
     }
 
-    private void markForRollback( ITransaction transaction,
-                                  ResolvedRequest request ) {
-        ((JcrSessionTransaction)transaction).markForRollback(request);
+    private void markForRollback(ITransaction transaction,
+            ResolvedRequest request) {
+        ((JcrSessionTransaction) transaction).markForRollback(request);
     }
 
-    private Session sessionFor( ITransaction transaction,
-                                ResolvedRequest request ) throws RepositoryException {
-        return ((JcrSessionTransaction)transaction).session(request);
+    private Session sessionFor(ITransaction transaction,
+            ResolvedRequest request) throws RepositoryException {
+        return ((JcrSessionTransaction) transaction).session(request);
     }
-
 
     /**
-     * Implementation of the {@link ITransaction} interface that uses a {@link Session JCR session} to load and store webdav
-     * content. The session also provides support for transactional access to the underlying store.
+     * Implementation of the {@link ITransaction} interface that uses a
+     * {@link Session JCR session} to load and store webdav content. The session
+     * also provides support for transactional access to the underlying store.
      */
     class JcrSessionTransaction implements ITransaction {
 
@@ -712,20 +750,21 @@ public class RafWebdavStore implements IWebdavStore{
         private final Set<SessionKey> sessionsMarkedForRollback = new HashSet<SessionKey>();
         private final Principal principal;
 
-        JcrSessionTransaction( Principal principal ) {
+        JcrSessionTransaction(Principal principal) {
             this.principal = principal;
         }
 
-        protected boolean owns( Session session ) {
+        protected boolean owns(Session session) {
             return sessions.containsValue(session);
         }
 
         /**
          * @param request the resolved request; may not be null
          * @return the session associated with this transaction; never null
-         * @throws RepositoryException if there is a problem obtaining a repository session for the request
+         * @throws RepositoryException if there is a problem obtaining a
+         * repository session for the request
          */
-        Session session( ResolvedRequest request ) throws RepositoryException {
+        Session session(ResolvedRequest request) throws RepositoryException {
             String repositoryName = request.getRepositoryName();
             String workspaceName = request.getWorkspaceName();
             assert repositoryName != null;
@@ -745,20 +784,20 @@ public class RafWebdavStore implements IWebdavStore{
             return result;
         }
 
-        Node nodeFor( ResolvedRequest request ) throws RepositoryException {
+        Node nodeFor(ResolvedRequest request) throws RepositoryException {
             Session session = session(request);
             Item item = session.getItem(request.getPath());
             if (item instanceof Property) {
                 throw new WebdavException(WebdavI18n.errorPropertyPath.text(item.getPath()));
             }
-            return (Node)item;
+            return (Node) item;
         }
 
-        void markForRollback( ResolvedRequest request ) {
+        void markForRollback(ResolvedRequest request) {
             sessionsMarkedForRollback.add(new SessionKey(request.getRepositoryName(), request.getWorkspaceName()));
         }
 
-        Map<String, String> namespacesFor( ResolvedRequest request ) throws RepositoryException {
+        Map<String, String> namespacesFor(ResolvedRequest request) throws RepositoryException {
             Session session = session(request);
             Map<String, String> namespaces = new HashMap<String, String>();
             for (String namespacePrefix : session.getNamespacePrefixes()) {
@@ -771,7 +810,7 @@ public class RafWebdavStore implements IWebdavStore{
             return namespaces;
         }
 
-        boolean repositoryAndWorkspaceExist( ResolvedRequest request ) throws RepositoryException {
+        boolean repositoryAndWorkspaceExist(ResolvedRequest request) throws RepositoryException {
             assert request != null;
             if (request.getRepositoryName() != null) {
                 if (request.getWorkspaceName() != null) {
@@ -791,7 +830,7 @@ public class RafWebdavStore implements IWebdavStore{
             return true;
         }
 
-        String[] childrenFor( ResolvedRequest request ) throws RepositoryException {
+        String[] childrenFor(ResolvedRequest request) throws RepositoryException {
             assert request != null;
             Collection<String> names = null;
             if (request.getRepositoryName() != null) {
@@ -826,7 +865,7 @@ public class RafWebdavStore implements IWebdavStore{
                         session = getJcrSession();//RepositoryManager.getSession(request.getRequest(), repositoryName, null);
                         return session.getWorkspace().getAccessibleWorkspaceNames();
                     } catch (RepositoryException e) {
-                        logger.warn( WebdavI18n.cannotGetRepositorySession.toString(), repositoryName, e.getMessage());
+                        logger.warn(WebdavI18n.cannotGetRepositorySession.toString(), repositoryName, e.getMessage());
                         throw translate(e);
                     } finally {
                         if (session != null) {
@@ -879,20 +918,21 @@ public class RafWebdavStore implements IWebdavStore{
      * @param exception the repository exception
      * @return the WebDAV exception
      */
-    protected WebdavException translate( RepositoryException exception ) {
+    protected WebdavException translate(RepositoryException exception) {
         return RafWebdavServlet.translateError(exception);
     }
-    
-    protected WebdavException translate( RafException exception ) {
+
+    protected WebdavException translate(RafException exception) {
         return RafWebdavServlet.translateError(exception);
     }
 
     protected static final class SessionKey {
+
         protected final String repositoryName;
         protected final String workspaceName;
 
-        protected SessionKey( String repositoryName,
-                              String workspaceName ) {
+        protected SessionKey(String repositoryName,
+                String workspaceName) {
             this.repositoryName = repositoryName;
             this.workspaceName = workspaceName;
             assert this.repositoryName != null;
@@ -905,10 +945,12 @@ public class RafWebdavStore implements IWebdavStore{
         }
 
         @Override
-        public boolean equals( Object obj ) {
-            if (obj == this) return true;
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
             if (obj instanceof SessionKey) {
-                SessionKey that = (SessionKey)obj;
+                SessionKey that = (SessionKey) obj;
                 return this.repositoryName.equals(that.repositoryName) && this.workspaceName.equals(that.workspaceName);
             }
             return false;
@@ -919,56 +961,53 @@ public class RafWebdavStore implements IWebdavStore{
             return repositoryName + "/" + workspaceName;
         }
     }
-    
-    
-    private Session getJcrSession() throws RepositoryException{
+
+    private Session getJcrSession() throws RepositoryException {
         Session session = ModeShapeRepositoryFactory.getSession();
         return session;
     }
-    
-    private RafService getRafService(){
+
+    private RafService getRafService() {
         return BeanProvider.getContextualReference(RafService.class, true);
     }
-    
-    private RafDefinitionService getRafDefinitionService(){
+
+    private RafDefinitionService getRafDefinitionService() {
         return BeanProvider.getContextualReference(RafDefinitionService.class, true);
     }
-    
-    private CommandSender getCommandSender(){
+
+    private CommandSender getCommandSender() {
         return BeanProvider.getContextualReference(CommandSender.class, true);
     }
-    
-    private Identity getIdentity(){
+
+    private Identity getIdentity() {
         return BeanProvider.getContextualReference(Identity.class, true);
     }
-    
-    protected void sendEventLog( String eventType, String id, String path, String resourceName ){
 
-        
-        
+    protected void sendEventLog(String eventType, String id, String path, String resourceName) {
+
         EventLogCommand command = EventLogCommandBuilder.forRaf("RAF")
-                    .eventType(eventType)
-                    .message("event." + eventType + "$%&" + ( getIdentity() != null ?  getIdentity().getUserName() : "Sistem" ) + "$%&" + resourceName)
-                    .user(getIdentity() != null ? getIdentity().getLoginName() : "SYSTEM")
-                    .build();
-        
+                .eventType(eventType)
+                .message("event." + eventType + "$%&" + (getIdentity() != null ? getIdentity().getUserName() : "Sistem") + "$%&" + resourceName)
+                .user(getIdentity() != null ? getIdentity().getLoginName() : "SYSTEM")
+                .build();
+
         command.setRefId(id);
         command.setPath(path);
-        
+
         getCommandSender().sendCommand(command);
-        
+
     }
-    
-    protected void sendAuditLog( String id, String action, String path ){
+
+    protected void sendAuditLog(String id, String action, String path) {
         AuditLogCommand command = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", getIdentity() != null ? getIdentity().getLoginName() : "UNKNOWN", path);
         getCommandSender().sendCommand(command);
     }
 
-    protected boolean isReadLogEnabled(){
-        if( readLogEnabled == null ){
-            readLogEnabled = "true".equals( ConfigResolver.getPropertyValue("auditLog.read", "false"));
+    protected boolean isReadLogEnabled() {
+        if (readLogEnabled == null) {
+            readLogEnabled = "true".equals(ConfigResolver.getPropertyValue("auditLog.read", "false"));
         }
-        
+
         return readLogEnabled;
     }
 }

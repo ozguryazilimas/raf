@@ -81,7 +81,7 @@
             <ui:fragment rendered="#{viewBean.versionManagementEnabled}">
                 <div class="row">
                     <div class="col-xs-12">
-                        <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
+                        <p:commandLink rendered="#{not viewBean.rafCheckStatus}" action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
                             <i class="fa fa-upload" /> #{messages['action.title.UploadNewVersion']}
                             <p:ajax event="dialogReturn" update="raf-view-content" />
                         </p:commandLink>
@@ -105,7 +105,35 @@
                 </c:forEach>
             </div>
 
-            <ui:fragment rendered="#{not empty viewBean.versionHistory}">
+            <ui:fragment rendered="#{viewBean.rafCheckStatus}">
+                <h:form id="checkoutform">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
+                            Kilitleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>                                
+                            <p:commandLink rendered="#{viewBean.canRafCheckIn}" action="#{viewBean.unlockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                                <i class="fa fa-unlock" />
+                                Dosya Kilidini Aç
+                            </p:commandLink>
+                        </div>
+                    </div>                    
+                </h:form>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not viewBean.rafCheckStatus}">
+                <h:form id="checkinform">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                                <i class="fa fa-lock" />
+                                Dosyayı Kilitle
+                            </p:commandLink>
+                        </div>
+                    </div>                    
+                </h:form>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not viewBean.rafCheckStatus and not empty viewBean.versionHistory}">
                 <h:form id="hist">
                     <div class="row">
                         <t:accordion label="raf.label.Versions" columnClass="col-xs-12" contentClass="">
@@ -139,4 +167,3 @@
 
     </div>
 </ui:composition>
-
