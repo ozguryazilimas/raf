@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:outputLabel value="Doxoft Veritabanı Sunucusu"/>
+    <p:inputText value="#{doxoftImporterCommandEditor.command.dbHostName}"/>
+
+    <p:outputLabel value="Doxoft Veritabanı Port No."/>
+    <p:inputText value="#{doxoftImporterCommandEditor.command.dbPort}"/>
+
+    <p:outputLabel value="Doxoft Veritabanı Kullanıcı Adı"/>
+    <p:inputText value="#{doxoftImporterCommandEditor.command.dbUserName}"/>
+
+    <p:outputLabel value="Doxoft Veritabanı Parola"/>
+    <p:inputText value="#{doxoftImporterCommandEditor.command.dbPassword}"/>
+
+    <p:outputLabel value="Doxoft Veritabanı Adı"/>
+    <p:inputText value="#{doxoftImporterCommandEditor.command.dbName}"/>
+
+    <p:outputLabel value="Doxoft Fiziki Klasör Adları"/>
+    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFileServerDirectoryNames}"/>
+
+    <p:outputLabel value="Doxoft Fiziki Klasör Yolu"/>
+    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFileServerDirectoryPaths}"/>
+
+    <p:outputLabel value="Doxoft Sanal Klasör Adları"/>
+    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFolderNames}"/>
+
+    <p:outputLabel value="Doxoft Sanal Klasör Adlarının RAF Karşılıkları"/>
+    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.rafNames}"/>
+
+</ui:composition>

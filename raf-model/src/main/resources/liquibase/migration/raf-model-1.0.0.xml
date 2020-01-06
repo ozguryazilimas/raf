@@ -1,6 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
+    <changeSet author="cihan_cosgun" id="202001061156">
+        <createTable tableName="EXTERNAL_DOC_TYPE">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="EX_DOC_TYPS_PK"/>
+            </column>
+            <column name="DOCUMENT_TYPE" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>            
+        </createTable>
+        
+        <createTable tableName="EXTERNAL_DOC_TYPE_ATTRIBUTE">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="EXTERNAL_DOC_TYPE_ATTRIBUTE_PK"/>
+            </column>
+            <column name="DOCUMENT_TYPE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>       
+            <column name="ATTRIBUTE_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>            
+        </createTable>
+        
+        <createTable tableName="EXTERNAL_DOC_TYPE_ATTRIBUTE_VALUE">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="EXTERNAL_DOC_TYPE_ATTRIBUTE_VALUE_PK"/>
+            </column>
+            <column name="DOCUMENT_TYPE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>       
+            <column name="ATTRIBUTE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>  
+            <column name="RAF_FILE_PATH" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>            
+        </createTable>
+        
+    </changeSet>
+    
+    <changeSet author="cihan_cosgun" id="201912201154">
+        <createTable tableName="RAF_PATH_MEMBER">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_PTHMEMPK"/>
+            </column>
+            <column name="MEMBER_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MEMBER_TYPE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PATH" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+    
     <changeSet author="cihan_cosgun" id="201912201154">
         <createTable tableName="RAF_PATH_MEMBER">
             <column name="ID" type="BIGINT">
