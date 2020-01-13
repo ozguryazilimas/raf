@@ -5,8 +5,10 @@ import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.action.RafExternalDocViewAction;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
+import com.ozguryazilim.raf.externalappimport.ExternalDocRepository;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
@@ -47,6 +49,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private FileUploadAction fileUploadAction;
 
     @Inject
+    private RafExternalDocViewAction rafExternalDocViewAction;
+
+    @Inject
     private RafService rafService;
 
     @Inject
@@ -66,6 +71,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     @Inject
     private RafContext rafContext;
+
+    @Inject
+    private ExternalDocRepository externalDocRepository;
 
     private List<RafVersion> versions = null;
 
@@ -87,6 +95,14 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             }
         }
         return false;
+    }
+
+    public Boolean getExternalDocument() {
+        Boolean rval = false;
+        if (rafContext != null && rafContext.getSelectedObject() != null) {
+            return !externalDocRepository.findByRafFilePath(rafContext.getSelectedObject().getPath()).isEmpty();
+        }
+        return rval;
     }
 
     @PostConstruct
@@ -188,6 +204,10 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     public void checkin() {
         fileUploadAction.execute("CHECKIN", getObject().getPath());
+    }
+
+    public void externalDocInfoAction() {
+        rafExternalDocViewAction.execute();
     }
 
     public void checkInListener(@Observes RafCheckInEvent event) {

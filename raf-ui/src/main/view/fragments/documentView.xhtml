@@ -95,6 +95,12 @@
                     </div>
                 </div>
             </ui:fragment>
+            <ui:fragment rendered="#{viewBean.externalDocument}">
+                <p:commandLink action="#{viewBean.externalDocInfoAction()}" process="@this" styleClass="btn" title="Harici Dosya Bilgileri" update="raf-view-content">
+                    <i class="fa fa-external-link" /> Harici Dosya Bilgileri
+                    <p:ajax event="dialogReturn" update="raf-view-content" />
+                </p:commandLink>
+            </ui:fragment>     
             <div class="row">
 
                 <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">

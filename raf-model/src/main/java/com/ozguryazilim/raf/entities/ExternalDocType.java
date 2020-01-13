@@ -36,6 +36,10 @@ public class ExternalDocType extends EntityBase {
         return documentType;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setDocumentType(String documentType) {
         this.documentType = documentType;
     }

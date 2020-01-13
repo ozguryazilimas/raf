@@ -19,4 +19,7 @@ public interface ActionPages extends Pages{
     @SecuredPage
     class RafObjectMembers implements Pages {};
     
+    @SecuredPage
+    class RafExternalDocView implements Pages {};
+    
 }

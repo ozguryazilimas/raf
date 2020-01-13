@@ -14,7 +14,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * Diğer dokuman yönetim sistemi uygulamalarından içeri alınan dokuman tiplerine ait özel alanlar.
+ * Diğer dokuman yönetim sistemi uygulamalarından içeri alınan dokuman tiplerine
+ * ait özel alanlar.
  *
  */
 @Entity
@@ -45,6 +46,10 @@ public class ExternalDocTypeAttribute extends EntityBase {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setDocumentType(ExternalDocType documentType) {

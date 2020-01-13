@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
+import com.ozguryazilim.raf.externalappimport.ExternalAppImportService;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
@@ -33,6 +34,9 @@ public class PasteAction extends AbstractAction {
 
     @Inject
     private RafService rafService;
+
+    @Inject
+    private ExternalAppImportService externalAppImportService;
 
     @Inject
     private Event<RafFolderDataChangeEvent> folderDataChangeEvent;
@@ -81,6 +85,7 @@ public class PasteAction extends AbstractAction {
         if (getContext().getClipboardAction() instanceof CopyAction) {
             try {
                 rafService.copyObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                externalAppImportService.copyExternalDoc(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
                 //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n
@@ -90,6 +95,7 @@ public class PasteAction extends AbstractAction {
         } else if (getContext().getClipboardAction() instanceof CutAction) {
             try {
                 rafService.moveObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                externalAppImportService.moveExternalDoc(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
                 //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n

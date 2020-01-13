@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "EXTERNAL_DOC_TYPE_ATTRIBUTE_VALUE")
-public class ExternalDocTypeAttributeValue extends EntityBase {
+public class ExternalDocTypeAttributeValue extends EntityBase implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "genericSeq")
@@ -40,6 +40,11 @@ public class ExternalDocTypeAttributeValue extends EntityBase {
     @Size(min = 1, max = 1000)
     private String rafFilePath;
 
+    @Column(name = "RAF_FILE_ID", length = 200, nullable = false)
+    @NotNull
+    @Size(min = 1, max = 200)
+    private String rafFileId;
+
     @Column(name = "VALUE", length = 500, nullable = false)
     @NotNull
     @Size(min = 1, max = 500)
@@ -57,12 +62,20 @@ public class ExternalDocTypeAttributeValue extends EntityBase {
         return id;
     }
 
+    public String getRafFileId() {
+        return rafFileId;
+    }
+
     public String getRafFilePath() {
         return rafFilePath;
     }
 
     public String getValue() {
         return value;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setDocumentType(ExternalDocType documentType) {
@@ -73,6 +86,10 @@ public class ExternalDocTypeAttributeValue extends EntityBase {
         this.externalDocTypeAttribute = externalDocTypeAttribute;
     }
 
+    public void setRafFileId(String rafFileId) {
+        this.rafFileId = rafFileId;
+    }
+
     public void setRafFilePath(String rafFilePath) {
         this.rafFilePath = rafFilePath;
     }
@@ -81,4 +98,8 @@ public class ExternalDocTypeAttributeValue extends EntityBase {
         this.value = value;
     }
 
+    public Object clone() throws
+            CloneNotSupportedException {
+        return super.clone();
+    }
 }

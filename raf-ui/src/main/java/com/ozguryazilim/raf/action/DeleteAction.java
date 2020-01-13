@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
+import com.ozguryazilim.raf.externalappimport.ExternalAppImportService;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
@@ -34,6 +35,9 @@ public class DeleteAction extends AbstractAction {
 
     @Inject
     private RafService rafService;
+
+    @Inject
+    private ExternalAppImportService externalAppImportService;
 
     @Inject
     private Event<RafObjectDeleteEvent> deleteEvent;
@@ -90,6 +94,7 @@ public class DeleteAction extends AbstractAction {
     public void deleteObject(RafObject o) {
         try {
             rafService.deleteObject(o);
+            externalAppImportService.deleteExternalDoc(o.getPath());
             deleteEvent.fire(new RafObjectDeleteEvent(o));
 
             //Eğer silinen şey folder ise FolderChangeEvent'ide fırlatalım ki folder ağaçları da düzenlensin

@@ -108,6 +108,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_TYPE_SHARED = "SHARED";
     private static final String RAF_TYPE_PROCESS = "PROCESS";
 
+    private static final String PROP_CREATED_DATE = "jcr:created";
+    private static final String PROP_CREATED_BY = "jcr:createdBy";
+
     private RafEncoder encoder;
     private Boolean debugMode = Boolean.FALSE;
 
@@ -883,7 +886,7 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setId(v.getIdentifier());
                     rv.setName(v.getName());
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
-                    rv.setCreated(v.getProperty("jcr:created").getDate().getTime());
+                    rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
                     //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
                     result.add(rv);
@@ -1579,8 +1582,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
 
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
@@ -1610,8 +1613,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
 
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
@@ -1682,8 +1685,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setParentId(node.getParent().getIdentifier());
 
         //bilenen diğer metadata ( createDate v.b. ) toplanmalı
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);

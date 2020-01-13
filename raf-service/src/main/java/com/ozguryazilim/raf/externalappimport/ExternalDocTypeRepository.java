@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.imports.repository;
+package com.ozguryazilim.raf.externalappimport;
 
 import com.ozguryazilim.raf.entities.ExternalDocType;
 import com.ozguryazilim.telve.data.RepositoryBase;
