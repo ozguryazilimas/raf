@@ -59,7 +59,6 @@ public class ExternalDocWFStep extends EntityBase implements Cloneable {
     private Date completedDate;
 
     @Column(name = "COMPLETER", length = 200, nullable = true)
-    @Size(min = 1, max = 200)
     private String completer;
 
     @Column(name = "COMMENT", length = 1000, nullable = true)

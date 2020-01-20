@@ -78,6 +78,15 @@ public class ExternalDoc extends EntityBase implements Cloneable {
     @Size(min = 1, max = 200)
     private String rafFileId;
 
+    @Column(name = "DOCUMENT_STATUS", length = 200, nullable = false)
+    @NotNull
+    @Size(min = 1, max = 200)
+    private String documentStatus;
+
+    public String getDocumentStatus() {
+        return documentStatus;
+    }
+
     public String getDocumentType() {
         return documentType;
     }
@@ -116,6 +125,10 @@ public class ExternalDoc extends EntityBase implements Cloneable {
 
     public String getRafFileId() {
         return rafFileId;
+    }
+
+    public void setDocumentStatus(String documentStatus) {
+        this.documentStatus = documentStatus;
     }
 
     public void setDocumentType(String documentType) {

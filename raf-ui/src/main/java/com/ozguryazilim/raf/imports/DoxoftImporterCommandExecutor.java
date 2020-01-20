@@ -131,7 +131,8 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         importDocumentTypes();
         importAttributes();
 
-        importFinishedWFDocuments();
+        importWFDocuments(true);//kapalı işler
+        importWFDocuments(false);//açık işler
     }
 
     private Connection getMysqlConnection() {
@@ -245,7 +246,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocument(Connection con, ResultSet rs) {
+    private void importDocument(Connection con, ResultSet rs, boolean finishedWF) {
         try {
             String docId = String.valueOf(rs.getLong("ID"));
             if (externalDocRepository.findByDocumentId(docId).isEmpty()) {
@@ -273,13 +274,14 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         externalDoc.setDocumentType(rs.getString("DOCUMENT_TYPE"));
                         externalDoc.setRafFilePath(rafDocument.getPath());
                         externalDoc.setRafFileId(rafDocument.getId());
+                        externalDoc.setDocumentStatus(finishedWF ? "KAPALI" : "AÇIK");
                         externalDocRepository.saveAndFlush(externalDoc);
                         bis.close();
                         fileInputStream.close();
                         importDocumentAttachements(con, docId, rs.getString("FOLDER"), rs.getString("PARENT_FOLDER"), rafDocument.getPath(), rafDocument.getId());
                         importDocumentAnnotations(con, docId, rafDocument.getPath(), rafDocument.getId());
                         importDocumentMetaDatas(con, docId, rafDocument.getPath(), rafDocument.getId());
-                        importDocumentFinishedWF(con, docId, rafDocument.getPath(), rafDocument.getId());
+                        importDocumentFinishedWF(con, docId, rafDocument.getPath(), rafDocument.getId(), finishedWF);
                     } catch (FileNotFoundException ex) {
                         LOG.error("FileNotFoundException", ex);
                     } catch (RafException ex) {
@@ -516,14 +518,14 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentFinishedWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId) {
+    private void importDocumentFinishedWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
         try {
             LOG.debug("{} Document workflow importing.", parentDocId);
             if (con != null) {
                 Statement st;
                 try {
                     st = con.createStatement();
-                    ResultSet rs = st.executeQuery(String.format("select distinctrow  workflow.ID, workflow.STARTED_DATE, usr.FULLNAME STARTER, \n"
+                    String query = String.format("select distinctrow  workflow.ID, workflow.STARTED_DATE, usr.FULLNAME STARTER, \n"
                             + "workflow.INSTANCE_STATE, workflow.COMPLATE_DATE, endusr.FULLNAME END_USER, workflow.INST_UUID_  \n"
                             + "FROM arc_wf_workflow workflow\n"
                             + "inner join co_user usr on usr.ID = workflow.START_USER\n"
@@ -538,7 +540,11 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
                             + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
                             + "where  dmdoc.ID = %s ", parentDocId
-                    ));
+                    );
+                    if (!finishedWF) {
+                        query = query.replaceAll("arc_", "");
+                    }
+                    ResultSet rs = st.executeQuery(query);
                     while (rs.next()) {
                         LOG.debug("{} Document workflow is importing.", rs.getString("ID"));
                         if (externalDocWFRepository.findByDocumentWFId(rs.getString("ID")).isEmpty()) {
@@ -555,7 +561,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             externalDocWF.setRafFileId(parentRafFileId);
                             externalDocWF.setRafFilePath(parentRafFilePath);
                             externalDocWFRepository.saveAndFlush(externalDocWF);
-                            importDocumentFinishedWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId);
+                            importDocumentFinishedWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId, finishedWF);
                         }
                     }
                 } catch (SQLException ex) {
@@ -567,20 +573,24 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentFinishedWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId) {
+    private void importDocumentFinishedWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
         try {
             LOG.debug("{} Document workflow steps importing.", parentDocId);
             if (con != null) {
                 Statement st;
                 try {
                     st = con.createStatement();
-                    ResultSet rs = st.executeQuery(String.format("select body.POSTED_DATE, body.CREATED_DATE_, starter.FULLNAME STARTED_BY_, body.COMPLETED_DATE, body.COMPLETED_TIME, ender.FULLNAME ENDED_BY_, body.DETAIL_STATUS, body.DETAIL_COMMENT, acdef.NAME_ from arc_wf_detail_activity activity \n"
+                    String query = String.format("select body.POSTED_DATE, body.CREATED_DATE_, starter.FULLNAME STARTED_BY_, body.COMPLETED_DATE, body.COMPLETED_TIME, ender.FULLNAME ENDED_BY_, body.DETAIL_STATUS, body.DETAIL_COMMENT, acdef.NAME_ from arc_wf_detail_activity activity \n"
                             + "inner join arc_wf_detail_body body on body.DBID_ = activity.BODY_\n"
                             + "inner join wf_b_activity_def acdef on acdef.ACTIVITY_ID_ = activity.ACTIVITY_ID_ and acdef.PROCESS_UUID_ = activity.PROCESS_UUID_ \n"
                             + "inner join co_user starter on starter.ID = body.STARTED_BY_\n"
                             + "left join co_user ender on ender.ID = body.ENDED_BY_\n"
                             + "where activity.INST_UUID_ = '%s' order by body.CREATED_DATE_", instanceUID
-                    ));
+                    );
+                    if (!finishedWF) {
+                        query = query.replaceAll("arc_", "");
+                    }
+                    ResultSet rs = st.executeQuery(query);
                     while (rs.next()) {
                         LOG.debug("{} Document workflow step is importing.", rs.getString("NAME_"));
                         if (externalDocWFStepRepository.findByDocumentWFIdAndStepName(parentDocWFId, rs.getString("NAME_")).isEmpty()) {
@@ -618,14 +628,14 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         return result.substring(0, result.length() > 0 ? result.length() - 1 : 0);
     }
 
-    private void importFinishedWFDocuments() {
-        LOG.debug("Workflow documents is importing.");
+    private void importWFDocuments(boolean finishedWF) {
+        LOG.debug("Workflow documents is importing.", finishedWF);
         Connection con = getMysqlConnection();
         if (con != null) {
             Statement st;
             try {
                 st = con.createStatement();
-                ResultSet rs = st.executeQuery(String.format("SELECT distinct \n"
+                String query = String.format("SELECT distinct \n"
                         + "dmtype.NAME DOCUMENT_TYPE,\n"
                         + "dmdoc.ID,\n"
                         + "dmdoc.NAME,\n"
@@ -648,14 +658,20 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
                         + "inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
                         + "where  parentfolder.NAME in ( %s ) order by ID DESC", getFolderNamesForQuery()
-                ));
-                while (rs.next()) {
-                    importDocument(con, rs);
+                );
+                if (!finishedWF) {
+                    query = query.replaceAll("arc_", "");
+                }
+                ResultSet rs = st.executeQuery(query);
+                int i = 0;//test için 50 dokuman
+                while (rs.next() && i < 50) {
+                    importDocument(con, rs, finishedWF);
+                    i++;
                 }
                 importDocumentRelatedDocuments(con);
                 importDocumentAttachedDocuments(con);
                 con.close();
-                LOG.debug("Workflow documents import command is executed.");
+                LOG.debug("Workflow documents import command is executed.", finishedWF);
             } catch (SQLException ex) {
                 LOG.error("SQLException", ex);
             }

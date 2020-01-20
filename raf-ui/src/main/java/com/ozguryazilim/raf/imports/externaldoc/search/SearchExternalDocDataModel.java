@@ -19,14 +19,16 @@ public class SearchExternalDocDataModel extends LazyDataModel<ExternalDoc> {
 
     private ExternalDocRepository externalDocRepository;
     private String documentName;
+    private String documentStatus;
     private Date registerDateFrom;
     private Date registerDateTo;
     private String documentType;
     private Map<String, Object> mapAttributeValue;
 
-    public SearchExternalDocDataModel(ExternalDocRepository externalDocRepository, String documentName, Date registerDateFrom, Date registerDateTo, String documentType, Map<String, Object> mapAttributeValue) {
+    public SearchExternalDocDataModel(ExternalDocRepository externalDocRepository, String documentName, String documentStatus, Date registerDateFrom, Date registerDateTo, String documentType, Map<String, Object> mapAttributeValue) {
         this.externalDocRepository = externalDocRepository;
         this.documentName = documentName;
+        this.documentStatus = documentStatus;
         this.registerDateFrom = registerDateFrom;
         this.registerDateTo = registerDateTo;
         this.documentType = documentType;
@@ -51,8 +53,8 @@ public class SearchExternalDocDataModel extends LazyDataModel<ExternalDoc> {
 
     @Override
     public List<ExternalDoc> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
-        datasource = externalDocRepository.searchNative(documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue, first, pageSize);
-        this.setRowCount(externalDocRepository.countNative(documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue));
+        datasource = externalDocRepository.searchNative(documentStatus, documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue, first, pageSize);
+        this.setRowCount(externalDocRepository.countNative(documentStatus, documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue));
         return datasource;
     }
 

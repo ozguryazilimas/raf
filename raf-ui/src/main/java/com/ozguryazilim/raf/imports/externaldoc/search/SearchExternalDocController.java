@@ -36,6 +36,7 @@ public class SearchExternalDocController implements Serializable {
     private Date registerDateFrom;
     private Date registerDateTo;
     private String documentType;
+    private String documentStatus;
     private List<ExternalDocType> documentTypes;
     private List<ExternalDocTypeAttributeValue> attributes;
     private Map<String, Object> mapAttValue;
@@ -52,6 +53,10 @@ public class SearchExternalDocController implements Serializable {
 
     @Inject
     ExternalDocTypeAttributeValueRepository externalDocTypeAttributeValueRepository;
+
+    public String getDocumentStatus() {
+        return documentStatus;
+    }
 
     public Map<String, Object> getMapAttValue() {
         return mapAttValue;
@@ -95,6 +100,10 @@ public class SearchExternalDocController implements Serializable {
 
     public Date getRegisterDateFrom() {
         return registerDateFrom;
+    }
+
+    public void setDocumentStatus(String documentStatus) {
+        this.documentStatus = documentStatus;
     }
 
     public void setMapAttValue(Map<String, Object> mapAttValue) {
@@ -144,7 +153,7 @@ public class SearchExternalDocController implements Serializable {
     }
 
     public void search() {
-        searchExternalDocDataModel = new SearchExternalDocDataModel(externalDocRepository, documentName, registerDateFrom, registerDateTo, documentType, mapAttValue);
+        searchExternalDocDataModel = new SearchExternalDocDataModel(externalDocRepository, documentName, documentStatus, registerDateFrom, registerDateTo, documentType, mapAttValue);
     }
 
     public SearchExternalDocDataModel getSearchExternalDocDataModel() {

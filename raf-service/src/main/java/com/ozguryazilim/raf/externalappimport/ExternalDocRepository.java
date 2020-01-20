@@ -53,7 +53,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         return crt.getResultList();
     }
 
-    public int countNative(String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue) {
+    public int countNative(String documentStatus, String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue) {
         String childQuery = "";
         for (Map.Entry<String, Object> entry : mapAttributeValue.entrySet()) {
             if (entry.getValue() != null && !Strings.isNullOrEmpty(entry.getValue().toString())) {
@@ -72,7 +72,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         String mainQuery = "select count(distinct ed.*) from external_doc ed\n"
                 + "left join external_doc_type_attribute_value edv on edv.raf_file_id = ed.raf_file_id\n"
                 + "left join external_doc_type_attribute eda on eda.id = edv.attribute_id\n"
-                + "where ed.document_name like :documentName and ed.document_type like :documentType";
+                + "where ed.document_status like :documentStatus and ed.document_name like :documentName and ed.document_type like :documentType";
 
         if (!Strings.isNullOrEmpty(childQuery)) {
             mainQuery += " and ".concat(childQuery);
@@ -86,6 +86,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         }
 
         Query q = entityManager().createNativeQuery(mainQuery)
+                .setParameter("documentStatus", "%".concat(documentStatus).concat("%"))
                 .setParameter("documentName", "%".concat(documentName).concat("%"))
                 .setParameter("documentType", "%".concat(documentType).concat("%"));
 
@@ -99,7 +100,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         return ((Number) q.getSingleResult()).intValue();
     }
 
-    public List<ExternalDoc> searchNative(String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue, int page, int size) {
+    public List<ExternalDoc> searchNative(String documentStatus, String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue, int page, int size) {
         String childQuery = "";
         for (Map.Entry<String, Object> entry : mapAttributeValue.entrySet()) {
             if (entry.getValue() != null && !Strings.isNullOrEmpty(entry.getValue().toString())) {
@@ -118,7 +119,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         String mainQuery = "select distinct ed.* from external_doc ed\n"
                 + "left join external_doc_type_attribute_value edv on edv.raf_file_id = ed.raf_file_id\n"
                 + "left join external_doc_type_attribute eda on eda.id = edv.attribute_id\n"
-                + "where ed.document_name like :documentName and ed.document_type like :documentType";
+                + "where ed.document_status like :documentStatus and ed.document_name like :documentName and ed.document_type like :documentType";
 
         if (!Strings.isNullOrEmpty(childQuery)) {
             mainQuery += " and ".concat(childQuery);
@@ -132,6 +133,7 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         }
 
         Query q = entityManager().createNativeQuery(mainQuery.concat(String.format(" offset %d limit %d; ", page, size)), ExternalDoc.class)
+                .setParameter("documentStatus", "%".concat(documentStatus).concat("%"))
                 .setParameter("documentName", "%".concat(documentName).concat("%"))
                 .setParameter("documentType", "%".concat(documentType).concat("%"));
 

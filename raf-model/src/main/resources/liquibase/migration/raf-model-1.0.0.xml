@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"> 
 
     <changeSet author="cihan_cosgun" id="20200101400">
         <createTable tableName="EXTERNAL_DOC">
@@ -36,6 +36,9 @@
             <column name="RAF_FILE_ID" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
+            <column name="DOCUMENT_STATUS" type="VARCHAR(200)">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
         
         <createTable tableName="EXTERNAL_DOC_WF">
@@ -58,10 +61,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="COMPLETE_DATE" type="DATETIME">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="COMPLETER" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="RAF_FILE_PATH" type="VARCHAR(1000)">
                 <constraints nullable="false"/>

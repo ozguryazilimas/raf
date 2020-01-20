@@ -47,6 +47,13 @@
                             <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
                             <f:selectItems value="#{searchExternalDocController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
                         </p:selectOneMenu>
+
+                        <p:outputLabel value="Evrak Durumu"/>
+                        <p:selectOneMenu value="#{searchExternalDocController.documentStatus}" required="false">
+                            <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                            <f:selectItem itemLabel="Açık Dokumanlar" itemValue="AÇIK" />
+                            <f:selectItem itemLabel="Kapalı Dokumanlar" itemValue="KAPALI" />
+                        </p:selectOneMenu>
                     </p:panelGrid>
                 </div>               
 

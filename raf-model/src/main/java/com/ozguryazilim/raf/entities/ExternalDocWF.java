@@ -52,14 +52,11 @@ public class ExternalDocWF extends EntityBase implements Cloneable {
     @Size(min = 1, max = 200)
     private String state;
 
-    @Column(name = "COMPLETE_DATE", nullable = false)
-    @NotNull
+    @Column(name = "COMPLETE_DATE", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date completeDate;
 
-    @Column(name = "COMPLETER", length = 200, nullable = false)
-    @NotNull
-    @Size(min = 1, max = 200)
+    @Column(name = "COMPLETER", length = 200, nullable = true)
     private String completer;
 
     @Column(name = "RAF_FILE_PATH", length = 1000, nullable = false)
