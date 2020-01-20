@@ -649,10 +649,8 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
                         + "where  parentfolder.NAME in ( %s ) order by ID DESC", getFolderNamesForQuery()
                 ));
-                int i = 0;//test için 50 dokuman : deneme için en son dokumanlardan başla.
-                while (rs.next() && i < 50) {
+                while (rs.next()) {
                     importDocument(con, rs);
-                    i++;
                 }
                 importDocumentRelatedDocuments(con);
                 importDocumentAttachedDocuments(con);
