@@ -39,7 +39,7 @@ public class ExternalDocWF extends EntityBase implements Cloneable {
 
     @Column(name = "STARTED_DATE", nullable = false)
     @NotNull
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date startedDate;
 
     @Column(name = "STARTER", length = 200, nullable = false)
@@ -53,7 +53,7 @@ public class ExternalDocWF extends EntityBase implements Cloneable {
     private String state;
 
     @Column(name = "COMPLETE_DATE", nullable = true)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date completeDate;
 
     @Column(name = "COMPLETER", length = 200, nullable = true)

@@ -281,7 +281,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         importDocumentAttachements(con, docId, rs.getString("FOLDER"), rs.getString("PARENT_FOLDER"), rafDocument.getPath(), rafDocument.getId());
                         importDocumentAnnotations(con, docId, rafDocument.getPath(), rafDocument.getId());
                         importDocumentMetaDatas(con, docId, rafDocument.getPath(), rafDocument.getId());
-                        importDocumentFinishedWF(con, docId, rafDocument.getPath(), rafDocument.getId(), finishedWF);
+                        importDocumentWF(con, docId, rafDocument.getPath(), rafDocument.getId(), finishedWF);
                     } catch (FileNotFoundException ex) {
                         LOG.error("FileNotFoundException", ex);
                     } catch (RafException ex) {
@@ -518,7 +518,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentFinishedWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
+    private void importDocumentWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
         try {
             LOG.debug("{} Document workflow importing.", parentDocId);
             if (con != null) {
@@ -561,7 +561,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             externalDocWF.setRafFileId(parentRafFileId);
                             externalDocWF.setRafFilePath(parentRafFilePath);
                             externalDocWFRepository.saveAndFlush(externalDocWF);
-                            importDocumentFinishedWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId, finishedWF);
+                            importDocumentWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId, finishedWF);
                         }
                     }
                 } catch (SQLException ex) {
@@ -573,7 +573,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentFinishedWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
+    private void importDocumentWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
         try {
             LOG.debug("{} Document workflow steps importing.", parentDocId);
             if (con != null) {
@@ -657,14 +657,14 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
                         + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
                         + "inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
-                        + "where  parentfolder.NAME in ( %s ) order by ID DESC", getFolderNamesForQuery()
+                        + "where  parentfolder.NAME in ( %s ) ", getFolderNamesForQuery()
                 );
                 if (!finishedWF) {
                     query = query.replaceAll("arc_", "");
                 }
                 ResultSet rs = st.executeQuery(query);
-                int i = 0;//test için 50 dokuman
-                while (rs.next() && i < 50) {
+                int i = 0;//test için 10 dokuman
+                while (rs.next() && i < 10) {
                     importDocument(con, rs, finishedWF);
                     i++;
                 }

@@ -45,7 +45,7 @@ public class ExternalDoc extends EntityBase implements Cloneable {
 
     @Column(name = "DOCUMENT_CREATE_DATE", nullable = false)
     @NotNull
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date documentCreateDate;
 
     @Column(name = "DOCUMENT_CREATOR", length = 200, nullable = false)

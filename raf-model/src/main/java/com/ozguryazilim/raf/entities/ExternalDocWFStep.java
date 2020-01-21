@@ -43,7 +43,7 @@ public class ExternalDocWFStep extends EntityBase implements Cloneable {
     private String rafFileId;
 
     @Column(name = "STARTED_DATE", nullable = true)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date startedDate;
 
     @Column(name = "STARTER", length = 200, nullable = true)
@@ -55,7 +55,7 @@ public class ExternalDocWFStep extends EntityBase implements Cloneable {
     private String state;
 
     @Column(name = "COMPLETED_DATE", nullable = true)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date completedDate;
 
     @Column(name = "COMPLETER", length = 200, nullable = true)

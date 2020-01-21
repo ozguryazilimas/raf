@@ -53,23 +53,18 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         return crt.getResultList();
     }
 
-    public int countNative(String documentStatus, String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue) {
+    public String prepareQuery(String documentStatus,
+            String documentName, String documentType,
+            Date registerDateFrom, Date registerDateTo,
+            Map<String, Object> mapAttributeValue, boolean forCount) {
         String childQuery = "";
         for (Map.Entry<String, Object> entry : mapAttributeValue.entrySet()) {
             if (entry.getValue() != null && !Strings.isNullOrEmpty(entry.getValue().toString())) {
                 childQuery += "(eda.attribute_name = '" + entry.getKey().split("_")[1] + "' and edv.value like '%" + entry.getValue() + "%') or ";
             }
         }
-        if (documentName == null) {
-            documentName = "";
-        }
-        if (documentType == null) {
-            documentType = "";
-        }
-
         childQuery = Strings.isNullOrEmpty(childQuery) ? "" : childQuery.substring(0, childQuery.length() - 3);
-
-        String mainQuery = "select count(distinct ed.*) from external_doc ed\n"
+        String mainQuery = "select " + (forCount ? "count(distinct ed.*)" : "distinct ed.*") + " from external_doc ed\n"
                 + "left join external_doc_type_attribute_value edv on edv.raf_file_id = ed.raf_file_id\n"
                 + "left join external_doc_type_attribute eda on eda.id = edv.attribute_id\n"
                 + "where ed.document_status like :documentStatus and ed.document_name like :documentName and ed.document_type like :documentType";
@@ -83,6 +78,22 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         }
         if (registerDateTo != null) {
             mainQuery += " and ed.document_create_date <= :dateB ";
+        }
+
+        return mainQuery;
+    }
+
+    public int countNative(String documentStatus, String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue) {
+        String mainQuery = prepareQuery(documentStatus, documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue, true);
+
+        if (documentStatus == null) {
+            documentStatus = "";
+        }
+        if (documentName == null) {
+            documentName = "";
+        }
+        if (documentType == null) {
+            documentType = "";
         }
 
         Query q = entityManager().createNativeQuery(mainQuery)
@@ -101,11 +112,10 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
     }
 
     public List<ExternalDoc> searchNative(String documentStatus, String documentName, String documentType, Date registerDateFrom, Date registerDateTo, Map<String, Object> mapAttributeValue, int page, int size) {
-        String childQuery = "";
-        for (Map.Entry<String, Object> entry : mapAttributeValue.entrySet()) {
-            if (entry.getValue() != null && !Strings.isNullOrEmpty(entry.getValue().toString())) {
-                childQuery += "(eda.attribute_name = '" + entry.getKey().split("_")[1] + "' and edv.value like '%" + entry.getValue() + "%') or ";
-            }
+        String mainQuery = prepareQuery(documentStatus, documentName, documentType, registerDateFrom, registerDateTo, mapAttributeValue, false);
+
+        if (documentStatus == null) {
+            documentStatus = "";
         }
         if (documentName == null) {
             documentName = "";
@@ -113,25 +123,6 @@ public abstract class ExternalDocRepository extends RepositoryBase<ExternalDoc, 
         if (documentType == null) {
             documentType = "";
         }
-
-        childQuery = Strings.isNullOrEmpty(childQuery) ? "" : childQuery.substring(0, childQuery.length() - 3);
-
-        String mainQuery = "select distinct ed.* from external_doc ed\n"
-                + "left join external_doc_type_attribute_value edv on edv.raf_file_id = ed.raf_file_id\n"
-                + "left join external_doc_type_attribute eda on eda.id = edv.attribute_id\n"
-                + "where ed.document_status like :documentStatus and ed.document_name like :documentName and ed.document_type like :documentType";
-
-        if (!Strings.isNullOrEmpty(childQuery)) {
-            mainQuery += " and ".concat(childQuery);
-        }
-
-        if (registerDateFrom != null) {
-            mainQuery += " and ed.document_create_date >= :dateA ";
-        }
-        if (registerDateTo != null) {
-            mainQuery += " and ed.document_create_date <= :dateB ";
-        }
-
         Query q = entityManager().createNativeQuery(mainQuery.concat(String.format(" offset %d limit %d; ", page, size)), ExternalDoc.class)
                 .setParameter("documentStatus", "%".concat(documentStatus).concat("%"))
                 .setParameter("documentName", "%".concat(documentName).concat("%"))

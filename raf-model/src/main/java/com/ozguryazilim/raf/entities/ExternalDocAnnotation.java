@@ -43,7 +43,7 @@ public class ExternalDocAnnotation extends EntityBase implements Cloneable {
 
     @Column(name = "ANNOTATION_DATE", nullable = false)
     @NotNull
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date annotationDate;
 
     @Column(name = "ANNOTATION", length = 1000, nullable = false)

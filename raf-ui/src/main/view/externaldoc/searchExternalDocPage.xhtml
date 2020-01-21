@@ -48,11 +48,11 @@
                             <f:selectItems value="#{searchExternalDocController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
                         </p:selectOneMenu>
 
-                        <p:outputLabel value="Evrak Durumu"/>
+                        <p:outputLabel value="İş Durumu"/>
                         <p:selectOneMenu value="#{searchExternalDocController.documentStatus}" required="false">
                             <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
-                            <f:selectItem itemLabel="Açık Dokumanlar" itemValue="AÇIK" />
-                            <f:selectItem itemLabel="Kapalı Dokumanlar" itemValue="KAPALI" />
+                            <f:selectItem itemLabel="Açık İşler" itemValue="AÇIK" />
+                            <f:selectItem itemLabel="Kapalı İşler" itemValue="KAPALI" />
                         </p:selectOneMenu>
                     </p:panelGrid>
                 </div>               
@@ -93,11 +93,15 @@
                         <h:outputText value="#{rec.documentType}"/>
                     </p:column>
 
+                    <p:column headerText="İş Durumu">
+                        <h:outputText value="#{rec.documentStatus}"/>
+                    </p:column>
+
                     <p:column headerText="Doküman Adı">
                         <a href="#{searchExternalDocController.getFileLink(rec)}" target="_blank">
                             <h:outputText value="#{rec.documentName}"/>
                         </a>                    
-                    </p:column>
+                    </p:column>                   
 
                 </p:dataTable>
 
