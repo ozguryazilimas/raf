@@ -11,18 +11,12 @@
         FIXME: i18n
     </ui:remove>
 
-    <t:accordion label="#{externalDocAnnotationMetadataPanel.title}" columnClass="col-xs-12">
+    <t:accordion id="etdantmdp" label="#{externalDocAnnotationMetadataPanel.title}" columnClass="col-xs-12">
 
-        <ui:repeat value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotationDateTime'].split(';')}" var="annotationDate">
+        <ui:repeat value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotationDateTime'].split(';')}" var="annotationDate" varStatus="myVarStatus">
             <t:outputText label="externalDocAnnotation.annotationDate" value="#{annotationDate}" columnClass="col-xs-12"/>
-        </ui:repeat>
-
-        <ui:repeat value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotation'].split(';')}" var="annotation">
-            <t:outputText label="externalDocAnnotation.annotation" value="#{annotation}" columnClass="col-xs-12"/>
-        </ui:repeat>
-
-        <ui:repeat value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotationUser'].split(';')}" var="annotationUser">
-            <t:outputText label="externalDocAnnotation.annotationUser" value="#{annotationUser}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocAnnotation.annotationUser" value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotationUser'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocAnnotation.annotation" value="#{externalDocAnnotationMetadataPanel.metadata.attributes['externalDocAnnotation:annotation'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>            
         </ui:repeat>
 
     </t:accordion>

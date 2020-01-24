@@ -11,7 +11,7 @@
         FIXME: i18n
     </ui:remove>
 
-    <t:accordion id="invmd" label="#{externalDocMetaTagMetadataPanel.title}" columnClass="col-xs-12">
+    <t:accordion id="etdmtmdtp" label="#{externalDocMetaTagMetadataPanel.title}" columnClass="col-xs-12">
 
         <ui:repeat value="#{externalDocMetaTagMetadataPanel.metadata.attributes['externalDocMetaTag:externalDocTypeAttribute'].split(';')}" var="externalDocTypeAttribute" varStatus="myVarStatus">
             <t:outputText label="#{externalDocTypeAttribute}" value="#{externalDocMetaTagMetadataPanel.metadata.attributes['externalDocMetaTag:value'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>

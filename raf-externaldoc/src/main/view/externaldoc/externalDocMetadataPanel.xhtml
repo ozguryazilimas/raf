@@ -11,14 +11,15 @@
         FIXME: i18n
     </ui:remove>
 
-    <t:accordion id="invmd" label="#{externalDocMetadataPanel.title}" columnClass="col-xs-12">
+    <t:accordion id="etdmdp" label="#{externalDocMetadataPanel.title}" columnClass="col-xs-12">
 
-        <t:outputText label="externalDoc.documentCreateDate" value="#{externalDocMetadataPanel.formatDate(externalDocMetadataPanel.metadata.attributes['externalDoc:documentCreateDate'])}" columnClass="col-xs-12"/>
-        <t:outputText label="externalDoc.documentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFolder']}" columnClass="col-xs-12"/>
-        <t:outputText label="externalDoc.documentFormat" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFormat']}" columnClass="col-xs-12"/>
-        <t:outputText label="externalDoc.documentName" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentName']}" columnClass="col-xs-12"/>
-        <t:outputText label="externalDoc.documentParentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentParentFolder']}" columnClass="col-xs-12"/>
         <t:outputText label="externalDoc.documentType" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentType']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentCreateDate" value="#{externalDocMetadataPanel.formatDate(externalDocMetadataPanel.metadata.attributes['externalDoc:documentCreateDate'])}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentCreator" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentCreator']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentParentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentParentFolder']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFolder']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentName" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentName']}" columnClass="col-xs-12"/>        
+        <t:outputText label="externalDoc.documentFormat" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFormat']}" columnClass="col-xs-12"/>                
         <t:outputText label="externalDoc.documentStatus" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentStatus']}" columnClass="col-xs-12"/>
 
     </t:accordion>
