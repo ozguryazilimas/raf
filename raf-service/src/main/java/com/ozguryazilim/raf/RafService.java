@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
+import com.ozguryazilim.raf.models.ExternalDoc;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -283,6 +284,12 @@ public class RafService implements Serializable {
         rafRepository.saveMetadata(id, data);
     }
 
+    public void saveMetadatas(String id, List<RafMetadata> datas) throws RafException {
+        //FIXME: Yetki kontrolü + event
+        sendAuditLog(id, "SAVE_METADATAS", "");
+        rafRepository.saveMetadatas(id, datas);
+    }
+
     /**
      * RafObject üzerinde bulunan title, info v.b. alanları günceller.
      *
@@ -339,6 +346,15 @@ public class RafService implements Serializable {
         }
         sendAuditLog(to.getId(), "COPY_OBJECT_TO", to.getPath());
         rafRepository.copyObject(from, to);
+    }
+
+    public void moveObject(List<RafObject> from, RafRecord to) throws RafException {
+        //FIXME: yetki kontrolü
+        for (RafObject o : from) {
+            sendAuditLog(o.getId(), "MOVE_OBJECT_FROM", o.getPath());
+        }
+        sendAuditLog(to.getId(), "MOVE_OBJECT_TO", to.getPath());
+        rafRepository.moveObject(from, to);
     }
 
     public void moveObject(List<RafObject> from, RafFolder to) throws RafException {

@@ -6,25 +6,10 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
-import com.ozguryazilim.raf.entities.ExternalDoc;
-import com.ozguryazilim.raf.entities.ExternalDocAnnotation;
-import com.ozguryazilim.raf.entities.ExternalDocAttachement;
-import com.ozguryazilim.raf.entities.ExternalDocRelatedDoc;
-import com.ozguryazilim.raf.entities.ExternalDocType;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeValue;
-import com.ozguryazilim.raf.entities.ExternalDocWF;
-import com.ozguryazilim.raf.entities.ExternalDocWFStep;
-import com.ozguryazilim.raf.externalappimport.ExternalDocAnnotationRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocAttachementRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocRelatedDocRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocTypeAttributeRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocTypeAttributeValueRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocTypeRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocWFRepository;
-import com.ozguryazilim.raf.externalappimport.ExternalDocWFStepRepository;
 import com.ozguryazilim.raf.models.RafDocument;
+import com.ozguryazilim.raf.models.RafMetadata;
+import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -42,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -60,33 +46,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
 
     @Inject
     RafDefinitionService rafDefinitionService;
-
-    @Inject
-    ExternalDocTypeRepository externalDocTypeRepository;
-
-    @Inject
-    ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
-
-    @Inject
-    ExternalDocTypeAttributeValueRepository externalDocTypeAttributeValueRepository;
-
-    @Inject
-    ExternalDocRepository externalDocRepository;
-
-    @Inject
-    ExternalDocAttachementRepository externalDocAttachementRepository;
-
-    @Inject
-    ExternalDocRelatedDocRepository externalDocRelatedDocRepository;
-
-    @Inject
-    ExternalDocAnnotationRepository externalDocAnnotationRepository;
-
-    @Inject
-    ExternalDocWFRepository externalDocWFRepository;
-
-    @Inject
-    ExternalDocWFStepRepository externalDocWFStepRepository;
 
     DoxoftImporterCommand command;
 
@@ -128,8 +87,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             FacesMessages.error("RAF adları tanımlı değil.");
             return;
         }
-        importDocumentTypes();
-        importAttributes();
 
         importWFDocuments(true);//kapalı işler
         importWFDocuments(false);//açık işler
@@ -149,71 +106,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentTypes() {
-        LOG.debug("External document types is importing.");
-        Connection con = getMysqlConnection();
-        if (con != null) {
-            Statement st;
-            try {
-                st = con.createStatement();
-                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP   from dm_type tp\n"
-                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
-                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`\n"
-                        + "inner join dm_type_attribute_value val on val.TYPE_ATTRIBUTE = att.ID\n"
-                        + "left join co_list clist on clist.ID = catt.ATTRIBUTE_LISTE\n"
-                        + "order by tp.NAME asc");
-                while (rs.next()) {
-                    String documentType = rs.getString("TYP");
-                    LOG.debug("{} document type is importing.", documentType);
-                    if (externalDocTypeRepository.findByDocumentType(documentType).isEmpty()) {
-                        ExternalDocType externalDocType = new ExternalDocType();
-                        externalDocType.setDocumentType(documentType);
-                        externalDocTypeRepository.saveAndFlush(externalDocType);
-                    }
-                }
-                con.close();
-            } catch (SQLException ex) {
-                LOG.error("SQLException", ex);
-            }
-        }
-    }
-
-    private void importAttributes() {
-        LOG.debug("External attributes is importing.");
-        Connection con = getMysqlConnection();
-        if (con != null) {
-            Statement st;
-            try {
-                st = con.createStatement();
-                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP, catt.NAME ATT  from dm_type tp\n"
-                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
-                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`\n"
-                        + "inner join dm_type_attribute_value val on val.TYPE_ATTRIBUTE = att.ID\n"
-                        + "left join co_list clist on clist.ID = catt.ATTRIBUTE_LISTE\n"
-                        + "order by tp.NAME  asc , catt.NAME  asc");
-                while (rs.next()) {
-                    String documentType = rs.getString("TYP");
-                    String attributeName = rs.getString("ATT");
-                    LOG.debug("{} attribute is importing.", attributeName);
-                    List<ExternalDocType> docTypes = externalDocTypeRepository.findByDocumentType(documentType);
-                    ExternalDocType externalDocType = docTypes.isEmpty() ? null : docTypes.get(0);
-                    if (externalDocType != null) {
-                        List<ExternalDocTypeAttribute> existsAttributes = externalDocTypeAttributeRepository.findByDocumentTypeAndAttributeName(externalDocType, attributeName);
-                        if (existsAttributes.isEmpty()) {
-                            ExternalDocTypeAttribute externalDocTypeAttribute = new ExternalDocTypeAttribute();
-                            externalDocTypeAttribute.setDocumentType(externalDocType);
-                            externalDocTypeAttribute.setAttributeName(attributeName);
-                            externalDocTypeAttributeRepository.saveAndFlush(externalDocTypeAttribute);
-                        }
-                    }
-                }
-                con.close();
-            } catch (SQLException ex) {
-                LOG.error("SQLException", ex);
-            }
-        }
-    }
-
     private String getVaultPath(String vaultPath, String vaultLevel, String docId, String docFormat) {
         String[] splittedPathNames = command.getDoxoftFileServerDirectoryNames().split(",");
         String[] splittedPaths = command.getDoxoftFileServerDirectoryPaths().split(",");
@@ -226,7 +118,20 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private String getRafPath(String docName, String docFormat, String folder, String parentFolder) {
+    private String getRafPathFolder(String docName, String docFormat, String folder, String parentFolder) {
+        String[] splittedDoxoftFolderNames = command.getDoxoftFolderNames().split(",");
+        String[] splittedRafNames = command.getRafNames().split(",");
+        int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
+        if (pathIndex > -1 && pathIndex < splittedRafNames.length) {
+//            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
+            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder);
+        } else {
+            LOG.debug("{} Parent folder not found.", parentFolder);
+            return null;
+        }
+    }
+
+    private String getRafRecordPath(String docName, String docFormat, String folder, String parentFolder) {
         String[] splittedDoxoftFolderNames = command.getDoxoftFolderNames().split(",");
         String[] splittedRafNames = command.getRafNames().split(",");
         int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
@@ -234,7 +139,19 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
         } else {
             LOG.debug("{} Parent folder not found.", parentFolder);
-            return null;
+            return "";
+        }
+    }
+
+    private String getRafPath(String docName, String docFormat, String folder, String parentFolder) {
+        String[] splittedDoxoftFolderNames = command.getDoxoftFolderNames().split(",");
+        String[] splittedRafNames = command.getRafNames().split(",");
+        int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
+        if (pathIndex > -1 && pathIndex < splittedRafNames.length) {
+            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/EKLER/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
+        } else {
+            LOG.debug("{} Parent folder not found.", parentFolder);
+            return "";
         }
     }
 
@@ -246,59 +163,96 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
+    private boolean checkRafPath(String rafPath) {
+        try {
+            return rafService.getRafObjectByPath(rafPath) != null;
+        } catch (RafException e) {
+            return false;
+        }
+    }
+
     private void importDocument(Connection con, ResultSet rs, boolean finishedWF) {
         try {
             String docId = String.valueOf(rs.getLong("ID"));
-            if (externalDocRepository.findByDocumentId(docId).isEmpty()) {
-                LOG.debug("{} Document is importing.", rs.getString("NAME"));
-                String vaultPath = getVaultPath(rs.getString("VAULT_PATH"), rs.getString("VAULT_LEVEL"), docId, rs.getString("FORMAT"));
-                Path filePath = Paths.get(vaultPath);
-                if (Files.exists(filePath) && Files.isReadable(filePath)) {
-                    try {
-                        FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
-                        BufferedInputStream bis = new BufferedInputStream(fileInputStream);
-                        String rafPath = re.encode(getRafPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+            LOG.debug("{} Document is importing.", rs.getString("NAME"));
+            String vaultPath = getVaultPath(rs.getString("VAULT_PATH"), rs.getString("VAULT_LEVEL"), docId, rs.getString("FORMAT"));
+            Path filePath = Paths.get(vaultPath);
+            if (Files.exists(filePath) && Files.isReadable(filePath)) {
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
+                    BufferedInputStream bis = new BufferedInputStream(fileInputStream);
+                    String rafPathMain = re.encode(getRafPathFolder(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                    String rafPath = re.encode(getRafPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+
+                    if (checkRafPath(rafPath)) {
+                        LOG.debug("{} Document is exists.", rs.getString("NAME"));
+                    } else {
                         String folder = rafPath.substring(0, rafPath.lastIndexOf("/"));
                         if (!checkRafFolder(folder)) {
                             rafService.createFolder(folder);
                         }
                         RafDocument rafDocument = rafService.uploadDocument(rafPath, bis);
-                        ExternalDoc externalDoc = new ExternalDoc();
-                        externalDoc.setDocumentId(docId);
-                        externalDoc.setDocumentCreator(rs.getString("REGISTER_USER"));
-                        externalDoc.setDocumentCreateDate(rs.getDate("REGISTER_DATE"));
-                        externalDoc.setDocumentFolder(rs.getString("FOLDER"));
-                        externalDoc.setDocumentFormat(rs.getString("FORMAT"));
-                        externalDoc.setDocumentName(rs.getString("NAME"));
-                        externalDoc.setDocumentParentFolder(rs.getString("PARENT_FOLDER"));
-                        externalDoc.setDocumentType(rs.getString("DOCUMENT_TYPE"));
-                        externalDoc.setRafFilePath(rafDocument.getPath());
-                        externalDoc.setRafFileId(rafDocument.getId());
-                        externalDoc.setDocumentStatus(finishedWF ? "KAPALI" : "AÇIK");
-                        externalDocRepository.saveAndFlush(externalDoc);
+                        RafRecord record = new RafRecord();
+                        record.setName(rafDocument.getName());
+                        record.setTitle(rafDocument.getName());
+                        record.setInfo("İçeri aktarılan dokuman.");
+                        record.setPath(rafPathMain);
+                        record.setMainDocument(rafDocument.getName());
+                        record.setProcessIntanceId(0L);
+                        record.setRecordType("externalDoc");
+                        record.setDocumentType("externalDoc");
+                        record.setElectronicDocument(true);
+                        record.setCreateBy(rs.getString("REGISTER_USER"));
+                        record.setCreateDate(rs.getDate("REGISTER_DATE"));
+                        record = rafService.createRecord(record);
+
+                        rafService.copyObject(rafDocument, record);
+
+                        List<RafMetadata> metaDatas = new ArrayList();
+                        RafMetadata m = new RafMetadata();
+                        m.setType("externalDoc:metadata");
+                        m.getAttributes().put("externalDoc:documentId", docId);
+                        m.getAttributes().put("externalDoc:documentCreator", rs.getString("REGISTER_USER"));
+                        m.getAttributes().put("externalDoc:documentCreateDate", rs.getDate("REGISTER_DATE"));
+                        m.getAttributes().put("externalDoc:documentFolder", rs.getString("FOLDER"));
+                        m.getAttributes().put("externalDoc:documentFormat", rs.getString("FORMAT"));
+                        m.getAttributes().put("externalDoc:documentName", rs.getString("NAME"));
+                        m.getAttributes().put("externalDoc:documentParentFolder", rs.getString("PARENT_FOLDER"));
+                        m.getAttributes().put("externalDoc:documentType", rs.getString("DOCUMENT_TYPE"));
+                        m.getAttributes().put("externalDoc:documentStatus", finishedWF ? "KAPALI" : "AÇIK");
+                        metaDatas.add(m);
+
+                        metaDatas.addAll(importDocumentAnnotations(con, docId, rafDocument.getPath(), rafDocument.getId(), record));
+                        metaDatas.addAll(importDocumentMetaDatas(con, docId, rafDocument.getPath(), rafDocument.getId(), record));
+                        metaDatas.addAll(importDocumentWF(con, docId, rafDocument.getPath(), rafDocument.getId(), finishedWF, record));
+
+                        rafService.saveMetadatas(record.getId(), metaDatas);
+
                         bis.close();
                         fileInputStream.close();
-                        importDocumentAttachements(con, docId, rs.getString("FOLDER"), rs.getString("PARENT_FOLDER"), rafDocument.getPath(), rafDocument.getId());
-                        importDocumentAnnotations(con, docId, rafDocument.getPath(), rafDocument.getId());
-                        importDocumentMetaDatas(con, docId, rafDocument.getPath(), rafDocument.getId());
-                        importDocumentWF(con, docId, rafDocument.getPath(), rafDocument.getId(), finishedWF);
-                    } catch (FileNotFoundException ex) {
-                        LOG.error("FileNotFoundException", ex);
-                    } catch (RafException ex) {
-                        LOG.error("RafException", ex);
-                    } catch (IOException ex) {
-                        LOG.error("IOException", ex);
+
+                        importDocumentAttachements(con, docId,
+                                rs.getString("FOLDER"),
+                                rs.getString("PARENT_FOLDER"),
+                                rafDocument.getPath(), rafDocument.getId(),
+                                record);
                     }
+                } catch (FileNotFoundException ex) {
+                    LOG.error("FileNotFoundException", ex);
+                } catch (RafException ex) {
+                    LOG.error("RafException", ex);
+                } catch (IOException ex) {
+                    LOG.error("IOException", ex);
                 }
-            } else {
-                LOG.debug("{} Document is exists.", rs.getString("NAME"));
             }
         } catch (SQLException ex) {
             LOG.error("SQLException", ex);
         }
     }
 
-    private void importDocumentAttachements(Connection con, String parentDocId, String documentFolder, String documentParentFolder, String parentRafFilePath, String parentRafFileId) {
+    private void importDocumentAttachements(Connection con, String parentDocId,
+            String documentFolder, String documentParentFolder,
+            String parentRafFilePath, String parentRafFileId, RafRecord record) {
         try {
             LOG.debug("{} Document attachements importing.", parentDocId);
             if (con != null) {
@@ -323,16 +277,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                                     rafService.createFolder(folder);
                                 }
                                 RafDocument rafDocument = rafService.uploadDocument(rafPath, bis);
-                                ExternalDocAttachement externalDocAttachement = new ExternalDocAttachement();
-                                externalDocAttachement.setParentRafFileId(parentRafFileId);
-                                externalDocAttachement.setParentRafFilePath(parentRafFilePath);
-                                externalDocAttachement.setRafFileId(rafDocument.getId());
-                                externalDocAttachement.setRafFilePath(rafDocument.getPath());
-                                try {
-                                    externalDocAttachementRepository.saveAndFlush(externalDocAttachement);
-                                } catch (Exception ex) {
-                                }
-
+                                rafService.copyObject(rafDocument, record);
                                 fileInputStream.close();
                                 bis.close();
                             } catch (FileNotFoundException ex) {
@@ -353,7 +298,8 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importDocumentAnnotations(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId) {
+    private List<RafMetadata> importDocumentAnnotations(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, RafRecord record) {
+        List<RafMetadata> result = new ArrayList();
         try {
             LOG.debug("{} Document annotations importing.", parentDocId);
             if (con != null) {
@@ -365,20 +311,23 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             + " where a.DOCUMENT = %s \n"
                             + " order by a.ORDER_NO ", parentDocId
                     ));
+                    String annotationDate = "";
+                    String annotation = "";
+                    String annotationUser = "";
                     while (rs.next()) {
                         LOG.debug("{} Document anotation is importing.", rs.getString("ID"));
-                        ExternalDocAnnotation externalDocAnnotation = new ExternalDocAnnotation();
-                        externalDocAnnotation.setRafFilePath(parentRafFilePath);
-                        externalDocAnnotation.setRafFileId(parentRafFileId);
-                        externalDocAnnotation.setOrderNo(rs.getInt("ORDER_NO"));
-                        externalDocAnnotation.setAnnotationDate(rs.getDate("ANNOTATION_DATE"));
-                        externalDocAnnotation.setAnnotation(rs.getString("ANNOTATION"));
-                        externalDocAnnotation.setAnnotationUser(rs.getString("ANNOTATION_USER"));
-                        try {
-                            externalDocAnnotationRepository.saveAndFlush(externalDocAnnotation);
-                        } catch (Exception ex) {
-                        }
+                        annotationDate += sdf.format(rs.getDate("ANNOTATION_DATE")).concat(";");
+                        annotation += rs.getString("ANNOTATION").replaceAll(";", "").concat(";");
+                        annotationUser += rs.getString("ANNOTATION_USER").concat(";");
                     }
+
+                    RafMetadata m = new RafMetadata();
+                    m.setType("externalDocAnnotation:metadata");
+                    m.getAttributes().put("externalDocAnnotation:annotationDateTime", annotationDate);
+                    m.getAttributes().put("externalDocAnnotation:annotation", annotation);
+                    m.getAttributes().put("externalDocAnnotation:annotationUser", annotationUser);
+                    result.add(m);
+
                 } catch (SQLException ex) {
                     LOG.error("SQLException", ex);
                 }
@@ -386,9 +335,12 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         } catch (Exception ex) {
             LOG.error("SQLException", ex);
         }
+
+        return result;
     }
 
-    private void importDocumentMetaDatas(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId) {
+    private List<RafMetadata> importDocumentMetaDatas(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, RafRecord record) {
+        List<RafMetadata> result = new ArrayList();
         try {
             LOG.debug("{} Document metadatas importing.", parentDocId);
             if (con != null) {
@@ -403,37 +355,28 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             + "left join co_list_item clistitm on clistitm.ID = val.VALUE_NUMERIC and clistitm.LISTE = clist.ID\n"
                             + "where val.DOCUMENT = %s ", parentDocId
                     ));
+                    String attribute = "";
+                    String value = "";
                     while (rs.next()) {
                         LOG.debug("{} Document metadatas is importing.", rs.getString("ATT"));
-                        List<ExternalDocType> externalDocType = externalDocTypeRepository.findByDocumentType(rs.getString("TYP"));
-                        if (!externalDocType.isEmpty()) {
-                            List<ExternalDocTypeAttribute> externalDocTypeAttribute = externalDocTypeAttributeRepository.findByDocumentTypeAndAttributeName(externalDocType.get(0), rs.getString("ATT"));
-                            if (!externalDocTypeAttribute.isEmpty()) {
-                                if (externalDocTypeAttributeValueRepository.findByDocumentTypeAndExternalDocTypeAttributeAndRafFilePath(externalDocType.get(0), externalDocTypeAttribute.get(0), parentRafFilePath).isEmpty()) {
-                                    ExternalDocTypeAttributeValue externalDocTypeAttributeValue = new ExternalDocTypeAttributeValue();
-                                    externalDocTypeAttributeValue.setDocumentType(externalDocType.get(0));
-                                    externalDocTypeAttributeValue.setExternalDocTypeAttribute(externalDocTypeAttribute.get(0));
-                                    externalDocTypeAttributeValue.setRafFileId(parentRafFileId);
-                                    externalDocTypeAttributeValue.setRafFilePath(parentRafFilePath);
-                                    if (rs.getObject("LIST_VAL") != null) {
-                                        externalDocTypeAttributeValue.setValue(rs.getString("LIST_VAL"));
-                                    } else if (rs.getObject("VALUE_DATE") != null) {
-                                        externalDocTypeAttributeValue.setValue(sdf.format(rs.getDate("VALUE_DATE")));
-                                    } else if (rs.getObject("VALUE_NUMERIC") != null) {
-                                        externalDocTypeAttributeValue.setValue(String.valueOf(rs.getInt("VALUE_NUMERIC")));
-                                    } else if (rs.getObject("VALUE_CHAR") != null) {
-                                        externalDocTypeAttributeValue.setValue(rs.getString("VALUE_CHAR").trim());
-                                    }
-                                    if (externalDocTypeAttributeValue.getValue() != null) {
-                                        try {
-                                            externalDocTypeAttributeValueRepository.saveAndFlush(externalDocTypeAttributeValue);
-                                        } catch (Exception ex) {
-                                        }
-                                    }
-                                }
-                            }
+                        String strValue = "";
+                        if (rs.getObject("LIST_VAL") != null) {
+                            strValue = rs.getString("LIST_VAL");
+                        } else if (rs.getObject("VALUE_DATE") != null) {
+                            strValue = sdf.format(rs.getDate("VALUE_DATE"));
+                        } else if (rs.getObject("VALUE_NUMERIC") != null) {
+                            strValue = String.valueOf(rs.getInt("VALUE_NUMERIC"));
+                        } else if (rs.getObject("VALUE_CHAR") != null) {
+                            strValue = rs.getString("VALUE_CHAR").trim();
                         }
+                        attribute += rs.getString("ATT").replaceAll(";", "").concat(";");
+                        value += strValue.replaceAll(";", "").concat(";");
                     }
+                    RafMetadata m = new RafMetadata();
+                    m.setType("externalDocMetaTag:metadata");
+                    m.getAttributes().put("externalDocMetaTag:externalDocTypeAttribute", attribute);
+                    m.getAttributes().put("externalDocMetaTag:value", value);
+                    result.add(m);
                 } catch (SQLException ex) {
                     LOG.error("SQLException", ex);
                 }
@@ -441,84 +384,12 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         } catch (Exception ex) {
             LOG.error("SQLException", ex);
         }
+
+        return result;
     }
 
-    private void importDocumentRelatedDocuments(Connection con) {
-        try {
-            LOG.debug("{} Document related documents importing.");
-            if (con != null) {
-                Statement st;
-                try {
-                    st = con.createStatement();
-                    ResultSet rs = st.executeQuery("select rd.DOCUMENT, rd.RELATED_DOCUMENT from dm_related_document rd");
-                    while (rs.next()) {
-                        LOG.debug("{} Document is importing.", rs.getString("RELATED_DOCUMENT"));
-                        String docId = rs.getString("DOCUMENT");
-                        String relatedDocId = rs.getString("RELATED_DOCUMENT");
-                        List<ExternalDoc> externalDoc = externalDocRepository.findByDocumentId(docId);
-                        List<ExternalDoc> relatedExternalDoc = externalDocRepository.findByDocumentId(relatedDocId);
-                        if (!externalDoc.isEmpty() && !relatedExternalDoc.isEmpty()) {
-                            if (externalDocRelatedDocRepository.findByParentRafFilePathAndRafFilePath(externalDoc.get(0).getRafFilePath(), relatedExternalDoc.get(0).getRafFilePath()).isEmpty()) {
-                                ExternalDocRelatedDoc externalDocRelatedDoc = new ExternalDocRelatedDoc();
-                                externalDocRelatedDoc.setParentRafFileId(externalDoc.get(0).getRafFileId());
-                                externalDocRelatedDoc.setParentRafFilePath(externalDoc.get(0).getRafFilePath());
-                                externalDocRelatedDoc.setRafFileId(relatedExternalDoc.get(0).getRafFileId());
-                                externalDocRelatedDoc.setRafFilePath(relatedExternalDoc.get(0).getRafFilePath());
-                                try {
-                                    externalDocRelatedDocRepository.saveAndFlush(externalDocRelatedDoc);
-                                } catch (Exception ex) {
-                                }
-                            }
-                        }
-                    }
-                } catch (SQLException ex) {
-                    LOG.error("SQLException", ex);
-                }
-            }
-        } catch (Exception ex) {
-            LOG.error("SQLException", ex);
-        }
-    }
-
-    private void importDocumentAttachedDocuments(Connection con) {
-        try {
-            //doxoft'ta bazı ek dosyalar aslında ilişkili dosya biçimindedir.
-            LOG.debug("{} Document attached documents importing.");
-            if (con != null) {
-                Statement st;
-                try {
-                    st = con.createStatement();
-                    ResultSet rs = st.executeQuery("select PARENT, DOCUMENT from dm_attachment where DOCUMENT is not null");
-                    while (rs.next()) {
-                        LOG.debug("{} Document is importing.", rs.getString("DOCUMENT"));
-                        String docId = rs.getString("PARENT");
-                        String attachedDocId = rs.getString("DOCUMENT");
-                        List<ExternalDoc> externalDoc = externalDocRepository.findByDocumentId(docId);
-                        List<ExternalDoc> attachedExternalDoc = externalDocRepository.findByDocumentId(attachedDocId);
-                        if (!externalDoc.isEmpty() && !attachedExternalDoc.isEmpty()) {
-                            if (externalDocRelatedDocRepository.findByParentRafFilePathAndRafFilePath(externalDoc.get(0).getRafFilePath(), attachedExternalDoc.get(0).getRafFilePath()).isEmpty()) {
-                                ExternalDocRelatedDoc externalDocRelatedDoc = new ExternalDocRelatedDoc();
-                                externalDocRelatedDoc.setParentRafFileId(externalDoc.get(0).getRafFileId());
-                                externalDocRelatedDoc.setParentRafFilePath(externalDoc.get(0).getRafFilePath());
-                                externalDocRelatedDoc.setRafFileId(attachedExternalDoc.get(0).getRafFileId());
-                                externalDocRelatedDoc.setRafFilePath(attachedExternalDoc.get(0).getRafFilePath());
-                                try {
-                                    externalDocRelatedDocRepository.saveAndFlush(externalDocRelatedDoc);
-                                } catch (Exception ex) {
-                                }
-                            }
-                        }
-                    }
-                } catch (SQLException ex) {
-                    LOG.error("SQLException", ex);
-                }
-            }
-        } catch (Exception ex) {
-            LOG.error("SQLException", ex);
-        }
-    }
-
-    private void importDocumentWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
+    private List<RafMetadata> importDocumentWF(Connection con, String parentDocId, String parentRafFilePath, String parentRafFileId, boolean finishedWF, RafRecord record) {
+        List<RafMetadata> result = new ArrayList();
         try {
             LOG.debug("{} Document workflow importing.", parentDocId);
             if (con != null) {
@@ -547,22 +418,22 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                     ResultSet rs = st.executeQuery(query);
                     while (rs.next()) {
                         LOG.debug("{} Document workflow is importing.", rs.getString("ID"));
-                        if (externalDocWFRepository.findByDocumentWFId(rs.getString("ID")).isEmpty()) {
-                            ExternalDocWF externalDocWF = new ExternalDocWF();
-                            if (rs.getObject("COMPLATE_DATE") != null) {
-                                externalDocWF.setCompleteDate(rs.getDate("COMPLATE_DATE"));
-                                externalDocWF.setCompleter(rs.getString("END_USER"));
-                            }
-                            externalDocWF.setDocumentId(parentDocId);
-                            externalDocWF.setDocumentWFId(rs.getString("ID"));
-                            externalDocWF.setStartedDate(rs.getDate("STARTED_DATE"));
-                            externalDocWF.setStarter(rs.getString("STARTER"));
-                            externalDocWF.setState(rs.getString("INSTANCE_STATE"));
-                            externalDocWF.setRafFileId(parentRafFileId);
-                            externalDocWF.setRafFilePath(parentRafFilePath);
-                            externalDocWFRepository.saveAndFlush(externalDocWF);
-                            importDocumentWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId, finishedWF);
+
+                        RafMetadata m = new RafMetadata();
+                        m.setType("externalDocWF:metadata");
+                        m.getAttributes().put("externalDocWF:documentId", parentDocId);
+                        m.getAttributes().put("externalDocWF:documentWFId", rs.getString("ID"));
+                        m.getAttributes().put("externalDocWF:startedDate", rs.getDate("STARTED_DATE"));
+                        m.getAttributes().put("externalDocWF:starter", rs.getString("STARTER"));
+                        m.getAttributes().put("externalDocWF:state", rs.getString("INSTANCE_STATE"));
+
+                        if (rs.getObject("COMPLATE_DATE") != null) {
+                            m.getAttributes().put("externalDocWF:completeDate", rs.getDate("COMPLATE_DATE"));
+                            m.getAttributes().put("externalDocWF:completer", rs.getString("END_USER"));
                         }
+
+                        result.add(m);
+                        result.addAll(importDocumentWFSteps(con, parentDocId, rs.getString("ID"), rs.getString("INST_UUID_"), parentRafFilePath, parentRafFileId, finishedWF, record));
                     }
                 } catch (SQLException ex) {
                     LOG.error("SQLException", ex);
@@ -571,9 +442,12 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         } catch (Exception ex) {
             LOG.error("SQLException", ex);
         }
+
+        return result;
     }
 
-    private void importDocumentWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId, boolean finishedWF) {
+    private List<RafMetadata> importDocumentWFSteps(Connection con, String parentDocId, String parentDocWFId, String instanceUID, String parentRafFilePath, String parentRafFileId, boolean finishedWF, RafRecord record) {
+        List<RafMetadata> result = new ArrayList();
         try {
             LOG.debug("{} Document workflow steps importing.", parentDocId);
             if (con != null) {
@@ -591,25 +465,40 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         query = query.replaceAll("arc_", "");
                     }
                     ResultSet rs = st.executeQuery(query);
+                    String startedDate = "";
+                    String starter = "";
+                    String state = "";
+                    String completeDate = "";
+                    String completer = "";
+                    String stepName = "";
+                    String comment = "";
                     while (rs.next()) {
                         LOG.debug("{} Document workflow step is importing.", rs.getString("NAME_"));
-                        if (externalDocWFStepRepository.findByDocumentWFIdAndStepName(parentDocWFId, rs.getString("NAME_")).isEmpty()) {
-                            ExternalDocWFStep externalDocWFStep = new ExternalDocWFStep();
-                            externalDocWFStep.setComment(rs.getString("DETAIL_COMMENT"));
-                            if (rs.getObject("COMPLETED_TIME") != null) {
-                                externalDocWFStep.setCompletedDate(new Date(rs.getLong("COMPLETED_TIME")));
-                                externalDocWFStep.setCompleter(rs.getString("ENDED_BY_"));
-                            }
-                            externalDocWFStep.setDocumentWFId(parentDocWFId);
-                            externalDocWFStep.setRafFileId(parentRafFileId);
-                            externalDocWFStep.setRafFilePath(parentRafFilePath);
-                            externalDocWFStep.setStartedDate(rs.getDate("CREATED_DATE_"));
-                            externalDocWFStep.setStarter(rs.getString("STARTED_BY_"));
-                            externalDocWFStep.setState(rs.getString("DETAIL_STATUS"));
-                            externalDocWFStep.setStepName(rs.getString("NAME_"));
-                            externalDocWFStepRepository.saveAndFlush(externalDocWFStep);
+                        startedDate += sdf.format(rs.getDate("CREATED_DATE_")).concat(";");
+                        starter += rs.getString("STARTED_BY_").concat(";");
+                        state += rs.getString("DETAIL_STATUS").concat(";");
+                        if (rs.getObject("COMPLETED_TIME") != null) {
+                            completeDate += sdf.format(new Date(rs.getLong("COMPLETED_TIME"))).concat(";");
+                            completer += rs.getString("ENDED_BY_").concat(";");
+                        } else {
+                            completeDate += "-;";
+                            completer += "-;";
                         }
+                        stepName += rs.getString("NAME_").concat(";");
+                        comment += rs.getString("DETAIL_COMMENT") != null ? rs.getString("DETAIL_COMMENT").replaceAll(";", "").concat(";") : "-;";
                     }
+                    RafMetadata m = new RafMetadata();
+                    m.setType("externalDocWFStep:metadata");
+                    m.getAttributes().put("externalDocWFStep:documentWFId", parentDocWFId);
+                    m.getAttributes().put("externalDocWFStep:startedDateTime", startedDate);
+                    m.getAttributes().put("externalDocWFStep:starter", starter);
+                    m.getAttributes().put("externalDocWFStep:state", state);
+                    m.getAttributes().put("externalDocWFStep:completeDateTime", completeDate);
+                    m.getAttributes().put("externalDocWFStep:completer", completer);
+                    m.getAttributes().put("externalDocWFStep:stepName", stepName);
+                    m.getAttributes().put("externalDocWFStep:comment", comment);
+
+                    result.add(m);
                 } catch (SQLException ex) {
                     LOG.error("SQLException", ex);
                 }
@@ -617,6 +506,8 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         } catch (Exception ex) {
             LOG.error("SQLException", ex);
         }
+
+        return result;
     }
 
     private String getFolderNamesForQuery() {
@@ -663,18 +554,112 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                     query = query.replaceAll("arc_", "");
                 }
                 ResultSet rs = st.executeQuery(query);
-                int i = 0;//test için 10 dokuman
-                while (rs.next() && i < 10) {
+                int i = 0;//test için 100 dokuman
+                while (rs.next() && i < 100) {
                     importDocument(con, rs, finishedWF);
                     i++;
                 }
-                importDocumentRelatedDocuments(con);
-                importDocumentAttachedDocuments(con);
+                importDocumentRelatedDocuments(con, getFolderNamesForQuery());
+                importDocumentAttachedDocuments(con, getFolderNamesForQuery());
                 con.close();
                 LOG.debug("Workflow documents import command is executed.", finishedWF);
             } catch (SQLException ex) {
                 LOG.error("SQLException", ex);
             }
+        }
+    }
+
+    private void importDocumentRelatedDocuments(Connection con, String parentFolders) {
+        try {
+            LOG.debug("{} Document related documents importing.");
+            if (con != null) {
+                Statement st;
+                try {
+                    st = con.createStatement();
+                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, parentfolder.NAME PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, parentfolderr.NAME PARENT_FOLDER_R, folderr.NAME FOLDER_R from dm_related_document rd\n"
+                            + "inner join dm_document d on d.ID = rd.DOCUMENT\n"
+                            + "inner join dm_document_folder docfold on docfold.DOCUMENT = d.ID\n"
+                            + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
+                            + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
+                            + "inner join dm_document dr on dr.ID = rd.RELATED_DOCUMENT\n"
+                            + "inner join dm_document_folder docfoldr on docfoldr.DOCUMENT = dr.ID\n"
+                            + "inner join dm_folder folderr on folderr.ID = docfoldr.FOLDER\n"
+                            + "left join dm_folder parentfolderr on parentfolderr.Id = folderr.PARENT_FOLDER"
+                            + " where parentfolder.NAME in (" + parentFolders + ") ");
+                    while (rs.next()) {
+                        LOG.debug("{} Document is importing.", rs.getString("NAME"));
+                        String parentRecordPath = re.encode(getRafRecordPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                        String relatedDocPath = re.encode(getRafPath(rs.getString("NAME_R"), rs.getString("FORMAT_R"), rs.getString("FOLDER_R"), rs.getString("PARENT_FOLDER_R")));
+
+                        if (checkRafPath(parentRecordPath) && checkRafPath(relatedDocPath)) {
+                            RafRecord parentRecord = (RafRecord) rafService.getRafObjectByPath(parentRecordPath);
+                            RafObject relatedDoc = rafService.getRafObjectByPath(relatedDocPath);
+
+                            if (parentRecord != null && relatedDoc != null && !childIsExists(parentRecord, relatedDoc)) {
+                                rafService.copyObject(relatedDoc, parentRecord);
+                            }
+                        }
+
+                    }
+                } catch (SQLException ex) {
+                    LOG.error("SQLException", ex);
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("SQLException", ex);
+        }
+    }
+
+    private boolean childIsExists(RafRecord record, RafObject rafObject) {
+        boolean result = false;
+        for (RafDocument document : record.getDocuments()) {
+            result = document.getName().equals(rafObject.getName());
+            if (result) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    private void importDocumentAttachedDocuments(Connection con, String parentFolders) {
+        try {
+            //doxoft'ta bazı ek dosyalar aslında ilişkili dosya biçimindedir.
+            LOG.debug("{} Document attached documents importing.");
+            if (con != null) {
+                Statement st;
+                try {
+                    st = con.createStatement();
+                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, parentfolder.NAME PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, parentfolderr.NAME PARENT_FOLDER_R, folderr.NAME FOLDER_R \n"
+                            + "from dm_attachment rd\n"
+                            + "inner join dm_document d on d.ID = rd.PARENT\n"
+                            + "inner join dm_document_folder docfold on docfold.DOCUMENT = d.ID\n"
+                            + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
+                            + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
+                            + "inner join dm_document dr on dr.ID = rd.DOCUMENT\n"
+                            + "inner join dm_document_folder docfoldr on docfoldr.DOCUMENT = dr.ID\n"
+                            + "inner join dm_folder folderr on folderr.ID = docfoldr.FOLDER\n"
+                            + "left join dm_folder parentfolderr on parentfolderr.Id = folderr.PARENT_FOLDER"
+                            + " where parentfolder.NAME in (" + parentFolders + ") ");
+                    while (rs.next()) {
+                        LOG.debug("{} Document is importing.", rs.getString("NAME"));
+                        String parentRecordPath = re.encode(getRafRecordPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                        String relatedDocPath = re.encode(getRafPath(rs.getString("NAME_R"), rs.getString("FORMAT_R"), rs.getString("FOLDER_R"), rs.getString("PARENT_FOLDER_R")));
+
+                        if (checkRafPath(parentRecordPath) && checkRafPath(relatedDocPath)) {
+                            RafRecord parentRecord = (RafRecord) rafService.getRafObjectByPath(parentRecordPath);
+                            RafObject relatedDoc = rafService.getRafObjectByPath(relatedDocPath);
+
+                            if (parentRecord != null && relatedDoc != null && !childIsExists(parentRecord, relatedDoc)) {
+                                rafService.copyObject(relatedDoc, parentRecord);
+                            }
+                        }
+                    }
+                } catch (SQLException ex) {
+                    LOG.error("SQLException", ex);
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("SQLException", ex);
         }
     }
 

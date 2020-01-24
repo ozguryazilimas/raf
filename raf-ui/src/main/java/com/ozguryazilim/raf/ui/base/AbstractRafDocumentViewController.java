@@ -5,13 +5,12 @@ import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
-import com.ozguryazilim.raf.action.RafExternalDocViewAction;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
-import com.ozguryazilim.raf.externalappimport.ExternalDocRepository;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
@@ -49,9 +48,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private FileUploadAction fileUploadAction;
 
     @Inject
-    private RafExternalDocViewAction rafExternalDocViewAction;
-
-    @Inject
     private RafService rafService;
 
     @Inject
@@ -71,9 +67,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     @Inject
     private RafContext rafContext;
-
-    @Inject
-    private ExternalDocRepository externalDocRepository;
 
     private List<RafVersion> versions = null;
 
@@ -100,7 +93,8 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     public Boolean getExternalDocument() {
         Boolean rval = false;
         if (rafContext != null && rafContext.getSelectedObject() != null) {
-            return !externalDocRepository.findByRafFilePath(rafContext.getSelectedObject().getPath()).isEmpty();
+//            return !externalDocRepository.findByRafFilePath(rafContext.getSelectedObject().getPath()).isEmpty();
+            return false;//FIXME : Cihan : Node path içerisinde gerekli kontrolleri yap.
         }
         return rval;
     }
@@ -207,7 +201,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     }
 
     public void externalDocInfoAction() {
-        rafExternalDocViewAction.execute();
+
     }
 
     public void checkInListener(@Observes RafCheckInEvent event) {
@@ -289,4 +283,42 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         return versionManagementEnabled;
     }
 
+    public void downloadFile() {
+
+        RafObject doc = getObject();
+        if (doc instanceof RafRecord) {
+            RafRecord record = (RafRecord) doc;
+            doc = record.getDocuments().isEmpty() ? doc : record.getDocuments().get(0);
+        }
+
+        commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                .eventType("DownloadDocument")
+                .forRafObject(doc)
+                .message("event.DownloadDocument$%&" + identity.getUserName() + "$%&" + doc.getTitle())
+                .user(identity.getLoginName())
+                .build());
+
+        //FIXME: Yetki kontrolü ve event fırlatılacak
+        try {
+            InputStream is = rafService.getDocumentContent(doc.getId());
+
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            response.setContentType(doc.getMimeType());
+
+            response.setHeader("Content-disposition", "attachment;filename=" + doc.getName());
+            //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
+            //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
+
+            try (OutputStream out = response.getOutputStream()) {
+                IOUtils.copy(is, out);
+                out.flush();
+            }
+
+            facesContext.responseComplete();
+        } catch (RafException | IOException ex) {
+            //FIXME: i18n
+            LOG.error("File cannot downloded", ex);
+            FacesMessages.error("File cannot downloaded");
+        }
+    }
 }

@@ -1163,9 +1163,25 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             saveMetadata(id, metadata, session);
-
-            session.logout();
             session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0023] Raf Metadata cannot saved", ex);
+        }
+    }
+
+    public void saveMetadatas(String id, List<RafMetadata> metadatas) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            for (RafMetadata metadata : metadatas) {
+                try {
+                    saveMetadata(id, metadata, session);
+                } catch (RafException ex) {
+                    LOG.error("RafException", ex);
+                }
+            }
+            session.save();
+            session.logout();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0023] Raf Metadata cannot saved", ex);
         }
@@ -1410,6 +1426,23 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+
+            session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0026] Raf Node cannot copied", ex);
+        }
+    }
+
+    public void moveObject(List<RafObject> from, RafRecord to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            for (RafObject o : from) {
+                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+            }
 
             session.save();
             session.logout();

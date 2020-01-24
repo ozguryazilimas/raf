@@ -14,12 +14,12 @@
     <t:accordion id="xdocs" icon="fa fa-files-o" label="general.label.Documents">
         <f:facet name="toolbar">
             <p:commandLink action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', '' )}" 
-                                     partialSubmit="true" process="@this" rendered="#{controller.getCanAdd()}">
+                           partialSubmit="true" process="@this" rendered="#{controller.getCanAdd()}">
                 <i class="fa fa-plus-circle" />  
                 <p:ajax event="dialogReturn"  listener="#{controller.onAddDocumentSelect}" update="xdocs" partialSubmit="true" process="@this" />   
-                
+
             </p:commandLink>
-            
+
             <p:commandLink action="#{controller.upload()}" process="@this" rendered="#{controller.getCanUpload()}">
                 <i class="fa fa-upload" />
                 <p:ajax event="dialogReturn" listener="#{controller.onUploadComplete()}" update="xdocs" partialSubmit="true" process="@this" />   
@@ -58,9 +58,11 @@
                                 </svg>
                             </td>
                             <td>
+
                                 <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
                                     #{doc.title}
                                 </p:commandLink>
+
                             </td>
                             <td>#{doc.info}</td>
                             <td>#{doc.category}</td>

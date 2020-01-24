@@ -18,15 +18,16 @@ import org.slf4j.LoggerFactory;
  * @author oyas
  */
 @MetadataPanel(type = "nt:file", view = RecordPages.RecordMetadataPanel.class, order = 0)
-public class RecordMetadataPanel extends AbstractMetadataPanel{
+public class RecordMetadataPanel extends AbstractMetadataPanel {
+
     private static final Logger LOG = LoggerFactory.getLogger(RecordMetadataPanel.class);
-    
+
     @Inject
     private RecordTypeManager recordTypeManager;
-    
+
     @Inject
     private RuntimeDataService runtimeDataService;
-    
+
     private RafRecord object;
     private String recordType;
     private String documentType;
@@ -38,17 +39,19 @@ public class RecordMetadataPanel extends AbstractMetadataPanel{
 
     public void setObject(RafRecord object) {
         this.object = object;
-        
+
         RafRecordType type = recordTypeManager.getRecordType(object.getRecordType());
-        recordType = type.getTitle();
-        for( RafRecordDocumentType dt : type.getDocumentTypes() ){
-            if( dt.getName().equals(object.getDocumentType())){
-                documentType = dt.getTitle();
-                break;
+        if (type != null) {
+            recordType = type.getTitle();
+            for (RafRecordDocumentType dt : type.getDocumentTypes()) {
+                if (dt.getName().equals(object.getDocumentType())) {
+                    documentType = dt.getTitle();
+                    break;
+                }
             }
+
+            processInstanceDesc = runtimeDataService.getProcessInstanceById(getObject().getProcessIntanceId());
         }
-        
-        processInstanceDesc = runtimeDataService.getProcessInstanceById(getObject().getProcessIntanceId());
     }
 
     public String getRecordType() {
@@ -62,5 +65,5 @@ public class RecordMetadataPanel extends AbstractMetadataPanel{
     public ProcessInstanceDesc getProcessInstanceDesc() {
         return processInstanceDesc;
     }
-    
+
 }

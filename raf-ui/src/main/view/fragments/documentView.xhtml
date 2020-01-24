@@ -94,13 +94,16 @@
 
                     </div>
                 </div>
-            </ui:fragment>
-            <ui:fragment rendered="#{viewBean.externalDocument}">
-                <p:commandLink action="#{viewBean.externalDocInfoAction()}" process="@this" styleClass="btn" title="Harici Dosya Bilgileri" update="raf-view-content">
-                    <i class="fa fa-external-link" /> Harici Dosya Bilgileri
-                    <p:ajax event="dialogReturn" update="raf-view-content" />
-                </p:commandLink>
             </ui:fragment>     
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <p:commandLink action="#{viewBean.downloadFile()}" process="@this" styleClass="btn" title="#{messages['action.title.Download']}" ajax="false">
+                        <i class="fa fa-download" /> #{messages['action.title.Download']}
+                    </p:commandLink>
+                </div>
+            </div>            
+
             <div class="row">
 
                 <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
@@ -112,61 +115,61 @@
             </div>
 
             <ui:fragment rendered="#{viewBean.rafCheckStatus}">
-                <h:form id="checkoutform">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
-                            Kilitleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>                                
-                            <p:commandLink rendered="#{viewBean.canRafCheckIn}" action="#{viewBean.unlockFile()}" process="@this" styleClass="btn" update="raf-view-content">
-                                <i class="fa fa-unlock" />
-                                Dosya Kilidini Aç
-                            </p:commandLink>
-                        </div>
-                    </div>                    
-                </h:form>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
+                        Kilitleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>                                
+                        <p:commandLink rendered="#{viewBean.canRafCheckIn}" action="#{viewBean.unlockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                            <i class="fa fa-unlock" />
+                            Dosya Kilidini Aç
+                        </p:commandLink>
+                    </div>
+                </div>                    
+
             </ui:fragment>
 
             <ui:fragment rendered="#{not viewBean.rafCheckStatus}">
-                <h:form id="checkinform">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
-                                <i class="fa fa-lock" />
-                                Dosyayı Kilitle
-                            </p:commandLink>
-                        </div>
-                    </div>                    
-                </h:form>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                            <i class="fa fa-lock" />
+                            Dosyayı Kilitle
+                        </p:commandLink>
+                    </div>
+                </div>                    
+
             </ui:fragment>
 
             <ui:fragment rendered="#{not viewBean.rafCheckStatus and not empty viewBean.versionHistory}">
-                <h:form id="hist">
-                    <div class="row">
-                        <t:accordion label="raf.label.Versions" columnClass="col-xs-12" contentClass="">
-                            <ul class="nav nav-pills nav-stacked">
-                                <p:repeat value="#{viewBean.versionHistory}" var="vh" >
-                                    <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
-                                        <li>
-                                            <p:commandLink action="#{viewBean.downloadHistoryContent(vh.name)}" ajax="false">
-                                                <i class="fa fa-history" />
-                                                <span class="text-bold">
-                                                    #{vh.name}
-                                                </span> 
-                                                <span>
-                                                    <t:cellOutputDateTime value="#{vh.created}" /> 
-                                                    #{userLookup.getUserName(vh.createdBy)} 
-                                                </span>
-                                                <span class="text-muted">
-                                                    #{vh.comment}
-                                                </span>
-                                            </p:commandLink>
-                                        </li>
-                                    </ui:fragment>
-                                </p:repeat>
-                            </ul>
-                        </t:accordion>
-                    </div>
-                </h:form>
+
+                <div class="row">
+                    <t:accordion label="raf.label.Versions" columnClass="col-xs-12" contentClass="">
+                        <ul class="nav nav-pills nav-stacked">
+                            <p:repeat value="#{viewBean.versionHistory}" var="vh" >
+                                <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
+                                    <li>
+                                        <p:commandLink action="#{viewBean.downloadHistoryContent(vh.name)}" ajax="false">
+                                            <i class="fa fa-history" />
+                                            <span class="text-bold">
+                                                #{vh.name}
+                                            </span> 
+                                            <span>
+                                                <t:cellOutputDateTime value="#{vh.created}" /> 
+                                                #{userLookup.getUserName(vh.createdBy)} 
+                                            </span>
+                                            <span class="text-muted">
+                                                #{vh.comment}
+                                            </span>
+                                        </p:commandLink>
+                                    </li>
+                                </ui:fragment>
+                            </p:repeat>
+                        </ul>
+                    </t:accordion>
+                </div>
+
             </ui:fragment>
         </div>
 
