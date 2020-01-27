@@ -554,10 +554,13 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                     query = query.replaceAll("arc_", "");
                 }
                 ResultSet rs = st.executeQuery(query);
-                int i = 0;//test için 100 dokuman
-                while (rs.next() && i < 100) {
+//                int i = 0;//test için 100 dokuman
+//                while (rs.next() && i < 100) {
+//                    importDocument(con, rs, finishedWF);
+//                    i++;
+//                }
+                while (rs.next()) {
                     importDocument(con, rs, finishedWF);
-                    i++;
                 }
                 importDocumentRelatedDocuments(con, getFolderNamesForQuery());
                 importDocumentAttachedDocuments(con, getFolderNamesForQuery());
