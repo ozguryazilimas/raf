@@ -1419,6 +1419,21 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public void moveObject(RafObject from, RafRecord to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+
+            session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0026] Raf Node cannot copied", ex);
+        }
+    }
+
     public void moveObject(RafObject from, RafFolder to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();

@@ -347,6 +347,13 @@ public class RafService implements Serializable {
         rafRepository.copyObject(from, to);
     }
 
+    public void moveObject(RafObject from, RafRecord to) throws RafException {
+        //FIXME: yetki kontrolü
+        sendAuditLog(from.getId(), "MOVE_OBJECT_FROM", from.getPath());
+        sendAuditLog(to.getId(), "MOVE_OBJECT_TO", to.getPath());
+        rafRepository.moveObject(from, to);
+    }
+
     public void moveObject(List<RafObject> from, RafRecord to) throws RafException {
         //FIXME: yetki kontrolü
         for (RafObject o : from) {

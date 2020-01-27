@@ -277,7 +277,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                                     rafService.createFolder(folder);
                                 }
                                 RafDocument rafDocument = rafService.uploadDocument(rafPath, bis);
-                                rafService.copyObject(rafDocument, record);
+                                rafService.moveObject(rafDocument, record);
                                 fileInputStream.close();
                                 bis.close();
                             } catch (FileNotFoundException ex) {

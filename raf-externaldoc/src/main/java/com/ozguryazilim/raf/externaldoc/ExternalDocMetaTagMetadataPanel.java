@@ -8,7 +8,6 @@ import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import java.util.Date;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
