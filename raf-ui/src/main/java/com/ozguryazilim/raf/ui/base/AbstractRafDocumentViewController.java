@@ -90,15 +90,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         return false;
     }
 
-    public Boolean getExternalDocument() {
-        Boolean rval = false;
-        if (rafContext != null && rafContext.getSelectedObject() != null) {
-//            return !externalDocRepository.findByRafFilePath(rafContext.getSelectedObject().getPath()).isEmpty();
-            return false;//FIXME : Cihan : Node path içerisinde gerekli kontrolleri yap.
-        }
-        return rval;
-    }
-
     @PostConstruct
     public void init() {
         versionManagementEnabled = "true".equals(ConfigResolver.getPropertyValue("raf.version.enabled", "false"));
@@ -198,10 +189,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     public void checkin() {
         fileUploadAction.execute("CHECKIN", getObject().getPath());
-    }
-
-    public void externalDocInfoAction() {
-
     }
 
     public void checkInListener(@Observes RafCheckInEvent event) {

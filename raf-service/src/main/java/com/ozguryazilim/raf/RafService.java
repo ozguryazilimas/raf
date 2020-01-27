@@ -5,7 +5,6 @@ import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
-import com.ozguryazilim.raf.models.ExternalDoc;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
