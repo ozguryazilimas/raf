@@ -242,7 +242,13 @@
 
                     <ul class="nav navbar-nav">
 
-
+                        <ui:remove>
+                            <li class="hidden-xs">
+                                <a href="/dolap/search/searchPage.jsf" title="#{messages['general.label.DetailSearch']}">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </li>
+                        </ui:remove>
                         <ui:include src="/fragments/notiftyPopupFragment.xhtml" />
 
 

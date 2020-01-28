@@ -88,8 +88,13 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             return;
         }
 
-        importWFDocuments(true);//kapalı işler
-        importWFDocuments(false);//açık işler
+        if (command.isImportInWFDocuments()) {
+            importDocumentsInWF(true);//kapalı işler
+            importDocumentsInWF(false);//açık işler    
+        } else {
+            importDocumentsNotInWF();
+        }
+
     }
 
     private Connection getMysqlConnection() {
@@ -174,18 +179,20 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
     private void importDocument(Connection con, ResultSet rs, boolean finishedWF) {
         try {
             String docId = String.valueOf(rs.getLong("ID"));
-            LOG.debug("{} Document is importing.", rs.getString("NAME"));
+            String fileName = rs.getString("NAME");
+            LOG.debug("{} Document is importing.", fileName);
             String vaultPath = getVaultPath(rs.getString("VAULT_PATH"), rs.getString("VAULT_LEVEL"), docId, rs.getString("FORMAT"));
             Path filePath = Paths.get(vaultPath);
             if (Files.exists(filePath) && Files.isReadable(filePath)) {
                 try {
                     FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
                     BufferedInputStream bis = new BufferedInputStream(fileInputStream);
-                    String rafPathMain = re.encode(getRafPathFolder(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
-                    String rafPath = re.encode(getRafPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+
+                    String rafPathMain = re.encode(getRafPathFolder(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                    String rafPath = re.encode(getRafPath(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
 
                     if (checkRafPath(rafPath)) {
-                        LOG.debug("{} Document is exists.", rs.getString("NAME"));
+                        LOG.debug("{} Document is exists.", fileName);
                     } else {
                         String folder = rafPath.substring(0, rafPath.lastIndexOf("/"));
                         if (!checkRafFolder(folder)) {
@@ -216,7 +223,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         m.getAttributes().put("externalDoc:documentCreateDate", rs.getDate("REGISTER_DATE"));
                         m.getAttributes().put("externalDoc:documentFolder", rs.getString("FOLDER"));
                         m.getAttributes().put("externalDoc:documentFormat", rs.getString("FORMAT"));
-                        m.getAttributes().put("externalDoc:documentName", rs.getString("NAME"));
+                        m.getAttributes().put("externalDoc:documentName", fileName);
                         m.getAttributes().put("externalDoc:documentParentFolder", rs.getString("PARENT_FOLDER"));
                         m.getAttributes().put("externalDoc:documentType", rs.getString("DOCUMENT_TYPE"));
                         m.getAttributes().put("externalDoc:documentStatus", finishedWF ? "KAPALI" : "AÇIK");
@@ -416,7 +423,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         query = query.replaceAll("arc_", "");
                     }
                     ResultSet rs = st.executeQuery(query);
-                    while (rs.next()) {
+                    if (rs.next()) {
                         LOG.debug("{} Document workflow is importing.", rs.getString("ID"));
 
                         RafMetadata m = new RafMetadata();
@@ -519,7 +526,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         return result.substring(0, result.length() > 0 ? result.length() - 1 : 0);
     }
 
-    private void importWFDocuments(boolean finishedWF) {
+    private void importDocumentsInWF(boolean finishedWF) {
         LOG.debug("Workflow documents is importing.", finishedWF);
         Connection con = getMysqlConnection();
         if (con != null) {
@@ -534,7 +541,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "usr.FULLNAME REGISTER_USER,\n"
                         + "dmdoc.FORMAT,\n"
                         + "folder.NAME FOLDER,\n"
-                        + "parentfolder.NAME PARENT_FOLDER,\n"
+                        + "IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER,\n"
                         + "vault.`PATH` VAULT_PATH,\n"
                         + "vaultfolder.VAULT_LEVEL \n"
                         + "FROM arc_wf_workflow workflow\n"
@@ -548,24 +555,73 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
                         + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
                         + "inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
-                        + "where  parentfolder.NAME in ( %s ) ", getFolderNamesForQuery()
+                        + "where  IFNULL(parentfolder.NAME, folder.NAME) in ( %s ) ", getFolderNamesForQuery()
                 );
                 if (!finishedWF) {
                     query = query.replaceAll("arc_", "");
                 }
                 ResultSet rs = st.executeQuery(query);
-//                int i = 0;//test için 100 dokuman
-//                while (rs.next() && i < 100) {
-//                    importDocument(con, rs, finishedWF);
-//                    i++;
-//                }
                 while (rs.next()) {
-                    importDocument(con, rs, finishedWF);
+                    try {
+                        importDocument(con, rs, finishedWF);
+                    } catch (Exception ex) {
+                        LOG.error("SQLException", ex);
+                    }
                 }
                 importDocumentRelatedDocuments(con, getFolderNamesForQuery());
                 importDocumentAttachedDocuments(con, getFolderNamesForQuery());
                 con.close();
                 LOG.debug("Workflow documents import command is executed.", finishedWF);
+            } catch (SQLException ex) {
+                LOG.error("SQLException", ex);
+            }
+        }
+    }
+
+    private void importDocumentsNotInWF() {
+        LOG.debug("Not Workflow documents is importing.");
+        Connection con = getMysqlConnection();
+        if (con != null) {
+            Statement st;
+            try {
+                st = con.createStatement();
+                String query = String.format("SELECT distinct \n"
+                        + "                        dmtype.NAME DOCUMENT_TYPE,\n"
+                        + "                        dmdoc.ID,\n"
+                        + "                        dmdoc.NAME,\n"
+                        + "                        dmdoc.REGISTER_DATE,\n"
+                        + "                        usr.FULLNAME REGISTER_USER,\n"
+                        + "                        dmdoc.FORMAT,\n"
+                        + "                        folder.NAME FOLDER,\n"
+                        + "                        IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER,\n"
+                        + "                        vault.`PATH` VAULT_PATH,\n"
+                        + "                        vaultfolder.VAULT_LEVEL\n"
+                        + "                        FROM dm_document dmdoc                        \n"
+                        + "                        inner join dm_type dmtype on dmtype.ID = dmdoc.`TYPE`\n"
+                        + "                        inner join dm_vault_folder vaultfolder on vaultfolder.ID = dmdoc.VAULT_FOLDER\n"
+                        + "                        inner join dm_vault vault on vault.ID = vaultfolder.VAULT\n"
+                        + "                        inner join dm_document_folder docfold on docfold.DOCUMENT = dmdoc.ID\n"
+                        + "                        inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
+                        + "                        inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
+                        + "                        left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
+                        + "                        left join arc_wf_document awfdoc on awfdoc.ID = dmdoc.ID\n"
+                        + "                        left join wf_document wfdoc on wfdoc.ID = dmdoc.ID\n"
+                        + " where wfdoc.DBID is null and awfdoc.DBID is null "
+                        + " and   IFNULL(parentfolder.NAME, folder.NAME) in ( %s ) ", getFolderNamesForQuery()
+                );
+
+                ResultSet rs = st.executeQuery(query);
+                while (rs.next()) {
+                    try {
+                        importDocument(con, rs, false);
+                    } catch (Exception ex) {
+                        LOG.error("SQLException", ex);
+                    }
+                }
+                importDocumentRelatedDocuments(con, getFolderNamesForQuery());
+                importDocumentAttachedDocuments(con, getFolderNamesForQuery());
+                con.close();
+                LOG.debug("Not Workflow documents import command is executed.");
             } catch (SQLException ex) {
                 LOG.error("SQLException", ex);
             }
@@ -579,7 +635,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                 Statement st;
                 try {
                     st = con.createStatement();
-                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, parentfolder.NAME PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, parentfolderr.NAME PARENT_FOLDER_R, folderr.NAME FOLDER_R from dm_related_document rd\n"
+                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, IFNULL(parentfolderr.NAME, folderr.NAME) PARENT_FOLDER_R, folderr.NAME FOLDER_R from dm_related_document rd\n"
                             + "inner join dm_document d on d.ID = rd.DOCUMENT\n"
                             + "inner join dm_document_folder docfold on docfold.DOCUMENT = d.ID\n"
                             + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
@@ -588,7 +644,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             + "inner join dm_document_folder docfoldr on docfoldr.DOCUMENT = dr.ID\n"
                             + "inner join dm_folder folderr on folderr.ID = docfoldr.FOLDER\n"
                             + "left join dm_folder parentfolderr on parentfolderr.Id = folderr.PARENT_FOLDER"
-                            + " where parentfolder.NAME in (" + parentFolders + ") ");
+                            + " where IFNULL(parentfolder.NAME, folder.NAME) in (" + parentFolders + ") ");
                     while (rs.next()) {
                         LOG.debug("{} Document is importing.", rs.getString("NAME"));
                         String parentRecordPath = re.encode(getRafRecordPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
@@ -632,7 +688,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                 Statement st;
                 try {
                     st = con.createStatement();
-                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, parentfolder.NAME PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, parentfolderr.NAME PARENT_FOLDER_R, folderr.NAME FOLDER_R \n"
+                    ResultSet rs = st.executeQuery("select d.NAME, d.FORMAT, IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER, folder.NAME FOLDER, dr.NAME NAME_R, dr.FORMAT FORMAT_R, IFNULL(parentfolderr.NAME, folderr.NAME) PARENT_FOLDER_R, folderr.NAME FOLDER_R \n"
                             + "from dm_attachment rd\n"
                             + "inner join dm_document d on d.ID = rd.PARENT\n"
                             + "inner join dm_document_folder docfold on docfold.DOCUMENT = d.ID\n"
@@ -642,7 +698,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             + "inner join dm_document_folder docfoldr on docfoldr.DOCUMENT = dr.ID\n"
                             + "inner join dm_folder folderr on folderr.ID = docfoldr.FOLDER\n"
                             + "left join dm_folder parentfolderr on parentfolderr.Id = folderr.PARENT_FOLDER"
-                            + " where parentfolder.NAME in (" + parentFolders + ") ");
+                            + " where IFNULL(parentfolder.NAME, folder.NAME) in (" + parentFolders + ") ");
                     while (rs.next()) {
                         LOG.debug("{} Document is importing.", rs.getString("NAME"));
                         String parentRecordPath = re.encode(getRafRecordPath(rs.getString("NAME"), rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));

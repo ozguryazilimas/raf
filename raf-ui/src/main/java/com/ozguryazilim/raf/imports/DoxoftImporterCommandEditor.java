@@ -1,6 +1,5 @@
 package com.ozguryazilim.raf.imports;
 
-import com.ozguryazilim.raf.imports.RafCommandPages;
 import com.ozguryazilim.telve.messagebus.command.ui.CommandEditor;
 import com.ozguryazilim.telve.messagebus.command.ui.CommandEditorBase;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +9,7 @@ public class DoxoftImporterCommandEditor extends CommandEditorBase<DoxoftImporte
 
     @Override
     public DoxoftImporterCommand createNewCommand() {
-        return new DoxoftImporterCommand(StringUtils.EMPTY, 30306, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+        return new DoxoftImporterCommand(StringUtils.EMPTY, 30306, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, Boolean.FALSE);
     }
 
 }

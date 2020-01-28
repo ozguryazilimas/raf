@@ -1176,8 +1176,8 @@ public class RafModeshapeRepository implements Serializable {
             for (RafMetadata metadata : metadatas) {
                 try {
                     saveMetadata(id, metadata, session);
-                } catch (RafException ex) {
-                    LOG.error("RafException", ex);
+                } catch (Exception ex) {
+                    LOG.error("Exception", ex);
                 }
             }
             session.save();

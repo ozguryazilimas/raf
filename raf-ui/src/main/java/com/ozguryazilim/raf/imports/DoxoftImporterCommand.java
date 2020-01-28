@@ -13,11 +13,12 @@ public class DoxoftImporterCommand extends AbstractStorableCommand {
     private String doxoftFileServerDirectoryPaths;
     private String doxoftFolderNames;
     private String rafNames;
+    private boolean importInWFDocuments;
 
     public DoxoftImporterCommand() {
     }
 
-    public DoxoftImporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, String doxoftFileServerDirectoryNames, String doxoftFileServerDirectoryPaths, String doxoftFolderNames, String rafNames) {
+    public DoxoftImporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, String doxoftFileServerDirectoryNames, String doxoftFileServerDirectoryPaths, String doxoftFolderNames, String rafNames, boolean importInWFDocuments) {
         this.dbHostName = dbHostName;
         this.dbPort = dbPort;
         this.dbName = dbName;
@@ -27,6 +28,7 @@ public class DoxoftImporterCommand extends AbstractStorableCommand {
         this.doxoftFileServerDirectoryPaths = doxoftFileServerDirectoryPaths;
         this.doxoftFolderNames = doxoftFolderNames;
         this.rafNames = rafNames;
+        this.importInWFDocuments = importInWFDocuments;
     }
 
     public String getDbHostName() {
@@ -35,6 +37,10 @@ public class DoxoftImporterCommand extends AbstractStorableCommand {
 
     public String getDbName() {
         return dbName;
+    }
+
+    public boolean isImportInWFDocuments() {
+        return importInWFDocuments;
     }
 
     public void setDbHostName(String dbHostName) {
@@ -95,6 +101,10 @@ public class DoxoftImporterCommand extends AbstractStorableCommand {
 
     public String getRafNames() {
         return rafNames;
+    }
+
+    public void setImportInWFDocuments(boolean importInWFDocuments) {
+        this.importInWFDocuments = importInWFDocuments;
     }
 
     public void setRafNames(String rafNames) {

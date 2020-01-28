@@ -18,6 +18,10 @@
 
             <p:outputLabel value="Doxoft Veritabanı Adı"/>
             <p:inputText value="#{doxoftImporterCommandEditor.command.dbName}"/>
+
+            <p:outputLabel value="Sadece İş Akışındaki Dokumanları Aktar"/>
+            <p:selectBooleanCheckbox value="#{doxoftImporterCommandEditor.command.importInWFDocuments}" itemLabel="EVET"/>
+
         </p:panel>
         <p:panel id="dbAbsolutePathSettings" header="Doxoft Fiziki Klasör Ayarları">
             <p:panelGrid columns="2">
