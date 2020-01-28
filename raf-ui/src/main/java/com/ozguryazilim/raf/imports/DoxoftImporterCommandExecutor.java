@@ -613,7 +613,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                 ResultSet rs = st.executeQuery(query);
                 while (rs.next()) {
                     try {
-                        importDocument(con, rs, false);
+                        importDocument(con, rs, true);
                     } catch (Exception ex) {
                         LOG.error("SQLException", ex);
                     }
