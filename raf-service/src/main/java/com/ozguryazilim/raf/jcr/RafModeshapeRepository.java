@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -16,6 +17,8 @@ import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.telve.auth.Identity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -585,7 +588,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getSearchCollection(String searchText, String rootPath) throws RafException {
+    public RafCollection getSearchCollection(String searchText, String rootPath, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -616,16 +619,19 @@ public class RafModeshapeRepository implements Serializable {
                     sn = n.getParent();
                 }
 
-                //Node tipine göre doğru conversion.
-                if (sn.isNodeType(NODE_FOLDER)) {
-                    if (sn.isNodeType(MIXIN_RECORD)) {
-                        result.getItems().add(nodeToRafRecord(sn));
-                    } else {
-                        result.getItems().add(nodeToRafFolder(sn));
+                if (rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        } else {
+                            result.getItems().add(nodeToRafFolder(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
                     }
-                } else if (sn.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(sn));
                 }
+
             }
 
         } catch (RepositoryException ex) {
