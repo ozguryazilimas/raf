@@ -6,6 +6,10 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
+import com.ozguryazilim.raf.entities.ExternalDocType;
+import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
@@ -47,6 +51,12 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
     @Inject
     RafDefinitionService rafDefinitionService;
 
+    @Inject
+    ExternalDocTypeRepository externalDocTypeRepository;
+
+    @Inject
+    ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
+
     DoxoftImporterCommand command;
 
     RafEncoder re;
@@ -87,6 +97,9 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             FacesMessages.error("RAF adları tanımlı değil.");
             return;
         }
+
+        importDocumentTypes();
+        importAttributes();
 
         if (command.isImportInWFDocuments()) {
             importDocumentsInWF(true);//kapalı işler
@@ -173,6 +186,74 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             return rafService.getRafObjectByPath(rafPath) != null;
         } catch (RafException e) {
             return false;
+        }
+    }
+
+    private void importDocumentTypes() {
+        LOG.debug("External document types is importing.");
+        Connection con = getMysqlConnection();
+        if (con != null) {
+            Statement st;
+            try {
+                st = con.createStatement();
+                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP   from dm_type tp\n"
+                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
+                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`\n"
+                        + "inner join dm_type_attribute_value val on val.TYPE_ATTRIBUTE = att.ID\n"
+                        + "left join co_list clist on clist.ID = catt.ATTRIBUTE_LISTE\n"
+                        + "order by tp.NAME asc");
+                while (rs.next()) {
+                    String documentType = rs.getString("TYP");
+                    LOG.debug("{} document type is importing.", documentType);
+                    if (externalDocTypeRepository.findByDocumentType(documentType).isEmpty()) {
+                        ExternalDocType externalDocType = new ExternalDocType();
+                        externalDocType.setDocumentType(documentType);
+                        externalDocTypeRepository.saveAndFlush(externalDocType);
+                    }
+                }
+                con.close();
+            } catch (SQLException ex) {
+                LOG.error("SQLException", ex);
+            }
+        }
+    }
+
+    private void importAttributes() {
+        LOG.debug("External attributes is importing.");
+        Connection con = getMysqlConnection();
+        if (con != null) {
+            Statement st;
+            try {
+                st = con.createStatement();
+                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP, catt.NAME ATT,  \n"
+                        + "case when catt.DATA_TYPE = 14 or  catt.DATA_TYPE = 17 then 'String' \n"
+                        + "when catt.DATA_TYPE = 15 or  catt.DATA_TYPE = 16 then 'Number' when catt.DATA_TYPE = 18 then 'Date'\n"
+                        + "end DATA_TYPE   \n"
+                        + "from dm_type tp\n"
+                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
+                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`\n"
+                        + "order by tp.NAME  asc , catt.NAME  asc");
+                while (rs.next()) {
+                    String documentType = rs.getString("TYP");
+                    String attributeName = rs.getString("ATT");
+                    LOG.debug("{} attribute is importing.", attributeName);
+                    List<ExternalDocType> docTypes = externalDocTypeRepository.findByDocumentType(documentType);
+                    ExternalDocType externalDocType = docTypes.isEmpty() ? null : docTypes.get(0);
+                    if (externalDocType != null) {
+                        List<ExternalDocTypeAttribute> existsAttributes = externalDocTypeAttributeRepository.findByDocumentTypeAndAttributeName(externalDocType, attributeName);
+                        if (existsAttributes.isEmpty()) {
+                            ExternalDocTypeAttribute externalDocTypeAttribute = new ExternalDocTypeAttribute();
+                            externalDocTypeAttribute.setDocumentType(externalDocType);
+                            externalDocTypeAttribute.setAttributeName(attributeName);
+                            externalDocTypeAttribute.setAttributeType(rs.getString("DATA_TYPE"));
+                            externalDocTypeAttributeRepository.saveAndFlush(externalDocTypeAttribute);
+                        }
+                    }
+                }
+                con.close();
+            } catch (SQLException ex) {
+                LOG.error("SQLException", ex);
+            }
         }
     }
 

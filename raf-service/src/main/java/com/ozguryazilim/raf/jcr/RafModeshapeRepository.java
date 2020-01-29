@@ -7,7 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.member.RafMemberService;
+import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -18,16 +18,17 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
-import com.ozguryazilim.telve.auth.Identity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -619,7 +620,8 @@ public class RafModeshapeRepository implements Serializable {
                     sn = n.getParent();
                 }
 
-                if (rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
                     //Node tipine göre doğru conversion.
                     if (sn.isNodeType(NODE_FOLDER)) {
                         if (sn.isNodeType(MIXIN_RECORD)) {
@@ -630,6 +632,137 @@ public class RafModeshapeRepository implements Serializable {
                     } else if (sn.isNodeType(NODE_FILE)) {
                         result.getItems().add(nodeToRafDocument(sn));
                     }
+                }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
+    public String getJCRDate(Date dt) {
+        //yyyy-MM-ddTHH:MM:ss.000Z
+        SimpleDateFormat sdfForDate = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfForTime = new SimpleDateFormat("HH:mm:ss");
+
+        return "CAST('" + sdfForDate.format(dt).concat("T").concat(sdfForTime.format(dt)) + ".000Z' AS DATE)";
+
+    }
+
+    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle("Detay Arama");
+        result.setPath("SEARCH");
+        result.setName("Detay Arama");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (searchModel.getDateFrom() != null) {
+                whereExpressions.add(" [" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+            }
+
+            if (searchModel.getDateTo() != null) {
+                whereExpressions.add(" [" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
+                whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
+                whereExpressions.add("  ISDESCENDANTNODE('" + "/RAF/".concat(searchModel.getSearchRaf()) + "') ");
+            } else {
+                String rafWheres = " ( ";
+                for (RafDefinition raf : rafs) {
+                    rafWheres += " ISDESCENDANTNODE('" + raf.getNode().getPath() + "') OR ";
+                }
+                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+                rafWheres += " ) ";
+                whereExpressions.add(rafWheres);
+            }
+
+            if (!searchModel.getMapAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
+                    String key = entry.getKey().split(":")[1];
+                    Object value = entry.getValue();
+                    String valueStr = "";
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof Date) {
+                            valueStr = sdf.format((Date) value);
+                        } else {
+                            valueStr = value.toString();
+                        }
+                        whereExpressions.add(" ( nodes.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND nodes.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' )");
+                    }
+                }
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+                whereExpressions.add(" nodes.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
+                whereExpressions.add(" nodes.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+            }
+
+            if (searchModel.getRegisterDateFrom() != null) {
+                whereExpressions.add(" nodes.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+            }
+
+            if (searchModel.getRegisterDateTo() != null) {
+                whereExpressions.add(" nodes.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+            }
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+            Query query = queryManager.createQuery(expression.concat(lastWhereExpression), Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+                Node sn = n;
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        } else {
+                            result.getItems().add(nodeToRafFolder(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
+                    }
+
                 }
 
             }

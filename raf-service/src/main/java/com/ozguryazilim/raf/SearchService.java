@@ -3,10 +3,12 @@ package com.ozguryazilim.raf;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.member.RafMemberService;
+import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
+import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -42,6 +44,11 @@ public class SearchService implements Serializable {
             result.setName(searchText);
             return result;
         }
+    }
+
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs) throws RafException {
+        //FIXME: yetki kontrolleri yapılmalı.
+        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName());
     }
 
 }

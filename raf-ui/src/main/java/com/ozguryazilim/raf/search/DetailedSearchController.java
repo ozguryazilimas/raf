@@ -1,14 +1,22 @@
 package com.ozguryazilim.raf.search;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.entities.ExternalDocType;
+import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
+import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -31,6 +39,9 @@ public class DetailedSearchController implements Serializable {
     private RafDefinitionService rafDefinitionService;
 
     @Inject
+    private RafPathMemberService rafPathMemberService;
+
+    @Inject
     private Identity identity;
 
     @Inject
@@ -38,72 +49,109 @@ public class DetailedSearchController implements Serializable {
 
     private List<RafDefinition> rafList;
 
-    private String searchRaf;
+    private List<ExternalDocType> documentTypes;
+    private List<ExternalDocTypeAttribute> attributes;
+    private DetailedSearchModel searchModel;
 
-    private String searchText;
+    private RafCollection searchResult;
 
-    private Date dateFrom;
+    @Inject
+    ExternalDocTypeRepository externalDocTypeRepository;
 
-    private Date dateTo;
+    @Inject
+    ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
 
-    public Date getDateFrom() {
-        return dateFrom;
+    public List<ExternalDocTypeAttribute> getAttributes() {
+        return attributes;
     }
 
-    public Date getDateTo() {
-        return dateTo;
+    public List<ExternalDocType> getDocumentTypes() {
+        return documentTypes;
     }
 
-    public String getSearchRaf() {
-        return searchRaf;
+    public DetailedSearchModel getSearchModel() {
+        return searchModel;
+    }
+
+    public RafCollection getSearchResult() {
+        return searchResult;
     }
 
     @PostConstruct
     public void init() {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
+        documentTypes = externalDocTypeRepository.findAll();
+        searchModel = new DetailedSearchModel();
+        listDocTypeAttributes(null);
+    }
+
+    public String getMapKey(ExternalDocTypeAttribute attribute) {
+        return attribute.getDocumentType().getDocumentType().replaceAll(":", "").concat(":").concat(attribute.getAttributeName());
+    }
+
+    void listDocTypeAttributes(ExternalDocType externalDocType) {
+        if (externalDocType == null) {
+            attributes = externalDocTypeAttributeRepository.findAll();
+        } else {
+            attributes = externalDocTypeAttributeRepository.findByDocumentType(externalDocType);
+        }
+        searchModel.setMapAttValue(new HashMap());
+        for (ExternalDocTypeAttribute attr : attributes) {
+            searchModel.getMapAttValue().put(getMapKey(attr), null);
+        }
+    }
+
+    public void onDocumentTypeChange() {
+        if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+            listDocTypeAttributes(externalDocTypeRepository.findByDocumentType(searchModel.getDocumentType()).get(0));
+        }
     }
 
     public List<RafDefinition> getRafList() {
         return rafList;
     }
 
-    public String getSearchText() {
-        return searchText;
+    public void setAttributes(List<ExternalDocTypeAttribute> attributes) {
+        this.attributes = attributes;
     }
 
-    public void setDateFrom(Date dateFrom) {
-        this.dateFrom = dateFrom;
-    }
-
-    public void setDateTo(Date dateTo) {
-        this.dateTo = dateTo;
+    public void setDocumentTypes(List<ExternalDocType> documentTypes) {
+        this.documentTypes = documentTypes;
     }
 
     public void setRafList(List<RafDefinition> rafList) {
         this.rafList = rafList;
     }
 
-    public void setSearchRaf(String searchRaf) {
-        this.searchRaf = searchRaf;
-    }
-
-    public void setSearchText(String searchText) {
-        this.searchText = searchText;
-    }
-
     public void search() {
-        LOG.info("Search for {}", searchText);
+        LOG.info("Search for {}", searchModel.getSearchText());
 
         try {
-            RafCollection c = searchService.search(searchText, rafDefinitionService.getRafDefinitionByCode(searchRaf));
-            LOG.info("Results : {}", c);
+            setSearchResult(searchService.detailedSearch(searchModel, rafList));
+
+            LOG.info("Results : {}", getSearchResult());
 
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Search Exception", ex);
             FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
         }
+        searchModel.setSearchText(null);
+    }
 
-        searchText = null;
+    public void setSearchModel(DetailedSearchModel searchModel) {
+        this.searchModel = searchModel;
+    }
+
+    public void setSearchResult(RafCollection searchResult) {
+        this.searchResult = searchResult;
+    }
+
+    public String getRafFromPath(String rafFilePath) {
+        return rafFilePath.contains("/") ? rafFilePath.split("/")[2] : rafFilePath;
+    }
+
+    public String getFileLink(RafObject doc) {
+        return String.format("/dolap/raf.jsf?id=%s&o=%s", getRafFromPath(doc.getPath()), doc.getId());
     }
 }
