@@ -124,7 +124,7 @@ public class DetailedSearchController implements Serializable {
     }
 
     public void search() {
-        LOG.info("Search for {}", searchModel.getSearchText());
+        LOG.info("Search for {}", searchModel);
 
         try {
             setSearchResult(searchService.detailedSearch(searchModel, rafList));
@@ -136,7 +136,6 @@ public class DetailedSearchController implements Serializable {
             LOG.error("Search Exception", ex);
             FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
         }
-        searchModel.setSearchText(null);
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {
@@ -148,7 +147,8 @@ public class DetailedSearchController implements Serializable {
     }
 
     public String getRafFromPath(String rafFilePath) {
-        return rafFilePath.contains("/") ? rafFilePath.split("/")[2] : rafFilePath;
+        String[] splittedPath = rafFilePath.split("/");
+        return splittedPath.length > 1 ? rafFilePath.split("/")[2] : rafFilePath;
     }
 
     public String getFileLink(RafObject doc) {

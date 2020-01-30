@@ -659,7 +659,7 @@ public class RafModeshapeRepository implements Serializable {
         result.setTitle("Detay Arama");
         result.setPath("SEARCH");
         result.setName("Detay Arama");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -667,16 +667,16 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes ";
+            String expression = "SELECT DISTINCT nodes.* FROM [" + NODE_SEARCH + "] as nodes ";
 
             List<String> whereExpressions = new ArrayList();
 
             if (searchModel.getDateFrom() != null) {
-                whereExpressions.add(" [" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
             }
 
             if (searchModel.getDateTo() != null) {
-                whereExpressions.add(" [" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
@@ -684,11 +684,11 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
-                whereExpressions.add("  ISDESCENDANTNODE('" + "/RAF/".concat(searchModel.getSearchRaf()) + "') ");
+                whereExpressions.add(" PATH(nodes) LIKE '/RAF/".concat(searchModel.getSearchRaf()) + "%' ");
             } else {
                 String rafWheres = " ( ";
                 for (RafDefinition raf : rafs) {
-                    rafWheres += " ISDESCENDANTNODE('" + raf.getNode().getPath() + "') OR ";
+                    rafWheres += " PATH(nodes) LIKE '" + raf.getNode().getPath() + "%' OR ";
                 }
                 rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
                 rafWheres += " ) ";
@@ -706,25 +706,25 @@ public class RafModeshapeRepository implements Serializable {
                         } else {
                             valueStr = value.toString();
                         }
-                        whereExpressions.add(" ( nodes.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND nodes.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' )");
+                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
                     }
                 }
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(" nodes.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(" nodes.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
             }
 
             if (searchModel.getRegisterDateFrom() != null) {
-                whereExpressions.add(" nodes.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
             }
 
             if (searchModel.getRegisterDateTo() != null) {
-                whereExpressions.add(" nodes.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
             }
 
             String lastWhereExpression = "";
@@ -736,6 +736,12 @@ public class RafModeshapeRepository implements Serializable {
                 }
                 lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
             }
+
+            if (lastWhereExpression.contains("meta") || lastWhereExpression.contains("exdoc")) {
+                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) "
+                        + " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            }
+
             Query query = queryManager.createQuery(expression.concat(lastWhereExpression), Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
 
@@ -751,7 +757,7 @@ public class RafModeshapeRepository implements Serializable {
                 }
 
                 //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
-                if (!rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                if (!sn.isNodeType(MIXIN_RAF) && !rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
                     //Node tipine göre doğru conversion.
                     if (sn.isNodeType(NODE_FOLDER)) {
                         if (sn.isNodeType(MIXIN_RECORD)) {
