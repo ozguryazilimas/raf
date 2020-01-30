@@ -39,7 +39,8 @@
                                         <f:selectItem itemLabel="Seçiniz" itemValue="#{null}" noSelectionOption="true"/>
                                         <f:selectItems value="#{detailedSearchController.rafList}" var="rafDef" itemLabel="#{rafDef.name}" itemValue="#{rafDef.code}"  />
                                     </p:selectOneMenu>
-
+                                    <p:outputLabel value="Alt Klasör Yolu"/>
+                                    <p:inputText value="#{detailedSearchController.searchModel.searchSubPath}" placeholder="/EVRAKLAR/"/>
                                     <p:outputLabel value="#{messages['collection.table.Date']}"/>
                                     <p:panelGrid columns="3">
                                         <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true"/>
@@ -102,7 +103,11 @@
             </div>
 
             <div class="box box-primary">
-                <p:dataTable id="resultDataTable" widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult.items}" emptyMessage="Kayıt yok.">
+                <p:dataTable id="resultDataTable" 
+                             widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult}" emptyMessage="Kayıt yok."
+                             paginator="true" rows="20"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="20,50,100" lazy="true">
                     <p:column headerText="Dosya Yolu">
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>

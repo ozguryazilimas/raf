@@ -46,9 +46,9 @@ public class SearchService implements Serializable {
         }
     }
 
-    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs) throws RafException {
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset) throws RafException {
         //FIXME: yetki kontrolleri yapılmalı.
-        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName());
+        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset);
     }
 
 }

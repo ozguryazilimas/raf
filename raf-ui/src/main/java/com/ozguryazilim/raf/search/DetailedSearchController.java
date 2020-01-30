@@ -1,7 +1,6 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
-import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.ExternalDocType;
@@ -10,11 +9,9 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
-import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
-import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +50,7 @@ public class DetailedSearchController implements Serializable {
     private List<ExternalDocTypeAttribute> attributes;
     private DetailedSearchModel searchModel;
 
-    private RafCollection searchResult;
+    private SearchResultDataModel searchResult;
 
     @Inject
     ExternalDocTypeRepository externalDocTypeRepository;
@@ -73,7 +70,7 @@ public class DetailedSearchController implements Serializable {
         return searchModel;
     }
 
-    public RafCollection getSearchResult() {
+    public SearchResultDataModel getSearchResult() {
         return searchResult;
     }
 
@@ -126,23 +123,23 @@ public class DetailedSearchController implements Serializable {
     public void search() {
         LOG.info("Search for {}", searchModel);
 
-        try {
-            setSearchResult(searchService.detailedSearch(searchModel, rafList));
+//        try {
+        searchResult = new SearchResultDataModel(rafList, searchModel, searchService);
 
-            LOG.info("Results : {}", getSearchResult());
-
-        } catch (RafException ex) {
-            //FIXME: i18n
-            LOG.error("Search Exception", ex);
-            FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
-        }
+        //setSearchResult(searchService.detailedSearch(searchModel, rafList, 50, 0));
+//            LOG.info("Results : {}", getSearchResult());
+//        } catch (RafException ex) {
+//            //FIXME: i18n
+//            LOG.error("Search Exception", ex);
+//            FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
+//        }
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {
         this.searchModel = searchModel;
     }
 
-    public void setSearchResult(RafCollection searchResult) {
+    public void setSearchResult(SearchResultDataModel searchResult) {
         this.searchResult = searchResult;
     }
 

@@ -652,7 +652,7 @@ public class RafModeshapeRepository implements Serializable {
 
     }
 
-    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
+    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -683,32 +683,20 @@ public class RafModeshapeRepository implements Serializable {
                 whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
             }
 
+            if (searchModel.getSearchSubPath() == null) {
+                searchModel.setSearchSubPath("");
+            }
+
             if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
-                whereExpressions.add(" PATH(nodes) LIKE '/RAF/".concat(searchModel.getSearchRaf()) + "%' ");
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'/RAF/".concat(searchModel.getSearchRaf()).concat(searchModel.getSearchSubPath()) + "') ");
             } else {
                 String rafWheres = " ( ";
                 for (RafDefinition raf : rafs) {
-                    rafWheres += " PATH(nodes) LIKE '" + raf.getNode().getPath() + "%' OR ";
+                    rafWheres += " ISDESCENDANTNODE(nodes,'" + raf.getNode().getPath().concat(searchModel.getSearchSubPath()) + "') OR ";
                 }
                 rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
                 rafWheres += " ) ";
                 whereExpressions.add(rafWheres);
-            }
-
-            if (!searchModel.getMapAttValue().isEmpty()) {
-                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
-                    String key = entry.getKey().split(":")[1];
-                    Object value = entry.getValue();
-                    String valueStr = "";
-                    if (value != null && !value.toString().trim().isEmpty()) {
-                        if (value instanceof Date) {
-                            valueStr = sdf.format((Date) value);
-                        } else {
-                            valueStr = value.toString();
-                        }
-                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
-                    }
-                }
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
@@ -727,6 +715,22 @@ public class RafModeshapeRepository implements Serializable {
                 whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
             }
 
+            if (!searchModel.getMapAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
+                    String key = entry.getKey().split(":")[1];
+                    Object value = entry.getValue();
+                    String valueStr = "";
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof Date) {
+                            valueStr = sdf.format((Date) value);
+                        } else {
+                            valueStr = value.toString();
+                        }
+                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                    }
+                }
+            }
+
             String lastWhereExpression = "";
 
             if (!whereExpressions.isEmpty()) {
@@ -741,12 +745,14 @@ public class RafModeshapeRepository implements Serializable {
                 expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) "
                         + " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
             }
-
-            Query query = queryManager.createQuery(expression.concat(lastWhereExpression), Query.JCR_SQL2);
+            expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
+            LOG.debug("Query executed for  {}", expression);
 
             NodeIterator it = queryResult.getNodes();
             while (it.hasNext()) {
+                LOG.debug("Search result next.");
                 Node n = it.nextNode();
                 Node sn = n;
 
@@ -762,8 +768,6 @@ public class RafModeshapeRepository implements Serializable {
                     if (sn.isNodeType(NODE_FOLDER)) {
                         if (sn.isNodeType(MIXIN_RECORD)) {
                             result.getItems().add(nodeToRafRecord(sn));
-                        } else {
-                            result.getItems().add(nodeToRafFolder(sn));
                         }
                     } else if (sn.isNodeType(NODE_FILE)) {
                         result.getItems().add(nodeToRafDocument(sn));

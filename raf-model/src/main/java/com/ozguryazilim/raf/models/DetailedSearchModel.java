@@ -11,6 +11,8 @@ public class DetailedSearchModel {
 
     private String searchRaf;
 
+    private String searchSubPath;
+
     private String searchText;
 
     private Date dateFrom;
@@ -32,12 +34,20 @@ public class DetailedSearchModel {
         return searchRaf;
     }
 
+    public String getSearchSubPath() {
+        return searchSubPath;
+    }
+
     public void setSearchRaf(String searchRaf) {
         this.searchRaf = searchRaf;
     }
 
     public String getSearchText() {
         return searchText;
+    }
+
+    public void setSearchSubPath(String searchSubPath) {
+        this.searchSubPath = searchSubPath;
     }
 
     public void setSearchText(String searchText) {

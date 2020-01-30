@@ -39,11 +39,11 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     public boolean hasRafPermission(String docPath, List<String> actionList) {
         boolean rafPermission = true;
-        LOG.debug("Path : {}", docPath);
+//        LOG.debug("Path : {}", docPath);
         String[] paths = docPath.split("/");
         if (paths != null && paths.length > 2) {
             String rafCode = paths[2];
-            LOG.debug("Raf Code : {}", rafCode);
+//            LOG.debug("Raf Code : {}", rafCode);
             if (!Strings.isNullOrEmpty(rafCode)) {
                 RafDefinition rafDef;
                 try {
@@ -63,13 +63,13 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
             }
         }
-        LOG.debug("Raf Permission : {}", rafPermission);
+//        LOG.debug("Raf Permission : {}", rafPermission);
         return rafPermission;
     }
 
     public boolean hasRafPathPermission(String docPath, List<String> actionList) {
         boolean permission = false;
-        LOG.debug("Path : {}", docPath);
+//        LOG.debug("Path : {}", docPath);
         if (!Strings.isNullOrEmpty(docPath)) {
             try {
                 if (actionList.contains(READ)) {
@@ -84,7 +84,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                 LOG.error("RafException", ex);
             }
         }
-        LOG.debug("Raf Permission : {}", permission);
+//        LOG.debug("Raf Permission : {}", permission);
         return permission;
     }
 
@@ -95,7 +95,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
         if (absPath != null) {
             try {
                 if (absPath.isAbsolute()) {
-                    LOG.debug("Actions : {}", actions);
+//                    LOG.debug("Actions : {}", actions);
                     List<String> actionList = Arrays.asList(actions);
                     String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
                     //path içinde herhangi bir üyelği varsa önce ona bak.
