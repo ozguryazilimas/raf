@@ -23,4 +23,10 @@ public abstract class ExternalDocTypeAttributeRepository extends RepositoryBase<
     public abstract List<ExternalDocTypeAttribute> findByDocumentType(ExternalDocType documentDocType);
 
     public abstract void removeByAttributeName(String attributeName);
+
+    public abstract void removeByDocumentType(ExternalDocType documentDocType);
+
+    public void removeAll() {
+        entityManager().createNativeQuery("delete from external_doc_type_attribute").executeUpdate();
+    }
 }

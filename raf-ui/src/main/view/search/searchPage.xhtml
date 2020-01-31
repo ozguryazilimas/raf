@@ -90,6 +90,12 @@
                                                 <p:outputLabel value="#{recc.attributeName}"/>    
                                             </div>
                                             <div class="col-md-8">
+                                                <ui:fragment rendered="#{recc.attributeType eq 'List'}">
+                                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false">
+                                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                                        <f:selectItems value="#{detailedSearchController.getListedAttributeValues(recc)}" var="listValueRec" itemLabel="#{listValueRec.listValue}" itemValue="#{listValueRec.listValue}" />
+                                                    </p:selectOneMenu>
+                                                </ui:fragment>
                                                 <ui:fragment rendered="#{recc.attributeType eq 'String'}">
                                                     <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
                                                 </ui:fragment>

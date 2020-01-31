@@ -22,6 +22,9 @@
             <p:outputLabel value="Sadece İş Akışındaki Dokumanları Aktar"/>
             <p:selectBooleanCheckbox value="#{doxoftImporterCommandEditor.command.importInWFDocuments}" itemLabel="EVET"/>
 
+            <p:outputLabel value="Dokuman Özel Alanlarını Tabloya Aktar"/>
+            <p:selectBooleanCheckbox value="#{doxoftImporterCommandEditor.command.importDocumentAttributes}" itemLabel="EVET"/>
+
         </p:panel>
         <p:panel id="dbAbsolutePathSettings" header="Doxoft Fiziki Klasör Ayarları">
             <p:panelGrid columns="2">

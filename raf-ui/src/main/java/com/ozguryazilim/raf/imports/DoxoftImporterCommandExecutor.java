@@ -8,6 +8,8 @@ import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.ExternalDocType;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
+import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -36,6 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +60,14 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
     @Inject
     ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
 
+    @Inject
+    ExternalDocTypeAttributeListRepository externalDocTypeAttributeListRepository;
+
     DoxoftImporterCommand command;
 
     RafEncoder re;
 
+    @Transactional
     @Override
     public void execute(DoxoftImporterCommand command) {
         this.command = command;
@@ -98,8 +105,15 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             return;
         }
 
-        importDocumentTypes();
-        importAttributes();
+        if (command.isImportDocumentAttributes()) {
+            externalDocTypeRepository.removeAll();
+            externalDocTypeAttributeRepository.removeAll();
+            externalDocTypeAttributeListRepository.removeAll();
+
+            importDocumentTypes();
+            importAttributes();
+            importAttributeList();
+        }
 
         if (command.isImportInWFDocuments()) {
             importDocumentsInWF(true);//kapalı işler
@@ -189,6 +203,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
+    @Transactional
     private void importDocumentTypes() {
         LOG.debug("External document types is importing.");
         Connection con = getMysqlConnection();
@@ -205,10 +220,48 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                 while (rs.next()) {
                     String documentType = rs.getString("TYP");
                     LOG.debug("{} document type is importing.", documentType);
-                    if (externalDocTypeRepository.findByDocumentType(documentType).isEmpty()) {
-                        ExternalDocType externalDocType = new ExternalDocType();
-                        externalDocType.setDocumentType(documentType);
-                        externalDocTypeRepository.saveAndFlush(externalDocType);
+                    ExternalDocType externalDocType = new ExternalDocType();
+                    externalDocType.setDocumentType(documentType);
+                    externalDocType = externalDocTypeRepository.saveAndFlush(externalDocType);
+                }
+                con.close();
+            } catch (SQLException ex) {
+                LOG.error("SQLException", ex);
+            }
+        }
+    }
+
+    @Transactional
+    private void importAttributes() {
+        LOG.debug("External attributes is importing.");
+        Connection con = getMysqlConnection();
+        if (con != null) {
+            Statement st;
+            try {
+                st = con.createStatement();
+                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP, catt.NAME ATT,  \n"
+                        + "case \n"
+                        + "when catt.DATA_TYPE = 14 then 'List'\n"
+                        + "when catt.DATA_TYPE = 14 or  catt.DATA_TYPE = 17 then 'String' \n"
+                        + "when catt.DATA_TYPE = 15 or  catt.DATA_TYPE = 16 then 'Number' when catt.DATA_TYPE = 18 then 'Date'\n"
+                        + "end DATA_TYPE,\n"
+                        + "catt.ATTRIBUTE_LISTE\n"
+                        + "from dm_type tp\n"
+                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
+                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`       \n"
+                        + "order by tp.NAME  asc , catt.NAME  asc");
+                while (rs.next()) {
+                    String documentType = rs.getString("TYP");
+                    String attributeName = rs.getString("ATT");
+                    LOG.debug("{} attribute is importing.", attributeName);
+                    List<ExternalDocType> docTypes = externalDocTypeRepository.findByDocumentType(documentType);
+                    ExternalDocType externalDocType = docTypes.isEmpty() ? null : docTypes.get(0);
+                    if (externalDocType != null) {
+                        ExternalDocTypeAttribute externalDocTypeAttribute = new ExternalDocTypeAttribute();
+                        externalDocTypeAttribute.setDocumentType(externalDocType);
+                        externalDocTypeAttribute.setAttributeName(attributeName);
+                        externalDocTypeAttribute.setAttributeType(rs.getString("DATA_TYPE"));
+                        externalDocTypeAttribute = externalDocTypeAttributeRepository.saveAndFlush(externalDocTypeAttribute);
                     }
                 }
                 con.close();
@@ -218,37 +271,23 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    private void importAttributes() {
-        LOG.debug("External attributes is importing.");
+    @Transactional
+    private void importAttributeList() {
+        LOG.debug("External attribute list is importing.");
         Connection con = getMysqlConnection();
         if (con != null) {
             Statement st;
             try {
                 st = con.createStatement();
-                ResultSet rs = st.executeQuery("select distinctrow tp.NAME TYP, catt.NAME ATT,  \n"
-                        + "case when catt.DATA_TYPE = 14 or  catt.DATA_TYPE = 17 then 'String' \n"
-                        + "when catt.DATA_TYPE = 15 or  catt.DATA_TYPE = 16 then 'Number' when catt.DATA_TYPE = 18 then 'Date'\n"
-                        + "end DATA_TYPE   \n"
-                        + "from dm_type tp\n"
-                        + "inner join dm_type_attribute att on att.`TYPE` = tp.ID\n"
-                        + "inner join co_attribute catt on catt.ID = att.`ATTRIBUTE`\n"
-                        + "order by tp.NAME  asc , catt.NAME  asc");
+                ResultSet rs = st.executeQuery("select distinctrow catt.NAME, lst.VALUE from co_list_item lst\n"
+                        + "inner join co_attribute catt on catt.ATTRIBUTE_LISTE = lst.LISTE\n"
+                        + "order by catt.NAME, lst.VALUE");
+
                 while (rs.next()) {
-                    String documentType = rs.getString("TYP");
-                    String attributeName = rs.getString("ATT");
-                    LOG.debug("{} attribute is importing.", attributeName);
-                    List<ExternalDocType> docTypes = externalDocTypeRepository.findByDocumentType(documentType);
-                    ExternalDocType externalDocType = docTypes.isEmpty() ? null : docTypes.get(0);
-                    if (externalDocType != null) {
-                        List<ExternalDocTypeAttribute> existsAttributes = externalDocTypeAttributeRepository.findByDocumentTypeAndAttributeName(externalDocType, attributeName);
-                        if (existsAttributes.isEmpty()) {
-                            ExternalDocTypeAttribute externalDocTypeAttribute = new ExternalDocTypeAttribute();
-                            externalDocTypeAttribute.setDocumentType(externalDocType);
-                            externalDocTypeAttribute.setAttributeName(attributeName);
-                            externalDocTypeAttribute.setAttributeType(rs.getString("DATA_TYPE"));
-                            externalDocTypeAttributeRepository.saveAndFlush(externalDocTypeAttribute);
-                        }
-                    }
+                    ExternalDocTypeAttributeList rec = new ExternalDocTypeAttributeList();
+                    rec.setAttributeName(rs.getString("NAME"));
+                    rec.setListValue(rs.getString("VALUE"));
+                    externalDocTypeAttributeListRepository.saveAndFlush(rec);
                 }
                 con.close();
             } catch (SQLException ex) {

@@ -5,7 +5,9 @@ import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.ExternalDocType;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
+import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
@@ -15,6 +17,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -49,7 +52,7 @@ public class DetailedSearchController implements Serializable {
     private List<ExternalDocType> documentTypes;
     private List<ExternalDocTypeAttribute> attributes;
     private DetailedSearchModel searchModel;
-
+    private Map<String, List<ExternalDocTypeAttributeList>> listValueCache;
     private SearchResultDataModel searchResult;
 
     @Inject
@@ -58,12 +61,19 @@ public class DetailedSearchController implements Serializable {
     @Inject
     ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
 
+    @Inject
+    ExternalDocTypeAttributeListRepository externalDocTypeAttributeListRepository;
+
     public List<ExternalDocTypeAttribute> getAttributes() {
         return attributes;
     }
 
     public List<ExternalDocType> getDocumentTypes() {
         return documentTypes;
+    }
+
+    public List<ExternalDocTypeAttributeList> getListedAttributeValues(ExternalDocTypeAttribute attribute) {
+        return listValueCache.get(attribute.getAttributeName());
     }
 
     public DetailedSearchModel getSearchModel() {
@@ -79,7 +89,7 @@ public class DetailedSearchController implements Serializable {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
         documentTypes = externalDocTypeRepository.findAll();
         searchModel = new DetailedSearchModel();
-        listDocTypeAttributes(null);
+        listValueCache = new HashMap();
     }
 
     public String getMapKey(ExternalDocTypeAttribute attribute) {
@@ -94,6 +104,7 @@ public class DetailedSearchController implements Serializable {
         }
         searchModel.setMapAttValue(new HashMap());
         for (ExternalDocTypeAttribute attr : attributes) {
+            listValueCache.put(attr.getAttributeName(), externalDocTypeAttributeListRepository.findByAttributeName(attr.getAttributeName()));
             searchModel.getMapAttValue().put(getMapKey(attr), null);
         }
     }
@@ -122,17 +133,7 @@ public class DetailedSearchController implements Serializable {
 
     public void search() {
         LOG.info("Search for {}", searchModel);
-
-//        try {
         searchResult = new SearchResultDataModel(rafList, searchModel, searchService);
-
-        //setSearchResult(searchService.detailedSearch(searchModel, rafList, 50, 0));
-//            LOG.info("Results : {}", getSearchResult());
-//        } catch (RafException ex) {
-//            //FIXME: i18n
-//            LOG.error("Search Exception", ex);
-//            FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
-//        }
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {

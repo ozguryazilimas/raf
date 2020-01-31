@@ -18,4 +18,8 @@ public abstract class ExternalDocTypeRepository extends RepositoryBase<ExternalD
     public abstract List<ExternalDocType> findByDocumentType(String documentType);
 
     public abstract void removeByDocumentType(String documentType);
+
+    public void removeAll() {
+        entityManager().createNativeQuery("delete from external_doc_type").executeUpdate();
+    }
 }
