@@ -23,7 +23,11 @@
             <ui:include src="/layout/messages.xhtml" />
 
             <div class="box box-primary">
-
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="ui-priority-primary" />
+                    </f:facet>
+                </p:toolbar>
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#generalSearch" data-toggle="tab">Genel Arama</a></li>
@@ -34,7 +38,6 @@
                             <div class="ui-fluid">
                                 <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                                     <p:outputLabel value="#{messages['permission.label.raf']}"/>
-
                                     <p:selectOneMenu id="raf" value="#{detailedSearchController.searchModel.searchRaf}">
                                         <f:selectItem itemLabel="Seçiniz" itemValue="#{null}" noSelectionOption="true"/>
                                         <f:selectItems value="#{detailedSearchController.rafList}" var="rafDef" itemLabel="#{rafDef.name}" itemValue="#{rafDef.code}"  />
@@ -57,7 +60,7 @@
 
                         <div class="tab-pane" id="externalDocSearch">
                             <div class="ui-fluid">
-                                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">                                                            
+                                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                                     <p:outputLabel value="Kayıt Tarihi (Başlangıç)"/>
                                     <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.registerDateFrom}" required="false"/>
 
@@ -80,26 +83,30 @@
                                 </p:panelGrid>
                             </div>
                             <p:panel id="searchWithMetaDatas" header="Özel Alan Verilerine Göre Ara" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
-                                <p:scrollPanel mode="native" style="width: 680px; height: 300px;">
+                                <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
                                     <ui:repeat value="#{detailedSearchController.attributes}" var="recc" varStatus="status">
-                                        <p:outputLabel value="#{recc.attributeName}"/>
-                                        <ui:fragment rendered="#{recc.attributeType eq 'String'}">
-                                            <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{recc.attributeType eq 'Date'}">
-                                            <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{recc.attributeType eq 'Number'}">
-                                            <p:inputNumber lang="tr" value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
-                                        </ui:fragment>
+                                        <div class="row">                   
+                                            <div class="col-md-4">
+                                                <p:outputLabel value="#{recc.attributeName}"/>    
+                                            </div>
+                                            <div class="col-md-8">
+                                                <ui:fragment rendered="#{recc.attributeType eq 'String'}">
+                                                    <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{recc.attributeType eq 'Date'}">
+                                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{recc.attributeType eq 'Number'}">
+                                                    <p:inputNumber lang="tr" value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+                                                </ui:fragment>
+                                            </div>
+                                        </div>
                                     </ui:repeat>
                                 </p:scrollPanel>
                             </p:panel>
                         </div>
                     </div>
-                </div>
-
-                <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="ui-priority-primary" />
+                </div>                
             </div>
 
             <div class="box box-primary">
@@ -107,7 +114,7 @@
                              widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult}" emptyMessage="Kayıt yok."
                              paginator="true" rows="20"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="20,50,100" lazy="true">
+                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true">
                     <p:column headerText="Dosya Yolu">
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>

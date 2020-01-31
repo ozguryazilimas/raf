@@ -652,6 +652,112 @@ public class RafModeshapeRepository implements Serializable {
 
     }
 
+    public long getDetailedSearchCount(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
+        long result = 0;
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT nodes.[jcr:name] as F_NAME FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (searchModel.getDateFrom() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+            }
+
+            if (searchModel.getDateTo() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
+                whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
+            }
+
+            if (searchModel.getSearchSubPath() == null) {
+                searchModel.setSearchSubPath("");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'/RAF/".concat(searchModel.getSearchRaf()).concat(searchModel.getSearchSubPath()) + "') ");
+            } else {
+                String rafWheres = " ( ";
+                for (RafDefinition raf : rafs) {
+                    rafWheres += " ISDESCENDANTNODE(nodes,'" + raf.getNode().getPath().concat(searchModel.getSearchSubPath()) + "') OR ";
+                }
+                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+                rafWheres += " ) ";
+                whereExpressions.add(rafWheres);
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+            }
+
+            if (searchModel.getRegisterDateFrom() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+            }
+
+            if (searchModel.getRegisterDateTo() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+            }
+
+            if (!searchModel.getMapAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
+                    String key = entry.getKey().split(":")[1];
+                    Object value = entry.getValue();
+                    String valueStr = "";
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof Date) {
+                            valueStr = sdf.format((Date) value);
+                        } else {
+                            valueStr = value.toString();
+                        }
+                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                    }
+                }
+            }
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            if (lastWhereExpression.contains("exdoc")) {
+                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
+            }
+
+            if (lastWhereExpression.contains("meta")) {
+                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            }
+
+            expression = expression.concat(lastWhereExpression);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+            LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
+            result = queryResult.getRows().getSize();
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
     public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
@@ -741,14 +847,22 @@ public class RafModeshapeRepository implements Serializable {
                 lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
             }
 
-            if (lastWhereExpression.contains("meta") || lastWhereExpression.contains("exdoc")) {
-                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) "
-                        + " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            if (lastWhereExpression.contains("exdoc")) {
+                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
             }
+
+            if (lastWhereExpression.contains("meta")) {
+                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            }
+
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+
             LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
 
             NodeIterator it = queryResult.getNodes();
             while (it.hasNext()) {

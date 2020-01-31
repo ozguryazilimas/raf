@@ -49,7 +49,7 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
             datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first).getItems();
-            this.setRowCount(10000);//FIXME Count sorgusu çekip bildirmek gerekebilir.
+            this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.
         } catch (RafException ex) {
             LOG.error("RafException", ex);
             this.setRowCount(0);
