@@ -9,7 +9,7 @@ public class DoxoftImporterCommandEditor extends CommandEditorBase<DoxoftImporte
 
     @Override
     public DoxoftImporterCommand createNewCommand() {
-        return new DoxoftImporterCommand(StringUtils.EMPTY, 30306, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, Boolean.FALSE);
+        return new DoxoftImporterCommand(StringUtils.EMPTY, 30306, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, Boolean.FALSE, Boolean.FALSE);
     }
 
 }
