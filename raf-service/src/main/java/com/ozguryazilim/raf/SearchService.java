@@ -48,7 +48,8 @@ public class SearchService implements Serializable {
 
     public long detailedSearchCount(DetailedSearchModel searchModel, List<RafDefinition> rafs) throws RafException {
         //FIXME: yetki kontrolleri yapılmalı.
-        return modeshapeRepository.getDetailedSearchCount(searchModel, rafs, rafPathMemberService, identity.getLoginName());
+        //Note: JCR implementasyonlarında henüz count özelliği yok bu yüzden pagination larda şimdilik sonuç sayısı 1000 adet miş gibi cevap vereceğiz.
+        return 1000;//modeshapeRepository.getDetailedSearchCount(searchModel, rafs, rafPathMemberService, identity.getLoginName());
     }
 
     public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset) throws RafException {

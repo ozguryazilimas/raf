@@ -652,7 +652,9 @@ public class RafModeshapeRepository implements Serializable {
 
     }
 
-    public long getDetailedSearchCount(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
+    //Note: JCR implementasyonlarında henüz count özelliği yok bu yüzden pagination larda şimdilik sonuç sayısı 1000 adet miş gibi cevap vereceğiz.
+    @Deprecated
+    private long getDetailedSearchCount(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
         long result = 0;
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -660,7 +662,7 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT nodes.[jcr:name] as F_NAME FROM [" + NODE_SEARCH + "] as nodes ";
+            String expression = "SELECT DISTINCT nodes.[jcr:name] as F_NAME FROM [" + NODE_SEARCH + "] as nodes ";
 
             List<String> whereExpressions = new ArrayList();
 
@@ -708,7 +710,7 @@ public class RafModeshapeRepository implements Serializable {
                 whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
             }
 
-            if (!searchModel.getMapAttValue().isEmpty()) {
+            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
                 for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
                     String key = entry.getKey().split(":")[1];
                     Object value = entry.getValue();
@@ -821,7 +823,7 @@ public class RafModeshapeRepository implements Serializable {
                 whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
             }
 
-            if (!searchModel.getMapAttValue().isEmpty()) {
+            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
                 for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
                     String key = entry.getKey().split(":")[1];
                     Object value = entry.getValue();

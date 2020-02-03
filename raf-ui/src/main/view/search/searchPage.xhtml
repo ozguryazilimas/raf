@@ -19,13 +19,22 @@
 
         </style>
 
+        <script type="text/javascript">
+            window.onbeforeunload = function ()
+            {
+                clearFunc();
+            }
+
+        </script>
         <h:form id="searchForm">
+            <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
             <ui:include src="/layout/messages.xhtml" />
 
             <div class="box box-primary">
                 <p:toolbar>
                     <f:facet name="left">
                         <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="ui-priority-primary" />
+                        <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="ui-priority-secondary" />
                     </f:facet>
                 </p:toolbar>
                 <div class="nav-tabs-custom">

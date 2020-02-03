@@ -86,10 +86,15 @@ public class DetailedSearchController implements Serializable {
 
     @PostConstruct
     public void init() {
+        clearSearch();
+    }
+
+    public void clearSearch() {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
         documentTypes = externalDocTypeRepository.findAll();
         searchModel = new DetailedSearchModel();
         listValueCache = new HashMap();
+        searchResult = null;
     }
 
     public String getMapKey(ExternalDocTypeAttribute attribute) {
