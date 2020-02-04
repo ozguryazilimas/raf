@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +66,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
 
     RafEncoder re;
 
-    @Transactional
     @Override
     public void execute(DoxoftImporterCommand command) {
         this.command = command;
@@ -203,7 +201,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    @Transactional
     private void importDocumentTypes() {
         LOG.debug("External document types is importing.");
         Connection con = getMysqlConnection();
@@ -231,7 +228,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    @Transactional
     private void importAttributes() {
         LOG.debug("External attributes is importing.");
         Connection con = getMysqlConnection();
@@ -271,7 +267,6 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         }
     }
 
-    @Transactional
     private void importAttributeList() {
         LOG.debug("External attribute list is importing.");
         Connection con = getMysqlConnection();
