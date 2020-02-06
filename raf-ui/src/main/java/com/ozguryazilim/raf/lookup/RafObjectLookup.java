@@ -39,7 +39,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private static final String SELECT_TYPE_DOCUMENT = "Document";
     private static final String SELECT_TYPE_FOLDER = "Folder";
-    
+
     @Inject
     private ViewConfigResolver viewConfigResolver;
 
@@ -108,16 +108,16 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     /**
-     * Geriye Dialoğ için seçim tipini döndürür. 
-     * 
+     * Geriye Dialoğ için seçim tipini döndürür.
+     *
      * Folder ya da Document olabilir default Document
-     * 
-     * @return 
+     *
+     * @return
      */
-    protected String getSelectionType(){
+    protected String getSelectionType() {
         return profileProperties.getOrDefault("selectionType", SELECT_TYPE_DOCUMENT);
     }
-    
+
     /**
      * İlgili sınıfa ait dialogu açar
      *
@@ -138,7 +138,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
         clear();
         selected = null;
-        
+
         if (autoSearch()) {
             search();
         }
@@ -312,7 +312,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollection(getSelectedRaf().getNodeId()));
+            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), 0, 100));
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -344,7 +344,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      */
     protected void parseProfile() {
 
-        if(!Strings.isNullOrEmpty(profile)) {
+        if (!Strings.isNullOrEmpty(profile)) {
             profileProperties = Splitter.on(';').omitEmptyStrings().trimResults().withKeyValueSeparator(':').split(profile);
         } else {
             profileProperties = new HashMap<>();
@@ -381,12 +381,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             if (object instanceof RafFolder) {
                 clear();
-                setCollection(rafService.getCollection(object.getId()));
-                if( SELECT_TYPE_FOLDER.equals(getSelectionType())){
+                setCollection(rafService.getCollectionPaged(object.getId(), 0, 100));
+                if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
                     selected = object;
                 }
             } else {
-                if( SELECT_TYPE_DOCUMENT.equals(getSelectionType())){
+                if (SELECT_TYPE_DOCUMENT.equals(getSelectionType())) {
                     selected = object;
                 }
             }
@@ -424,7 +424,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
         clear();
         try {
-            setCollection(rafService.getCollection(getCollection().getParentId()));
+            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), 0, 100));
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }

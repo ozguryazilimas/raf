@@ -86,9 +86,19 @@ public class RafService implements Serializable {
         return rafRepository.getChildFolderList(rafPath);
     }
 
+    public RafCollection getCollectionPaged(String id, int page, int pageSize) throws RafException {
+        //FIXME: yetki kontrolleri
+        RafCollection result = rafRepository.getCollectionById(id, true, page, pageSize);
+
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "GET_PAGED_FOLDER_CONTENT", result.getPath());
+        }
+        return result;
+    }
+
     public RafCollection getCollection(String id) throws RafException {
         //FIXME: yetki kontrolleri
-        RafCollection result = rafRepository.getCollectionById(id);
+        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0);
 
         if (isReadLogEnabled()) {
             sendAuditLog(id, "GET_FOLDER_CONTENT", result.getPath());

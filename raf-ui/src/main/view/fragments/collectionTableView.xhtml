@@ -13,13 +13,23 @@
         </ui:include>
     </ui:fragment>
 
+    <ui:remove>
+        <p:toolbar>
+            <f:facet name="left">
+                <p:commandButton action="#{rafController.previousPage()}" update="raf-view-content" ajax="true" process="@this" value="Önceki Sayfa" icon="pi pi-chevron-left" />
+
+                <p:commandButton action="#{rafController.nextPage()}" update="raf-view-content" ajax="true" process="@this"  value="Sonraki Sayfa" icon="pi pi-chevron-right" />
+            </f:facet>
+        </p:toolbar>
+    </ui:remove>
+
     <ui:repeat value="#{viewBean.groupNames}" var="group" >
         <ui:fragment rendered="#{viewBean.groupBy}">
             <div class="raf-container-item-group-header" >
                 <div>#{group}</div>
             </div>
         </ui:fragment>
-        <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">
+        <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">           
             <table class="table table-striped"  >
                 <tbody style="font-size: 12px;">
                     <tr>

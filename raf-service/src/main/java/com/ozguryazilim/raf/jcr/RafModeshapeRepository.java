@@ -90,6 +90,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_TAG = "raf:tags";
     private static final String PROP_RAF_TYPE = "raf:type";
     private static final String PROP_DATA = "jcr:data";
+    private static final String PROP_PATH = "jcr:path";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -456,7 +457,35 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public RafCollection getCollectionById(String id) throws RafException {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize) {
+        NodeIterator result = null;
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+
+                QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+                //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+                String expression = "SELECT * FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+
+                Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+                query.setLimit(pageSize);
+                query.setOffset(page);
+                QueryResult queryResult = query.execute();
+
+                result = queryResult.getNodes();
+
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+
+        return result;
+    }
+
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
@@ -477,7 +506,7 @@ public class RafModeshapeRepository implements Serializable {
 
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
 
-            NodeIterator it = node.getNodes();
+            NodeIterator it = withPage ? getChildNodesByPagination(node.getPath(), page, pageSize) : node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
 
