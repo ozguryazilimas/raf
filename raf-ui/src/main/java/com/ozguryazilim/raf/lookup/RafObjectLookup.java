@@ -18,6 +18,7 @@ import com.ozguryazilim.telve.utils.ELUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
@@ -61,10 +62,44 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private List<RafDefinition> rafs;
     private RafDefinition selectedRaf;
+    private int page = 0;
+    private int pageSize = 20;
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
 
     @PostConstruct
     public void init() {
 
+    }
+
+    public void nextPage() {
+        setPage(getPage() + getPageSize());
+        try {
+            clear();
+            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize()));
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+        }
+    }
+
+    public void previousPage() {
+        int newPage = getPage() - getPageSize();
+        if (newPage < 0) {
+            newPage = 0;
+        }
+        setPage(newPage);
+        try {
+            clear();
+            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize()));
+        } catch (RafException ex) {
+            LOG.error("RafException", ex);
+        }
     }
 
     /**
@@ -126,7 +161,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      * @param value mevcut veri. Ağaç tipi sınıflarda seçim için
      */
     public void openDialog(String profile, String listener, Object value) {
-
+        page = 0;
         this.profile = profile;
         this.listener = listener;
 
@@ -265,6 +300,14 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         return sl;
     }
 
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
     /**
      * Seçim sonrası listener'la mesaj gönderilir.
      *
@@ -312,7 +355,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), 0, 100));
+            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize()));
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -381,7 +424,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             if (object instanceof RafFolder) {
                 clear();
-                setCollection(rafService.getCollectionPaged(object.getId(), 0, 100));
+                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize()));
                 if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
                     selected = object;
                 }
@@ -424,7 +467,8 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
         clear();
         try {
-            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), 0, 100));
+            page = 0;
+            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize()));
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }

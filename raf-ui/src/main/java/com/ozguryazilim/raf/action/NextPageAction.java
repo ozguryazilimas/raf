@@ -1,7 +1,6 @@
 package com.ozguryazilim.raf.action;
 
 import com.ozguryazilim.raf.RafController;
-import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
