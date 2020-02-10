@@ -18,7 +18,6 @@ import com.ozguryazilim.telve.utils.ELUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
@@ -82,7 +81,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         setPage(getPage() + getPageSize());
         try {
             clear();
-            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize()));
+            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
         } catch (RafException ex) {
             LOG.error("RafException", ex);
         }
@@ -96,7 +95,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         setPage(newPage);
         try {
             clear();
-            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize()));
+            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
         } catch (RafException ex) {
             LOG.error("RafException", ex);
         }
@@ -355,7 +354,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize()));
+            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -424,7 +423,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             if (object instanceof RafFolder) {
                 clear();
-                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize()));
+                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
                 if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
                     selected = object;
                 }
@@ -468,7 +467,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         clear();
         try {
             page = 0;
-            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize()));
+            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }

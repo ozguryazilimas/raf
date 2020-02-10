@@ -457,7 +457,7 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize) {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, String sortBy, boolean descSort) {
         NodeIterator result = null;
         try {
             try {
@@ -466,7 +466,19 @@ public class RafModeshapeRepository implements Serializable {
                 QueryManager queryManager = session.getWorkspace().getQueryManager();
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-                String expression = "SELECT * FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+
+                if (!Strings.isNullOrEmpty(sortBy)) {
+                    if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
+                        sortBy = PROP_TITLE;
+                    } else if ("DATE".equals(sortBy)) {
+                        sortBy = PROP_CREATED_DATE;
+                    } else if ("DATE".equals(sortBy)) {
+                        sortBy = "jcr:mimeType";
+                    }
+
+                    expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? "DESC" : "ASC");
+                }
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
@@ -485,7 +497,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize) throws RafException {
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
@@ -506,7 +518,7 @@ public class RafModeshapeRepository implements Serializable {
 
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
 
-            NodeIterator it = withPage ? getChildNodesByPagination(node.getPath(), page, pageSize) : node.getNodes();
+            NodeIterator it = withPage ? getChildNodesByPagination(node.getPath(), page, pageSize, justFolders, sortBy, descSort) : node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
 
@@ -817,19 +829,19 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
+                if (searchModel.getSearchInDocumentName()) {
+                    whereExpressions.add("  nodes.[jcr:name] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
+                } else {
+                    whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText().trim() + "') ");
+                }
             }
 
-            if (searchModel.getSearchSubPath() == null) {
-                searchModel.setSearchSubPath("");
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
-                whereExpressions.add(" ISDESCENDANTNODE(nodes,'/RAF/".concat(searchModel.getSearchRaf()).concat(searchModel.getSearchSubPath()) + "') ");
+            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
             } else {
                 String rafWheres = " ( ";
                 for (RafDefinition raf : rafs) {
-                    rafWheres += " ISDESCENDANTNODE(nodes,'" + raf.getNode().getPath().concat(searchModel.getSearchSubPath()) + "') OR ";
+                    rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
                 }
                 rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
                 rafWheres += " ) ";

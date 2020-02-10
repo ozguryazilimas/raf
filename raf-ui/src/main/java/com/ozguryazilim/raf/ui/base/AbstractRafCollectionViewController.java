@@ -1,7 +1,11 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.IconResolver;
+import com.ozguryazilim.raf.RafController;
+import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
@@ -14,6 +18,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 /**
@@ -35,10 +41,18 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     @Inject
     private IconResolver iconResolver;
 
+    @Inject
+    private RafController rafController;
+
+    @Inject
+    private Event<RafFolderChangeEvent> folderChangeEvent;
+
+    @Inject
+    @UserAware
+    private Kahve kahve;
+
     private RafCollection collection;
 
-    private String sortBy = SORT_BY_NAME;
-    private Boolean descSort = Boolean.FALSE;
     private Boolean foldersFirst = Boolean.TRUE;
     private Boolean groupBy = Boolean.FALSE;
     private Boolean showDetails = Boolean.FALSE;
@@ -48,10 +62,14 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     @Override
     public String getIcon() {
-        if ("raf/folder".equals(getCollection().getMimeType())) {
-            return "fa-folder-open";
+        if (getCollection() != null && getCollection().getMimeType() != null) {
+            if ("raf/folder".equals(getCollection().getMimeType())) {
+                return "fa-folder-open";
+            }
+            return iconResolver.getIcon(getCollection().getMimeType());
+        } else {
+            return "fa fa-file";
         }
-        return iconResolver.getIcon(getCollection().getMimeType());
     }
 
     @Override
@@ -80,7 +98,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                         .collect(
                                 Collectors.groupingBy(
                                         x -> {
-                                            switch (sortBy) {
+                                            switch (rafController.getSortBy()) {
                                                 case SORT_BY_NAME:
                                                     return x.getTitle().substring(0, 1).toUpperCase();
                                                 case SORT_BY_MIMETYPE:
@@ -104,7 +122,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: Ters sıra kontrolü
                         // Aslında grup içinde sıralama hep isme göre olmalı sanırım!
-                        return compareTitle(t1, t2 );
+                        return compareTitle(t1, t2);
                         /*
                         switch (sortBy) {
                             case SORT_BY_NAME:
@@ -122,7 +140,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                             default:
                                 return compareTitle(t1, t2 );
                         }
-                        */
+                         */
 
                     }
                 }));
@@ -143,23 +161,23 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: Tesr sıra kontrolü
                         int r = 0;
-                        switch (sortBy) {
+                        switch (rafController.getSortBy()) {
                             case SORT_BY_NAME:
-                                return compareTitle(t1, t2 );
+                                return compareTitle(t1, t2);
                             case SORT_BY_MIMETYPE:
-                                return compareMimeType(t1, t2 );
+                                return compareMimeType(t1, t2);
                             case SORT_BY_CATEGORY:
                                 //return t1.getCategory().compareTo(t2.getCategory());
                                 //FIXME: category yoksa nasıl sıralayacağız?
-                                return compareCategory(t1, t2 );
+                                return compareCategory(t1, t2);
                             case SORT_BY_TAG:
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
-                                return compareTag(t1, t2 );
+                                return compareTag(t1, t2);
                             case SORT_BY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                return compareDate(t1, t2 );
+                                return compareDate(t1, t2);
                             default:
-                                return compareTitle(t1, t2 );
+                                return compareTitle(t1, t2);
                         }
                     }
                 }).collect(Collectors.toList()));
@@ -184,51 +202,55 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     }
 
     private int compareTitle(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         Collator collator = Collator.getInstance(new Locale("tr", "TR"));
         return r == 0 ? collator.compare(t1.getTitle(), t2.getTitle()) : r;
     }
-    
+
     private int compareMimeType(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getMimeType().compareTo(t2.getMimeType()) : r;
     }
-    
+
     /**
-     * FIXME: categori sıralaması ile ilgili dert var.
-     * Kategori olmaması ile ilgili
+     * FIXME: categori sıralaması ile ilgili dert var. Kategori olmaması ile
+     * ilgili
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareCategory(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
     }
-    
+
     /**
-     * FIXME: tag'a göre sıralama daha da büyük dert.
-     * Birden fazla tag olabilir. Nasıl olacak?
+     * FIXME: tag'a göre sıralama daha da büyük dert. Birden fazla tag olabilir.
+     * Nasıl olacak?
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareTag(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
     }
-    
+
     /**
-     * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
+     * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile
+     * sıralaması da doğru olmalı.
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareDate(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getCreateDate().compareTo(t2.getCreateDate()) : r;
     }
-    
+
     public List<RafObject> getGroupItems(String group) {
         return groupMap.get(group);
     }
@@ -236,24 +258,6 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public void clear() {
         groupNames.clear();
         groupMap.clear();
-    }
-
-    public String getSortBy() {
-        return sortBy;
-    }
-
-    public void setSortBy(String sortBy) {
-        this.sortBy = sortBy;
-        clear();
-    }
-
-    public Boolean getDescSort() {
-        return descSort;
-    }
-
-    public void setDescSort(Boolean descSort) {
-        this.descSort = descSort;
-        clear();
     }
 
     public Boolean getFoldersFirst() {
@@ -281,6 +285,5 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public void setShowDetails(Boolean showDetails) {
         this.showDetails = showDetails;
     }
-    
-    
+
 }

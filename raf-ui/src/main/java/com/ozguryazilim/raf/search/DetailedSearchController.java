@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.ExternalDocType;
@@ -11,17 +12,23 @@ import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.lookup.LookupSelectTuple;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +100,37 @@ public class DetailedSearchController implements Serializable {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
         documentTypes = externalDocTypeRepository.findAll();
         searchModel = new DetailedSearchModel();
+        searchModel.setSearchInDocumentName(Boolean.TRUE);
         listValueCache = new HashMap();
         searchResult = null;
+    }
+
+    public void searchFromFolder(RafContext context, String searchText) {
+        if (context != null) {
+            if (context.getSelectedObject() instanceof RafFolder) {
+                searchModel.setSearchSubPath(context.getSelectedObject().getPath());
+            } else if (context.getSelectedRaf() != null && context.getSelectedRaf().getNode() != null) {
+                searchModel.setSearchSubPath(context.getSelectedRaf().getNode().getPath());
+            }
+        }
+        if (searchText != null) {
+            searchModel.setSearchText(searchText);
+        }
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        try {
+            response.sendRedirect("/dolap/search/searchPage.jsf");
+        } catch (IOException ex) {
+            LOG.error("IOException", ex);
+        }
+    }
+
+    public void selectFolder(SelectEvent event) {
+        if (searchModel != null && event != null) {
+            LookupSelectTuple sl = (LookupSelectTuple) event.getObject();
+            if (sl != null) {
+                searchModel.setSearchSubPath(((RafFolder) sl.getValue()).getPath());
+            }
+        }
     }
 
     public String getMapKey(ExternalDocTypeAttribute attribute) {

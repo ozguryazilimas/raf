@@ -128,6 +128,13 @@ public class RafController implements Serializable {
     private Integer pageSize = 20;
     private Integer pageCount = 0;
 
+    private String sortBy = "NAME";
+    private Boolean descSort = Boolean.FALSE;
+
+    public Boolean getDescSort() {
+        return descSort;
+    }
+
     public Integer getPage() {
         return page;
     }
@@ -138,6 +145,10 @@ public class RafController implements Serializable {
 
     public Integer getPageCount() {
         return pageCount;
+    }
+
+    public String getSortBy() {
+        return sortBy;
     }
 
     @PostConstruct
@@ -153,6 +164,8 @@ public class RafController implements Serializable {
         //selectedContentPanel= collectionCompactViewPanel;
         //selectedCollectionContentPanel = collectionCompactViewPanel;
         setPage(0);
+        setSortBy(kahve.get("raf.sortBy", "NAME").getAsString());
+        setDescSort(kahve.get("raf.descSort", Boolean.FALSE).getAsBoolean());
     }
 
     public void nextPage() {
@@ -281,7 +294,7 @@ public class RafController implements Serializable {
                     selectedContentPanel = getCollectionContentPanel();
                 }
 
-                populateFolderCollection(fld.getId(), getPage(), getPageSize());
+                populateFolderCollection(fld.getId());
 
                 try {
                     showRafObjectManagerTools = !Strings.isNullOrEmpty(getObjectId()) && rafDefinition.getId() > 0 && (memberService.hasManagerRole(identity.getLoginName(), rafDefinition) || rafObjectMemberService.hasManagerRole(identity.getLoginName(), obj.getPath()));
@@ -297,7 +310,7 @@ public class RafController implements Serializable {
             //Demek permalink olarak istenen bişi yok. O zaman rootu alalım.
             //FIXME: burda exception handling gerekli
             try {
-                populateFolderCollection(rafDefinition.getNodeId(), getPage(), getPageSize());
+                populateFolderCollection(rafDefinition.getNodeId());
             } catch (RafException ex) {
                 LOG.error("Raf Exception", ex);
             }
@@ -319,6 +332,24 @@ public class RafController implements Serializable {
 
     public String getRafCode() {
         return rafCode;
+    }
+
+    public void setDescSort(Boolean descSort) {
+        boolean changing = this.descSort != descSort;
+        this.descSort = descSort;
+        if (changing) {
+            kahve.put("raf.descSort", descSort);
+            try {
+                if (context.getSelectedObject() != null) {
+                    populateFolderCollection(context.getSelectedObject().getId());
+                } else if (context.getCollection() != null) {
+                    populateFolderCollection(context.getCollection().getId());
+                }
+
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+        }
     }
 
     public void setPage(Integer page) {
@@ -646,6 +677,24 @@ public class RafController implements Serializable {
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
+    public void setSortBy(String sortBy) {
+        boolean changing = !this.sortBy.equals(sortBy);
+        this.sortBy = sortBy;
+        if (changing) {
+            kahve.put("raf.sortBy", sortBy);
+            try {
+                if (context.getSelectedObject() != null) {
+                    populateFolderCollection(context.getSelectedObject().getId());
+                } else if (context.getCollection() != null) {
+                    populateFolderCollection(context.getCollection().getId());
+                }
+
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+        }
+    }
+
     /**
      * Birşeyler upload edildiğinde çağırılır.
      *
@@ -664,9 +713,9 @@ public class RafController implements Serializable {
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
             if (context.getSelectedObject() != null) {
-                populateFolderCollection(context.getSelectedObject().getId(), getPage(), getPageSize());
+                populateFolderCollection(context.getSelectedObject().getId());
             } else {
-                populateFolderCollection(context.getCollection().getId(), getPage(), getPageSize());
+                populateFolderCollection(context.getCollection().getId());
             }
 
         } catch (RafException ex) {
@@ -683,9 +732,9 @@ public class RafController implements Serializable {
         LOG.info("RafFolderCreateEvent");
         try {
             if (context.getSelectedObject() != null) {
-                populateFolderCollection(context.getSelectedObject().getId(), getPage(), getPageSize());
+                populateFolderCollection(context.getSelectedObject().getId());
             } else {
-                populateFolderCollection(context.getCollection().getId(), getPage(), getPageSize());
+                populateFolderCollection(context.getCollection().getId());
             }
 
         } catch (RafException ex) {
@@ -704,9 +753,9 @@ public class RafController implements Serializable {
          */
     }
 
-    protected void populateFolderCollection(String folderId, int page, int pageSize) throws RafException {
+    protected void populateFolderCollection(String folderId) throws RafException {
 
-        RafCollection collection = rafService.getCollectionPaged(folderId, page, pageSize);
+        RafCollection collection = rafService.getCollectionPaged(folderId, getPage(), getPageSize(), false, getSortBy(), getDescSort());
 
         if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.

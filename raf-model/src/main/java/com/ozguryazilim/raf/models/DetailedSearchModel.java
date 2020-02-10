@@ -27,7 +27,13 @@ public class DetailedSearchModel {
 
     private Map<String, Object> mapAttValue;
 
+    private Boolean searchInDocumentName = Boolean.TRUE;
+
     public DetailedSearchModel() {
+    }
+
+    public Boolean getSearchInDocumentName() {
+        return searchInDocumentName;
     }
 
     public String getSearchRaf() {
@@ -36,6 +42,10 @@ public class DetailedSearchModel {
 
     public String getSearchSubPath() {
         return searchSubPath;
+    }
+
+    public void setSearchInDocumentName(Boolean searchInDocumentName) {
+        this.searchInDocumentName = searchInDocumentName;
     }
 
     public void setSearchRaf(String searchRaf) {

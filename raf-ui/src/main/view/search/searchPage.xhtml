@@ -46,13 +46,35 @@
                         <div class="tab-pane active" id="generalSearch">
                             <div class="ui-fluid">
                                 <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                                    <p:outputLabel value="#{messages['permission.label.raf']}"/>
-                                    <p:selectOneMenu id="raf" value="#{detailedSearchController.searchModel.searchRaf}">
-                                        <f:selectItem itemLabel="Seçiniz" itemValue="#{null}" noSelectionOption="true"/>
-                                        <f:selectItems value="#{detailedSearchController.rafList}" var="rafDef" itemLabel="#{rafDef.name}" itemValue="#{rafDef.code}"  />
-                                    </p:selectOneMenu>
-                                    <p:outputLabel value="Alt Klasör Yolu"/>
-                                    <p:inputText value="#{detailedSearchController.searchModel.searchSubPath}" placeholder="/EVRAKLAR/"/>
+
+                                    <p:outputLabel value="Klasör Yolu"/>
+                                    <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                                        <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" readonly="true" required="false"/>
+                                        <p:commandButton style="width: 50px; height: 30px;" action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', detailedSearchController.searchModel.searchSubPath )}" 
+                                                         partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
+                                            <p:ajax event="dialogReturn" listener="#{detailedSearchController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />   
+                                        </p:commandButton>
+                                    </p:panelGrid>                                    
+
+                                    <ui:remove>
+                                        <t:inputRafObjectLookupDialog value="#{detailedSearchController.searchModel.searchSubPath}" label="Klasör Yolu"  
+                                                                      lookupBean="#{rafObjectLookup}" lookupListener="userHome.entity.domainGroup" 
+                                                                      leafSelect="true" required="false" readonly="false" placeholder="klasör seçiniz."
+                                                                      lookupProfile="selectionType:Folder"
+                                                                      columnClass="col-md-6 col-xs-12"/>         
+
+                                    </ui:remove>
+
+
+                                    <ui:remove>
+                                        <p:outputLabel value="#{messages['permission.label.raf']}"/>
+                                        <p:selectOneMenu id="raf" value="#{detailedSearchController.searchModel.searchRaf}">
+                                            <f:selectItem itemLabel="Seçiniz" itemValue="#{null}" noSelectionOption="true"/>
+                                            <f:selectItems value="#{detailedSearchController.rafList}" var="rafDef" itemLabel="#{rafDef.name}" itemValue="#{rafDef.code}"  />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel value="Alt Klasör Yolu"/>
+                                        <p:inputText value="#{detailedSearchController.searchModel.searchSubPath}" placeholder="/EVRAKLAR/"/>
+                                    </ui:remove>
                                     <p:outputLabel value="#{messages['collection.table.Date']}"/>
                                     <p:panelGrid columns="3">
                                         <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true"/>
@@ -63,6 +85,8 @@
                                     <p:outputLabel value="#{messages['general.label.Search']}"/>
                                     <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
 
+                                    <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
+                                    <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
                                 </p:panelGrid>
                             </div>
                         </div>
