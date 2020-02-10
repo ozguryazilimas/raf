@@ -1276,6 +1276,7 @@ public class RafModeshapeRepository implements Serializable {
 
             session.save();
             result = nodeToRafDocument(n);
+
             session.logout();
             LOG.debug("Dosya JCR'e kondu : {}", fullName);
         } catch (RepositoryException ex) {

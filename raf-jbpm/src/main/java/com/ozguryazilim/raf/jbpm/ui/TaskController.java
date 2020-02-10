@@ -65,19 +65,19 @@ public class TaskController implements Serializable, FormController, DocumentsWi
     private FileUploadAction fileUploadAction;
 
     private static final Status[] allActiveStatuses = new Status[]{
-            Status.Created,
-            Status.Ready,
-            Status.Reserved,
-            Status.InProgress
+        Status.Created,
+        Status.Ready,
+        Status.Reserved,
+        Status.InProgress
     };
 
     private static final Status[] allInactiveStatuses = new Status[]{
-            Status.Suspended,
-            Status.Completed,
-            Status.Failed,
-            Status.Error,
-            Status.Exited,
-            Status.Obsolete
+        Status.Suspended,
+        Status.Completed,
+        Status.Failed,
+        Status.Error,
+        Status.Exited,
+        Status.Obsolete
     };
 
     private TaskFilter filter;
@@ -294,10 +294,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
             if (!e.getKey().contains(":")) {
                 completeParams.putIfAbsent(e.getKey(), e.getValue());
             }
-            
+
             //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
             //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
-            if( e.getKey().contains("departman")){
+            if (e.getKey().contains("departman")) {
                 completeParams.putIfAbsent("departman", e.getValue());
             }
         }
@@ -305,12 +305,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Data alanında olan herşeyi metadata bloğuna koyuyoruz.
         completeParams.put("metadata", data);
 
-        
         //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
         //FIXME: Eğer kullanıcının yöneticisi yok ise merkezi bir kullanıcıya düşürsek mi? Boşta kalan şeylerin yöneticisi şeklinde?
         completeParams.put("manager", identity.getUserInfo().getManager());
-        
-        
+
         LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
 
@@ -409,7 +407,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Override
     public void upload() {
-        fileUploadAction.execute("PROCESS", recordObject.getPath());
+        fileUploadAction.execute("PROCESS", recordObject.getPath(), recordObject);
     }
 
     @Override

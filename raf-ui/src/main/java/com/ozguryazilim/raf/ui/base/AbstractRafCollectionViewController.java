@@ -74,7 +74,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     @Override
     public String getTitle() {
-        return getCollection().getTitle();
+        return getCollection() != null ? getCollection().getTitle() : "";
     }
 
     @Override
