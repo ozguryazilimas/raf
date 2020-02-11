@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.utils.DateUtils;
 import java.text.Collator;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -90,7 +90,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public List<String> getGroupNames() {
         if (groupNames.isEmpty()) {
             //FIXME: Burada arayüzden alınan sıralama ve gruplama yetenekleri kullanılacak
-
+            SimpleDateFormat sdfForSort = new SimpleDateFormat("yyyy-MM-dd");
             //Eğer Gruplama gösterilmeyecek ise sadece tek bir grup olacak ve tüm hepsini o taşıyacak
             //Farklı sort ve gruplama işlemleri için fonksiyonlar yazmak lazım.
             if (groupBy) {
@@ -110,7 +110,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                                                     return x.getTags().isEmpty() ? "" : x.getTags().get(0);
                                                 case SORT_BY_DATE:
                                                     //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                                    return DateUtils.dateToStr(x.getCreateDate());
+                                                    return sdfForSort.format(x.getCreateDate()); // DateUtils.dateToStr(x.getCreateDate());
                                                 default:
                                                     return x.getName();
                                             }
@@ -122,7 +122,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: Ters sıra kontrolü
                         // Aslında grup içinde sıralama hep isme göre olmalı sanırım!
-                        return compareTitle(t1, t2);
+                        return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                         /*
                         switch (sortBy) {
                             case SORT_BY_NAME:
@@ -150,7 +150,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(String t1, String t2) {
                         //FIXME: Sıralama tipine göre buranın farklı algoritma çalıştırması lazım. Özellikle tarih sırlaması
                         //FIXME: Ters sıra kontrolü
-                        return t1.compareTo(t2);
+                        return rafController.getDescSort() ? t2.compareTo(t1) : t1.compareTo(t2);
                     }
                 });
             } else {
@@ -163,21 +163,21 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                         int r = 0;
                         switch (rafController.getSortBy()) {
                             case SORT_BY_NAME:
-                                return compareTitle(t1, t2);
+                                return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                             case SORT_BY_MIMETYPE:
-                                return compareMimeType(t1, t2);
+                                return rafController.getDescSort() ? compareMimeType(t2, t1) : compareMimeType(t1, t2);
                             case SORT_BY_CATEGORY:
                                 //return t1.getCategory().compareTo(t2.getCategory());
                                 //FIXME: category yoksa nasıl sıralayacağız?
-                                return compareCategory(t1, t2);
+                                return rafController.getDescSort() ? compareCategory(t2, t1) : compareCategory(t1, t2);
                             case SORT_BY_TAG:
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
-                                return compareTag(t1, t2);
+                                return rafController.getDescSort() ? compareTag(t2, t1) : compareTag(t1, t2);
                             case SORT_BY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                return compareDate(t1, t2);
+                                return rafController.getDescSort() ? compareDate(t2, t1) : compareDate(t1, t2);
                             default:
-                                return compareTitle(t1, t2);
+                                return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                         }
                     }
                 }).collect(Collectors.toList()));

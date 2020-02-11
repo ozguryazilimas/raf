@@ -158,10 +158,22 @@
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>
 
-                    <p:column headerText="Dosya Adı">
-                        <a href="#{detailedSearchController.getFileLink(rafObject)}" target="_blank">
-                            <h:outputText value="#{rafObject.name}"/>
-                        </a>
+                    <p:column headerText="Dosya Adı">                        
+                        <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafDocument'}">
+                            <p:commandLink action="#{rafDocumentViewDialog.openDialog(rafObject)}" process="@this">
+                                #{rafObject.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafRecord'}">
+                            <p:commandLink action="#{rafRecordViewDialog.openDialog(rafObject)}" process="@this">
+                                #{rafObject.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:remove>
+                            <a href="#{detailedSearchController.getFileLink(rafObject)}" target="_blank">
+                                <h:outputText value="#{rafObject.name}"/>
+                            </a>
+                        </ui:remove>
                     </p:column>
 
                     <p:column headerText="Oluşturan">

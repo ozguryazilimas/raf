@@ -125,7 +125,7 @@ public class RafController implements Serializable {
     private Boolean showRafObjectManagerTools = Boolean.TRUE;
 
     private Integer page = 0;
-    private Integer pageSize = 20;
+    private Integer pageSize = 50;
     private Integer pageCount = 0;
 
     private String sortBy = "NAME";

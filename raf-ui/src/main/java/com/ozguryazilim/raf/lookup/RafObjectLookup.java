@@ -62,7 +62,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private List<RafDefinition> rafs;
     private RafDefinition selectedRaf;
     private int page = 0;
-    private int pageSize = 20;
+    private int pageSize = 50;
 
     public int getPage() {
         return page;
