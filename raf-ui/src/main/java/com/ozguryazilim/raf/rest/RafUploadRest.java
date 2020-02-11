@@ -2,16 +2,26 @@ package com.ozguryazilim.raf.rest;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.definition.RafDefinitionRepository;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -32,17 +42,41 @@ public class RafUploadRest implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(RafUploadRest.class);
 
     @Inject
+    private RafDefinitionService rafDefinitionService;
+
+    @Inject
     private RafModeshapeRepository rafRepository;
 
     @Inject
     private TusFileUploadService fileUploadService;
 
-
     @Inject
     private RafService rafService;
 
     @Inject
-    private RafDefinitionService rafDefinitionService;
+    private RafDefinitionRepository repository;
+
+    @Inject
+    private RafMemberService memberService;
+
+    @POST
+    @Path("/createNewRaf")
+    public Response createNewRaf(@FormParam("code") String code, @FormParam("name") String name, @FormParam("member") String member) {
+        try {
+            RafDefinition rd = new RafDefinition();
+            rd.setCode(code);
+            rd.setName(name);
+            RafNode n = rafRepository.createRafNode(rd);
+            rd.setNodeId(n.getId());
+            repository.save(rd);
+            memberService.addMember(rd, member, RafMemberType.USER, "MANAGER");
+            //FIXME Oluşturuyor, Session save and logout da yapıyor ama uygulamada anında göstermiyor. logout login olunca gösteriyor.
+            return Response.ok(rd.getNodeId()).build();
+        } catch (RafException ex) {
+            LOG.error("Cannot Create Folder", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @POST
     @Path("/createFolder")
