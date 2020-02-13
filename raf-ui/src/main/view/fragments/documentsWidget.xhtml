@@ -39,12 +39,11 @@
                                 #{ro.title}
                             </p:commandLink>
                         </ui:fragment>
+
                         <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
                             <p:commandLink action="#{rafRecordViewDialog.openDialog(ro)}" process="@this">
                                 #{ro.title}
                             </p:commandLink>
-
-
                         </ui:fragment>
                     </td>
                     <td>#{ro.info}</td>
@@ -58,11 +57,9 @@
                                 </svg>
                             </td>
                             <td>
-
                                 <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
                                     #{doc.title}
                                 </p:commandLink>
-
                             </td>
                             <td>#{doc.info}</td>
                             <td>#{doc.category}</td>

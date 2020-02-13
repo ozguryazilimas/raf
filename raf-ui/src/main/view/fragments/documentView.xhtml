@@ -133,7 +133,7 @@
                 </h:form>
             </ui:fragment>
 
-            <ui:fragment rendered="#{not viewBean.rafCheckStatus}">
+            <ui:fragment rendered="#{viewBean.hasRafWritePermission and not viewBean.rafCheckStatus}">
 
                 <div class="row">
                     <div class="col-xs-12">

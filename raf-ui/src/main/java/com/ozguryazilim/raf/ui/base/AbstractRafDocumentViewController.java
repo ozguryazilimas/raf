@@ -1,10 +1,11 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
-import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
@@ -66,20 +67,32 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private RafPathMemberService rafPathMemberService;
 
     @Inject
-    private RafContext rafContext;
+    private RafDefinitionService rafDefinitionService;
 
     private List<RafVersion> versions = null;
 
     private Boolean versionManagementEnabled;
 
+    private RafDefinition getRafFromObject() {
+        if (getObject() != null && !Strings.isNullOrEmpty(getObject().getPath()) && getObject().getPath().contains("/")) {
+            try {
+                return rafDefinitionService.getRafDefinitionByCode(getObject().getPath().split("/")[2]);
+            } catch (RafException ex) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public Boolean getHasRafWritePermission() {
-        if (rafContext != null) {
+        if (getObject() != null) {
             try {
                 boolean permission = false;
-                if (rafContext.getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(rafContext.getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafContext.getSelectedObject().getPath())) {
-                    permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedObject().getPath());
+                if (getObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
+                    permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getObject().getPath());
                 } else {
-                    permission = rafContext.getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), rafContext.getSelectedRaf());
+                    permission = getRafFromObject() != null && memberService.hasWriteRole(identity.getLoginName(), getRafFromObject());
                 }
                 return permission;
             } catch (RafException ex) {
