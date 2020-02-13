@@ -79,7 +79,7 @@
                         <div class="box-header with-border">
                             Aktif Süreçler
                             <ui:remove>
-                            Buraya filtre gelecek
+                                Buraya filtre gelecek
                             </ui:remove>
                         </div>
                         <div class="box-body">
@@ -245,7 +245,7 @@
                                                         <ui:include src="/bpmn/bpmnPreviewWidget.xhtml">
                                                             <ui:param name="bpmnPath" value="bpmnDiagram/#{processConsoleController.deploymentId}/#{processConsoleController.processId}"/>
                                                             <ui:remove>
-                                                            <ui:param name="activeTask" value="#{processConsoleController.selectedProcessInstance.activeTasks.get(0).formName}" />
+                                                                <ui:param name="activeTask" value="#{processConsoleController.selectedProcessInstance.activeTasks.get(0).formName}" />
                                                             </ui:remove>
                                                         </ui:include>
 
@@ -263,16 +263,18 @@
                                 </div>
                                 <div class="box-footer">
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
-                                        <p:commandButton id="aabort" value="#{messages['process.button.Abort']}" 
-                                                         icon="fa fa-trash" action="#{processConsoleController.abortProcess()}" styleClass="btn btn-danger"
-                                                         update="processConsole"
-                                                         rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"/>
-                                        <ui:remove>
-                                            <p:repeat value="#{taskController.taskActions}" var="act">
-                                                <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
-                                                                 update="taskConsole"/>
-                                            </p:repeat>
-                                        </ui:remove>
+                                        <ui:fragment rendered="#{identity.isPermitted('allTasks:update')}">
+                                            <p:commandButton id="aabort" value="#{messages['process.button.Abort']}" 
+                                                             icon="fa fa-trash" action="#{processConsoleController.abortProcess()}" styleClass="btn btn-danger"
+                                                             update="processConsole"
+                                                             rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"/>
+                                            <ui:remove>
+                                                <p:repeat value="#{taskController.taskActions}" var="act">
+                                                    <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
+                                                                     update="taskConsole"/>
+                                                </p:repeat>
+                                            </ui:remove>
+                                        </ui:fragment>
                                     </h:panelGroup>
                                 </div>
                             </div>

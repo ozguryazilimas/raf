@@ -343,12 +343,12 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
 
         //FIXME: eğer geriye task kalmamış ise ne olacak?
-        List<TaskSummary> ls = getTasks();
-        if (!ls.isEmpty()) {
-            selectTask(ls.get(0).getId());
-        } else {
-            selectedTask = null;
-        }
+//        List<TaskSummary> ls = getTasks();
+//        if (!ls.isEmpty()) {
+//            selectTask(ls.get(0).getId());
+//        } else {
+        selectedTask = null;
+//        }
     }
 
     /**
