@@ -5,9 +5,13 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.department.RafDepartmentMemberRepository;
+import com.ozguryazilim.raf.department.RafDepartmentRepository;
+import com.ozguryazilim.raf.entities.RafDepartment;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
@@ -63,6 +67,12 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Inject
     private FileUploadAction fileUploadAction;
+
+    @Inject
+    private RafDepartmentRepository departmentRepository;
+
+    @Inject
+    private RafDepartmentMemberRepository departmentMemberRepository;
 
     private static final Status[] allActiveStatuses = new Status[]{
         Status.Created,
@@ -238,6 +248,22 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
 
         for (Field f : form.getFields()) {
+            if (f instanceof PersonSelectionField) {
+                metadata.forEach((k, v) -> {
+                    if (k.contains("departman")) {
+                        ((PersonSelectionField) f).getValues().clear();
+                        List<RafDepartment> listDP = departmentRepository.findByCode(v.toString());
+                        if (!listDP.isEmpty()) {
+                            listDP.get(0).getMembers().forEach((m) -> {
+                                if (((PersonSelectionField) f).getRole().equals(m.getRole())) {
+                                    ((PersonSelectionField) f).getValues().add(m.getMemberName());
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
             f.setData(data);
         }
 
@@ -299,6 +325,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
             //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
             if (e.getKey().contains("departman")) {
                 completeParams.putIfAbsent("departman", e.getValue());
+            }
+
+            if (e.getKey().contains("uzman")) {
+                completeParams.putIfAbsent("uzman", e.getValue());
             }
         }
 

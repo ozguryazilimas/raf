@@ -13,7 +13,7 @@ import java.util.List;
 @Dependent
 public abstract class RafDepartmentMemberRepository extends RepositoryBase<RafDepartmentMember, RafDepartmentMember> implements CriteriaSupport<RafDepartmentMember> {
 
-    abstract List<RafDepartmentMember> findByDepartment(RafDepartment department);
+    public abstract List<RafDepartmentMember> findByDepartment(RafDepartment department);
 
-    abstract List<RafDepartmentMember> findByMemberName(String memberName);
+    public abstract List<RafDepartmentMember> findByMemberName(String memberName);
 }
