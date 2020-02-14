@@ -170,7 +170,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     public String getProcessName(String deploymentId, String processId) {
         ProcessDefinition processDesc = runtimeDataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
-        return processDesc.getName();
+        return processDesc == null || processDesc.getName() == null ? "" : processDesc.getName();
     }
 
     public void selectTask(Long taskId) {
