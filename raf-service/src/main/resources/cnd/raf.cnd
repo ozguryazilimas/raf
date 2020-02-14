@@ -27,6 +27,7 @@
     - raf:processIntanceId (LONG)
     - raf:status (STRING)
     - raf:recordNo (STRING)
+    - raf:boxNumber (STRING)
 
 [raf:classifiable] mixin
     - raf:classification (STRING)
