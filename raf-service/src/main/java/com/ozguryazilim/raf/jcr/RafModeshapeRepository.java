@@ -480,7 +480,7 @@ public class RafModeshapeRepository implements Serializable {
                         sortBy = "jcr:mimeType";
                     }
 
-                    expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? "DESC" : "ASC");
+                    expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? " DESC " : " ASC ");
 
                     if (PROP_UPDATED_DATE.equals(sortBy)) {
                         expression += " , ".concat(" nodes.[" + PROP_CREATED_DATE + "]").concat(descSort ? " DESC " : " ASC ");
@@ -900,7 +900,7 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSortBy())) {
-                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(searchModel.getSortOrder()).concat(" "));
+                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()).concat(" "));
             }
 
             if (lastWhereExpression.contains("exdoc")) {
