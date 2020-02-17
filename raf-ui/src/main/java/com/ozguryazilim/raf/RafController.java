@@ -34,6 +34,7 @@ import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -332,6 +333,22 @@ public class RafController implements Serializable {
 
     public String getRafCode() {
         return rafCode;
+    }
+
+    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
+        if (rafObject.getUpdateDate() != null) {
+            return rafObject.getUpdateDate();
+        } else {
+            return rafObject.getCreateDate();
+        }
+    }
+
+    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
+        if (rafObject.getUpdateBy() != null) {
+            return rafObject.getUpdateBy();
+        } else {
+            return rafObject.getCreateBy();
+        }
     }
 
     public void setDescSort(Boolean descSort) {

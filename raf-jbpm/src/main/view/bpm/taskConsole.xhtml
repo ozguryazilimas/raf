@@ -126,6 +126,9 @@
                                         <span class="text-sm text-muted">
                                             #{taskController.getProcessName( task.deploymentId, task.processId)} - #{task.name}
                                         </span>
+                                        <p:commandButton action="#{taskController.selectTask(task.id)}" process="@this" update="tfrm"  icon="fa fa-paper-plane-o"
+                                                         value="git/##{task.processInstanceId}"
+                                                         styleClass="btn btn-primary pull-right"/>
                                     </li>
                                 </p:repeat>
                             </ul>
@@ -137,7 +140,7 @@
                         <ui:fragment rendered="#{not empty taskController.selectedTask}">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title">
+                                    <h3 class="box-title" style="font-weight: bold; font-size: 24px;">
                                         ##{taskController.selectedTask.taskData.processInstanceId} #{taskController.selectedTask.subject}  [#{taskController.selectedTask.name}]
                                         <ui:remove>
                                             <span class="text-sm text-muted">

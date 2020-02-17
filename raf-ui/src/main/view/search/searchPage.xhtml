@@ -87,6 +87,25 @@
 
                                     <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
                                     <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
+
+                                    <p:outputLabel value="Sıralama Alanı"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false">
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItem itemLabel="Dosya Yolu" itemValue="nodes.[jcr:path]" />
+                                        <f:selectItem itemLabel="Dosya Adı" itemValue="nodes.[jcr:title]" />
+                                        <f:selectItem itemLabel="Oluşturan" itemValue="nodes.[jcr:createBy]" />
+                                        <f:selectItem itemLabel="Oluşturma Tarihi" itemValue="nodes.[jcr:created]" />
+                                        <f:selectItem itemLabel="Değiştiren" itemValue="nodes.[jcr:lastModifiedBy]" />
+                                        <f:selectItem itemLabel="Değiştirme Tarihi" itemValue="nodes.[jcr:lastModified]" />
+                                        <f:selectItem itemLabel="İçeri Aktarılan Dosya Oluşturan" itemValue="exdoc.[externalDoc:documentCreator]" />
+                                        <f:selectItem itemLabel="İçeri Aktarılan Dosya Oluşturma Tarihi" itemValue="exdoc.[externalDoc:documentCreateDate]" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Sıralama Türü"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                                        <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                                    </p:selectOneMenu>
                                 </p:panelGrid>
                             </div>
                         </div>
@@ -158,7 +177,7 @@
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>
 
-                    <p:column headerText="Dosya Adı">                        
+                    <p:column headerText="Dosya Adı">
                         <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafDocument'}">
                             <p:commandLink action="#{rafDocumentViewDialog.openDialog(rafObject)}" process="@this">
                                 #{rafObject.title}
@@ -182,6 +201,26 @@
 
                     <p:column headerText="Oluşturma Tarihi">
                         <h:outputText value="#{rafObject.createDate}">
+                            <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Değiştiren">
+                        <h:outputText value="#{rafObject.updateBy}" />
+                    </p:column>
+
+                    <p:column headerText="Değiştirme Tarihi">
+                        <h:outputText value="#{rafObject.updateDate}">
+                            <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="İçeri Aktarılan Dosya Kaydeden">
+                        <h:outputText value="#{detailedSearchController.getExternalDocCreatedBy(rafObject)}" />
+                    </p:column>
+
+                    <p:column headerText="İçeri Aktarılan Dosya Tarihi">
+                        <h:outputText value="#{detailedSearchController.getExternalDocCreatedDate(rafObject)}">
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>
                     </p:column>

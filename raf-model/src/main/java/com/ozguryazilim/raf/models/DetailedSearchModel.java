@@ -29,6 +29,9 @@ public class DetailedSearchModel {
 
     private Boolean searchInDocumentName = Boolean.TRUE;
 
+    private String sortBy;
+    private String sortOrder;
+
     public DetailedSearchModel() {
     }
 
@@ -42,6 +45,14 @@ public class DetailedSearchModel {
 
     public String getSearchSubPath() {
         return searchSubPath;
+    }
+
+    public String getSortBy() {
+        return sortBy;
+    }
+
+    public String getSortOrder() {
+        return sortOrder;
     }
 
     public void setSearchInDocumentName(Boolean searchInDocumentName) {
@@ -118,6 +129,14 @@ public class DetailedSearchModel {
 
     public void setMapAttValue(Map<String, Object> mapAttValue) {
         this.mapAttValue = mapAttValue;
+    }
+
+    public void setSortBy(String sortBy) {
+        this.sortBy = sortBy;
+    }
+
+    public void setSortOrder(String sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
 }

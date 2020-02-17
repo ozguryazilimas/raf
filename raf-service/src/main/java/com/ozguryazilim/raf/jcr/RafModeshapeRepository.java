@@ -116,6 +116,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_CREATED_DATE = "jcr:created";
     private static final String PROP_CREATED_BY = "jcr:createdBy";
 
+    private static final String PROP_UPDATED_DATE = "jcr:lastModified";
+    private static final String PROP_UPDATED_BY = "jcr:lastModifiedBy";
+
     private RafEncoder encoder;
     private Boolean debugMode = Boolean.FALSE;
 
@@ -472,12 +475,16 @@ public class RafModeshapeRepository implements Serializable {
                     if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
                         sortBy = PROP_TITLE;
                     } else if ("DATE".equals(sortBy)) {
-                        sortBy = PROP_CREATED_DATE;
+                        sortBy = PROP_UPDATED_DATE;
                     } else if ("DATE".equals(sortBy)) {
                         sortBy = "jcr:mimeType";
                     }
 
                     expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? "DESC" : "ASC");
+
+                    if (PROP_UPDATED_DATE.equals(sortBy)) {
+                        expression += " , ".concat(" nodes.[" + PROP_CREATED_DATE + "]").concat(descSort ? " DESC " : " ASC ");
+                    }
                 }
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
@@ -801,7 +808,9 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
+    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
+            List<RafDefinition> rafs,
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -888,6 +897,10 @@ public class RafModeshapeRepository implements Serializable {
                     lastWhereExpression += whereExpression.concat(" AND ");
                 }
                 lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSortBy())) {
+                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(searchModel.getSortOrder()).concat(" "));
             }
 
             if (lastWhereExpression.contains("exdoc")) {
@@ -2053,8 +2066,8 @@ public class RafModeshapeRepository implements Serializable {
 
         result.setMimeType(s);
 
-        result.setUpdateBy(cn.getProperty("jcr:lastModifiedBy").getString());
-        result.setUpdateDate(cn.getProperty("jcr:lastModified").getDate().getTime());
+        result.setUpdateBy(cn.getProperty(PROP_UPDATED_BY).getString());
+        result.setUpdateDate(cn.getProperty(PROP_UPDATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));

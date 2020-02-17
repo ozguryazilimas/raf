@@ -64,10 +64,10 @@
                                 #{item.name}
                             </td>
                             <td>
-                                #{userLookup.getUserName(item.createBy)}
+                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))}
                             </td>
                             <td>
-                                <t:cellOutputDateTime value="#{item.createDate}"/>
+                                <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
                             </td>
                             <td>
                                 #{item.info}

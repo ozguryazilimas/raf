@@ -13,12 +13,14 @@ import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,5 +194,23 @@ public class DetailedSearchController implements Serializable {
 
     public String getFileLink(RafObject doc) {
         return String.format("/dolap/raf.jsf?id=%s&o=%s", getRafFromPath(doc.getPath()), doc.getId());
+    }
+
+    public String getExternalDocCreatedBy(RafObject rafObject) {
+        for (RafMetadata metadata : rafObject.getMetadatas()) {
+            if ("externalDoc:metadata".equals(metadata.getType())) {
+                return metadata.getAttributes().get("externalDoc:documentCreator").toString();
+            }
+        }
+        return "";
+    }
+
+    public Date getExternalDocCreatedDate(RafObject rafObject) {
+        for (RafMetadata metadata : rafObject.getMetadatas()) {
+            if ("externalDoc:metadata".equals(metadata.getType())) {
+                return (Date) metadata.getAttributes().get("externalDoc:documentCreateDate");
+            }
+        }
+        return null;
     }
 }

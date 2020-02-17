@@ -316,19 +316,21 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Bütün metadata keyleri içerisinde ':' barındıracak. Onları süreç değişkeni olarak koymayalım. ex: raf:topic 
         //FIXME: ana nodu ilgilendiren şeyleri nasıl ayıracağız? raf: ile başlıypor ise ana nodu ilgilendiriyordur!
         for (Map.Entry<String, Object> e : data.entrySet()) {
-            //Zaten tanıdık bildik bir şey değil ise out'a dolduralım
-            if (!e.getKey().contains(":")) {
-                completeParams.putIfAbsent(e.getKey(), e.getValue());
-            }
+            if (e != null && !Strings.isNullOrEmpty(e.getKey())) {
+                //Zaten tanıdık bildik bir şey değil ise out'a dolduralım
+                if (!e.getKey().contains(":")) {
+                    completeParams.putIfAbsent(e.getKey(), e.getValue());
+                }
 
-            //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
-            //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
-            if (e.getKey().contains("departman")) {
-                completeParams.putIfAbsent("departman", e.getValue());
-            }
+                //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
+                //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
+                if (e.getKey().contains("departman")) {
+                    completeParams.putIfAbsent("departman", e.getValue());
+                }
 
-            if (e.getKey().contains("uzman")) {
-                completeParams.putIfAbsent("uzman", e.getValue());
+                if (e.getKey().contains("uzman")) {
+                    completeParams.putIfAbsent("uzman", e.getValue());
+                }
             }
         }
 

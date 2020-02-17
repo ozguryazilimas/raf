@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import org.primefaces.model.SortOrder;
 
 /**
  *
@@ -52,7 +53,7 @@ public class SearchService implements Serializable {
         return 1000;//modeshapeRepository.getDetailedSearchCount(searchModel, rafs, rafPathMemberService, identity.getLoginName());
     }
 
-    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset) throws RafException {
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder) throws RafException {
         //FIXME: yetki kontrolleri yapılmalı.
         return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset);
     }

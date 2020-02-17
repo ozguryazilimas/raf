@@ -9,11 +9,11 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
-import com.ozguryazilim.telve.utils.DateUtils;
 import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -110,7 +110,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                                                     return x.getTags().isEmpty() ? "" : x.getTags().get(0);
                                                 case SORT_BY_DATE:
                                                     //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                                    return sdfForSort.format(x.getCreateDate()); // DateUtils.dateToStr(x.getCreateDate());
+                                                    return sdfForSort.format(getRafObjectDate(x)); // DateUtils.dateToStr(x.getCreateDate());
                                                 default:
                                                     return x.getName();
                                             }
@@ -238,6 +238,14 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
     }
 
+    public Date getRafObjectDate(RafObject rafObject) {
+        if (rafObject.getUpdateDate() != null) {
+            return rafObject.getUpdateDate();
+        } else {
+            return rafObject.getCreateDate();
+        }
+    }
+
     /**
      * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile
      * sıralaması da doğru olmalı.
@@ -248,7 +256,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
      */
     private int compareDate(RafObject t1, RafObject t2) {
         int r = compareFolder(t1, t2);
-        return r == 0 ? t1.getCreateDate().compareTo(t2.getCreateDate()) : r;
+        return r == 0 ? getRafObjectDate(t1).compareTo(getRafObjectDate(t2)) : r;
     }
 
     public List<RafObject> getGroupItems(String group) {
