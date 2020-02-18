@@ -479,12 +479,7 @@ public class RafModeshapeRepository implements Serializable {
                     } else if ("DATE".equals(sortBy)) {
                         sortBy = "jcr:mimeType";
                     }
-
                     expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? " DESC " : " ASC ");
-
-                    if (PROP_UPDATED_DATE.equals(sortBy)) {
-                        expression += " , ".concat(" nodes.[" + PROP_CREATED_DATE + "]").concat(descSort ? " DESC " : " ASC ");
-                    }
                 }
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
