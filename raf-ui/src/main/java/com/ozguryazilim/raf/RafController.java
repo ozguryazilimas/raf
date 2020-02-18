@@ -170,7 +170,9 @@ public class RafController implements Serializable {
     }
 
     public void nextPage() {
-        setPage(getPage() + getPageSize());
+        if (context.getCollection() != null && context.getCollection().getItems() != null && !context.getCollection().getItems().isEmpty()) {
+            setPage(getPage() + getPageSize());
+        }
     }
 
     public void previousPage() {

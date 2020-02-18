@@ -78,12 +78,14 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     public void nextPage() {
-        setPage(getPage() + getPageSize());
-        try {
-            clear();
-            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
-        } catch (RafException ex) {
-            LOG.error("RafException", ex);
+        if (getCollection() != null && getCollection().getItems() != null && !getCollection().getItems().isEmpty()) {
+            try {
+                setPage(getPage() + getPageSize());
+                clear();
+                setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+            } catch (RafException ex) {
+                LOG.error("RafException", ex);
+            }
         }
     }
 
