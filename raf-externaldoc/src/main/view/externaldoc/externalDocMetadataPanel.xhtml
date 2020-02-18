@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+
+    <t:accordion id="etdmdp" label="#{externalDocMetadataPanel.title}" columnClass="col-xs-12">
+
+        <t:outputText label="externalDoc.documentType" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentType']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentCreateDate" value="#{externalDocMetadataPanel.formatDate(externalDocMetadataPanel.metadata.attributes['externalDoc:documentCreateDate'])}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentCreator" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentCreator']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentParentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentParentFolder']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentFolder" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFolder']}" columnClass="col-xs-12"/>
+        <t:outputText label="externalDoc.documentName" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentName']}" columnClass="col-xs-12"/>        
+        <t:outputText label="externalDoc.documentFormat" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentFormat']}" columnClass="col-xs-12"/>                
+        <t:outputText label="externalDoc.documentStatus" value="#{externalDocMetadataPanel.metadata.attributes['externalDoc:documentStatus']}" columnClass="col-xs-12"/>
+
+    </t:accordion>
+
+
+</ui:composition>
+

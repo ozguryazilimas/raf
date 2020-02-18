@@ -1,0 +1,15 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:panel id="folderDivideSettings" header="Klasör Bölme Ayarları">
+        <p:outputLabel value="Klasör Yolu"/>
+        <p:inputText value="#{folderDivideByYearsCommandEditor.command.targetFolder}"/>
+
+        <p:outputLabel value="Adına Göre Böl"/>
+        <p:selectBooleanCheckbox value="#{folderDivideByYearsCommandEditor.command.divideByFolderName}" />
+
+        <p:outputLabel value="Oluşturma Tarihine Göre Böl"/>
+        <p:selectBooleanCheckbox value="#{folderDivideByYearsCommandEditor.command.divideByCreateDate}" />
+    </p:panel>
+</ui:composition>

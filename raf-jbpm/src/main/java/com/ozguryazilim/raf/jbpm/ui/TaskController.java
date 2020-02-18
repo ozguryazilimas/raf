@@ -5,9 +5,13 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
+import com.ozguryazilim.raf.department.RafDepartmentMemberRepository;
+import com.ozguryazilim.raf.department.RafDepartmentRepository;
+import com.ozguryazilim.raf.entities.RafDepartment;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
@@ -64,20 +68,26 @@ public class TaskController implements Serializable, FormController, DocumentsWi
     @Inject
     private FileUploadAction fileUploadAction;
 
+    @Inject
+    private RafDepartmentRepository departmentRepository;
+
+    @Inject
+    private RafDepartmentMemberRepository departmentMemberRepository;
+
     private static final Status[] allActiveStatuses = new Status[]{
-            Status.Created,
-            Status.Ready,
-            Status.Reserved,
-            Status.InProgress
+        Status.Created,
+        Status.Ready,
+        Status.Reserved,
+        Status.InProgress
     };
 
     private static final Status[] allInactiveStatuses = new Status[]{
-            Status.Suspended,
-            Status.Completed,
-            Status.Failed,
-            Status.Error,
-            Status.Exited,
-            Status.Obsolete
+        Status.Suspended,
+        Status.Completed,
+        Status.Failed,
+        Status.Error,
+        Status.Exited,
+        Status.Obsolete
     };
 
     private TaskFilter filter;
@@ -160,7 +170,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     public String getProcessName(String deploymentId, String processId) {
         ProcessDefinition processDesc = runtimeDataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
-        return processDesc.getName();
+        return processDesc == null || processDesc.getName() == null ? "" : processDesc.getName();
     }
 
     public void selectTask(Long taskId) {
@@ -238,6 +248,22 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
 
         for (Field f : form.getFields()) {
+            if (f instanceof PersonSelectionField) {
+                metadata.forEach((k, v) -> {
+                    if (k.contains("departman")) {
+                        ((PersonSelectionField) f).getValues().clear();
+                        List<RafDepartment> listDP = departmentRepository.findByCode(v.toString());
+                        if (!listDP.isEmpty()) {
+                            listDP.get(0).getMembers().forEach((m) -> {
+                                if (((PersonSelectionField) f).getRole().equals(m.getRole())) {
+                                    ((PersonSelectionField) f).getValues().add(m.getMemberName());
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
             f.setData(data);
         }
 
@@ -290,37 +316,41 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Bütün metadata keyleri içerisinde ':' barındıracak. Onları süreç değişkeni olarak koymayalım. ex: raf:topic 
         //FIXME: ana nodu ilgilendiren şeyleri nasıl ayıracağız? raf: ile başlıypor ise ana nodu ilgilendiriyordur!
         for (Map.Entry<String, Object> e : data.entrySet()) {
-            //Zaten tanıdık bildik bir şey değil ise out'a dolduralım
-            if (!e.getKey().contains(":")) {
-                completeParams.putIfAbsent(e.getKey(), e.getValue());
-            }
-            
-            //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
-            //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
-            if( e.getKey().contains("departman")){
-                completeParams.putIfAbsent("departman", e.getValue());
+            if (e != null && !Strings.isNullOrEmpty(e.getKey())) {
+                //Zaten tanıdık bildik bir şey değil ise out'a dolduralım
+                if (!e.getKey().contains(":")) {
+                    completeParams.putIfAbsent(e.getKey(), e.getValue());
+                }
+
+                //FIXME: hem metadata hem de out param olacak şeyler için bir çözüm bulmalı!!!
+                //Buradaki kod arayüzden ilgili departman bilgisini bir sonraki taska geçmek için kullanılıyor.
+                if (e.getKey().contains("departman")) {
+                    completeParams.putIfAbsent("departman", e.getValue());
+                }
+
+                if (e.getKey().contains("uzman")) {
+                    completeParams.putIfAbsent("uzman", e.getValue());
+                }
             }
         }
 
         //Data alanında olan herşeyi metadata bloğuna koyuyoruz.
         completeParams.put("metadata", data);
 
-        
         //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
         //FIXME: Eğer kullanıcının yöneticisi yok ise merkezi bir kullanıcıya düşürsek mi? Boşta kalan şeylerin yöneticisi şeklinde?
         completeParams.put("manager", identity.getUserInfo().getManager());
-        
-        
+
         LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
 
         //FIXME: eğer geriye task kalmamış ise ne olacak?
-        List<TaskSummary> ls = getTasks();
-        if (!ls.isEmpty()) {
-            selectTask(ls.get(0).getId());
-        } else {
-            selectedTask = null;
-        }
+//        List<TaskSummary> ls = getTasks();
+//        if (!ls.isEmpty()) {
+//            selectTask(ls.get(0).getId());
+//        } else {
+        selectedTask = null;
+//        }
     }
 
     /**
@@ -409,7 +439,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Override
     public void upload() {
-        fileUploadAction.execute("PROCESS", recordObject.getPath());
+        fileUploadAction.execute("PROCESS", recordObject.getPath(), recordObject);
     }
 
     @Override

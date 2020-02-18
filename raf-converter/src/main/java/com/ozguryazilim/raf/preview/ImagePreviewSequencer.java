@@ -57,6 +57,7 @@ public class ImagePreviewSequencer extends Sequencer {
                 previewNode.setProperty("jcr:data", preview);
             }
 
+
             LOG.debug("preview generating success..");
         } catch (Exception e) {
             LOG.warn("Preview cannot generated", e);

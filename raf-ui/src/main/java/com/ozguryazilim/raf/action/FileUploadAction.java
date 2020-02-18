@@ -7,7 +7,9 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -68,6 +70,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
 
     private String rafCode;
     private String uploadPath;
+    private RafRecord targetRecord;
     private boolean actionExec = Boolean.TRUE;
     private boolean versionManagementEnabled = Boolean.FALSE;
 
@@ -76,7 +79,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         try {
             boolean permission = false;
 
-            if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
                 permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
                 permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
@@ -87,6 +90,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
             LOG.error("Error", ex);
             return super.applicable(forCollection);
         }
+    }
+
+    public RafRecord getTargetRecord() {
+        return targetRecord;
     }
 
     @Override
@@ -134,6 +141,11 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         fileUploadDialog.openDialog(this, "");
     }
 
+    public void execute(String rafCode, String uploadPath, RafRecord targetRecord) {
+        this.targetRecord = targetRecord;
+        this.execute(rafCode, uploadPath);
+    }
+
     /**
      * Burada kütüphanenin dialoğu kullanıldığı için her zaman için geriye true
      * dönecek.
@@ -165,6 +177,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         return uploadPath;
     }
 
+    public void setTargetRecord(RafRecord targetRecord) {
+        this.targetRecord = targetRecord;
+    }
+
     public void setUploadPath(String uploadPath) {
         this.uploadPath = uploadPath;
     }
@@ -194,7 +210,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
                 if (versionManagementEnabled && checkFileExists(absPath)) {
                     throw new RafException("File is exists");
                 }
-                rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
+                RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
+                if (uploadedDocument != null && "PROCESS".equals(rafCode) && targetRecord != null) {
+                    rafService.moveObject(uploadedDocument, targetRecord);
+                }
             }
 
             fileUploadService.deleteUpload(uri);

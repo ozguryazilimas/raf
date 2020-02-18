@@ -13,8 +13,17 @@
         </ui:include>
     </ui:fragment>
 
+    <ui:remove>
+        <p:toolbar>
+            <f:facet name="left">
+                <p:commandButton action="#{rafController.previousPage()}" update="raf-view-content" ajax="true" process="@this" value="Önceki Sayfa" icon="pi pi-chevron-left" />
+
+                <p:commandButton action="#{rafController.nextPage()}" update="raf-view-content" ajax="true" process="@this"  value="Sonraki Sayfa" icon="pi pi-chevron-right" />
+            </f:facet>
+        </p:toolbar>
+    </ui:remove>
     <div class="content-view-port">
-        <div class="raf-container" >
+        <div class="raf-container" >           
             <ui:repeat value="#{viewBean.groupNames}" var="group" >
                 <div class="raf-container-item-group">
                     <ui:fragment rendered="#{viewBean.groupBy}">
@@ -36,7 +45,7 @@
                                                 </svg>
                                                 <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                             </p:commandLink>
-                                            
+
                                         </div>
                                     </span>
                                     <span class="raf-container-item-item-cnd">
@@ -45,10 +54,10 @@
                                         </p:commandLink>
 
                                         <ui:fragment rendered="#{viewBean.showDetails}">
-                                            
+
                                             <div class="text-muted text-sm">#{item.name}</div>
                                             <div class="text-muted text-sm">
-                                                #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))} | <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
                                             </div>
 
                                             <ui:fragment rendered="#{not empty item.info}">

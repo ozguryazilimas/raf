@@ -1,0 +1,54 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="dbSettings" header="Doxoft Veritabanı Ayarları">
+            <p:outputLabel value="Doxoft Veritabanı Sunucusu"/>
+            <p:inputText value="#{doxoftImporterCommandEditor.command.dbHostName}"/>
+
+            <p:outputLabel value="Doxoft Veritabanı Port No."/>
+            <p:inputText value="#{doxoftImporterCommandEditor.command.dbPort}"/>
+
+            <p:outputLabel value="Doxoft Veritabanı Kullanıcı Adı"/>
+            <p:inputText value="#{doxoftImporterCommandEditor.command.dbUserName}"/>
+
+            <p:outputLabel value="Doxoft Veritabanı Parola"/>
+            <p:inputText value="#{doxoftImporterCommandEditor.command.dbPassword}"/>
+
+            <p:outputLabel value="Doxoft Veritabanı Adı"/>
+            <p:inputText value="#{doxoftImporterCommandEditor.command.dbName}"/>
+
+            <p:outputLabel value="Sadece İş Akışındaki Dokumanları Aktar"/>
+            <p:selectBooleanCheckbox value="#{doxoftImporterCommandEditor.command.importInWFDocuments}" itemLabel="EVET"/>
+
+            <p:outputLabel value="Dokuman Özel Alanlarını Tabloya Aktar"/>
+            <p:selectBooleanCheckbox value="#{doxoftImporterCommandEditor.command.importDocumentAttributes}" itemLabel="EVET"/>
+
+        </p:panel>
+        <p:panel id="dbAbsolutePathSettings" header="Doxoft Fiziki Klasör Ayarları">
+            <p:panelGrid columns="2">
+                <p:panel>
+                    <p:outputLabel value="Doxoft Fiziki Klasör Adları"/>
+                    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFileServerDirectoryNames}"/>
+                </p:panel>
+                <p:panel>
+                    <p:outputLabel value="Doxoft Fiziki Klasör Yolu"/>
+                    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFileServerDirectoryPaths}"/>
+                </p:panel>
+            </p:panelGrid>
+        </p:panel>
+        <p:panel id="dbVirtualPathSettings" header="Doxoft Sanal Klasör Ayarları">
+            <p:panelGrid columns="2">
+                <p:panel>
+                    <p:outputLabel value="Doxoft Sanal Klasör Adları"/>
+                    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.doxoftFolderNames}"/>
+                </p:panel>
+                <p:panel>
+                    <p:outputLabel value="Doxoft Sanal Klasör Adlarının RAF Karşılıkları"/>
+                    <p:inputTextarea value="#{doxoftImporterCommandEditor.command.rafNames}"/>
+                </p:panel>
+            </p:panelGrid>
+        </p:panel>
+    </p:scrollPanel>
+</ui:composition>

@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.forms;
 
 import com.ozguryazilim.raf.forms.builders.AbstractFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.DateFieldBuilder;
+import com.ozguryazilim.raf.forms.builders.PersonSelectionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.RafDocumentFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.RafFolderFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.SelectionFieldBuilder;
@@ -10,6 +11,7 @@ import com.ozguryazilim.raf.forms.builders.TextFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.UserFieldBuilder;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.DateField;
+import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.model.RafDocumentField;
 import com.ozguryazilim.raf.forms.model.RafFolderField;
 import com.ozguryazilim.raf.forms.model.SelectionField;
@@ -28,42 +30,41 @@ import org.slf4j.LoggerFactory;
 public class FieldTypeRegistery {
 
     private static final Logger LOG = LoggerFactory.getLogger(FieldTypeRegistery.class);
-    
+
     private static Map<String, Class<? extends AbstractField>> fieldTypeMap = new HashMap<>();
     private static Map<String, Class<? extends AbstractFieldBuilder>> fieldBuilderMap = new HashMap<>();
-            
-    
-    public static void register( String typeName, Class<? extends AbstractField> clz, Class<? extends AbstractFieldBuilder> bclz ){
+
+    public static void register(String typeName, Class<? extends AbstractField> clz, Class<? extends AbstractFieldBuilder> bclz) {
         fieldTypeMap.put(typeName, clz);
         fieldBuilderMap.put(typeName, bclz);
         LOG.info("Field Registered : {}", typeName);
     }
-    
-    public static Class<? extends AbstractField> getTypeClass( String typeName ){
+
+    public static Class<? extends AbstractField> getTypeClass(String typeName) {
         return fieldTypeMap.get(typeName);
     }
-    
-    public static AbstractField getField( String typeName ) throws InstantiationException, IllegalAccessException{
+
+    public static AbstractField getField(String typeName) throws InstantiationException, IllegalAccessException {
         return getTypeClass(typeName).newInstance();
     }
-    
-    public static Class<? extends AbstractFieldBuilder> getBuilderClass( String typeName ){
+
+    public static Class<? extends AbstractFieldBuilder> getBuilderClass(String typeName) {
         return fieldBuilderMap.get(typeName);
     }
-    
-    public static AbstractFieldBuilder getFieldBuilder( String typeName ) throws InstantiationException, IllegalAccessException{
+
+    public static AbstractFieldBuilder getFieldBuilder(String typeName) throws InstantiationException, IllegalAccessException {
         Class<? extends AbstractFieldBuilder> clz = getBuilderClass(typeName);
-        if( clz == null ){
+        if (clz == null) {
             LOG.error("Type not registered : {}", typeName);
             return null;
         }
         return clz.newInstance();
     }
-    
-    
+
     static {
         FieldTypeRegistery.register("Text", TextField.class, TextFieldBuilder.class);
         FieldTypeRegistery.register("Selection", SelectionField.class, SelectionFieldBuilder.class);
+        FieldTypeRegistery.register("PersonSelection", PersonSelectionField.class, PersonSelectionFieldBuilder.class);
         FieldTypeRegistery.register("Suggestion", SuggestionField.class, SuggestionFieldBuilder.class);
         FieldTypeRegistery.register("Date", DateField.class, DateFieldBuilder.class);
         FieldTypeRegistery.register("User", UserField.class, UserFieldBuilder.class);

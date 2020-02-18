@@ -34,6 +34,7 @@ import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +125,33 @@ public class RafController implements Serializable {
     private Boolean showManagerTools = Boolean.TRUE;
     private Boolean showRafObjectManagerTools = Boolean.TRUE;
 
+    private Integer page = 0;
+    private Integer pageSize = 50;
+    private Integer pageCount = 0;
+
+    private String sortBy = "NAME";
+    private Boolean descSort = Boolean.FALSE;
+
+    public Boolean getDescSort() {
+        return descSort;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public Integer getPageCount() {
+        return pageCount;
+    }
+
+    public String getSortBy() {
+        return sortBy;
+    }
+
     @PostConstruct
     public void initDefaults() {
         showFolders = kahve.get("raf.showFolders", Boolean.TRUE).getAsBoolean();
@@ -136,6 +164,23 @@ public class RafController implements Serializable {
         selectedCollectionContentPanel = selectedContentPanel;
         //selectedContentPanel= collectionCompactViewPanel;
         //selectedCollectionContentPanel = collectionCompactViewPanel;
+        setPage(0);
+        setSortBy(kahve.get("raf.sortBy", "NAME").getAsString());
+        setDescSort(kahve.get("raf.descSort", Boolean.FALSE).getAsBoolean());
+    }
+
+    public void nextPage() {
+        if (context.getCollection() != null && context.getCollection().getItems() != null && !context.getCollection().getItems().isEmpty()) {
+            setPage(getPage() + getPageSize());
+        }
+    }
+
+    public void previousPage() {
+        int newPage = getPage() - getPageSize();
+        if (newPage < 0) {
+            newPage = 0;
+        }
+        setPage(newPage);
     }
 
     /**
@@ -165,6 +210,7 @@ public class RafController implements Serializable {
      * ViewAction olarak
      */
     public void init() {
+        setPage(0);
 
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
         if (Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId)) {
@@ -233,7 +279,8 @@ public class RafController implements Serializable {
                 RafObject obj = rafService.getRafObject(objectId);
 
                 RafFolder fld = null;
-
+                //Selected object panel seçininden önce yapılmalı, zira panel object tipine göre tespit ediliyor.
+                context.setSelectedObject(obj);
                 //şimdi objenin tipine bakarak bazı kararlar verelim
                 if (obj instanceof RafDocument || obj instanceof RafRecord) {
 
@@ -251,8 +298,6 @@ public class RafController implements Serializable {
                 }
 
                 populateFolderCollection(fld.getId());
-
-                context.setSelectedObject(obj);
 
                 try {
                     showRafObjectManagerTools = !Strings.isNullOrEmpty(getObjectId()) && rafDefinition.getId() > 0 && (memberService.hasManagerRole(identity.getLoginName(), rafDefinition) || rafObjectMemberService.hasManagerRole(identity.getLoginName(), obj.getPath()));
@@ -290,6 +335,52 @@ public class RafController implements Serializable {
 
     public String getRafCode() {
         return rafCode;
+    }
+
+    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
+        if (rafObject.getUpdateDate() != null) {
+            return rafObject.getUpdateDate();
+        } else {
+            return rafObject.getCreateDate();
+        }
+    }
+
+    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
+        if (rafObject.getUpdateBy() != null) {
+            return rafObject.getUpdateBy();
+        } else {
+            return rafObject.getCreateBy();
+        }
+    }
+
+    public void setDescSort(Boolean descSort) {
+        boolean changing = this.descSort != descSort;
+        this.descSort = descSort;
+        if (changing) {
+            kahve.put("raf.descSort", descSort);
+            try {
+                if (context.getSelectedObject() != null) {
+                    populateFolderCollection(context.getSelectedObject().getId());
+                } else if (context.getCollection() != null) {
+                    populateFolderCollection(context.getCollection().getId());
+                }
+
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+        }
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public void setPageCount(Integer pageCount) {
+        this.pageCount = pageCount;
     }
 
     public void setRafCode(String rafCode) {
@@ -605,6 +696,24 @@ public class RafController implements Serializable {
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
+    public void setSortBy(String sortBy) {
+        boolean changing = !this.sortBy.equals(sortBy);
+        this.sortBy = sortBy;
+        if (changing) {
+            kahve.put("raf.sortBy", sortBy);
+            try {
+                if (context.getSelectedObject() != null) {
+                    populateFolderCollection(context.getSelectedObject().getId());
+                } else if (context.getCollection() != null) {
+                    populateFolderCollection(context.getCollection().getId());
+                }
+
+            } catch (RafException ex) {
+                LOG.error("Raf Exception", ex);
+            }
+        }
+    }
+
     /**
      * Birşeyler upload edildiğinde çağırılır.
      *
@@ -618,6 +727,7 @@ public class RafController implements Serializable {
     }
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
+        setPage(0);
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
@@ -639,6 +749,17 @@ public class RafController implements Serializable {
      */
     public void folderDataListener(@Observes RafFolderDataChangeEvent event) {
         LOG.info("RafFolderCreateEvent");
+        try {
+            if (context.getSelectedObject() != null) {
+                populateFolderCollection(context.getSelectedObject().getId());
+            } else {
+                populateFolderCollection(context.getCollection().getId());
+            }
+
+        } catch (RafException ex) {
+            LOG.error("Raf Exception", ex);
+        }
+
         //Collection'ı yeniden çekmek lazım.
         //selectFolderById(context.getCollection().getId());
 
@@ -653,7 +774,7 @@ public class RafController implements Serializable {
 
     protected void populateFolderCollection(String folderId) throws RafException {
 
-        RafCollection collection = rafService.getCollection(folderId);
+        RafCollection collection = rafService.getCollectionPaged(folderId, getPage(), getPageSize(), false, getSortBy(), getDescSort());
 
         if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.

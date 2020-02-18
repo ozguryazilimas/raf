@@ -1,0 +1,232 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"                   
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:define name="body">
+        <style type="text/css">             
+            .ui-outputlabel {
+                font-weight: bold;
+            }
+
+            .ui-orderlist .ui-orderlist-list {
+                height: auto;
+            }
+
+        </style>
+
+        <script type="text/javascript">
+            window.onbeforeunload = function ()
+            {
+                clearFunc();
+            }
+
+        </script>
+        <h:form id="searchForm">
+            <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
+            <ui:include src="/layout/messages.xhtml" />
+
+            <div class="box box-primary">
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="ui-priority-primary" />
+                        <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="ui-priority-secondary" />
+                    </f:facet>
+                </p:toolbar>
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#generalSearch" data-toggle="tab">Genel Arama</a></li>
+                        <li><a href="#externalDocSearch" data-toggle="tab">İçeri Aktarılan Dosya Arama</a></li>                       
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="generalSearch">
+                            <div class="ui-fluid">
+                                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+
+                                    <p:outputLabel value="Klasör Yolu"/>
+                                    <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                                        <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" readonly="true" required="false"/>
+                                        <p:commandButton style="width: 50px; height: 30px;" action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', detailedSearchController.searchModel.searchSubPath )}" 
+                                                         partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
+                                            <p:ajax event="dialogReturn" listener="#{detailedSearchController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />   
+                                        </p:commandButton>
+                                    </p:panelGrid>                                    
+
+                                    <ui:remove>
+                                        <t:inputRafObjectLookupDialog value="#{detailedSearchController.searchModel.searchSubPath}" label="Klasör Yolu"  
+                                                                      lookupBean="#{rafObjectLookup}" lookupListener="userHome.entity.domainGroup" 
+                                                                      leafSelect="true" required="false" readonly="false" placeholder="klasör seçiniz."
+                                                                      lookupProfile="selectionType:Folder"
+                                                                      columnClass="col-md-6 col-xs-12"/>         
+
+                                    </ui:remove>
+
+
+                                    <ui:remove>
+                                        <p:outputLabel value="#{messages['permission.label.raf']}"/>
+                                        <p:selectOneMenu id="raf" value="#{detailedSearchController.searchModel.searchRaf}">
+                                            <f:selectItem itemLabel="Seçiniz" itemValue="#{null}" noSelectionOption="true"/>
+                                            <f:selectItems value="#{detailedSearchController.rafList}" var="rafDef" itemLabel="#{rafDef.name}" itemValue="#{rafDef.code}"  />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel value="Alt Klasör Yolu"/>
+                                        <p:inputText value="#{detailedSearchController.searchModel.searchSubPath}" placeholder="/EVRAKLAR/"/>
+                                    </ui:remove>
+                                    <p:outputLabel value="#{messages['collection.table.Date']}"/>
+                                    <p:panelGrid columns="3">
+                                        <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true"/>
+                                        <p:outputLabel value=":"/>
+                                        <p:calendar value="#{detailedSearchController.searchModel.dateTo}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true" />
+                                    </p:panelGrid>
+
+                                    <p:outputLabel value="#{messages['general.label.Search']}"/>
+                                    <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
+
+                                    <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
+                                    <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
+
+                                    <p:outputLabel value="Sıralama Alanı"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false">
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItem itemLabel="Dosya Yolu" itemValue="nodes.[jcr:path]" />
+                                        <f:selectItem itemLabel="Dosya Adı" itemValue="nodes.[jcr:title]" />
+                                        <f:selectItem itemLabel="Oluşturan" itemValue="nodes.[jcr:createBy]" />
+                                        <f:selectItem itemLabel="Oluşturma Tarihi" itemValue="nodes.[jcr:created]" />
+                                        <f:selectItem itemLabel="Değiştiren" itemValue="nodes.[jcr:lastModifiedBy]" />
+                                        <f:selectItem itemLabel="Değiştirme Tarihi" itemValue="nodes.[jcr:lastModified]" />
+                                        <f:selectItem itemLabel="İçeri Aktarılan Dosya Oluşturan" itemValue="exdoc.[externalDoc:documentCreator]" />
+                                        <f:selectItem itemLabel="İçeri Aktarılan Dosya Oluşturma Tarihi" itemValue="exdoc.[externalDoc:documentCreateDate]" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Sıralama Türü"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                                        <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                                    </p:selectOneMenu>
+                                </p:panelGrid>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="externalDocSearch">
+                            <div class="ui-fluid">
+                                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                                    <p:outputLabel value="Kayıt Tarihi (Başlangıç)"/>
+                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.registerDateFrom}" required="false"/>
+
+                                    <p:outputLabel value="Kayıt Tarihi (Bitiş)"/>
+                                    <p:calendar locale="tr" pattern="dd.MM.yyyy" value="#{detailedSearchController.searchModel.registerDateTo}" required="false"/>
+
+                                    <p:outputLabel value="Evrak Tipi"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false">
+                                        <p:ajax listener="#{detailedSearchController.onDocumentTypeChange}" update="searchWithMetaDatas" />
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{detailedSearchController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel value="İş Durumu"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentStatus}" required="false">
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItem itemLabel="Açık İşler" itemValue="AÇIK" />
+                                        <f:selectItem itemLabel="Kapalı İşler" itemValue="KAPALI" />
+                                    </p:selectOneMenu>
+                                </p:panelGrid>
+                            </div>
+                            <p:panel id="searchWithMetaDatas" header="Özel Alan Verilerine Göre Ara" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
+                                <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
+                                    <ui:repeat value="#{detailedSearchController.attributes}" var="recc" varStatus="status">
+                                        <div class="row">                   
+                                            <div class="col-md-4">
+                                                <p:outputLabel value="#{recc.attributeName}"/>    
+                                            </div>
+                                            <div class="col-md-8">
+                                                <ui:fragment rendered="#{recc.attributeType eq 'List'}">
+                                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false">
+                                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                                        <f:selectItems value="#{detailedSearchController.getListedAttributeValues(recc)}" var="listValueRec" itemLabel="#{listValueRec.listValue}" itemValue="#{listValueRec.listValue}" />
+                                                    </p:selectOneMenu>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{recc.attributeType eq 'String'}">
+                                                    <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{recc.attributeType eq 'Date'}">
+                                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{recc.attributeType eq 'Number'}">
+                                                    <p:inputNumber lang="tr" value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+                                                </ui:fragment>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </p:scrollPanel>
+                            </p:panel>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+
+            <div class="box box-primary">
+                <p:dataTable id="resultDataTable" 
+                             widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult}" emptyMessage="Kayıt yok."
+                             paginator="true" rows="20"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true">
+                    <p:column headerText="Dosya Yolu">
+                        <h:outputText value="#{rafObject.path}" />
+                    </p:column>
+
+                    <p:column headerText="Dosya Adı">
+                        <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafDocument'}">
+                            <p:commandLink action="#{rafDocumentViewDialog.openDialog(rafObject)}" process="@this">
+                                #{rafObject.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafRecord'}">
+                            <p:commandLink action="#{rafRecordViewDialog.openDialog(rafObject)}" process="@this">
+                                #{rafObject.title}
+                            </p:commandLink>
+                        </ui:fragment>
+                        <ui:remove>
+                            <a href="#{detailedSearchController.getFileLink(rafObject)}" target="_blank">
+                                <h:outputText value="#{rafObject.name}"/>
+                            </a>
+                        </ui:remove>
+                    </p:column>
+
+                    <p:column headerText="Oluşturan">
+                        <h:outputText value="#{rafObject.createBy}" />
+                    </p:column>
+
+                    <p:column headerText="Oluşturma Tarihi">
+                        <h:outputText value="#{rafObject.createDate}">
+                            <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Değiştiren">
+                        <h:outputText value="#{rafObject.updateBy}" />
+                    </p:column>
+
+                    <p:column headerText="Değiştirme Tarihi">
+                        <h:outputText value="#{rafObject.updateDate}">
+                            <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="İçeri Aktarılan Dosya Kaydeden">
+                        <h:outputText value="#{detailedSearchController.getExternalDocCreatedBy(rafObject)}" />
+                    </p:column>
+
+                    <p:column headerText="İçeri Aktarılan Dosya Tarihi">
+                        <h:outputText value="#{detailedSearchController.getExternalDocCreatedDate(rafObject)}">
+                            <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

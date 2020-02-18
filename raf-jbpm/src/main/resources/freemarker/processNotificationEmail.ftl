@@ -1,5 +1,5 @@
 <#ftl encoding="UTF-8">
 ${body} 
 
---
-provided by telve email channel
+${headers.description}
+Süreç Linki : http://raf.tspb.org.tr/dolap/bpm/processConsole.jsf?tid=${headers.ProcessInstanceId?string['#########']}

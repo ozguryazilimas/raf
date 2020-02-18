@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
  * @author oyas
  */
 @ApplicationScoped
-public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener{
+public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafTaskLifeCycleEventListener.class);
-    
+
     @Inject
     private CommandSender commandSender;
-    
+
     @Override
     public void beforeTaskActivatedEvent(TaskEvent event) {
         LOG.debug("beforeTaskActivatedEvent : {}", event);
@@ -147,47 +147,47 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
         LOG.debug("Task PotOwners : {}", pa.getPotentialOwners());
         LOG.debug("Task BAs : {}", pa.getBusinessAdministrators());
         LOG.debug("Task Owner : {}", event.getTask().getTaskData().getActualOwner());
-    
+
         NotificationCommand ncm = new NotificationCommand();
-        
+
         ncm.setNotificationClass("TaskAssignment");
         ncm.setSender("SYSTEM");
-        
+
         //FIXME: Burada pots, bas ve stakeholder'lara da ayrı mesajlar iletmek lazım.
-        ncm.setSubject( "Göreviniz var : " + event.getTask().getName());
+        ncm.setSubject("Göreviniz var : " + event.getTask().getName());
         //Eğer gerçek bir kişiye atanmış ise ona bildirim göndereceğiz
-        if( event.getTask().getTaskData().getActualOwner() != null ){
+        if (event.getTask().getTaskData().getActualOwner() != null) {
             ncm.setTarget("cs=user;id=" + event.getTask().getTaskData().getActualOwner().getId());
         } else {
             //Gerçek kişi yoksa grup olsa gerek
             PeopleAssignments pas = event.getTask().getPeopleAssignments();
             LOG.debug("Atanabilecek kullanıcılar : {}", pas.getPotentialOwners());
             LOG.debug("BAs kullanıcılar : {}", pas.getBusinessAdministrators());
-            
+
             List<String> targets = new ArrayList<>();
-            
+
             pas.getPotentialOwners().forEach((oe) -> {
-                if( oe instanceof Group ){
+                if (oe instanceof Group) {
                     targets.add("cs=group;id=" + oe.getId());
-                } else if( oe instanceof User ){
+                } else if (oe instanceof User) {
                     targets.add("cs=user;id=" + oe.getId());
                 }
             });
-            
+
             ncm.setTarget(Joiner.on("||").join(targets));
         }
-        
+
         Map<String, Object> params = new HashMap<>();
-        
+
         params.put("TaskSubject", event.getTask().getSubject());
         params.put("TaskDescription", event.getTask().getDescription());
         params.put("TaskId", event.getTask().getId());
-        params.put("Task Name", event.getTask().getName());
+        params.put("TaskName", event.getTask().getName());
         params.put("ProcessId", event.getTask().getTaskData().getProcessId());
         params.put("ProcessInstanceId", event.getTask().getTaskData().getProcessInstanceId());
         params.put("DeploymentId", event.getTask().getTaskData().getDeploymentId());
         ncm.setParams(params);
-        
+
         commandSender.sendCommand(ncm);
     }
 
@@ -225,5 +225,5 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
     public void afterTaskNominatedEvent(TaskEvent event) {
         LOG.debug("afterTaskNominatedEvent : {}", event);
     }
-    
+
 }

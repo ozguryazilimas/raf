@@ -7,8 +7,6 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
     private String WRITE = "set_property";
     private String CREATE = "add_node";
     private String DELETE = "remove";
+    private String DELETE_CHILD = "remove_child_nodes";
 
     @Override
     public ExecutionContext authenticate(Credentials credentials, String repositoryName, String workspaceName, ExecutionContext repositoryContext, Map<String, Object> sessionAttributes) {
@@ -40,11 +39,11 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     public boolean hasRafPermission(String docPath, List<String> actionList) {
         boolean rafPermission = true;
-        LOG.debug("Path : {}", docPath);
+//        LOG.debug("Path : {}", docPath);
         String[] paths = docPath.split("/");
         if (paths != null && paths.length > 2) {
             String rafCode = paths[2];
-            LOG.debug("Raf Code : {}", rafCode);
+//            LOG.debug("Raf Code : {}", rafCode);
             if (!Strings.isNullOrEmpty(rafCode)) {
                 RafDefinition rafDef;
                 try {
@@ -54,7 +53,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                             rafPermission = getRafMemberService().hasReadRole(getIdentity().getLoginName(), rafDef);
                         } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
                             rafPermission = getRafMemberService().hasWriteRole(getIdentity().getLoginName(), rafDef);
-                        } else if (actionList.contains(DELETE)) {
+                        } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
                             rafPermission = getRafMemberService().hasDeleteRole(getIdentity().getLoginName(), rafDef);
                         }
                     }
@@ -64,20 +63,20 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
             }
         }
-        LOG.debug("Raf Permission : {}", rafPermission);
+//        LOG.debug("Raf Permission : {}", rafPermission);
         return rafPermission;
     }
 
     public boolean hasRafPathPermission(String docPath, List<String> actionList) {
         boolean permission = false;
-        LOG.debug("Path : {}", docPath);
+//        LOG.debug("Path : {}", docPath);
         if (!Strings.isNullOrEmpty(docPath)) {
             try {
                 if (actionList.contains(READ)) {
                     permission = getRafPathMemberService().hasReadRole(getIdentity().getLoginName(), docPath);
                 } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
                     permission = getRafPathMemberService().hasWriteRole(getIdentity().getLoginName(), docPath);
-                } else if (actionList.contains(DELETE)) {
+                } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
                     permission = getRafPathMemberService().hasDeleteRole(getIdentity().getLoginName(), docPath);
                 }
 
@@ -85,28 +84,30 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                 LOG.error("RafException", ex);
             }
         }
-        LOG.debug("Raf Permission : {}", permission);
+//        LOG.debug("Raf Permission : {}", permission);
         return permission;
     }
 
     @Override
     public boolean hasPermission(ExecutionContext context, String repositoryName, String repositorySourceName, String workspaceName, Path absPath, String... actions) {
         //FIXME: Bunun detaylarına bir bakmak lazım.
-        boolean permission = false;
+        boolean permission = true;
         if (absPath != null) {
             try {
-                LOG.debug("Actions : {}", actions);
-                List<String> actionList = Arrays.asList(actions);
-                String docPath = URLDecoder.decode(absPath.getNormalizedPath().getString().replace("{}", ""), "UTF-8");
-
-                //path içinde herhangi bir üyelği varsa önce ona bak.
-                if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
-                    permission = hasRafPathPermission(docPath, actionList);
-                } else {
-                    permission = hasRafPermission(docPath, actionList);
+                if (absPath.isAbsolute()) {
+//                    LOG.debug("Actions : {}", actions);
+                    List<String> actionList = Arrays.asList(actions);
+                    String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
+                    //path içinde herhangi bir üyelği varsa önce ona bak.
+                    if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
+                        permission = hasRafPathPermission(docPath, actionList);
+                    } else {
+                        permission = hasRafPermission(docPath, actionList);
+                    }
                 }
-            } catch (UnsupportedEncodingException ex) {
-                LOG.error("UnsupportedEncodingException", ex);
+            } catch (Exception ex) {
+                LOG.debug("Error in path : {}", absPath);
+                LOG.error("Exception", ex);
             }
             return permission;
         }

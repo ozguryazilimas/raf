@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+
+    <t:accordion id="edtwfstpmdp" label="#{externalDocWFStepMetadataPanel.title}" columnClass="col-xs-12">
+
+        <ui:repeat value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:startedDateTime'].split(';')}" var="startedDate" varStatus="myVarStatus">
+
+            <t:outputText label="externalDocWFStep.stepName" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:stepName'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.startedDate" value="#{startedDate}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.starter" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:starter'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.state" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:state'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.completeDate" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:completeDateTime'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.completer" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:completer'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>
+            <t:outputText label="externalDocWFStep.comment" value="#{externalDocWFStepMetadataPanel.metadata.attributes['externalDocWFStep:comment'].split(';')[myVarStatus.index]}" columnClass="col-xs-12"/>            
+
+        </ui:repeat>
+
+    </t:accordion>
+
+
+</ui:composition>
+

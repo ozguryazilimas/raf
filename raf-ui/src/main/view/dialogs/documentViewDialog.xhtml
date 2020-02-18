@@ -11,59 +11,62 @@
     <ui:param name="title" value="Belge Detayları" />
 
     <ui:define name="form" >
-        
+
         <script>
-            
+
             function maximazeDialog2() {
-    w = jQuery(parent.window).width();
-    h = jQuery(parent.window).height();
-    
-        jQuery('.ui-dialog', parent.document).each(function () {
-            wd = jQuery(this);
-            var wv = wd.attr('data-widgetvar');
-
-            if (wv != undefined) {
-                //parent.PF(wv).toggleMaximize();
                 w = jQuery(parent.window).width();
-                h = jQuery(parent.window).height();// - 100;
-                wd.css('height', h + 'px');
-                wd.css('width', w + 'px');
-                wd.css('top', '0px');
-                wd.css('left', '0px');
-                wd.css('z-index', '1035');
+                h = jQuery(parent.window).height();
 
-                iff = jQuery('iframe', this);
-                h = h - 90;
-                w = w - 30;
-                iff.css('height', h + 'px');
-                iff.css('width', w + 'px');
+                jQuery('.ui-dialog', parent.document).each(function () {
+                    wd = jQuery(this);
+                    var wv = wd.attr('data-widgetvar');
+
+                    if (wv != undefined) {
+                        //parent.PF(wv).toggleMaximize();
+                        w = jQuery(parent.window).width();
+                        h = jQuery(parent.window).height() - 100;
+                        wd.css('height', h + 'px');
+                        wd.css('width', w + 'px');
+                        wd.css('top', '0px');
+                        wd.css('left', '0px');
+                        wd.css('z-index', '10000');
+
+                        iff = jQuery('iframe', this);
+                        h = h - 90;
+                        w = w - 30;
+                        iff.css('height', h + 'px');
+                        iff.css('width', w + 'px');
+                    }
+
+                });
+
             }
 
-        });
-    
-}
-            
             //Dosya Seçim dialğu hem maximize olsun
             setTimeout(function () {
                 maximazeDialog2();
                 zIndexChange();
-            }, 100);
+            }, 500);
         </script>
-        
-        <h:form id="ff">
-            <h:panelGroup id="raf-view-content" styleClass="row" layout="block">
-                <ui:include src="#{rafDocumentViewDialog.viewId}" >
-                    <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
-                    <ui:param name="breadcrumbHide" value="true" />
-                </ui:include>
-            </h:panelGroup>
 
-            <div class="row">
-                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+        <!--<h:form id="documentViewDialogForm">-->
+        <div class="row">
+            <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                <h:form>
                     <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafDocumentViewDialog.cancelDialog()}" process="@this" styleClass="btn btn-primary"/>
-                </h:panelGroup>
-            </div>
-        </h:form>
+                </h:form>
+            </h:panelGroup>
+        </div>
+
+        <h:panelGroup id="raf-view-content" styleClass="row" layout="block">
+            <ui:include src="#{rafDocumentViewDialog.viewId}" >
+                <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
+                <ui:param name="breadcrumbHide" value="true" />
+            </ui:include>
+        </h:panelGroup>
+
+        <!--</h:form>-->
     </ui:define>
 
 </ui:composition>

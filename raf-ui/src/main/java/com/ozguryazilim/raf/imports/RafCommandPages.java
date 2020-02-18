@@ -14,4 +14,14 @@ public interface RafCommandPages extends Pages {
     @View
     public class FileImporterCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class DoxoftImporterCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class FolderDivideByYearsCommandEditor implements Admin {
+    };
 }
