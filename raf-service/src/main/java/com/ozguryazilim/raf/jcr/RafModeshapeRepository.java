@@ -471,6 +471,10 @@ public class RafModeshapeRepository implements Serializable {
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
                 String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
 
+                if (justFolders) {
+                    expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
+                }
+
                 if (!Strings.isNullOrEmpty(sortBy)) {
                     if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
                         sortBy = PROP_TITLE;
