@@ -19,7 +19,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Path("/auth")
@@ -76,7 +75,7 @@ public class RafAuthService implements Serializable {
 
             List<Group> ls = groupRepository.findByCode(groupCode);
             if (ls.isEmpty()) {
-                return Response.ok("Grup Bulunamadı").build();
+                return Response.ok("Grup Bulunamadı").status(200).build();
             }
 
             //FIXME: Burada yetki kontrolü gerek.

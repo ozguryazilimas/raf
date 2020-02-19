@@ -6,7 +6,6 @@ import com.ozguryazilim.raf.definition.RafDefinitionRepository;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMemberType;
-import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -16,12 +15,7 @@ import com.ozguryazilim.raf.models.RafObject;
 
 import java.io.*;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -84,11 +78,8 @@ public class RafUploadRest implements Serializable {
         try {
 
             //FIXME: fieldlar doğru mu? Dolumu kontrol edilmeli
-
             RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
-
             //FIXME: Burada yetki kontrolü gerek.
-
             RafFolder folder = rafService.createFolder(rafDefinition.getNode().getPath() + "/" + folderPath);
             LOG.debug("Folder Created : {}", folder.getPath());
             return Response.ok(folder.getId()).build();
@@ -168,11 +159,11 @@ public class RafUploadRest implements Serializable {
         try {
             String path = rafService.getCollection(folderPath).getPath() + "/" + fileName;
             result = rafRepository.uploadDocument(path, uploadedFile);
+            return Response.ok(result.getId()).status(200).entity(result).build();
         }  catch (RafException e) {
-            e.printStackTrace();
+            LOG.error("Cannot Uploaded File : ", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
-        return Response.ok(result.getId()).status(200).entity(result).build();
     }
 
 }
