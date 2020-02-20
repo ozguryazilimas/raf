@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.jbpm.workitemhandler;
 
 import com.ozguryazilim.telve.sequence.SequenceManager;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
@@ -16,28 +18,28 @@ import org.slf4j.LoggerFactory;
  * @author oyas
  */
 @ApplicationScoped
-public class RafRecordNoServiceHandler implements WorkItemHandler{
-    
+public class RafRecordNoServiceHandler implements WorkItemHandler {
+
     private static final Logger LOG = LoggerFactory.getLogger(RafRecordNoServiceHandler.class);
-    
+
     @Inject
     private SequenceManager sequenceManager;
-    
-    
-    
+
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-        LOG.info("Work Item Params : {}", workItem.getParameters()); 
-        
-        Map<String,Object> metadata = (Map<String,Object>) workItem.getParameter("metadata");
+        LOG.info("Work Item Params : {}", workItem.getParameters());
+
+        Map<String, Object> metadata = (Map<String, Object>) workItem.getParameter("metadata");
 
         //FIXME: SERİ başlangıç ve stratejilerini düzenlemek lazım. Ama bunun için ek bilgi lazım
-        String no = sequenceManager.getNewSerialNumber("ABC", 6);
+//        String no = sequenceManager.getNewSerialNumber("ABC", 6);
+        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
+        String no = sequenceManager.getNewSerialNumber(sdfYear.format(new Date()), 1);
         metadata.put("raf:recordNo", no);
-        
-        Map<String,Object> result = new HashMap<>();
+
+        Map<String, Object> result = new HashMap<>();
         result.put("metadata", metadata);
-        
+
         manager.completeWorkItem(workItem.getId(), result);
     }
 

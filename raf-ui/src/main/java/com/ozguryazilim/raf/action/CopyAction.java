@@ -39,7 +39,7 @@ public class CopyAction extends AbstractAction {
         try {
             boolean permission = false;
 
-            if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
                 permission = rafPathMemberService.hasReadRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
                 permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasReadRole(identity.getLoginName(), getContext().getSelectedRaf());

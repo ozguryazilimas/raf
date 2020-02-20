@@ -13,13 +13,23 @@
         </ui:include>
     </ui:fragment>
 
+    <ui:remove>
+        <p:toolbar>
+            <f:facet name="left">
+                <p:commandButton action="#{rafController.previousPage()}" update="raf-view-content" ajax="true" process="@this" value="Önceki Sayfa" icon="pi pi-chevron-left" />
+
+                <p:commandButton action="#{rafController.nextPage()}" update="raf-view-content" ajax="true" process="@this"  value="Sonraki Sayfa" icon="pi pi-chevron-right" />
+            </f:facet>
+        </p:toolbar>
+    </ui:remove>
+
     <ui:repeat value="#{viewBean.groupNames}" var="group" >
         <ui:fragment rendered="#{viewBean.groupBy}">
             <div class="raf-container-item-group-header" >
                 <div>#{group}</div>
             </div>
         </ui:fragment>
-        <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">
+        <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">           
             <table class="table table-striped"  >
                 <tbody style="font-size: 12px;">
                     <tr>
@@ -54,10 +64,10 @@
                                 #{item.name}
                             </td>
                             <td>
-                                #{userLookup.getUserName(item.createBy)}
+                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))}
                             </td>
                             <td>
-                                <t:cellOutputDateTime value="#{item.createDate}"/>
+                                <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
                             </td>
                             <td>
                                 #{item.info}
@@ -67,7 +77,7 @@
                             </td>
                             <td style="text-align: right; vertical-align: middle">
                                 <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
-                                    <h:form id="ff" style="display: inline;">
+                                    <h:form id="colTViewDownloadFileForm" style="display: inline;">
                                         <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
                                             <i class="fa fa-download" />
                                         </p:commandLink>

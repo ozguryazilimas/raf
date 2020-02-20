@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -16,15 +17,18 @@ import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -86,6 +90,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_TAG = "raf:tags";
     private static final String PROP_RAF_TYPE = "raf:type";
     private static final String PROP_DATA = "jcr:data";
+    private static final String PROP_PATH = "jcr:path";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -107,6 +112,12 @@ public class RafModeshapeRepository implements Serializable {
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
     private static final String RAF_TYPE_SHARED = "SHARED";
     private static final String RAF_TYPE_PROCESS = "PROCESS";
+
+    private static final String PROP_CREATED_DATE = "jcr:created";
+    private static final String PROP_CREATED_BY = "jcr:createdBy";
+
+    private static final String PROP_UPDATED_DATE = "jcr:lastModified";
+    private static final String PROP_UPDATED_BY = "jcr:lastModifiedBy";
 
     private RafEncoder encoder;
     private Boolean debugMode = Boolean.FALSE;
@@ -449,7 +460,50 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public RafCollection getCollectionById(String id) throws RafException {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, String sortBy, boolean descSort) {
+        NodeIterator result = null;
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+
+                QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+                //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+
+                if (justFolders) {
+                    expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
+                }
+
+                if (!Strings.isNullOrEmpty(sortBy)) {
+                    if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
+                        sortBy = PROP_TITLE;
+                    } else if ("DATE".equals(sortBy)) {
+                        sortBy = PROP_UPDATED_DATE;
+                    } else if ("DATE".equals(sortBy)) {
+                        sortBy = "jcr:mimeType";
+                    }
+                    expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? " DESC " : " ASC ");
+                }
+
+                Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+                query.setLimit(pageSize);
+                query.setOffset(page);
+                QueryResult queryResult = query.execute();
+
+                result = queryResult.getNodes();
+
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+
+        return result;
+    }
+
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
@@ -470,7 +524,7 @@ public class RafModeshapeRepository implements Serializable {
 
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
 
-            NodeIterator it = node.getNodes();
+            NodeIterator it = withPage ? getChildNodesByPagination(node.getPath(), page, pageSize, justFolders, sortBy, descSort) : node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
 
@@ -582,7 +636,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getSearchCollection(String searchText, String rootPath) throws RafException {
+    public RafCollection getSearchCollection(String searchText, String rootPath, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -613,16 +667,283 @@ public class RafModeshapeRepository implements Serializable {
                     sn = n.getParent();
                 }
 
-                //Node tipine göre doğru conversion.
-                if (sn.isNodeType(NODE_FOLDER)) {
-                    if (sn.isNodeType(MIXIN_RECORD)) {
-                        result.getItems().add(nodeToRafRecord(sn));
-                    } else {
-                        result.getItems().add(nodeToRafFolder(sn));
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        } else {
+                            result.getItems().add(nodeToRafFolder(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
                     }
-                } else if (sn.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(sn));
                 }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
+    public String getJCRDate(Date dt) {
+        //yyyy-MM-ddTHH:MM:ss.000Z
+        SimpleDateFormat sdfForDate = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfForTime = new SimpleDateFormat("HH:mm:ss");
+
+        return "CAST('" + sdfForDate.format(dt).concat("T").concat(sdfForTime.format(dt)) + ".000Z' AS DATE)";
+
+    }
+
+    //Note: JCR implementasyonlarında henüz count özelliği yok bu yüzden pagination larda şimdilik sonuç sayısı 1000 adet miş gibi cevap vereceğiz.
+    @Deprecated
+    private long getDetailedSearchCount(DetailedSearchModel searchModel, List<RafDefinition> rafs, RafPathMemberService rafPathMemberService, String searcherUserName) throws RafException {
+        long result = 0;
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT DISTINCT nodes.[jcr:name] as F_NAME FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (searchModel.getDateFrom() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+            }
+
+            if (searchModel.getDateTo() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
+                whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
+            }
+
+            if (searchModel.getSearchSubPath() == null) {
+                searchModel.setSearchSubPath("");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchRaf())) {
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'/RAF/".concat(searchModel.getSearchRaf()).concat(searchModel.getSearchSubPath()) + "') ");
+            } else {
+                String rafWheres = " ( ";
+                for (RafDefinition raf : rafs) {
+                    rafWheres += " ISDESCENDANTNODE(nodes,'" + raf.getNode().getPath().concat(searchModel.getSearchSubPath()) + "') OR ";
+                }
+                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+                rafWheres += " ) ";
+                whereExpressions.add(rafWheres);
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+            }
+
+            if (searchModel.getRegisterDateFrom() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+            }
+
+            if (searchModel.getRegisterDateTo() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+            }
+
+            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
+                    String key = entry.getKey().split(":")[1];
+                    Object value = entry.getValue();
+                    String valueStr = "";
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof Date) {
+                            valueStr = sdf.format((Date) value);
+                        } else {
+                            valueStr = value.toString();
+                        }
+                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                    }
+                }
+            }
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            if (lastWhereExpression.contains("exdoc")) {
+                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
+            }
+
+            if (lastWhereExpression.contains("meta")) {
+                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            }
+
+            expression = expression.concat(lastWhereExpression);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+            LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
+            result = queryResult.getRows().getSize();
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
+    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
+            List<RafDefinition> rafs,
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle("Detay Arama");
+        result.setPath("SEARCH");
+        result.setName("Detay Arama");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT DISTINCT nodes.* FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (searchModel.getDateFrom() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+            }
+
+            if (searchModel.getDateTo() != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
+                if (searchModel.getSearchInDocumentName()) {
+                    whereExpressions.add("  nodes.[jcr:name] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
+                } else {
+                    whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText().trim() + "') ");
+                }
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
+            } else {
+                String rafWheres = " ( ";
+                for (RafDefinition raf : rafs) {
+                    rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+                }
+                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+                rafWheres += " ) ";
+                whereExpressions.add(rafWheres);
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
+                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+            }
+
+            if (searchModel.getRegisterDateFrom() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+            }
+
+            if (searchModel.getRegisterDateTo() != null) {
+                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+            }
+
+            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
+                    String key = entry.getKey().split(":")[1];
+                    Object value = entry.getValue();
+                    String valueStr = "";
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof Date) {
+                            valueStr = sdf.format((Date) value);
+                        } else {
+                            valueStr = value.toString();
+                        }
+                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                    }
+                }
+            }
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getSortBy())) {
+                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()).concat(" "));
+            }
+
+            if (lastWhereExpression.contains("exdoc")) {
+                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
+            }
+
+            if (lastWhereExpression.contains("meta")) {
+                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
+            }
+
+            expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+
+            LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                LOG.debug("Search result next.");
+                Node n = it.nextNode();
+                Node sn = n;
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!sn.isNodeType(MIXIN_RAF) && !rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
+                    }
+
+                }
+
             }
 
         } catch (RepositoryException ex) {
@@ -883,7 +1204,7 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setId(v.getIdentifier());
                     rv.setName(v.getName());
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
-                    rv.setCreated(v.getProperty("jcr:created").getDate().getTime());
+                    rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
                     //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
                     result.add(rv);
@@ -966,8 +1287,8 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             session.save();
-
             result = nodeToRafDocument(n);
+
             session.logout();
             LOG.debug("Dosya JCR'e kondu : {}", fullName);
         } catch (RepositoryException ex) {
@@ -1160,9 +1481,25 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             saveMetadata(id, metadata, session);
-
-            session.logout();
             session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0023] Raf Metadata cannot saved", ex);
+        }
+    }
+
+    public void saveMetadatas(String id, List<RafMetadata> metadatas) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            for (RafMetadata metadata : metadatas) {
+                try {
+                    saveMetadata(id, metadata, session);
+                } catch (Exception ex) {
+                    LOG.error("Exception", ex);
+                }
+            }
+            session.save();
+            session.logout();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0023] Raf Metadata cannot saved", ex);
         }
@@ -1400,6 +1737,21 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public void moveObject(RafObject from, RafRecord to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+
+            session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0026] Raf Node cannot copied", ex);
+        }
+    }
+
     public void moveObject(RafObject from, RafFolder to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -1407,6 +1759,23 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+
+            session.save();
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0026] Raf Node cannot copied", ex);
+        }
+    }
+
+    public void moveObject(List<RafObject> from, RafRecord to) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
+            //FIXME: url encoding
+            for (RafObject o : from) {
+                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+            }
 
             session.save();
             session.logout();
@@ -1579,8 +1948,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
 
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
@@ -1610,8 +1979,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setName(node.getName());
         result.setParentId(node.getParent().getIdentifier());
 
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));
@@ -1682,8 +2051,8 @@ public class RafModeshapeRepository implements Serializable {
         result.setParentId(node.getParent().getIdentifier());
 
         //bilenen diğer metadata ( createDate v.b. ) toplanmalı
-        result.setCreateBy(node.getProperty("jcr:createdBy").getString());
-        result.setCreateDate(node.getProperty("jcr:created").getDate().getTime());
+        result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
+        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);
@@ -1696,8 +2065,8 @@ public class RafModeshapeRepository implements Serializable {
 
         result.setMimeType(s);
 
-        result.setUpdateBy(cn.getProperty("jcr:lastModifiedBy").getString());
-        result.setUpdateDate(cn.getProperty("jcr:lastModified").getDate().getTime());
+        result.setUpdateBy(cn.getProperty(PROP_UPDATED_BY).getString());
+        result.setUpdateDate(cn.getProperty(PROP_UPDATED_DATE).getDate().getTime());
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));

@@ -58,6 +58,13 @@
             </div>
 
             <div class="col-xs-2">
+                <p:commandLink action="#{rafObjectLookup.previousPage()}" update="raf-view" ajax="true" process="@this" >
+                    <i class="fa fa-arrow-left" />
+                </p:commandLink>
+
+                <p:commandLink action="#{rafObjectLookup.nextPage()}" update="raf-view" ajax="true" process="@this" >
+                    <i class="fa fa-arrow-right" />
+                </p:commandLink>
 
                 <p:commandLink action="#{rafObjectLookup.goUpFolder()}" process="@this" update="raf-view" styleClass="btn btn-default pull-right" style="padding-top: 4px; padding-bottom: 4px;">
                     <i class="fa fa-level-up" />
@@ -129,7 +136,7 @@
 
 
         </div>
-        <h:form id="ff">
+        <h:form id="ff">            
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
                     <p:commandButton id="close" value="#{messages['general.button.Ok']}" icon="ui-icon-check" action="#{rafObjectLookup.closeDialog()}" process="@this" styleClass="btn btn-primary"/>

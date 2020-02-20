@@ -1,19 +1,25 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.IconResolver;
+import com.ozguryazilim.raf.RafController;
+import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
-import com.ozguryazilim.telve.utils.DateUtils;
 import java.text.Collator;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 /**
@@ -35,10 +41,18 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     @Inject
     private IconResolver iconResolver;
 
+    @Inject
+    private RafController rafController;
+
+    @Inject
+    private Event<RafFolderChangeEvent> folderChangeEvent;
+
+    @Inject
+    @UserAware
+    private Kahve kahve;
+
     private RafCollection collection;
 
-    private String sortBy = SORT_BY_NAME;
-    private Boolean descSort = Boolean.FALSE;
     private Boolean foldersFirst = Boolean.TRUE;
     private Boolean groupBy = Boolean.FALSE;
     private Boolean showDetails = Boolean.FALSE;
@@ -48,15 +62,19 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     @Override
     public String getIcon() {
-        if ("raf/folder".equals(getCollection().getMimeType())) {
-            return "fa-folder-open";
+        if (getCollection() != null && getCollection().getMimeType() != null) {
+            if ("raf/folder".equals(getCollection().getMimeType())) {
+                return "fa-folder-open";
+            }
+            return iconResolver.getIcon(getCollection().getMimeType());
+        } else {
+            return "fa fa-file";
         }
-        return iconResolver.getIcon(getCollection().getMimeType());
     }
 
     @Override
     public String getTitle() {
-        return getCollection().getTitle();
+        return getCollection() != null ? getCollection().getTitle() : "";
     }
 
     @Override
@@ -72,7 +90,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public List<String> getGroupNames() {
         if (groupNames.isEmpty()) {
             //FIXME: Burada arayüzden alınan sıralama ve gruplama yetenekleri kullanılacak
-
+            SimpleDateFormat sdfForSort = new SimpleDateFormat("yyyy-MM-dd");
             //Eğer Gruplama gösterilmeyecek ise sadece tek bir grup olacak ve tüm hepsini o taşıyacak
             //Farklı sort ve gruplama işlemleri için fonksiyonlar yazmak lazım.
             if (groupBy) {
@@ -80,7 +98,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                         .collect(
                                 Collectors.groupingBy(
                                         x -> {
-                                            switch (sortBy) {
+                                            switch (rafController.getSortBy()) {
                                                 case SORT_BY_NAME:
                                                     return x.getTitle().substring(0, 1).toUpperCase();
                                                 case SORT_BY_MIMETYPE:
@@ -92,7 +110,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                                                     return x.getTags().isEmpty() ? "" : x.getTags().get(0);
                                                 case SORT_BY_DATE:
                                                     //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                                    return DateUtils.dateToStr(x.getCreateDate());
+                                                    return sdfForSort.format(getRafObjectDate(x)); // DateUtils.dateToStr(x.getCreateDate());
                                                 default:
                                                     return x.getName();
                                             }
@@ -104,7 +122,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: Ters sıra kontrolü
                         // Aslında grup içinde sıralama hep isme göre olmalı sanırım!
-                        return compareTitle(t1, t2 );
+                        return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                         /*
                         switch (sortBy) {
                             case SORT_BY_NAME:
@@ -122,7 +140,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                             default:
                                 return compareTitle(t1, t2 );
                         }
-                        */
+                         */
 
                     }
                 }));
@@ -132,7 +150,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(String t1, String t2) {
                         //FIXME: Sıralama tipine göre buranın farklı algoritma çalıştırması lazım. Özellikle tarih sırlaması
                         //FIXME: Ters sıra kontrolü
-                        return t1.compareTo(t2);
+                        return rafController.getDescSort() ? t2.compareTo(t1) : t1.compareTo(t2);
                     }
                 });
             } else {
@@ -143,23 +161,23 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                     public int compare(RafObject t1, RafObject t2) {
                         //FIXME: Tesr sıra kontrolü
                         int r = 0;
-                        switch (sortBy) {
+                        switch (rafController.getSortBy()) {
                             case SORT_BY_NAME:
-                                return compareTitle(t1, t2 );
+                                return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                             case SORT_BY_MIMETYPE:
-                                return compareMimeType(t1, t2 );
+                                return rafController.getDescSort() ? compareMimeType(t2, t1) : compareMimeType(t1, t2);
                             case SORT_BY_CATEGORY:
                                 //return t1.getCategory().compareTo(t2.getCategory());
                                 //FIXME: category yoksa nasıl sıralayacağız?
-                                return compareCategory(t1, t2 );
+                                return rafController.getDescSort() ? compareCategory(t2, t1) : compareCategory(t1, t2);
                             case SORT_BY_TAG:
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
-                                return compareTag(t1, t2 );
+                                return rafController.getDescSort() ? compareTag(t2, t1) : compareTag(t1, t2);
                             case SORT_BY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                return compareDate(t1, t2 );
+                                return rafController.getDescSort() ? compareDate(t2, t1) : compareDate(t1, t2);
                             default:
-                                return compareTitle(t1, t2 );
+                                return rafController.getDescSort() ? compareTitle(t2, t1) : compareTitle(t1, t2);
                         }
                     }
                 }).collect(Collectors.toList()));
@@ -184,51 +202,63 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     }
 
     private int compareTitle(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         Collator collator = Collator.getInstance(new Locale("tr", "TR"));
         return r == 0 ? collator.compare(t1.getTitle(), t2.getTitle()) : r;
     }
-    
+
     private int compareMimeType(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getMimeType().compareTo(t2.getMimeType()) : r;
     }
-    
+
     /**
-     * FIXME: categori sıralaması ile ilgili dert var.
-     * Kategori olmaması ile ilgili
+     * FIXME: categori sıralaması ile ilgili dert var. Kategori olmaması ile
+     * ilgili
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareCategory(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
     }
-    
+
     /**
-     * FIXME: tag'a göre sıralama daha da büyük dert.
-     * Birden fazla tag olabilir. Nasıl olacak?
+     * FIXME: tag'a göre sıralama daha da büyük dert. Birden fazla tag olabilir.
+     * Nasıl olacak?
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareTag(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
+        int r = compareFolder(t1, t2);
         return r == 0 ? t1.getTitle().compareTo(t2.getTitle()) : r;
     }
-    
+
+    public Date getRafObjectDate(RafObject rafObject) {
+        if (rafObject.getUpdateDate() != null) {
+            return rafObject.getUpdateDate();
+        } else {
+            return rafObject.getCreateDate();
+        }
+    }
+
     /**
-     * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
+     * //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile
+     * sıralaması da doğru olmalı.
+     *
      * @param t1
      * @param t2
-     * @return 
+     * @return
      */
     private int compareDate(RafObject t1, RafObject t2) {
-        int r = compareFolder(t1, t2 );
-        return r == 0 ? t1.getCreateDate().compareTo(t2.getCreateDate()) : r;
+        int r = compareFolder(t1, t2);
+        return r == 0 ? getRafObjectDate(t1).compareTo(getRafObjectDate(t2)) : r;
     }
-    
+
     public List<RafObject> getGroupItems(String group) {
         return groupMap.get(group);
     }
@@ -236,24 +266,6 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public void clear() {
         groupNames.clear();
         groupMap.clear();
-    }
-
-    public String getSortBy() {
-        return sortBy;
-    }
-
-    public void setSortBy(String sortBy) {
-        this.sortBy = sortBy;
-        clear();
-    }
-
-    public Boolean getDescSort() {
-        return descSort;
-    }
-
-    public void setDescSort(Boolean descSort) {
-        this.descSort = descSort;
-        clear();
     }
 
     public Boolean getFoldersFirst() {
@@ -281,6 +293,5 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     public void setShowDetails(Boolean showDetails) {
         this.showDetails = showDetails;
     }
-    
-    
+
 }

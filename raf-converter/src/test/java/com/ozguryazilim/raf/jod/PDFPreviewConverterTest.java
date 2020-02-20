@@ -37,14 +37,14 @@ public class PDFPreviewConverterTest {
      */
     @org.junit.Test
     public void testConvert() throws Exception {
-        System.out.println("com.ozguryazilim.raf.jod.PDFPreviewConverterTest.testConvert()");
-        InputStream is = this.getClass().getResourceAsStream("/sample.txt");
-        String mimeType = "text/plain";
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        PDFPreviewConverter instance = new PDFPreviewConverter();
-        instance.convert(is, mimeType, os);
-        
-        System.out.println("Result : " + os.toString("UTF-8"));
+//        System.out.println("com.ozguryazilim.raf.jod.PDFPreviewConverterTest.testConvert()");
+//        InputStream is = this.getClass().getResourceAsStream("/sample.txt");
+//        String mimeType = "text/plain";
+//        ByteArrayOutputStream os = new ByteArrayOutputStream();
+//        PDFPreviewConverter instance = new PDFPreviewConverter();
+//        instance.convert(is, mimeType, os);
+//        
+//        System.out.println("Result : " + os.toString("UTF-8"));
         
     }
     

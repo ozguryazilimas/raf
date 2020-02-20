@@ -78,23 +78,36 @@
             </div>
         </div>
         <div class="raf-file-meta col-md-4 col-xs-12">
-            <ui:fragment rendered="#{viewBean.versionManagementEnabled}">
+            <ui:fragment rendered="#{viewBean.hasRafWritePermission and viewBean.versionManagementEnabled}">
+                <h:form id="checkoutform">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p:commandLink rendered="#{not viewBean.rafCheckStatus}" action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
+                                <i class="fa fa-upload" /> #{messages['action.title.UploadNewVersion']}
+                                <p:ajax event="dialogReturn" update="raf-view-content" />
+                            </p:commandLink>
+
+                            <ui:remove>
+                                <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Sürüm İçin Dışarı çıkar">
+                                    <i class="fa fa-sign-out" />
+                                </p:commandLink>
+                            </ui:remove>
+
+                        </div>
+                    </div>
+                </h:form>
+            </ui:fragment>     
+
+            <h:form id="downloadform">
                 <div class="row">
                     <div class="col-xs-12">
-                        <p:commandLink rendered="#{not viewBean.rafCheckStatus}" action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="#{messages['action.title.UploadNewVersion']}" update="raf-view-content">
-                            <i class="fa fa-upload" /> #{messages['action.title.UploadNewVersion']}
-                            <p:ajax event="dialogReturn" update="raf-view-content" />
+                        <p:commandLink action="#{viewBean.downloadFile()}" process="@this" styleClass="btn" title="#{messages['action.title.Download']}" ajax="false">
+                            <i class="fa fa-download" /> #{messages['action.title.Download']}
                         </p:commandLink>
-
-                        <ui:remove>
-                            <p:commandLink action="#{viewBean.checkin()}" process="@this" styleClass="btn" title="Sürüm İçin Dışarı çıkar">
-                                <i class="fa fa-sign-out" />
-                            </p:commandLink>
-                        </ui:remove>
-
                     </div>
-                </div>
-            </ui:fragment>
+                </div>            
+            </h:form>
+
             <div class="row">
 
                 <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
@@ -106,7 +119,7 @@
             </div>
 
             <ui:fragment rendered="#{viewBean.rafCheckStatus}">
-                <h:form id="checkoutform">
+                <h:form id="checkinform">
                     <div class="row">
                         <div class="col-xs-12">
                             <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
@@ -120,17 +133,17 @@
                 </h:form>
             </ui:fragment>
 
-            <ui:fragment rendered="#{not viewBean.rafCheckStatus}">
-                <h:form id="checkinform">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
-                                <i class="fa fa-lock" />
-                                Dosyayı Kilitle
-                            </p:commandLink>
-                        </div>
-                    </div>                    
-                </h:form>
+            <ui:fragment rendered="#{viewBean.hasRafWritePermission and not viewBean.rafCheckStatus}">
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
+                            <i class="fa fa-lock" />
+                            Dosyayı Kilitle
+                        </p:commandLink>
+                    </div>
+                </div>                    
+
             </ui:fragment>
 
             <ui:fragment rendered="#{not viewBean.rafCheckStatus and not empty viewBean.versionHistory}">

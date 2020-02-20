@@ -1,0 +1,18 @@
+//------------------------------------------------------------------------------
+// N A M E S P A C E S
+//------------------------------------------------------------------------------
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<invoice='http://www.ozguryazilim.com.tr/invoice/1.0'>
+
+//------------------------------------------------------------------------------
+// N O D E T Y P E S
+//------------------------------------------------------------------------------
+
+[rafcheckin:metadata] > nt:unstructured
+  - rafcheckin:date (date)
+  - rafcheckin:user (string)
+  - rafcheckin:state (boolean)
+
+

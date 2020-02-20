@@ -20,19 +20,19 @@ import org.slf4j.LoggerFactory;
  */
 @WindowScoped
 @Named
-public class SearchController implements Serializable{
-    
+public class SearchController implements Serializable {
+
     private static final Logger LOG = LoggerFactory.getLogger(SearchController.class);
-    
+
     @Inject
     private RafContext context;
-    
+
     @Inject
     private SearchService searchService;
-    
+
     @Inject
     private Event<RafCollectionChangeEvent> rafCollectionChangeEvent;
-    
+
     private String searchText;
 
     public String getSearchText() {
@@ -43,24 +43,23 @@ public class SearchController implements Serializable{
         this.searchText = searchText;
     }
 
-        
-    public void search(){
+    public void search() {
         LOG.info("Search for {}", searchText);
-        
+
         try {
             RafCollection c = searchService.search(searchText, context.getSelectedRaf());
-            LOG.info("Results : {}", c);
-            
+//            LOG.info("Results : {}", c);
+
             context.setCollection(c);
-            
+
             rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
-            
+
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Search Exception", ex);
             FacesMessages.error("Sorgu yapılamadı", ex.getLocalizedMessage());
         }
-        
+
         searchText = null;
     }
 }

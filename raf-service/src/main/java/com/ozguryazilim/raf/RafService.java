@@ -86,9 +86,19 @@ public class RafService implements Serializable {
         return rafRepository.getChildFolderList(rafPath);
     }
 
+    public RafCollection getCollectionPaged(String id, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+        //FIXME: yetki kontrolleri
+        RafCollection result = rafRepository.getCollectionById(id, true, page, pageSize, justFolders, sortBy, descSort);
+
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "GET_PAGED_FOLDER_CONTENT", result.getPath());
+        }
+        return result;
+    }
+
     public RafCollection getCollection(String id) throws RafException {
         //FIXME: yetki kontrolleri
-        RafCollection result = rafRepository.getCollectionById(id);
+        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0, false, "jcr:title", false);
 
         if (isReadLogEnabled()) {
             sendAuditLog(id, "GET_FOLDER_CONTENT", result.getPath());
@@ -283,6 +293,12 @@ public class RafService implements Serializable {
         rafRepository.saveMetadata(id, data);
     }
 
+    public void saveMetadatas(String id, List<RafMetadata> datas) throws RafException {
+        //FIXME: Yetki kontrolü + event
+        sendAuditLog(id, "SAVE_METADATAS", "");
+        rafRepository.saveMetadatas(id, datas);
+    }
+
     /**
      * RafObject üzerinde bulunan title, info v.b. alanları günceller.
      *
@@ -339,6 +355,22 @@ public class RafService implements Serializable {
         }
         sendAuditLog(to.getId(), "COPY_OBJECT_TO", to.getPath());
         rafRepository.copyObject(from, to);
+    }
+
+    public void moveObject(RafObject from, RafRecord to) throws RafException {
+        //FIXME: yetki kontrolü
+        sendAuditLog(from.getId(), "MOVE_OBJECT_FROM", from.getPath());
+        sendAuditLog(to.getId(), "MOVE_OBJECT_TO", to.getPath());
+        rafRepository.moveObject(from, to);
+    }
+
+    public void moveObject(List<RafObject> from, RafRecord to) throws RafException {
+        //FIXME: yetki kontrolü
+        for (RafObject o : from) {
+            sendAuditLog(o.getId(), "MOVE_OBJECT_FROM", o.getPath());
+        }
+        sendAuditLog(to.getId(), "MOVE_OBJECT_TO", to.getPath());
+        rafRepository.moveObject(from, to);
     }
 
     public void moveObject(List<RafObject> from, RafFolder to) throws RafException {

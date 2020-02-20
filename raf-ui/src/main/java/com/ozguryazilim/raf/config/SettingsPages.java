@@ -24,5 +24,5 @@ public interface SettingsPages extends Pages{
     
     @SecuredPage("rafMembers")
     class RafMembers implements SettingsPages {};
-    
+           
 }
