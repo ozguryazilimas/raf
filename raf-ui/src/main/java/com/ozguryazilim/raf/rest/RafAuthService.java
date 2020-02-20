@@ -66,19 +66,14 @@ public class RafAuthService implements Serializable {
     @Path("/addRafGroup")
     public Response addRafGroup(@FormParam("raf") String raf, @FormParam("groupCode") String groupCode, @FormParam("role") String role) {
         try {
-            //FIXME: fieldlar doğru mu? Dolumu kontrol edilmelias
 
             RafObject o = rafService.getRafObject(raf);
             RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(o.getName());
 
-            // GRUP  İSİMLERİNE GÖRE KONTROL EDİLMELİ.
-
             List<Group> ls = groupRepository.findByCode(groupCode);
             if (ls.isEmpty()) {
-                return Response.ok("Grup Bulunamadı").status(200).build();
+                return Response.ok("Grup Bulunamadı").status(404).build();
             }
-
-            //FIXME: Burada yetki kontrolü gerek.
 
             memberService.addMember(rafDefinition, ls.get(0).getCode(), RafMemberType.GROUP, role);
             return Response.ok(200).build();
