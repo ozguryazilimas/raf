@@ -24,4 +24,9 @@ public interface RafCommandPages extends Pages {
     @View
     public class FolderDivideByYearsCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class MongoSearchExporterCommandEditor implements Admin {
+    };
 }

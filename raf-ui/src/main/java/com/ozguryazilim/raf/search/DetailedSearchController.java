@@ -15,6 +15,7 @@ import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.mongo.search.MongoSearchService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
@@ -55,6 +56,9 @@ public class DetailedSearchController implements Serializable {
 
     @Inject
     private SearchService searchService;
+
+    @Inject
+    private MongoSearchService mongoSearchService;
 
     private List<RafDefinition> rafList;
 
@@ -176,7 +180,7 @@ public class DetailedSearchController implements Serializable {
 
     public void search() {
         LOG.info("Search for {}", searchModel);
-        searchResult = new SearchResultDataModel(rafList, searchModel, searchService);
+        searchResult = new SearchResultDataModel(rafList, searchModel, searchService, mongoSearchService);
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {

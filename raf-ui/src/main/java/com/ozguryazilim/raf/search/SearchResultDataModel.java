@@ -1,10 +1,12 @@
 package com.ozguryazilim.raf.search;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.mongo.search.MongoSearchService;
 import java.util.List;
 import java.util.Map;
 import org.primefaces.model.LazyDataModel;
@@ -23,11 +25,13 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     private List<RafDefinition> rafs;
     private DetailedSearchModel searchModel;
     private SearchService searchService;
+    private MongoSearchService mongoSearchService;
 
-    public SearchResultDataModel(List<RafDefinition> rafs, DetailedSearchModel searchModel, SearchService searchService) {
+    public SearchResultDataModel(List<RafDefinition> rafs, DetailedSearchModel searchModel, SearchService searchService, MongoSearchService mongoSearchService) {
         this.rafs = rafs;
         this.searchModel = searchModel;
         this.searchService = searchService;
+        this.mongoSearchService = mongoSearchService;
     }
 
     @Override
@@ -48,8 +52,13 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     @Override
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
-            datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
-            this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+            if (!searchModel.getSearchInDocumentName() && !Strings.isNullOrEmpty(searchModel.getSearchText())) {
+                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
+                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
+            } else {
+                datasource = mongoSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
+                this.setRowCount((int) mongoSearchService.detailedSearchCount(searchModel, rafs));
+            }
         } catch (RafException ex) {
             LOG.error("RafException", ex);
             this.setRowCount(0);

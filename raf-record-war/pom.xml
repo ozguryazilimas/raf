@@ -35,6 +35,13 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+        
     </dependencies>  
     
     <build>

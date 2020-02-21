@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="dbSettings" header="Mongo Veritabanı Ayarları">
+            <p:outputLabel value="Mongo Veritabanı Sunucusu"/>
+            <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbHostName}"/>
+
+            <p:outputLabel value="Mongo Veritabanı Port No."/>
+            <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbPort}"/>            
+
+            <p:outputLabel value="Mongo Veritabanı Adı"/>
+            <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbName}"/>       
+
+            <p:outputLabel value="Mongo Veritabanı Kullanıcı Adı"/>
+            <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbUserName}"/>
+
+            <p:outputLabel value="Mongo Veritabanı Parola"/>
+            <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbPassword}"/>
+        </p:panel>
+    </p:scrollPanel>
+</ui:composition>

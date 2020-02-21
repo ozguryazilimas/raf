@@ -469,7 +469,7 @@ public class RafModeshapeRepository implements Serializable {
                 QueryManager queryManager = session.getWorkspace().getQueryManager();
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
 
                 if (justFolders) {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
@@ -857,11 +857,11 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+                whereExpressions.add(" exdoc.[externalDoc:documentType] = '" + searchModel.getDocumentType() + "' ");
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+                whereExpressions.add(" exdoc.[externalDoc:documentStatus] = '" + searchModel.getDocumentStatus() + "'");
             }
 
             if (searchModel.getRegisterDateFrom() != null) {

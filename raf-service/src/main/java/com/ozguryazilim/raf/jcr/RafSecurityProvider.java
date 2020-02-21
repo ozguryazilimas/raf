@@ -98,11 +98,17 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 //                    LOG.debug("Actions : {}", actions);
                     List<String> actionList = Arrays.asList(actions);
                     String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
-                    //path içinde herhangi bir üyelği varsa önce ona bak.
-                    if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
-                        permission = hasRafPathPermission(docPath, actionList);
-                    } else {
-                        permission = hasRafPermission(docPath, actionList);
+                    if (getIdentity() != null) {
+                        if ("SYSTEM".equals(getIdentity().getLoginName()) || getIdentity().isPermitted("admin")) {
+                            permission = true;
+                        } else {
+                            //path içinde herhangi bir üyelği varsa önce ona bak.
+                            if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
+                                permission = hasRafPathPermission(docPath, actionList);
+                            } else {
+                                permission = hasRafPermission(docPath, actionList);
+                            }
+                        }
                     }
                 }
             } catch (Exception ex) {

@@ -94,7 +94,7 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-externaldoc</artifactId>
             <version>${project.version}</version>
@@ -118,14 +118,21 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.6</version>
         </dependency>
-        <!--
+        
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-cmis</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.4.2</version>
         </dependency>
-                -->
+        
+        <!--
+<dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>raf-cmis</artifactId>
+    <version>${project.version}</version>
+    <type>ejb</type>
+</dependency>
+        -->
     </dependencies>  
     
     <build>
