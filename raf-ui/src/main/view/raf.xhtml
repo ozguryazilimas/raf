@@ -234,7 +234,12 @@
                                         </li>
                                         <li>
                                             <p:commandLink action="#{rafController.setSortBy('DATE')}" process="@this" update="raf-view-content">
-                                                <i class="fa  #{rafController.getSortBy() eq 'DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.Date']}
+                                                <i class="fa  #{rafController.getSortBy() eq 'DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.CreateDate']}
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.setSortBy('MODIFY_DATE')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'MODIFY_DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.ModifyDate']}
                                             </p:commandLink>
                                         </li>
                                         <li>

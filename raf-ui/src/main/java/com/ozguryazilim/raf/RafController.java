@@ -337,26 +337,27 @@ public class RafController implements Serializable {
         return rafCode;
     }
 
-    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
-        if (rafObject.getUpdateDate() != null) {
-            return rafObject.getUpdateDate();
-        } else {
-            return rafObject.getCreateDate();
-        }
-    }
-
-    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
-        if (rafObject.getUpdateBy() != null) {
-            return rafObject.getUpdateBy();
-        } else {
-            return rafObject.getCreateBy();
-        }
-    }
+//    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
+//        if (rafObject.getUpdateDate() != null) {
+//            return rafObject.getUpdateDate();
+//        } else {
+//            return rafObject.getCreateDate();
+//        }
+//    }
+//
+//    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
+//        if (rafObject.getUpdateBy() != null) {
+//            return rafObject.getUpdateBy();
+//        } else {
+//            return rafObject.getCreateBy();
+//        }
+//    }
 
     public void setDescSort(Boolean descSort) {
         boolean changing = this.descSort != descSort;
         this.descSort = descSort;
         if (changing) {
+            setPage(0);
             kahve.put("raf.descSort", descSort);
             try {
                 if (context.getSelectedObject() != null) {
@@ -700,6 +701,7 @@ public class RafController implements Serializable {
         boolean changing = !this.sortBy.equals(sortBy);
         this.sortBy = sortBy;
         if (changing) {
+            setPage(0);
             kahve.put("raf.sortBy", sortBy);
             try {
                 if (context.getSelectedObject() != null) {

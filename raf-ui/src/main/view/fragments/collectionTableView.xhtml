@@ -39,6 +39,8 @@
                         <th>#{messages['collection.table.File']}</th>
                         <th>#{messages['collection.table.User']}</th>
                         <th>#{messages['collection.table.Date']}</th>
+                        <th>#{messages['collection.table.UpdateUser']}</th>
+                        <th>#{messages['collection.table.UpdateDate']}</th>
                         <th>#{messages['collection.table.Info']}</th>
                         <th>#{messages['collection.table.Category']}</th>
                         <th></th>
@@ -64,10 +66,16 @@
                                 #{item.name}
                             </td>
                             <td>
-                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))}
+                                #{userLookup.getUserName(item.createBy)}
                             </td>
                             <td>
-                                <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
+                                <t:cellOutputDateTime value="#{item.createDate}"/>
+                            </td>
+                            <td>
+                                #{userLookup.getUserName(item.updateBy)}
+                            </td>
+                            <td>
+                                <t:cellOutputDateTime value="#{item.updateDate}"/>
                             </td>
                             <td>
                                 #{item.info}
