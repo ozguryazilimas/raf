@@ -49,7 +49,7 @@
 
                                     <p:outputLabel value="Klasör Yolu"/>
                                     <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                                        <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" readonly="true" required="false"/>
+                                        <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" required="false"/>
                                         <p:commandButton style="width: 50px; height: 30px;" action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', detailedSearchController.searchModel.searchSubPath )}" 
                                                          partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
                                             <p:ajax event="dialogReturn" listener="#{detailedSearchController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />   

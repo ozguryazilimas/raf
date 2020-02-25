@@ -32,6 +32,8 @@ import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.bson.Document;
 import org.primefaces.model.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,6 +41,8 @@ import org.primefaces.model.SortOrder;
  */
 @ApplicationScoped
 public class MongoSearchService implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MongoSearchService.class);
 
     @Inject
     private RafService rafService;
@@ -128,7 +132,7 @@ public class MongoSearchService implements Serializable {
         }
 
         if (searchModel.getDateTo() != null) {
-            qb.and("createDate").lessThanEquals(searchModel.getDateFrom());
+            qb.and("createDate").lessThanEquals(searchModel.getDateTo());
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
@@ -156,6 +160,7 @@ public class MongoSearchService implements Serializable {
         }
 
         if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
+            List<DBObject> andList = new ArrayList();
             for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
                 String key = entry.getKey().split(":")[1];
                 Object value = entry.getValue();
@@ -166,12 +171,15 @@ public class MongoSearchService implements Serializable {
                     } else {
                         valueStr = value.toString();
                     }
-                    qb.and("metaDatas.attributes.externalDocMetaTag:externalDocTypeAttribute").is(Pattern.compile(key))
-                            .and("metaDatas.attributes.externalDocMetaTag:value").is(Pattern.compile(valueStr));
+                    andList.add(QueryBuilder.start("metaDatas.attributes.externalDocMetaTag:externalDocTypeAttribute").is(Pattern.compile(key))
+                            .and("metaDatas.attributes.externalDocMetaTag:value").is(Pattern.compile(valueStr)).get());
                 }
             }
+            if (!andList.isEmpty()) {
+                qb.and("$and").is(andList);
+            }
         }
-
+        LOG.debug("Mongo Search Query : {}", qb.get().toString());
         return qb.get();
     }
 }
