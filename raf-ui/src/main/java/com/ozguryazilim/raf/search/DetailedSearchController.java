@@ -11,20 +11,28 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
+import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.mongo.search.MongoSearchService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
+import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
+import com.ozguryazilim.raf.ui.base.metadatapanels.DynaFormMetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.entities.SuggestionItem;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
+import com.ozguryazilim.telve.suggestion.SuggestionRepository;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -67,6 +75,8 @@ public class DetailedSearchController implements Serializable {
     private DetailedSearchModel searchModel;
     private Map<String, List<ExternalDocTypeAttributeList>> listValueCache;
     private SearchResultDataModel searchResult;
+    private List<Field> metaDataFields;
+    private String recordType;
 
     @Inject
     ExternalDocTypeRepository externalDocTypeRepository;
@@ -76,6 +86,9 @@ public class DetailedSearchController implements Serializable {
 
     @Inject
     ExternalDocTypeAttributeListRepository externalDocTypeAttributeListRepository;
+
+    @Inject
+    private SuggestionRepository suggestionRepository;
 
     public List<ExternalDocTypeAttribute> getAttributes() {
         return attributes;
@@ -87,6 +100,14 @@ public class DetailedSearchController implements Serializable {
 
     public List<ExternalDocTypeAttributeList> getListedAttributeValues(ExternalDocTypeAttribute attribute) {
         return listValueCache.get(attribute.getAttributeName());
+    }
+
+    public List<Field> getMetaDataFields() {
+        return metaDataFields;
+    }
+
+    public String getRecordType() {
+        return recordType;
     }
 
     public DetailedSearchModel getSearchModel() {
@@ -163,6 +184,31 @@ public class DetailedSearchController implements Serializable {
         }
     }
 
+    public void onRecordTypeChange() {
+        if (searchModel != null && !Strings.isNullOrEmpty(recordType)) {
+            searchModel.setRecordType(recordType.split(";")[0]);
+            searchModel.setRecordMetaDataName(recordType.split(";")[1]);
+            metaDataFields = new ArrayList();
+            searchModel.setMapWFAttValue(new HashMap());
+            List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(searchModel.getRecordMetaDataName());
+            for (AbstractMetadataPanel l : ls) {
+                if (l instanceof DynaFormMetadataPanel) {
+                    DynaFormMetadataPanel panel = ((DynaFormMetadataPanel) l);
+                    if (panel.getForm() != null) {
+                        metaDataFields = panel.getForm().getFields();
+                        metaDataFields.forEach((mdf) -> {
+                            if ("Suggestion".equals(mdf.getType()) || "Text".equals(mdf.getType()) || "RafFolder".equals(mdf.getType())) {
+                                searchModel.getMapWFAttValue().put(mdf.getDataKey(), "");
+                            } else if ("Date".equals(mdf.getType())) {
+                                searchModel.getMapWFAttValue().put(mdf.getDataKey(), null);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     public List<RafDefinition> getRafList() {
         return rafList;
     }
@@ -175,6 +221,10 @@ public class DetailedSearchController implements Serializable {
         this.documentTypes = documentTypes;
     }
 
+    public void setMetaDataFields(List<Field> metaDataFields) {
+        this.metaDataFields = metaDataFields;
+    }
+
     public void setRafList(List<RafDefinition> rafList) {
         this.rafList = rafList;
     }
@@ -182,6 +232,10 @@ public class DetailedSearchController implements Serializable {
     public void search() {
         LOG.info("Search for {}", searchModel);
         searchResult = new SearchResultDataModel(rafList, searchModel, searchService, mongoSearchService);
+    }
+
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {
@@ -218,4 +272,10 @@ public class DetailedSearchController implements Serializable {
         }
         return null;
     }
+
+    public List<String> getSuggestion(String group) {
+        return suggestionRepository.findByGroup(group).stream().map(SuggestionItem::getData)
+                .distinct().collect(Collectors.toList());
+    }
+
 }

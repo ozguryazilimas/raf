@@ -92,6 +92,7 @@ public class MongoSearchService implements Serializable {
             String mongoDatabase = ConfigResolver.getPropertyValue("mongoSearch.mongoDatabase", "raf_repository");
             MongoDatabase db = mongoClient.getDatabase(mongoDatabase);
             MongoCollection<Document> col = db.getCollection("rafRepository", Document.class);
+            createIndexForQuery(query, col);
             FindIterable<Document> find = col.find(new Document(query.toMap()));
             if (!Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder())) {
                 find.sort(new Document(sortFieldConvertMap.get(searchModel.getSortBy()), "DESC".equals(searchModel.getSortOrder()) ? -1 : 1));
@@ -108,6 +109,29 @@ public class MongoSearchService implements Serializable {
             }
         }
         return result;
+    }
+
+    private void addIndexToMap(DBObject dboQuery, Document index) {
+        dboQuery.toMap().keySet().forEach((k) -> {
+            if (!k.toString().contains("$")) {
+                index.append(k.toString(), 1);
+            } else if (dboQuery.get(k.toString()) instanceof DBObject) {
+                addIndexToMap((DBObject) dboQuery.get(k.toString()), index);
+            } else if (dboQuery.get(k.toString()) instanceof ArrayList) {
+                List<Object> list = (List<Object>) dboQuery.get(k.toString());
+                for (Object o : list) {
+                    if (o instanceof DBObject) {
+                        addIndexToMap((DBObject) o, index);
+                    }
+                }
+            }
+        });
+    }
+
+    private void createIndexForQuery(DBObject dboQuery, MongoCollection col) {
+        Document index = new Document();
+        addIndexToMap(dboQuery, index);
+        col.createIndex(index);
     }
 
     private MongoClient getMongoClient() {
@@ -179,6 +203,26 @@ public class MongoSearchService implements Serializable {
                 qb.and("$and").is(andList);
             }
         }
+
+        if (!Strings.isNullOrEmpty(searchModel.getRecordMetaDataName())) {
+            qb.and("metaDatas.type").is(searchModel.getRecordMetaDataName());
+        }
+
+        if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
+            for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value != null && !value.toString().trim().isEmpty()) {
+                    if (value instanceof String) {
+                        qb.and(QueryBuilder.start("metaDatas.attributes.".concat(key)).is(Pattern.compile(value.toString())).get());
+                    } else if (value instanceof Date) {
+                        qb.and(QueryBuilder.start("metaDatas.attributes.".concat(key)).is(value).get());
+                    }
+                }
+            }
+
+        }
+
         LOG.debug("Mongo Search Query : {}", qb.get().toString());
         return qb.get();
     }

@@ -52,7 +52,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-forms</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
