@@ -3,7 +3,6 @@ package com.ozguryazilim.raf.mongo.search;
 import com.google.common.base.Strings;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
-import com.mongodb.QueryBuilder;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -76,12 +75,13 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         MongoCollection col = db.getCollection("rafRepository");
 
         for (RafDefinition r : rafDefinitionService.getRafs()) {
-            if (r.getCode() != null && r.getNode() != null) {
+            if (r.getCode() != null) {
                 LOG.info("{} raf exporting to mongo.", r.getCode());
                 if (command.getOwerwrite()) {
                     col.deleteMany(new Document("rafCode", r.getCode()));
                 }
-                exportFolder(col, r.getCode(), r.getNode().getId());
+                String rafId = r.getNode() != null ? r.getNode().getId() : r.getNodeId();
+                exportFolder(col, r.getCode(), rafId);
                 LOG.info("{} raf exported.", r.getCode());
             } else {
                 LOG.info("{} raf node is null.", r.getCode());
@@ -100,16 +100,23 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
                 try {
                     LOG.info("{} file is exporting to mongo.", itm.getPath());
                     Boolean isExist = col.count(new Document("filePath", itm.getPath())) > 0;
-                    if (!isExist || command.getOwerwrite()) {
-                        Document dboRec = null;
-                        if (itm instanceof RafRecord) {
+                    Boolean insertFile = !isExist || command.getOwerwrite();
+                    Document dboRec = null;
+                    if (itm instanceof RafRecord) {
+                        if (insertFile) {
                             dboRec = insertRafRecord(rafCode, (RafRecord) itm);
-                        } else if (itm instanceof RafFolder) {
+                        }
+                    } else if (itm instanceof RafFolder) {
+                        if (insertFile) {
                             dboRec = insertRafFolder(rafCode, (RafFolder) itm);
-                            exportFolder(col, rafCode, itm.getId());
-                        } else if (itm instanceof RafDocument) {
+                        }
+                        exportFolder(col, rafCode, itm.getId());
+                    } else if (itm instanceof RafDocument) {
+                        if (insertFile) {
                             dboRec = insertRafDocument(rafCode, (RafDocument) itm);
                         }
+                    }
+                    if (insertFile) {
                         col.insertOne(dboRec);
                     }
                 } catch (Exception e) {

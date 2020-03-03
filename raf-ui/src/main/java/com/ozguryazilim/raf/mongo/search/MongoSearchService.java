@@ -92,7 +92,7 @@ public class MongoSearchService implements Serializable {
             String mongoDatabase = ConfigResolver.getPropertyValue("mongoSearch.mongoDatabase", "raf_repository");
             MongoDatabase db = mongoClient.getDatabase(mongoDatabase);
             MongoCollection<Document> col = db.getCollection("rafRepository", Document.class);
-            createIndexForQuery(query, col);
+//            createIndexForQuery(query, col);
             FindIterable<Document> find = col.find(new Document(query.toMap()));
             if (!Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder())) {
                 find.sort(new Document(sortFieldConvertMap.get(searchModel.getSortBy()), "DESC".equals(searchModel.getSortOrder()) ? -1 : 1));
@@ -103,7 +103,11 @@ public class MongoSearchService implements Serializable {
                 String filePath = doc.getString("filePath");
                 if (identity != null && !Strings.isNullOrEmpty(identity.getLoginName())) {
                     if (!rafPathMemberService.hasMemberInPath(identity.getLoginName(), filePath) || rafPathMemberService.hasReadRole(identity.getLoginName(), filePath)) {
-                        result.getItems().add(rafService.getRafObjectByPath(filePath));
+                        try {
+                            result.getItems().add(rafService.getRafObjectByPath(filePath));
+                        } catch (RafException e) {
+                            LOG.error("RafEx", e);
+                        }
                     }
                 }
             }
