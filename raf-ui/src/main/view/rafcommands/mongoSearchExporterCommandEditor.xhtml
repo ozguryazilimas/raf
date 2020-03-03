@@ -18,6 +18,10 @@
 
             <p:outputLabel value="Mongo Veritabanı Parola"/>
             <p:inputText value="#{mongoSearchExporterCommandEditor.command.dbPassword}"/>
+
+            <p:outputLabel value="Üzerine Yaz"/>
+            <p:selectBooleanCheckbox value="#{mongoSearchExporterCommandEditor.command.owerwrite}"/>
+
         </p:panel>
     </p:scrollPanel>
 </ui:composition>

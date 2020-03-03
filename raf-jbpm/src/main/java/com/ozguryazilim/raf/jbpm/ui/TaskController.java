@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.entities.RafDepartment;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.model.MultiPersonSelectionField;
 import com.ozguryazilim.raf.forms.model.MultiSelectField;
 import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.ui.FormController;
@@ -21,6 +22,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -250,9 +252,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
         for (Field f : form.getFields()) {
             if (f instanceof PersonSelectionField) {
+                ((PersonSelectionField) f).getValues().clear();
+                ((PersonSelectionField) f).setValue(null);
                 metadata.forEach((k, v) -> {
                     if (k.contains("departman")) {
-                        ((PersonSelectionField) f).getValues().clear();
                         List<RafDepartment> listDP = departmentRepository.findByCode(v.toString());
                         if (!listDP.isEmpty()) {
                             listDP.get(0).getMembers().forEach((m) -> {
@@ -272,6 +275,16 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                         ((MultiSelectField) f).getValues().add(k.getCode());
                     });
                 }
+            } else if (f instanceof MultiPersonSelectionField) {
+                ((MultiPersonSelectionField) f).getValues().clear();
+                ((MultiPersonSelectionField) f).setSelecedValues(null);
+                departmentRepository.findAll().forEach((d) -> {
+                    d.getMembers().forEach((m) -> {
+                        if (((MultiPersonSelectionField) f).getRole().equals(m.getRole()) || ((MultiPersonSelectionField) f).getRole().equals("*") && !((MultiPersonSelectionField) f).getValues().contains(m.getMemberName())) {
+                            ((MultiPersonSelectionField) f).getValues().add(m.getMemberName());
+                        }
+                    });
+                });
             }
             f.setData(data);
         }
@@ -344,6 +357,20 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                 if (e.getKey().contains("departmanlar")) {
                     completeParams.putIfAbsent("departmanlar", e.getValue());
                 }
+
+                if (e.getKey().contains("persons")) {
+                    completeParams.putIfAbsent("persons", e.getValue());
+                }
+
+                if (e.getKey().contains("uzmanlar")) {
+                    completeParams.putIfAbsent("persons", e.getValue());
+                    completeParams.putIfAbsent("personList", Arrays.asList(e.getValue().toString().split(",")));
+                }
+
+                if (e.getKey().contains("personList")) {
+                    completeParams.putIfAbsent("personList", Arrays.asList(data.get("persons").toString().split(",")));
+                }
+
             }
         }
 

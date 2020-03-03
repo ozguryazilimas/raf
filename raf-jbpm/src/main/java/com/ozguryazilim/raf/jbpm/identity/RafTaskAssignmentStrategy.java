@@ -114,6 +114,7 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy {
                 }
                  */
             } else {
+                LOG.debug(task.getDescription());
                 return new Assignment(oe.getId());
             }
         } else {
