@@ -2431,4 +2431,18 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0021] Raf cannot turn to version", ex);
         }
     }
+
+    public void reindex() {
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+                ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindex("/RAF/");
+                session.logout();
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+    }
 }

@@ -64,7 +64,13 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
             return;
         }
 
-        exportAllDocuments();
+        if (command.getReindexRepository()) {
+            LOG.info("Reindex command executing...");
+            rafService.reindex();
+            LOG.info("Reindex command executed...");
+        } else {
+            exportAllDocuments();
+        }
     }
 
     private void exportAllDocuments() {

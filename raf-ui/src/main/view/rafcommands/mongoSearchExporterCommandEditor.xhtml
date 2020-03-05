@@ -22,6 +22,9 @@
             <p:outputLabel value="Üzerine Yaz"/>
             <p:selectBooleanCheckbox value="#{mongoSearchExporterCommandEditor.command.owerwrite}"/>
 
+            <p:outputLabel value="Reindex"/>
+            <p:selectBooleanCheckbox value="#{mongoSearchExporterCommandEditor.command.reindexRepository}"/>
+            
         </p:panel>
     </p:scrollPanel>
 </ui:composition>

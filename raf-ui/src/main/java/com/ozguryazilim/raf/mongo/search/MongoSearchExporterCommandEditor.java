@@ -10,7 +10,7 @@ public class MongoSearchExporterCommandEditor extends CommandEditorBase<MongoSea
 
     @Override
     public MongoSearchExporterCommand createNewCommand() {
-        return new MongoSearchExporterCommand("localhost", 27017, "raf_repository", StringUtils.EMPTY, StringUtils.EMPTY, Boolean.FALSE);
+        return new MongoSearchExporterCommand("localhost", 27017, "raf_repository", StringUtils.EMPTY, StringUtils.EMPTY, Boolean.FALSE, Boolean.FALSE);
     }
 
 }

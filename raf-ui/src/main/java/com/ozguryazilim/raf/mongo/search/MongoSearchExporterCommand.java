@@ -10,17 +10,19 @@ public class MongoSearchExporterCommand extends AbstractStorableCommand {
     private String dbUserName;
     private String dbPassword;
     private Boolean owerwrite;
+    private Boolean reindexRepository;
 
     public MongoSearchExporterCommand() {
     }
 
-    public MongoSearchExporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, Boolean owerwrite) {
+    public MongoSearchExporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, Boolean owerwrite, Boolean reindexRepository) {
         this.dbHostName = dbHostName;
         this.dbPort = dbPort;
         this.dbName = dbName;
         this.dbUserName = dbUserName;
         this.dbPassword = dbPassword;
         this.owerwrite = owerwrite;
+        this.reindexRepository = reindexRepository;
     }
 
     public String getDbHostName() {
@@ -29,6 +31,10 @@ public class MongoSearchExporterCommand extends AbstractStorableCommand {
 
     public Boolean getOwerwrite() {
         return owerwrite;
+    }
+
+    public Boolean getReindexRepository() {
+        return reindexRepository;
     }
 
     public void setDbHostName(String dbHostName) {
@@ -69,6 +75,10 @@ public class MongoSearchExporterCommand extends AbstractStorableCommand {
 
     public void setOwerwrite(Boolean owerwrite) {
         this.owerwrite = owerwrite;
+    }
+
+    public void setReindexRepository(Boolean reindexRepository) {
+        this.reindexRepository = reindexRepository;
     }
 
 }
