@@ -1,0 +1,12 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="dbSettings" header="İndex Silme Ayarları">
+            <p:outputLabel value="Silinecek İndex"/>
+            <p:inputText value="#{indexRemoverCommandEditor.command.willRemoveIndexes}"/>
+
+        </p:panel>
+    </p:scrollPanel>
+</ui:composition>

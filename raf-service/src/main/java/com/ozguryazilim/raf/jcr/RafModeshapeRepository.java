@@ -2527,4 +2527,18 @@ public class RafModeshapeRepository implements Serializable {
 
         return result;
     }
+
+    public void unregisterIndexes(String... indexNames) {
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+                ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).getIndexManager().unregisterIndexes(indexNames);
+                session.logout();
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+    }
 }

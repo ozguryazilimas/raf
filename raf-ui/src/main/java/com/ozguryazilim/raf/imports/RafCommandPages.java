@@ -29,9 +29,14 @@ public interface RafCommandPages extends Pages {
     @View
     public class MongoSearchExporterCommandEditor implements Admin {
     };
-    
+
     @SecuredPage
     @View
     public class ElasticSearchExporterCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class IndexRemoverCommandEditor implements Admin {
     };
 }
