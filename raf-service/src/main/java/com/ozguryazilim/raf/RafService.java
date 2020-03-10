@@ -2,6 +2,7 @@ package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
@@ -438,5 +439,9 @@ public class RafService implements Serializable {
 
     public void reindex() {
         rafRepository.reindex();
+    }
+
+    public RafCollection getLastCreatedFilesCollection(Date fromDate, List<RafDefinition> rafs) throws RafException {
+        return rafRepository.getLastCreatedFilesCollection(fromDate, rafs);
     }
 }

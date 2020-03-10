@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.ExternalDocType;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
@@ -67,6 +68,9 @@ public class DetailedSearchController implements Serializable {
 
     @Inject
     private MongoSearchService mongoSearchService;
+
+    @Inject
+    private ElasticSearchService elasticSearchService;
 
     private List<RafDefinition> rafList;
 
@@ -231,7 +235,7 @@ public class DetailedSearchController implements Serializable {
 
     public void search() {
         LOG.info("Search for {}", searchModel);
-        searchResult = new SearchResultDataModel(rafList, searchModel, searchService, mongoSearchService);
+        searchResult = new SearchResultDataModel(rafList, searchModel, searchService, mongoSearchService, elasticSearchService);
     }
 
     public void setRecordType(String recordType) {

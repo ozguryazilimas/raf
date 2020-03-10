@@ -2445,4 +2445,86 @@ public class RafModeshapeRepository implements Serializable {
             LOG.error("Exception", e);
         }
     }
+
+    public RafCollection getLastCreatedFilesCollection(Date fromDate, List<RafDefinition> rafs) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle("Detay Arama");
+        result.setPath("SEARCH");
+        result.setName("Detay Arama");
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (fromDate != null) {
+                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(fromDate));
+            }
+
+            String rafWheres = " ( ";
+            for (RafDefinition raf : rafs) {
+                rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+            }
+            rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+            rafWheres += " ) ";
+            whereExpressions.add(rafWheres);
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            expression = expression.concat(lastWhereExpression);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+
+            LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                LOG.debug("Search result next.");
+                Node n = it.nextNode();
+                Node sn = session.getNode(n.getPath());
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!sn.isNodeType(MIXIN_RAF)) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
+                    }
+                }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
 }

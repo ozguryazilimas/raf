@@ -33,7 +33,7 @@
             <artifactId>raf-jbpm</artifactId>
             <version>${project.version}</version>
         </dependency>
-          <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-forms</artifactId>
             <version>${project.version}</version>
@@ -58,6 +58,7 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.4.2</version>
         </dependency>
+       
     </dependencies>
     
     <build>

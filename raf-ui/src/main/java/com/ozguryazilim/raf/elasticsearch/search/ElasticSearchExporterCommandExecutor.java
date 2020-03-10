@@ -1,11 +1,6 @@
-package com.ozguryazilim.raf.mongo.search;
+package com.ozguryazilim.raf.elasticsearch.search;
 
 import com.google.common.base.Strings;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
@@ -22,18 +17,20 @@ import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import javax.inject.Inject;
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.sun.jersey.api.client.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import org.primefaces.json.JSONObject;
 
-@CommandExecutor(command = MongoSearchExporterCommand.class)
-public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<MongoSearchExporterCommand> {
+@CommandExecutor(command = ElasticSearchExporterCommand.class)
+public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecuter<ElasticSearchExporterCommand> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MongoSearchExporterCommandExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchExporterCommandExecutor.class);
     private SimpleDateFormat sdf;
 
     @Inject
@@ -42,12 +39,15 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
     @Inject
     RafDefinitionService rafDefinitionService;
 
-    MongoSearchExporterCommand command;
+    ElasticSearchExporterCommand command;
 
     RafEncoder re;
 
+    private WebResource myWebResource;
+    private Client myClient;
+
     @Override
-    public void execute(MongoSearchExporterCommand command) {
+    public void execute(ElasticSearchExporterCommand command) {
         this.command = command;
         this.re = RafEncoderFactory.getEncoder();
         this.sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -73,22 +73,43 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         }
     }
 
+    WebResource getWebResource() {
+        if (myClient == null) {
+            myClient = Client.create();
+        }
+        if (myWebResource == null) {
+            myWebResource = myClient.resource(String.format("http://%s:%d", command.getDbHostName(), command.getDbPort(), command.getDbName()));
+        }
+        return myWebResource;
+    }
+
     private void exportAllDocuments() {
-        LOG.info("Raf mongo exporting command is executing.");
-        MongoCredential credential = MongoCredential.createCredential(command.getDbUserName(), command.getDbName(), command.getDbPassword().toCharArray());
-        MongoClient mongoClient = Strings.isNullOrEmpty(command.getDbUserName()) ? new MongoClient(new ServerAddress(command.getDbHostName(), command.getDbPort())) : new MongoClient(new ServerAddress(command.getDbHostName(), command.getDbPort()), Arrays.asList(credential));
-        MongoDatabase db = mongoClient.getDatabase(command.getDbName());
-        MongoCollection col = db.getCollection("rafRepository");
+        LOG.info("Raf elastic exporting command is executing.");
+        try {
+            getWebResource().path(command.getDbName()).put(new JSONObject("{\n"
+                    + "    \"mappings\": {\n"
+                    + "        \"default\": {\n"
+                    + "            \"dynamic_templates\": [                \n"
+                    + "                { \"tr\": {\n"
+                    + "                      \"match\":\"*\", \n"
+                    + "                      \"match_mapping_type\": \"string\",\n"
+                    + "                      \"mapping\": {\n"
+                    + "                          \"type\":\"string\",\n"
+                    + "                          \"analyzer\":\"whitespace\"\n"
+                    + "                      }\n"
+                    + "                }}\n"
+                    + "            ]\n"
+                    + "}}}").toString());
+        } catch (Exception ex) {
+            LOG.error("Exception", ex);
+        }
 
         if (command.getOwerwrite() && command.getStartDate() != null) {
             for (RafDefinition r : rafDefinitionService.getRafs()) {
                 if (r.getCode() != null) {
-                    LOG.info("{} raf exporting to mongo.", r.getCode());
-                    if (command.getOwerwrite()) {
-                        col.deleteMany(new Document("rafCode", r.getCode()));
-                    }
+                    LOG.info("{} raf exporting to elastic.", r.getCode());
                     String rafId = r.getNode() != null ? r.getNode().getId() : r.getNodeId();
-                    exportFolder(col, r.getCode(), rafId);
+                    exportFolder(r.getCode(), rafId);
                     LOG.info("{} raf exported.", r.getCode());
                 } else {
                     LOG.info("{} raf node is null.", r.getCode());
@@ -97,9 +118,9 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         } else {
             for (RafDefinition r : rafDefinitionService.getRafs()) {
                 try {
-                    LOG.info("{} raf exporting to mongo.", r.getCode());
+                    LOG.info("{} raf exporting to elastic.", r.getCode());
                     RafCollection searchResult = rafService.getLastCreatedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}));
-                    exportRafCollection(searchResult, col, r.getCode());
+                    exportRafCollection(searchResult, r.getCode());
                     LOG.info("{} raf exported.", r.getCode());
                 } catch (RafException ex) {
                     LOG.error("RafException", ex);
@@ -108,51 +129,40 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
 
         }
 
-        mongoClient.close();
-        LOG.info("Raf mongo exporting command is executed.");
+        LOG.info("Raf elastic exporting command is executed.");
     }
 
-    private void exportRafCollection(RafCollection rCol, MongoCollection col, String rafCode) {
+    private void exportRafCollection(RafCollection rCol, String rafCode) {
         for (RafObject itm : rCol.getItems()) {
             try {
-                LOG.info("{} file is exporting to mongo.", itm.getPath());
-                Boolean isExist = col.count(new Document("filePath", itm.getPath())) > 0;
-                Boolean insertFile = !isExist || command.getOwerwrite();
-                Document dboRec = null;
+                LOG.info("{} file is exporting to elastic.", itm.getPath());
+                Map<String, Object> dboRec = null;
                 if (itm instanceof RafRecord) {
-                    if (insertFile) {
-                        dboRec = insertRafRecord(rafCode, (RafRecord) itm);
-                    }
+                    dboRec = insertRafRecord(rafCode, (RafRecord) itm);
                 } else if (itm instanceof RafFolder) {
-                    if (insertFile) {
-                        dboRec = insertRafFolder(rafCode, (RafFolder) itm);
-                    }
-                    exportFolder(col, rafCode, itm.getId());
+                    dboRec = insertRafFolder(rafCode, (RafFolder) itm);
+                    exportFolder(rafCode, itm.getId());
                 } else if (itm instanceof RafDocument) {
-                    if (insertFile) {
-                        dboRec = insertRafDocument(rafCode, (RafDocument) itm);
-                    }
+                    dboRec = insertRafDocument(rafCode, (RafDocument) itm);
                 }
-                if (insertFile) {
-                    col.insertOne(dboRec);
-                }
+                getWebResource().path(command.getDbName()).path("default").path(itm.getId()).post(new JSONObject(dboRec).toString());
             } catch (Exception e) {
                 LOG.error("Exception", e);
             }
         }
     }
 
-    private void exportFolder(MongoCollection col, String rafCode, String id) {
+    private void exportFolder(String rafCode, String id) {
         try {
             RafCollection rCol = rafService.getCollection(id);
-            exportRafCollection(rCol, col, rafCode);
+            exportRafCollection(rCol, rafCode);
         } catch (RafException ex) {
             LOG.error("RafException", ex);
         }
     }
 
-    private Document insertRafRecord(String raf, RafRecord record) {
-        Document dboRec = new Document();
+    private Map<String, Object> insertRafRecord(String raf, RafRecord record) {
+        Map<String, Object> dboRec = new HashMap();
         dboRec.put("rafCode", raf);
         dboRec.put("filePath", record.getPath());
         dboRec.put("rafType", "RafRecord");
@@ -164,27 +174,28 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         dboRec.put("version", record.getVersion());
         dboRec.put("recordType", record.getRecordType());
         dboRec.put("createBy", record.getCreateBy());
-        dboRec.put("createDate", record.getCreateDate());
+        dboRec.put("createDate", record.getCreateDate().getTime());
         dboRec.put("updateBy", record.getUpdateBy());
-        dboRec.put("updateDate", record.getUpdateDate());
+        dboRec.put("updateDate", record.getUpdateDate() != null ? record.getUpdateDate().getTime() : null);
         dboRec.put("category", record.getCategory());
         dboRec.put("tags", record.getTags());
-        List<Document> metaDatas = new ArrayList();
         if (record.getMetadatas() != null) {
             for (RafMetadata metadata : record.getMetadatas()) {
-                Document mdRec = new Document();
-                mdRec.put("nodeId", metadata.getNodeId());
-                mdRec.put("type", metadata.getType());
-                mdRec.put("attributes", metadata.getAttributes());
-                metaDatas.add(mdRec);
+                for (Map.Entry<String, Object> entry : metadata.getAttributes().entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value instanceof Date) {
+                        value = ((Date) value).getTime();
+                    }
+                    dboRec.put(key, value);
+                }
             }
         }
-        dboRec.put("metaDatas", metaDatas);
         return dboRec;
     }
 
-    private Document insertRafFolder(String raf, RafFolder record) {
-        Document dboRec = new Document();
+    private Map<String, Object> insertRafFolder(String raf, RafFolder record) {
+        Map<String, Object> dboRec = new HashMap();
         dboRec.put("rafCode", raf);
         dboRec.put("filePath", record.getPath());
         dboRec.put("rafType", "RafFolder");
@@ -193,27 +204,28 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         dboRec.put("title", record.getTitle());
         dboRec.put("version", record.getVersion());
         dboRec.put("createBy", record.getCreateBy());
-        dboRec.put("createDate", record.getCreateDate());
+        dboRec.put("createDate", record.getCreateDate().getTime());
         dboRec.put("updateBy", record.getUpdateBy());
-        dboRec.put("updateDate", record.getUpdateDate());
+        dboRec.put("updateDate", record.getUpdateDate() != null ? record.getUpdateDate().getTime() : null);
         dboRec.put("category", record.getCategory());
         dboRec.put("tags", record.getTags());
-        List<Document> metaDatas = new ArrayList();
         if (record.getMetadatas() != null) {
             for (RafMetadata metadata : record.getMetadatas()) {
-                Document mdRec = new Document();
-                mdRec.put("nodeId", metadata.getNodeId());
-                mdRec.put("type", metadata.getType());
-                mdRec.put("attributes", metadata.getAttributes());
-                metaDatas.add(mdRec);
+                for (Map.Entry<String, Object> entry : metadata.getAttributes().entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value instanceof Date) {
+                        value = ((Date) value).getTime();
+                    }
+                    dboRec.put(key, value);
+                }
             }
         }
-        dboRec.put("metaDatas", metaDatas);
         return dboRec;
     }
 
-    private Document insertRafDocument(String raf, RafDocument record) {
-        Document dboRec = new Document();
+    private Map<String, Object> insertRafDocument(String raf, RafDocument record) {
+        Map<String, Object> dboRec = new HashMap();
         dboRec.put("rafCode", raf);
         dboRec.put("filePath", record.getPath());
         dboRec.put("rafType", "RafDocument");
@@ -222,22 +234,23 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
         dboRec.put("title", record.getTitle());
         dboRec.put("version", record.getVersion());
         dboRec.put("createBy", record.getCreateBy());
-        dboRec.put("createDate", record.getCreateDate());
+        dboRec.put("createDate", record.getCreateDate().getTime());
         dboRec.put("updateBy", record.getUpdateBy());
-        dboRec.put("updateDate", record.getUpdateDate());
+        dboRec.put("updateDate", record.getUpdateDate().getTime());
         dboRec.put("category", record.getCategory());
         dboRec.put("tags", record.getTags());
-        List<Document> metaDatas = new ArrayList();
         if (record.getMetadatas() != null) {
             for (RafMetadata metadata : record.getMetadatas()) {
-                Document mdRec = new Document();
-                mdRec.put("nodeId", metadata.getNodeId());
-                mdRec.put("type", metadata.getType());
-                mdRec.put("attributes", metadata.getAttributes());
-                metaDatas.add(mdRec);
+                for (Map.Entry<String, Object> entry : metadata.getAttributes().entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value instanceof Date) {
+                        value = ((Date) value).getTime();
+                    }
+                    dboRec.put(key, value);
+                }
             }
         }
-        dboRec.put("metaDatas", metaDatas);
         return dboRec;
     }
 }

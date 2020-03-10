@@ -1,9 +1,9 @@
-package com.ozguryazilim.raf.mongo.search;
+package com.ozguryazilim.raf.elasticsearch.search;
 
 import com.ozguryazilim.telve.messagebus.command.AbstractStorableCommand;
 import java.util.Date;
 
-public class MongoSearchExporterCommand extends AbstractStorableCommand {
+public class ElasticSearchExporterCommand extends AbstractStorableCommand {
 
     private String dbHostName;
     private int dbPort;
@@ -14,10 +14,10 @@ public class MongoSearchExporterCommand extends AbstractStorableCommand {
     private Boolean reindexRepository;
     private Date startDate;
 
-    public MongoSearchExporterCommand() {
+    public ElasticSearchExporterCommand() {
     }
 
-    public MongoSearchExporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, Boolean owerwrite, Boolean reindexRepository, Date startDate) {
+    public ElasticSearchExporterCommand(String dbHostName, int dbPort, String dbName, String dbUserName, String dbPassword, Boolean owerwrite, Boolean reindexRepository, Date startDate) {
         this.dbHostName = dbHostName;
         this.dbPort = dbPort;
         this.dbName = dbName;
