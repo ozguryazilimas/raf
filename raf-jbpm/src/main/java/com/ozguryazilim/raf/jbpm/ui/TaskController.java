@@ -471,7 +471,12 @@ public class TaskController implements Serializable, FormController, DocumentsWi
      */
     @Override
     public Boolean getCanUpload() {
-        return recordObject != null;
+        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
+    }
+
+    @Override
+    public Boolean getCanRemove() {
+        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
     }
 
     @Override
@@ -491,7 +496,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Override
     public Boolean getCanAdd() {
-        return recordObject != null;
+        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
     }
 
     /**
@@ -530,6 +535,17 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //FIXME: aslında doğru bir yöntem değil. Başka nesneler varsa sorun çıkarır. Tek nesnenin RafRecord olduğu varsayımı ile hareket ediyor.
         rafObjectItems.clear();
         rafObjectItems.add(recordObject);
+    }
+
+    public void removeDocument(RafObject object) {
+        if (recordObject != null && recordObject.getDocuments() != null) {
+            try {
+                rafService.deleteObject(object);
+                refreshRecordObject();
+            } catch (RafException ex) {
+                LOG.error("RafException", ex);
+            }
+        }
     }
 
 }
