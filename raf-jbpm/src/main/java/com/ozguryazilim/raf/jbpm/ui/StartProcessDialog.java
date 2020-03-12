@@ -31,86 +31,86 @@ import org.slf4j.LoggerFactory;
  */
 @SessionScoped
 @Named
-public class StartProcessDialog implements Serializable, FormController, DocumentsWidgetController{
-    
+public class StartProcessDialog implements Serializable, FormController, DocumentsWidgetController {
+
     private static final Logger LOG = LoggerFactory.getLogger(StartProcessDialog.class);
-    
+
     @Inject
     private ProcessService processService;
-    
+
     @Inject
     private RuntimeDataService dataService;
-    
+
     @Inject
     private DefinitionService bpmnDefinitionService;
 
     @Inject
     private RafContext context;
-    
+
     @Inject
     private Identity identity;
-    
+
     @Inject
     private FormManager formManager;
-    
+
     private String deploymentId;
     private String processId;
     private String processName;
     private Form form;
-    
-    private Map<String,Object> data = new HashMap<>();
-    
+
+    private Map<String, Object> data = new HashMap<>();
+
     private List<RafObject> selectedRafItems = new ArrayList<>();
-    
-    public void openDialog( String deploymentId, String processId){
-        
+
+    public void openDialog(String deploymentId, String processId) {
+
         this.deploymentId = deploymentId;
         this.processId = processId;
         this.data.clear();
         this.selectedRafItems.clear();
-        
+
         //Process Starter formları ProcessId + Starter ile başlar
         form = formManager.getForm(processId + "Starter");
-        for( Field f : form.getFields() ){
+        for (Field f : form.getFields()) {
             f.setData(data);
         }
-        
+
         ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
         processName = processDesc.getName();
-        
+
         LOG.info("Process Form Contexts {} {}, {}", deploymentId, processId, form);
-        
+
         Map<String, Object> options = new HashMap<>();
         RequestContext.getCurrentInstance().openDialog(getDialogId(), options, null);
     }
-    
+
     /**
      * Process için gereken bilgiler alındı ve başlatılacak.
      */
-    public void closeDialog(){
-        
+    public void closeDialog() {
+
         LOG.info("Process Data : {}", data);
 
         //Belgeleri de parametre olarak ekleyelim.
         serializeRafObjects();
-        
+
         data.put("initiator", identity.getLoginName());
-        
+
         long processInstanceId = processService.startProcess(deploymentId, processId, data);
 
         String message = "processInstanceId =  " + processInstanceId;
         LOG.info(message);
-        
+
         FacesMessages.info("Süreç başarı ile başlatıldı"); //FIXME: i18n
-        
+
         RequestContext.getCurrentInstance().closeDialog(null);
     }
-    
-    public void cancelDialog(){
+
+    public void cancelDialog() {
         RequestContext.getCurrentInstance().closeDialog(null);
     }
-    
-    public String getDialogId(){
+
+    public String getDialogId() {
         return "/bpm/processDialog";
     }
 
@@ -121,28 +121,28 @@ public class StartProcessDialog implements Serializable, FormController, Documen
     public void setData(Map<String, Object> data) {
         this.data = data;
     }
-    
-    public List<RafObject> getSelectedDocuments(){
-        if( selectedRafItems.isEmpty() ){
+
+    public List<RafObject> getSelectedDocuments() {
+        if (selectedRafItems.isEmpty()) {
             //FIXME: Burada ya klasörler hiç alınmayacak ya da RafBinder/RafDosier tadında bir klasör alınacak.
-            for( RafObject o : context.getSeletedItems() ){
+            for (RafObject o : context.getSeletedItems()) {
                 selectedRafItems.add(o);
             }
         }
-        
+
         return selectedRafItems;
     }
-    
+
     /**
      * Seçili olan RafObject'lerin id'lerini bir liste olarak yazacağız.
      */
-    protected void serializeRafObjects(){
-        
+    protected void serializeRafObjects() {
+
         List<String> rafOIDs = new ArrayList<>();
-        for( RafObject o : selectedRafItems ){
+        for (RafObject o : selectedRafItems) {
             rafOIDs.add(o.getId());
         }
-        
+
         data.put("document", rafOIDs);
     }
 
@@ -160,5 +160,4 @@ public class StartProcessDialog implements Serializable, FormController, Documen
         return selectedRafItems;
     }
 
-    
 }
