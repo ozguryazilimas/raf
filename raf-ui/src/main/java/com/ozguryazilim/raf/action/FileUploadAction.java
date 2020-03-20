@@ -211,9 +211,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
                     throw new RafException("File is exists");
                 }
                 RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
-                if (uploadedDocument != null && "PROCESS".equals(rafCode) && targetRecord != null) {
-                    rafService.moveObject(uploadedDocument, targetRecord);
-                }
+                //Dosya zaten PROCESS klasörüne yükleniyor, tekrar move etmeye gerek yok.
+//                if (uploadedDocument != null && "PROCESS".equals(rafCode) && targetRecord != null) {
+//                    rafService.moveObject(uploadedDocument, targetRecord);
+//                }
             }
 
             fileUploadService.deleteUpload(uri);
