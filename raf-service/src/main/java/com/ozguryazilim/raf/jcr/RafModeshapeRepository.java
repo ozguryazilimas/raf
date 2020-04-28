@@ -46,6 +46,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.modeshape.jcr.api.JcrTools;
@@ -1844,10 +1845,10 @@ public class RafModeshapeRepository implements Serializable {
             return result;
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
-        int extensionStringIndex = o.getName().lastIndexOf(".");
-        String fileExtension = o.getName().substring(extensionStringIndex);
-        result = targetBase + "/" + o.getName().substring(0, extensionStringIndex) + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + fileExtension;
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.    
+        String fileName = FilenameUtils.removeExtension(o.getName());
+        String fileExtension = FilenameUtils.getExtension(o.getName());
+        result = targetBase + "/" + fileName + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + "." + fileExtension;
 
         return result;
     }
