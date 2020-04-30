@@ -448,4 +448,8 @@ public class RafService implements Serializable {
     public void unregisterIndexes(String... indexNames) {
         rafRepository.unregisterIndexes(indexNames);
     }
+
+    public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
+        return rafRepository.getFolderSize(absPath, maxSumSize);
+    }
 }
