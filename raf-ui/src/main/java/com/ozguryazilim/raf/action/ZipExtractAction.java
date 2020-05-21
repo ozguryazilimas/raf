@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author oyas
  */
 @Action(icon = "fa-file-zip-o",
-        capabilities = {ActionCapability.DetailViews},
+        capabilities = {ActionCapability.CollectionViews, ActionCapability.DetailViews},
         includedMimeType = "application/zip"
 )
 public class ZipExtractAction extends AbstractAction {
@@ -51,32 +51,41 @@ public class ZipExtractAction extends AbstractAction {
         if ("application/zip".equals(getContext().getSelectedObject().getMimeType())) {
             try {
                 RafObject zipFile = getContext().getSelectedObject();
-                RafObject destDir = rafService.getRafObject(zipFile.getParentId());
-                InputStream fileIS = rafService.getDocumentContent(zipFile.getId());
-                ZipInputStream zis = new ZipInputStream(fileIS);
-                ZipEntry zipEntry = zis.getNextEntry();
-                while (zipEntry != null) {
-                    try {
-                        if (zipEntry.getSize() != 0) {
-                            newFile(destDir, zipEntry, zis);
-                        } else {
-                            rafService.createFolder(destDir.getPath().concat("/").concat(zipEntry.getName()));
-                        }
-                    } catch (Exception ex) {
-                        LOG.error("RafException", ex);
-                    }
-                    zipEntry = zis.getNextEntry();
-                }
-                zis.closeEntry();
-                zis.close();
-                fileIS.close();
-                FacesMessages.info(String.format("Zip dosya, %s klasörüne başarılı şekilde çıkartıldı.", destDir.getPath()));
+                extractZipFile(zipFile);
             } catch (Exception ex) {
                 LOG.error("RafException", ex);
                 FacesMessages.error("Hata", ex.getMessage());
             }
         }
         return super.finalizeAction();
+    }
+
+    public void extractZipFile(RafObject zipFile) {
+        try {
+            RafObject destDir = rafService.getRafObject(zipFile.getParentId());
+            InputStream fileIS = rafService.getDocumentContent(zipFile.getId());
+            ZipInputStream zis = new ZipInputStream(fileIS);
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                try {
+                    if (zipEntry.getSize() != 0) {
+                        newFile(destDir, zipEntry, zis);
+                    } else {
+                        rafService.createFolder(destDir.getPath().concat("/").concat(zipEntry.getName()));
+                    }
+                } catch (Exception ex) {
+                    LOG.error("RafException", ex);
+                }
+                zipEntry = zis.getNextEntry();
+            }
+            zis.closeEntry();
+            zis.close();
+            fileIS.close();
+            FacesMessages.info(String.format("Zip dosya, %s klasörüne başarılı şekilde çıkartıldı.", destDir.getPath()));
+        } catch (Exception ex) {
+            LOG.error("RafException", ex);
+            FacesMessages.error("Hata", ex.getMessage());
+        }
     }
 
     RafObject newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis) throws IOException, RafException {
