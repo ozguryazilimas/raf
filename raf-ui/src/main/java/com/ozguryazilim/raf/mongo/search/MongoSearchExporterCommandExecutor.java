@@ -98,8 +98,11 @@ public class MongoSearchExporterCommandExecutor extends AbstractCommandExecuter<
             for (RafDefinition r : rafDefinitionService.getRafs()) {
                 try {
                     LOG.info("{} raf exporting to mongo.", r.getCode());
-                    RafCollection searchResult = rafService.getLastCreatedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}));
+                    RafCollection searchResult = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), true);
                     exportRafCollection(searchResult, col, r.getCode());
+
+                    RafCollection searchResultModified = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), false);
+                    exportRafCollection(searchResultModified, col, r.getCode());
                     LOG.info("{} raf exported.", r.getCode());
                 } catch (RafException ex) {
                     LOG.error("RafException", ex);

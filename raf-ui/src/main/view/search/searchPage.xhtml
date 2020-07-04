@@ -84,6 +84,9 @@
                                     <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
                                     <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 
+                                    <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
+                                    <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
+
                                     <p:outputLabel value="Sıralama Alanı"/>
                                     <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
                                         <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />

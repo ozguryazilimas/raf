@@ -119,8 +119,12 @@ public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecute
             for (RafDefinition r : rafDefinitionService.getRafs()) {
                 try {
                     LOG.info("{} raf exporting to elastic.", r.getCode());
-                    RafCollection searchResult = rafService.getLastCreatedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}));
+                    RafCollection searchResult = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), true);
                     exportRafCollection(searchResult, r.getCode());
+
+                    RafCollection searchResultModified = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), false);
+                    exportRafCollection(searchResultModified, r.getCode());
+
                     LOG.info("{} raf exported.", r.getCode());
                 } catch (RafException ex) {
                     LOG.error("RafException", ex);

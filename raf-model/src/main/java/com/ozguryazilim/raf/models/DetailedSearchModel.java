@@ -30,6 +30,7 @@ public class DetailedSearchModel {
     private Map<String, Object> mapWFAttValue;
 
     private Boolean searchInDocumentName = Boolean.TRUE;
+    private Boolean searchInDocumentTags = Boolean.TRUE;
 
     private String sortBy;
     private String sortOrder;
@@ -50,6 +51,10 @@ public class DetailedSearchModel {
 
     public Boolean getSearchInDocumentName() {
         return searchInDocumentName;
+    }
+
+    public Boolean getSearchInDocumentTags() {
+        return searchInDocumentTags;
     }
 
     public String getSearchRaf() {
@@ -82,6 +87,10 @@ public class DetailedSearchModel {
 
     public void setSearchInDocumentName(Boolean searchInDocumentName) {
         this.searchInDocumentName = searchInDocumentName;
+    }
+
+    public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
+        this.searchInDocumentTags = searchInDocumentTags;
     }
 
     public void setSearchRaf(String searchRaf) {

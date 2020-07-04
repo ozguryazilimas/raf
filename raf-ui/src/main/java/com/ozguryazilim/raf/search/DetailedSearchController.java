@@ -132,6 +132,7 @@ public class DetailedSearchController implements Serializable {
         documentTypes = externalDocTypeRepository.findAll();
         searchModel = new DetailedSearchModel();
         searchModel.setSearchInDocumentName(Boolean.TRUE);
+        searchModel.setSearchInDocumentTags(Boolean.TRUE);
         listValueCache = new HashMap();
         attributes = null;
         searchResult = null;
