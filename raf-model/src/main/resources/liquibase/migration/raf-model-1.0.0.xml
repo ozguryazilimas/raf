@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">      
     
+    <changeSet author="cihan_cosgun" id="20200704160000">
+        <createTable tableName="SAVED_SEARCH">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="SAVED_SEARCH_PK"/>
+            </column>
+            <column name="MEMBER_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SEARCH_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SEARCH" type="VARCHAR(20000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
     <changeSet author="cihan_cosgun" id="202001311519">
         <createTable tableName="EXTERNAL_DOC_TYPE_ATTRIBUTE_LIST">
             <column name="ID" type="BIGINT">
