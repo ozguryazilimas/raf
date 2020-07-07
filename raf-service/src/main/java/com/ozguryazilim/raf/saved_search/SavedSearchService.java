@@ -45,6 +45,7 @@ public class SavedSearchService implements Serializable {
         savedSearchRepository.saveAndFlush(savedSearch);
     }
 
+    @Transactional
     public void removeSearchById(Long searchId) {
         SavedSearch search = savedSearchRepository.findBy(searchId);
         if (search != null) {
