@@ -94,9 +94,15 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-externaldoc</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>raf-emaildoc</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
@@ -119,13 +125,13 @@
             <version>5.1.6</version>
         </dependency>
         <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-cmis</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-                -->
+<dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>raf-cmis</artifactId>
+    <version>${project.version}</version>
+    <type>ejb</type>
+</dependency>
+        -->
     </dependencies>  
     
     <build>

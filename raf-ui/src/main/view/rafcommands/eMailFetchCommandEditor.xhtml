@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="emailSettings" header="Ayarlar">
+            <p:outputLabel value="E-posta Protokol"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.protocol}"/>
+
+            <p:outputLabel value="E-posta Sunucu"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.host}"/>
+            
+            <p:outputLabel value="E-posta Port"/>
+            <p:inputNumber value="#{eMailFetchCommandEditor.command.port}" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+            
+            <p:outputLabel value="Etki Alanı / Domain"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.user}"/>
+            
+            <p:outputLabel value="E-posta Kullanıcı"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.user}"/>
+
+            <p:outputLabel value="E-posta Parola"/>
+            <p:password value="#{eMailFetchCommandEditor.command.pass}"/>
+            
+            <p:outputLabel value="SSL"/>
+            <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" itemLabel="EVET"/>            
+            
+            <p:outputLabel value="Klasör"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.folder}"/>
+            
+            <p:outputLabel value="RAF Klasör"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.rafPath}"/>
+             
+        </p:panel>
+
+    </p:scrollPanel>
+</ui:composition>
