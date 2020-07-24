@@ -30,7 +30,7 @@ public class DetailedSearchModel {
     private Map<String, Object> mapWFAttValue;
 
     private Boolean searchInDocumentName = Boolean.TRUE;
-    private Boolean searchInDocumentTags = Boolean.TRUE;
+    private Boolean searchInDocumentTags = Boolean.FALSE;
 
     private String sortBy;
     private String sortOrder;
