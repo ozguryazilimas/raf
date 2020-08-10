@@ -1440,12 +1440,14 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_CATEGORY_ID, object.getCategoryId() == null ? 0 : object.getCategoryId());
             node.setProperty(PROP_TAG, object.getTags().toArray(new String[]{}));
             //node.setProperty(PROP_TAG, "");
-            Node cn = node.getNode(NODE_CONTENT);
-            cn.setProperty(PROP_UPDATED_BY, session.getUserID());
-            GregorianCalendar gCal = new GregorianCalendar();
-            gCal.setTime(new Date());
-            cn.setProperty(PROP_UPDATED_DATE, gCal);
-
+            if (node.hasNode(NODE_CONTENT)) {
+                Node cn = node.getNode(NODE_CONTENT);
+                cn.setProperty(PROP_UPDATED_BY, session.getUserID());
+                GregorianCalendar gCal = new GregorianCalendar();
+                gCal.setTime(new Date());
+                cn.setProperty(PROP_UPDATED_DATE, gCal);
+            }
+            
             session.save();
 
             //FIXME: Buradan geriye RafObject'in yeni halini dönmek lazım ki UI düzgün render edilebilsin!
