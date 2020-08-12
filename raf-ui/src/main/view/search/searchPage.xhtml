@@ -6,6 +6,10 @@
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 template="#{themeManager.layoutTemplate}">
 
+    <ui:define name="extraHead">
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+    </ui:define>
+
     <ui:define name="body">
         <style type="text/css">             
             .ui-outputlabel {
