@@ -471,7 +471,8 @@ public class RafModeshapeRepository implements Serializable {
                 QueryManager queryManager = session.getWorkspace().getQueryManager();
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+//                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "''") + "')";
+                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,\"" + absPath + "\")";
 
                 if (justFolders) {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
@@ -1447,7 +1448,7 @@ public class RafModeshapeRepository implements Serializable {
                 gCal.setTime(new Date());
                 cn.setProperty(PROP_UPDATED_DATE, gCal);
             }
-            
+
             session.save();
 
             //FIXME: Buradan geriye RafObject'in yeni halini dönmek lazım ki UI düzgün render edilebilsin!
@@ -2564,7 +2565,7 @@ public class RafModeshapeRepository implements Serializable {
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
             //TODO : JCR SQL içerisinde SUM(LENGTH(jcr:data)) gibi bir özellik gelirse bu kod güncellenebilir.
-            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,\"" + absPath + "\")";
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
