@@ -1,10 +1,7 @@
 package com.ozguryazilim.raf.executors;
 
-package com.ozguryazilim.raf.executors;
-
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
