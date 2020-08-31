@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.events.EventLogCommand;
@@ -49,6 +50,13 @@ public class RafService implements Serializable {
     private Identity identity;
 
     private Boolean readLogEnabled;
+
+    public boolean checkRafName(String name) {
+        return !Strings.isNullOrEmpty(name)
+                && !name.matches("\\s*")
+                && !name.equals(ApplicationContstants.PRIVATE_RAF)
+                && !name.equals(ApplicationContstants.SHARED_RAF);
+    }
 
     public RafObject setRafCheckOutValue(String path, Boolean checkOut, String userName, Date checkTime) throws RafException {
         return rafRepository.setRafCheckOutValue(path, checkOut, userName, checkTime);

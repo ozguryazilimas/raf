@@ -83,7 +83,9 @@ public class CreateFolderAction extends AbstractAction {
     @Override
     protected boolean finalizeAction() {
         folder.setPath(getContext().getCollection().getPath() + "/" + folder.getName());
-
+        if (!rafService.checkRafName(folder.getTitle())) {
+            return false;
+        }
         try {
             rafService.createFolder(folder);
         } catch (RafException ex) {
@@ -107,8 +109,10 @@ public class CreateFolderAction extends AbstractAction {
     }
 
     public void onNameChange() {
-        RafEncoder encoder = RafEncoderFactory.getEncoder();
-        //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
-        folder.setName(encoder.encode(folder.getTitle()));
+        if (rafService.checkRafName(folder.getTitle())) {
+            RafEncoder encoder = RafEncoderFactory.getEncoder();
+            //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
+            folder.setName(encoder.encode(folder.getTitle()));
+        }
     }
 }
