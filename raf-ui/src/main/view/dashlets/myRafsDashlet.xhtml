@@ -8,6 +8,9 @@
     <ui:param name="name" value="myRafsDashlet" />
     <ui:param name="bean" value="#{myRafsDashlet}" />
 
+    <ui:define name="extraButtons">
+        <p:commandLink action="#{bean.reGeneratePreviews()}" update=":#{dashlet}" styleClass="ui-panel-titlebar-icon ui-corner-all ui-state-default"><h:outputText styleClass="ui-icon ui-icon-refresh" title="#{messages['action.title.ReGeneratePreviewAction']}" /></p:commandLink>
+    </ui:define>
     <ui:define name="view">
         <p:outputPanel deferred="true">
             <div class="box-body no-padding">

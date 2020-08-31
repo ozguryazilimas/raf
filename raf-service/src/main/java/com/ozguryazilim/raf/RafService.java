@@ -19,10 +19,13 @@ import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -278,6 +281,26 @@ public class RafService implements Serializable {
             sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
         }
         return rafRepository.getPreviewContent(id);
+    }
+
+    public void reGeneratePreview(String id) throws RafException {
+        rafRepository.reGeneratePreview(id);
+    }
+
+    public void reGenerateObjectPreviews(List<RafObject> rafObjects) throws RafException {
+        for (RafObject rafObject : rafObjects) {
+            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
+                reGeneratePreview(rafObject.getId());
+            } else if (rafObject instanceof RafFolder) {
+                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
+                reGenerateObjectPreviews(r.getItems());
+
+            }
+        }
+    }
+
+    public RafCollection getRafCollectionForAllNode() throws RafException {
+        return rafRepository.getRafCollectionForAllNode();
     }
 
     public InputStream getDocumentVersionContent(String id, String version) throws RafException {

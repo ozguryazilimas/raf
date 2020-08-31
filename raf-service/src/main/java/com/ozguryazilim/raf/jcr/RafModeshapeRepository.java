@@ -123,7 +123,6 @@ public class RafModeshapeRepository implements Serializable {
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
-
     @PostConstruct
     public void init() {
         try {
@@ -628,6 +627,52 @@ public class RafModeshapeRepository implements Serializable {
                     result.getItems().add(nodeToRafDocument(n));
                 }
             }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
+    public RafCollection getRafCollectionForAllNode() throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setPath("SEARCH");
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            String expression = "SELECT * FROM [" + NODE_SEARCH + "] as nodes";
+
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                Node n = it.nextNode();
+
+                Node sn = it.nextNode();
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                if (sn.isNodeType(NODE_FOLDER)) {
+                    if (sn.isNodeType(MIXIN_RECORD)) {
+                        result.getItems().add(nodeToRafRecord(sn));
+                    } else {
+                        result.getItems().add(nodeToRafFolder(sn));
+                    }
+                } else if (sn.isNodeType(NODE_FILE)) {
+                    result.getItems().add(nodeToRafDocument(sn));
+                }
+            }
+
 
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
@@ -1602,6 +1647,39 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
+
+    /**
+     * ID'si verilen nodun preview dosyasini yeniden uretir.
+     *
+     * @param id
+     */
+    public void reGeneratePreview(String id) throws RafException {
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            Node nodeContent = node.getNode(NODE_CONTENT);
+            if (node.hasNode("raf:preview")) {
+                String mimeType = null;
+                if ( node.getNode("raf:preview") != null &&  node.getNode("raf:preview").isNode()) {
+                    Node preview = node.getNode("raf:preview");
+                    mimeType = getPropertyAsString(preview, "jcr:mimeType");
+                    preview.remove();
+
+                }
+                if (!Strings.isNullOrEmpty(mimeType)) {
+                    FilePreviewHelper.generatePreview(nodeContent.getProperty(PROP_DATA), node, mimeType);
+                }
+
+                session.save();
+                session.logout();
+            }
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+
 
     /**
      * ID'si verilen nodu siler.
