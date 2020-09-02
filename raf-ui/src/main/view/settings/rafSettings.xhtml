@@ -43,14 +43,14 @@
                     <div class="raf-header-btns">
                         <h:link outcome="/raf.xhtml" title="#{messages['raf.label.Raf']}">
                             <i class="fa fa-archive" />
-                            <f:param name="id" value="#{rafMemberController.rafDefinition.code}" />
+                            <f:param name="id" value="#{rafSettingsController.rafDefinition.code}" />
                         </h:link>
-                        
+
                         <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
                             <i class="fa fa-users" />
                             <f:param name="id" value="#{rafSettingsController.rafDefinition.code}" />
                         </h:link>
-                        
+
                         <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
                             <i class="fa fa-cogs" />
                             <f:param name="id" value="#{rafSettingsController.rafDefinition.code}" />
