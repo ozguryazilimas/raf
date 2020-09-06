@@ -10,15 +10,22 @@
     <ui:param name="bean" value="#{eventsDashlet}" />
 
     <ui:define name="edit">
-        <div class="row">
-            <div class="col-md-6">
-                <p:outputLabel for="rafFilterInput" value="Basic:" />
-                <p:selectOneMenu id="rafFilterInput" value="#{eventsDashlet.selectedRaf}" converter="#{eventsDashlet.rafDefinitionConverter}">
-                    <f:selectItem itemLabel="Select One" itemValue="" />
-                    <f:selectItems value="#{eventsDashlet.rafs}" var="raf" itemLabel="#{raf.name}" itemValue="#{raf}" itemLabelEscaped="true" />
-                </p:selectOneMenu>
+        <div style="width: 100%; padding: 15px;">
+            <div class="row">
+                <div class="col-md-12" style="margin: 10px">
+                    <p:outputLabel for="rafFilterInput" value="#{messages['events.filter.raf.label']}" />
+                    <p:selectOneMenu id="rafFilterInput" value="#{eventsDashlet.selectedRaf}" converter="#{eventsDashlet.rafDefinitionConverter}">
+                        <f:selectItem itemLabel="#{messages['events.filter.raf.label']}" itemValue="" />
+                        <f:selectItems value="#{eventsDashlet.rafs}" var="raf" itemLabel="#{raf.name}" itemValue="#{raf}" itemLabelEscaped="true" />
+                    </p:selectOneMenu>
+                </div>
+                <div class="col-md-12">
+                    <p:outputLabel for="date" value="#{messages['events.filter.date.label']}" />
+                    <h:inputText id="date" styleClass="form-control" value="#{eventsDashlet.date}">
+                        <f:convertDateTime pattern="dd.MM.yyyy"/>
+                    </h:inputText>
+                </div>
             </div>
-            <div class="col-md-6"></div>
         </div>
     </ui:define>
 

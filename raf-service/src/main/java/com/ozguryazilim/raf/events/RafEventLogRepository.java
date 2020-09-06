@@ -4,6 +4,7 @@ import com.ozguryazilim.raf.entities.RafEventLog;
 import com.ozguryazilim.raf.entities.RafEventLog_;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.enterprise.context.Dependent;
 import org.apache.deltaspike.data.api.Repository;
@@ -40,5 +41,19 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
         
         return crit.createQuery().setMaxResults(10).getResultList();
     }
-    
+
+    public List<RafEventLog> findByPathsAndDate(String username, List<String> paths, Date date) {
+        Criteria<RafEventLog,RafEventLog> crit = criteria();
+
+        List<Criteria<RafEventLog,RafEventLog>> partCrits = new ArrayList<>();
+        paths.forEach((p) -> {
+            partCrits.add( criteria().like(RafEventLog_.path, p));
+        });
+
+        crit.or(partCrits);
+        crit.gtOrEq(RafEventLog_.logTime, date);
+        crit.orderDesc(RafEventLog_.logTime);
+
+        return crit.createQuery().setMaxResults(10).getResultList();
+    }
 }

@@ -4,6 +4,7 @@ import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafEventLog;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -39,5 +40,11 @@ public class RafEventLogService {
         List<String> paths = rafs.stream().map(rafDefinition -> "/RAF/" + rafDefinition.getCode() + "/%").collect(Collectors.toList());
         paths.add("/SHARED/%");
         return logRepository.findByPaths(username, paths);
+    }
+
+    public List<RafEventLog> getEventLogByUserAndPathsAndDate(String username, List<RafDefinition> rafs, Date date) {
+        List<String> paths = rafs.stream().map(rafDefinition -> "/RAF/" + rafDefinition.getCode() + "/%").collect(Collectors.toList());
+        paths.add("/SHARED/%");
+        return logRepository.findByPathsAndDate(username, paths, date);
     }
 }

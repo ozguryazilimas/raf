@@ -9,6 +9,9 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.dashboard.AbstractDashlet;
 import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
+
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.faces.convert.Converter;
@@ -39,6 +42,8 @@ public class EventsDashlet extends AbstractDashlet{
 
     private RafDefinition selectedRaf;
 
+    private Date date;
+
     public List<RafDefinition> getRafs() {
         return rafs;
     }
@@ -53,6 +58,14 @@ public class EventsDashlet extends AbstractDashlet{
 
     public void setSelectedRaf(RafDefinition selectedRaf) {
         this.selectedRaf = selectedRaf;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     @Override
@@ -73,10 +86,11 @@ public class EventsDashlet extends AbstractDashlet{
 
     @Override
     public void save() {
-        if (selectedRaf == null) {
-            events = eventLogService.getEventLogByUser(identity.getLoginName());
+        List<RafDefinition> selectedRafs = selectedRaf == null ? rafs : Collections.singletonList(selectedRaf);
+        if (date != null) {
+            events = eventLogService.getEventLogByUserAndPathsAndDate(identity.getLoginName(), selectedRafs, date);
         } else {
-            events = eventLogService.getEventLogByUserAndRaf(identity.getLoginName(), selectedRaf);
+            events = eventLogService.getEventLogByUserAndPaths(identity.getLoginName(), selectedRafs);
         }
     }
 
