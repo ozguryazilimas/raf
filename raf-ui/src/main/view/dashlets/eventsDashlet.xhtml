@@ -9,6 +9,19 @@
     <ui:param name="name" value="eventsDashlet" />
     <ui:param name="bean" value="#{eventsDashlet}" />
 
+    <ui:define name="edit">
+        <div class="row">
+            <div class="col-md-6">
+                <p:outputLabel for="rafFilterInput" value="Basic:" />
+                <p:selectOneMenu id="rafFilterInput" value="#{eventsDashlet.selectedRaf}" converter="#{eventsDashlet.rafDefinitionConverter}">
+                    <f:selectItem itemLabel="Select One" itemValue="" />
+                    <f:selectItems value="#{eventsDashlet.rafs}" var="raf" itemLabel="#{raf.name}" itemValue="#{raf}" itemLabelEscaped="true" />
+                </p:selectOneMenu>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+    </ui:define>
+
     <ui:define name="view">
         <p:outputPanel deferred="true">
             <div class="box-body no-padding">

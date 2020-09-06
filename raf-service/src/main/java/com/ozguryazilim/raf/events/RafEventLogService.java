@@ -3,8 +3,9 @@ package com.ozguryazilim.raf.events;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafEventLog;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -27,17 +28,16 @@ public class RafEventLogService {
     
     public List<RafEventLog> getEventLogByUser( String username){
         List<RafDefinition> defs = rafDefinitionService.getRafsForUser(username);
-        List<String> paths = new ArrayList<>();
-        
-        for( RafDefinition def : defs ){
-            paths.add("/RAF/" + def.getCode() + "/%");
-        }
-        
-        //Ortak alana konanlar herkese listelensin. 
-        //TODO: Bunu kullanıcı seçimine versek mi?
-        paths.add("/SHARED/%" );
-        //Repository'den şu anda max 10 adet dönüyor
+        return getEventLogByUserAndPaths(username, defs);
+    }
+
+    public List<RafEventLog> getEventLogByUserAndRaf(String username, RafDefinition rafDefinition) {
+        return getEventLogByUserAndPaths(username, Collections.singletonList(rafDefinition));
+    }
+
+    public List<RafEventLog> getEventLogByUserAndPaths(String username, List<RafDefinition> rafs) {
+        List<String> paths = rafs.stream().map(rafDefinition -> "/RAF/" + rafDefinition.getCode() + "/%").collect(Collectors.toList());
+        paths.add("/SHARED/%");
         return logRepository.findByPaths(username, paths);
     }
-    
 }
