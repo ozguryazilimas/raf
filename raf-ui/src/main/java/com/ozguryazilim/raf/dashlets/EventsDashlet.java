@@ -31,6 +31,7 @@ public class EventsDashlet extends AbstractDashlet{
     public void load() {
         //Servisten max 10 adet dönüyor.
         events = eventLogService.getEventLogByUser(identity.getLoginName());
+        events.forEach(rafEventLog -> rafEventLog.setMessage(clearHtmlTags(rafEventLog.getMessage())));
     }
 
     public List<RafEventLog> getEvents() {
@@ -41,7 +42,8 @@ public class EventsDashlet extends AbstractDashlet{
     public void refresh() {
         load();
     }
-    
-    
-    
+
+    private String clearHtmlTags(String input) {
+        return input.replaceAll("<", "&lt").replaceAll(">", "&gt");
+    }
 }
