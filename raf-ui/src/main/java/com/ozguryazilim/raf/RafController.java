@@ -306,6 +306,7 @@ public class RafController implements Serializable {
                 }
 
             } catch (RafException ex) {
+                FacesMessages.error("Document Selection Error", ex.getLocalizedMessage());
                 LOG.error("Raf Exception", ex);
             }
 
