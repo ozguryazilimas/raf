@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import java.text.Collator;
@@ -304,4 +305,13 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         this.showDetails = showDetails;
     }
 
+    public Boolean hasPreview(RafObject rafObject) {
+        if (rafObject instanceof RafFolder) {
+            return false;
+        } else if (rafObject instanceof RafDocument) {
+            return ((RafDocument) rafObject).getHasPreview();
+        } else {
+            return false;
+        }
+    }
 }
