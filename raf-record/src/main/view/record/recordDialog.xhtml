@@ -13,12 +13,15 @@
     <ui:define name="form" >
         <h:form id="pf">
             <div class="row">
+                <p:messages id="startRecordDialogMessages" showSummary="true" />
+            </div>
+            <div class="row">
                 <t:inputText label="process.label.Subject" value="#{startRecordDialog.data['subject']}" placeholder="Konu" required="true"/>
                 <t:inputTextarea label="process.label.Description" value="#{startRecordDialog.data['description']}" placeholder="Açıklama" required="true"/>
                 <t:inputCombobox label="process.label.DocumentType" value="#{startRecordDialog.data['documentType']}" >
                     <f:selectItems value="#{startRecordDialog.recordType.documentTypes}" var="dt" itemLabel="#{dt.title}" itemValue="#{dt.name}" />
                 </t:inputCombobox>
-                
+
                 <t:inputCombobox label="process.label.Process" value="#{startRecordDialog.data['processId']}" >
                     <f:selectItems value="#{startRecordDialog.recordType.processes}" var="ps" itemLabel="#{ps.title}" itemValue="#{ps.name}" />
                 </t:inputCombobox>
@@ -28,17 +31,17 @@
                 <ui:param name="frm" value="#{startRecordDialog}" />
             </ui:include>
 
-            
+
             <div class="row">
                 <ui:include src="/fragments/documentsWidget.xhtml">
                     <ui:param name="controller" value="#{startRecordDialog}" />
                 </ui:include>
             </div>
-            
+
 
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" >
-                    <p:commandButton id="save" value="#{messages['general.button.Start']}" icon="fa fa-check" action="#{startRecordDialog.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="save" value="#{messages['general.button.Start']}" icon="fa fa-check" action="#{startRecordDialog.closeDialog()}" styleClass="btn-primary" update="startRecordDialogMessages"/>
                     <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{startRecordDialog.cancelDialog()}" process="@this"/>
                 </h:panelGroup>
             </div>
