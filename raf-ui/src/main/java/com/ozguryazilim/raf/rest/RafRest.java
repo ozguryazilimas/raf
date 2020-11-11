@@ -3,8 +3,12 @@ package com.ozguryazilim.raf.rest;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.entities.RafMember;
+import com.ozguryazilim.raf.entities.RafMemberType;
 import java.util.List;
+import java.util.ArrayList;
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -36,6 +40,8 @@ public class RafRest {
     @Inject
     private RafDefinitionService rafDefinitionService;
     
+    @Inject
+    private RafMemberService rafMemberService;
     
     
     @GET
@@ -56,7 +62,7 @@ public class RafRest {
         
     }
     
-    
+   
     @POST()
     @Produces(MediaType.APPLICATION_JSON)
     public Response createRaf(@FormParam("rafCode") String rafCode, 
@@ -80,5 +86,35 @@ public class RafRest {
         
         return Response.ok().build();
     }
-    
+
+    @GET
+    @Path("/{raf}/member")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RafMember> getMemberList(@PathParam("raf") String rafCode) throws RafException {
+        List<RafMember> members = new ArrayList<>();
+        RafDefinition raf = rafDefinitionService.getRafDefinitionByCode(rafCode);
+        if (raf != null)
+            members = rafMemberService.getMembers(raf);
+        return members;
+    }
+
+    @POST()
+    @Path("{raf}/member")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addMember(@PathParam("raf") String rafCode,
+                              @FormParam("member") String member,
+                              @FormParam("role") String role) throws RafException {
+
+        RafDefinition raf = rafDefinitionService.getRafDefinitionByCode(rafCode);
+        if (raf == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("Raf Code Not Found.").build();
+
+        try {
+            rafMemberService.addMember(raf, member, RafMemberType.USER, role);
+        } catch ( RafException e ){
+            LOG.error("Member Add Error", e);
+            return Response.status(Response.Status.CREATED).entity(e.getMessage()).build();
+        }
+        return Response.ok().build();
+    }
 }
