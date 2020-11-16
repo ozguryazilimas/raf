@@ -170,6 +170,9 @@
                         <owner>${project.organization.name}</owner>
                         <url>${project.organization.url}</url>
                     </properties>
+                    <excludes>
+                        <exclude>docker/**</exclude>
+                    </excludes>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
