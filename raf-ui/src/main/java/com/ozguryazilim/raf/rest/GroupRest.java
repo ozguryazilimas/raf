@@ -117,7 +117,7 @@ public class GroupRest {
             List<Group> groups = groupRepository.findByCode(groupCode);
             if (groups.isEmpty()) {
                 LOG.warn("Could not find group: {}", groupCode);
-                return Response.status(Response.Status.NOT_FOUND).entity("Could not find group").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Could not find group").build();
             }
 
             Group group = groups.get(0);
