@@ -86,6 +86,7 @@ public class GroupRest {
             group.setActive(Boolean.TRUE);
             group.setCode(groupCode);
             group.setName(groupName);
+            group.setInfo(info);
             group.setAutoCreated(Boolean.FALSE);
             if (parent != null && !parent.isEmpty()) {
                 group.setParent(groupRepository.findByCode(parent).get(0));
@@ -95,7 +96,7 @@ public class GroupRest {
             group.setPath(TreeUtils.getNodeIdPath(group));
             groupRepository.save(group);
         } catch (Exception e) {
-            LOG.error("Group Create Error", e);
+            LOG.error(String.format("Group Create Error - %s", groupCode), e);
             return Response.status(Response.Status.CREATED).entity(e.getMessage()).build();
         }
         return Response.ok().build();
@@ -108,15 +109,25 @@ public class GroupRest {
                                    @FormParam("user") String userName) {
         try {
             User user = userRepository.findAnyByLoginName(userName);
-            if (user != null) {
-                Group group =groupRepository.findByCode(groupCode).get(0);
-                UserGroup userGroup = userGroupRepository.findAnyByUserAndGroup(user, group);
-                if (userGroup == null) {
-                    UserGroup newUserGroup = new UserGroup();
-                    newUserGroup.setGroup(group);
-                    newUserGroup.setUser(user);
-                    userGroupRepository.save(newUserGroup);
-                }
+            if (user == null) {
+                LOG.warn("Could not find user: {}", userName);
+                return Response.status(Response.Status.NOT_FOUND).entity("Could not find user").build();
+            }
+
+            List<Group> groups = groupRepository.findByCode(groupCode);
+            if (groups.isEmpty()) {
+                LOG.warn("Could not find group: {}", groupCode);
+                return Response.status(Response.Status.NOT_FOUND).entity("Could not find group").build();
+            }
+
+            Group group = groups.get(0);
+
+            UserGroup userGroup = userGroupRepository.findAnyByUserAndGroup(user, group);
+            if (userGroup == null) {
+                UserGroup newUserGroup = new UserGroup();
+                newUserGroup.setGroup(group);
+                newUserGroup.setUser(user);
+                userGroupRepository.save(newUserGroup);
             }
         } catch (Exception e) {
             LOG.error("User Group Create Error", e);
