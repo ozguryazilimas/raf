@@ -1,5 +1,8 @@
 package com.ozguryazilim.raf.encoder;
 
+import java.util.regex.Pattern;
+
+
 /**
  * Raf path'i için encode decode işlemi yapar.
  *
@@ -17,7 +20,7 @@ public class RafFileNameEncoder implements RafEncoder {
         //toLowerCase(new Locale("tr")) hepsini küçük harfer çevirmek için eklenebilir
         if (text.split("\\.").length > 2) {
             String extension = text.substring(text.lastIndexOf("."));
-            text = text.replaceAll(extension, "").replaceAll("\\.", "_").concat(extension);
+            text = text.replaceAll(Pattern.quote(extension), "").replaceAll("\\.", "_").concat(extension);
         }
         char[] source = text.toCharArray();
         for (int i = 0; i < source.length; i++) {
