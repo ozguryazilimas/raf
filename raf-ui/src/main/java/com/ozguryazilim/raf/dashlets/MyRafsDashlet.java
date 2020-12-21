@@ -15,7 +15,7 @@ import javax.inject.Inject;
  *
  * @author oyas
  */
-@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canMinimize })
+@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canMinimize }, permission = "public")
 public class MyRafsDashlet extends AbstractDashlet{
 
     @Inject
