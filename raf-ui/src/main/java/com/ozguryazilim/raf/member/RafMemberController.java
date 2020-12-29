@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -71,6 +72,10 @@ public class RafMemberController implements Serializable {
 
     private Group userGroup;
 
+    private String filter = "";
+    private List<RafMember> filteredMembers;
+    private RafMember selectedMember;
+    
     public void init() {
         if (Strings.isNullOrEmpty(rafCode)) {
             rafCode = "PRIVATE";
@@ -121,16 +126,27 @@ public class RafMemberController implements Serializable {
     }
 
     public List<RafMember> getMembers() {
-        //FIXME: burada ikide bir sorgu çekmenin anlamı yok. Cacheleyelim.
-        try {
-            return memberService.getMembers(rafDefinition);
-        } catch (RafException ex) {
-            //FIXME: i18n
-            LOG.error("Raf Exception", ex);
-            FacesMessages.error("Üye bilgisi alınamadı", ex.getLocalizedMessage());
-        }
+        
+        if( filteredMembers == null ){
+            try {
+                filteredMembers= memberService.getMembers(rafDefinition).stream()
+                        .filter( m->  
+                                Strings.isNullOrEmpty(m.getMemberName()) ? false : 
+                                    m.getMemberType().equals(RafMemberType.USER) ? 
+                                        userLookup.getUserName(m.getMemberName()).contains(filter) : m.getMemberName().contains( filter))
+                        .collect(Collectors.toList());
+                
+                return filteredMembers;
+            } catch (RafException ex) {
+                //FIXME: i18n
+                LOG.error("Raf Exception", ex);
+                FacesMessages.error("Üye bilgisi alınamadı", ex.getLocalizedMessage());
+            }
 
-        return Collections.emptyList();
+            return Collections.emptyList();
+        }
+        
+        return filteredMembers;
     }
 
     public List<UserInfo> completeUser(String query) {
@@ -237,5 +253,52 @@ public class RafMemberController implements Serializable {
             LOG.error("Member cannot delete", ex);
             FacesMessages.error("Kullanıcı Silinemedi", ex.getLocalizedMessage());
         }
+    }
+
+    
+    public void search(){
+        filteredMembers = null;
+    }
+    
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public RafMember getSelectedMember() {
+        return selectedMember;
+    }
+
+    public void setSelectedMember(RafMember selectedMember) {
+        this.selectedMember = selectedMember;
+    }
+ 
+
+    public void editMember( RafMember m ){
+        selectedMember = m;
+    }
+    
+    public void closeDialog(){
+        //Normal bir kapanış olduğuna göre ya save işlemi yapılacak demek.
+        
+        if( selectedMember != null){
+            
+            try {
+                memberService.changeMemberRole(selectedMember.getRaf(), selectedMember.getMemberName(), selectedMember.getRole());
+            } catch (RafException ex) {
+                LOG.error("Role Cannot Change", ex);
+            }
+            
+            search();
+        }
+        
+    }
+    
+    public void cancelDialog(){
+        //Aslında yapacak bir şey yok.
+        selectedMember = null;
     }
 }

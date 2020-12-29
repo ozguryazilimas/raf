@@ -7,6 +7,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
@@ -54,7 +55,7 @@ public class RafNavigationController implements Serializable{
     }
 
     public List<RafDefinition> getRafs() {
-        return rafs;
+        return rafs.stream().limit(10).collect(Collectors.toList());
     }
     
     public void rafDataChangedListener( @Observes RafDataChangedEvent event){
