@@ -17,6 +17,7 @@ import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -271,6 +272,13 @@ public class RafService implements Serializable {
             sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
         }
         return rafRepository.getDocumentContent(id);
+    }
+    
+    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
+        }
+        rafRepository.getDocumentContent(id, out);
     }
 
     public InputStream getPreviewContent(String id) throws RafException {

@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -1561,6 +1563,7 @@ public class RafModeshapeRepository implements Serializable {
             Node content = node.getNode(NODE_CONTENT);
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
+            /*
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), bos);
 
@@ -1569,6 +1572,27 @@ public class RafModeshapeRepository implements Serializable {
             ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
 
             return result;
+            */
+            return content.getProperty(PROP_DATA).getBinary().getStream();
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
+    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Content Requested: {}", node.getPath());
+
+            Node content = node.getNode(NODE_CONTENT);
+
+            IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), out);
+
+            session.logout();
 
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);
