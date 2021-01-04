@@ -173,9 +173,6 @@
                     <excludes>
                         <exclude>docker/**</exclude>
                     </excludes>
-                    <excludes>
-                        <exclude>docker/**</exclude>
-                    </excludes>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
