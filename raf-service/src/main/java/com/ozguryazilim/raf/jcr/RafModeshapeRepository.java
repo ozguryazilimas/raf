@@ -1350,7 +1350,7 @@ public class RafModeshapeRepository implements Serializable {
             Session session = ModeShapeRepositoryFactory.getSession();
 
             //TODO: Burada encode etmek doğru bir areket mi?
-            path = encoder.encode(path);
+            path = getEncodedPath(path);
             Node node = session.getNode(path);
 
             RafObject result = null;
