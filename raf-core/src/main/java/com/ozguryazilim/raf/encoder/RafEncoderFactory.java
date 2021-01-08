@@ -18,6 +18,9 @@ public class RafEncoderFactory {
     public static RafEncoder getEncoder(){
         return new RafFileNameEncoder();
     }
-    
-    
+
+    public static RafEncoder getNameEncoder(){
+        return new RafNameEncoder();
+    }
+
 }
