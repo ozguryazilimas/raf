@@ -208,6 +208,7 @@ public class RafMemberController implements Serializable {
             selectedUsers.clear();
             userGroup = null;
             role = "";
+            filteredMembers = null;
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Memeber Add Error", ex);
@@ -236,6 +237,7 @@ public class RafMemberController implements Serializable {
             selectedUsers.clear();
             userGroup = null;
             role = "";
+            filteredMembers = null;
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Memeber Add Error", ex);
