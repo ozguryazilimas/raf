@@ -77,6 +77,9 @@ public class RafMemberController implements Serializable {
     private RafMember selectedMember;
     
     public void init() {
+
+        filteredMembers = null;
+
         if (Strings.isNullOrEmpty(rafCode)) {
             rafCode = "PRIVATE";
         }
