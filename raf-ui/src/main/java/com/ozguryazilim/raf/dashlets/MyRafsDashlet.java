@@ -10,6 +10,7 @@ import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -41,12 +42,15 @@ public class MyRafsDashlet extends AbstractDashlet{
     }
     
     public List<RafDefinition> getRafs() {
+        //TODO: The locale should come from configuration
+        Locale locale = new Locale("tr", "TR");
+
         return rafs.stream()
                 //.sorted( sortAsc ? Comparator.comparing(RafDefinition::getName) : Comparator.comparing(RafDefinition::getName))
                 .sorted( (r1, r2) -> 
                     sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1 
                 )
-                .filter( r -> Strings.isNullOrEmpty(filter) ? true : r.getName().contains(filter))
+                .filter( r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(locale).contains(filter.toLowerCase(locale)))
                 .limit(size)
                 .collect(Collectors.toList());
     }
