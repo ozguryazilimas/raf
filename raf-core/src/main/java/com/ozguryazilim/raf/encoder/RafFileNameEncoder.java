@@ -18,10 +18,16 @@ public class RafFileNameEncoder implements RafEncoder {
 
         StringBuilder sb = new StringBuilder();
         //toLowerCase(new Locale("tr")) hepsini küçük harfer çevirmek için eklenebilir
-        if (text.split("\\.").length > 2) {
-            String extension = text.substring(text.lastIndexOf("."));
-            text = text.replaceAll(Pattern.quote(extension), "").replaceAll("\\.", "_").concat(extension);
+
+        String[] textArray = text.split("/");
+        String fileName = textArray[textArray.length - 1];
+        if (fileName.split("\\.").length > 2) {
+            String extension = fileName.substring(fileName.lastIndexOf("."));
+            fileName = fileName.replaceAll(Pattern.quote(extension), "").replaceAll("\\.", "_").concat(extension);
+            textArray[textArray.length - 1] = fileName;
         }
+        text = String.join("/", textArray);
+
         char[] source = text.toCharArray();
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
