@@ -976,7 +976,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(folder.getPath());
+            String fullPath = getEncodedName(folder.getPath());
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1012,7 +1012,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(folderPath);
+            String fullPath = getEncodedName(folderPath);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1270,7 +1270,7 @@ public class RafModeshapeRepository implements Serializable {
             Session session = ModeShapeRepositoryFactory.getSession();
 
             String fullName = getEncodedPath(fileName);
-            LOG.debug("Encoded FileName : {}", fileName);
+            LOG.debug("Encoded FileName : {}", fullName);
 
             Node n = jcrTools.uploadFile(session, fullName, in);
 

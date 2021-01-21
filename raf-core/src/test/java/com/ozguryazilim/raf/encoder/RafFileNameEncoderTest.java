@@ -39,7 +39,7 @@ public class RafFileNameEncoderTest {
         System.out.println("encode");
         String text = "ÜĞİŞÇÖI üğişçöı :.%/_-?=.txt";
         RafFileNameEncoder instance = new RafFileNameEncoder();
-        String expResult = "UGISCOI_ugiscoi___%/_-?=.txt";
+        String expResult = "UGISCOI_ugiscoi__.%/_-?=.txt";
         String result = instance.encode(text);
         assertEquals(expResult, result);
     }
