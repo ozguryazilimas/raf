@@ -15,12 +15,16 @@ public class RafEncoderFactory {
      * FIXME: Varsayılan değer configden alınmalı
      * @return 
      */
-    public static RafEncoder getEncoder(){
-        return new RafFileNameEncoder();
+    public static RafEncoder getFileNameEncoder(){
+        return new FileNameEncoder();
     }
 
-    public static RafEncoder getNameEncoder(){
+    public static RafEncoder getRafNameEncoder(){
         return new RafNameEncoder();
+    }
+
+    public static RafEncoder getDirNameEncoder(){
+        return new DirNameEncoder();
     }
 
 }
