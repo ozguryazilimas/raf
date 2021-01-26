@@ -121,8 +121,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_UPDATED_DATE = "jcr:lastModified";
     private static final String PROP_UPDATED_BY = "jcr:lastModifiedBy";
 
-    private RafEncoder encoder;
-    private RafEncoder nameEncoder;
+    private RafEncoder fileNameEncoder;
+    private RafEncoder rafNameEncoder;
+    private RafEncoder dirNameEncoder;
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
@@ -141,8 +142,9 @@ public class RafModeshapeRepository implements Serializable {
 
     public void start() throws RafException {
         try {
-            encoder = RafEncoderFactory.getEncoder();
-            nameEncoder = RafEncoderFactory.getNameEncoder();
+            fileNameEncoder = RafEncoderFactory.getFileNameEncoder();
+            rafNameEncoder = RafEncoderFactory.getRafNameEncoder();
+            dirNameEncoder = RafEncoderFactory.getDirNameEncoder();
 
             //Engine'de başlatılsın
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -348,7 +350,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -373,7 +375,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -405,7 +407,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -440,7 +442,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -976,7 +978,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedName(folder.getPath());
+            String fullPath = getEncodedDirName(folder.getPath());
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1012,7 +1014,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedName(folderPath);
+            String fullPath = getEncodedDirName(folderPath);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1950,8 +1952,8 @@ public class RafModeshapeRepository implements Serializable {
      * @param path
      * @return
      */
-    protected String getEncodedPath(String path) {
-        return encoder.encode(path);
+    protected String getEncodedPath(String name) {
+        return fileNameEncoder.encode(name);
     }
 
     /**
@@ -1961,7 +1963,7 @@ public class RafModeshapeRepository implements Serializable {
      * @return
      */
     protected String getDecodedPath(String path) {
-        return encoder.decode(path);
+        return fileNameEncoder.decode(path);
     }
 
     /**
@@ -1971,9 +1973,18 @@ public class RafModeshapeRepository implements Serializable {
      * @return
      */
     protected String getEncodedName(String name) {
-        return nameEncoder.encode(name);
+        return rafNameEncoder.encode(name);
     }
 
+    /**
+     * Türkçe ya da dizin isminde kabul edilmeyecek karakterler temizleniyor
+     *
+     * @param name
+     * @return
+     */
+    protected String getEncodedDirName(String name) {
+        return dirNameEncoder.encode(name);
+    }
 
     protected RafNode nodeToRafNode(Node node) throws RepositoryException {
         RafNode result = new RafNode();

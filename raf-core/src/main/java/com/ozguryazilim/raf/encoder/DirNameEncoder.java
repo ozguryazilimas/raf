@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  *
  * @author Hakan Uygun
  */
-public class RafNameEncoder extends BaseRafEncoder {
+public class DirNameEncoder extends BaseRafEncoder {
 
     protected String encodeSpecialChars(String text) {
 
@@ -26,7 +26,6 @@ public class RafNameEncoder extends BaseRafEncoder {
                 case ']':
                     sb.append(')');
                     break;
-                case '.':
                 case ' ':
                 case ':':
                 case '\'':

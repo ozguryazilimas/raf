@@ -69,7 +69,8 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
 
     private void transferFiles(List<File> fileList, String startDir, String raf) {
         try {
-            RafEncoder re = RafEncoderFactory.getEncoder();
+            RafEncoder re = RafEncoderFactory.getFileNameEncoder();
+            RafEncoder de = RafEncoderFactory.getDirNameEncoder();
             String[] splittedRaf = raf.split("/");
             String rafName = splittedRaf[0];
             RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafName);
@@ -89,7 +90,7 @@ public class FileImporterCommandExecutor extends AbstractCommandExecuter<FileImp
             for (File file : fileList) {
                 if (file.exists() && file.canRead()) {
                     try {
-                        String folder = re.encode(file.getParent().replaceAll(startDir, "").concat("/"));
+                        String folder = de.encode(file.getParent().replaceAll(startDir, "").concat("/"));
                         String fileName = re.encode(file.getName());
                         String rafFolder = rafPath.concat(folder);
                         String rafFilePath = rafFolder.concat(fileName);

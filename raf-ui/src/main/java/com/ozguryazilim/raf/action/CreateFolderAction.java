@@ -107,7 +107,7 @@ public class CreateFolderAction extends AbstractAction {
     }
 
     public void onNameChange() {
-        RafEncoder encoder = RafEncoderFactory.getNameEncoder();
+        RafEncoder encoder = RafEncoderFactory.getDirNameEncoder();
         //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
         folder.setName(encoder.encode(folder.getTitle()));
     }
