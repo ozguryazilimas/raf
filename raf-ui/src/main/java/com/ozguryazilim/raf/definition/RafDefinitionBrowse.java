@@ -9,8 +9,10 @@ import com.ozguryazilim.raf.member.RafMemberRepository;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import com.ozguryazilim.telve.forms.Browse;
 import com.ozguryazilim.telve.forms.BrowseBase;
+import com.ozguryazilim.telve.idm.entities.User_;
 import com.ozguryazilim.telve.query.QueryDefinition;
 import com.ozguryazilim.telve.query.columns.TextColumn;
+import com.ozguryazilim.telve.query.filters.StringFilter;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
@@ -41,22 +43,18 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     @Inject
     private RafService rafService;
     
-    //private SuggestionItem suggestionItem;
-    
     private String objectId;
     
     @Override
     protected void buildQueryDefinition(QueryDefinition<RafDefinition, RafDefinition> queryDefinition) {
         
-        /*
         queryDefinition
-                .addFilter(new StringListFilter<>(SuggestionItem_.group, SuggestionGroupRegistery.intance().getGroupNames(), "general.label.Group", "suggestionGroup.label."))
-                .addFilter(new StringFilter<>(SuggestionItem_.key, "general.label.Key"));
-                */
-        
-        //queryDefinition.addColumn(new MessageColumn<>(SuggestionItem_.group, "general.label.Group", "suggestionGroup.label." ),true);
+            .addFilter(new StringFilter<>(RafDefinition_.code, "general.label.Code"))
+            .addFilter(new StringFilter<>(RafDefinition_.name, "general.label.Name"))
+            .addFilter(new StringFilter<>(RafDefinition_.info, "general.label.Info"));
+                
         queryDefinition.addColumn(new TextColumn<>(RafDefinition_.code, "general.label.Code"),true);
-        queryDefinition.addColumn(new TextColumn<>(RafDefinition_.name, "general.label.Name"),true);
+        queryDefinition.addColumn(new RafLinkColumn<>(RafDefinition_.name, "general.label.Name"),true);
         queryDefinition.addColumn(new TextColumn<>(RafDefinition_.info, "general.label.Info"),true);
         
     }

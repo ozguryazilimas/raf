@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.events.EventLogCommand;
@@ -17,6 +18,7 @@ import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +51,13 @@ public class RafService implements Serializable {
     private Identity identity;
 
     private Boolean readLogEnabled;
+
+    public boolean checkRafName(String name) {
+        return !Strings.isNullOrEmpty(name)
+                && !name.matches("\\s*")
+                && !name.equals(ApplicationContstants.PRIVATE_RAF)
+                && !name.equals(ApplicationContstants.SHARED_RAF);
+    }
 
     public RafObject setRafCheckOutValue(String path, Boolean checkOut, String userName, Date checkTime) throws RafException {
         return rafRepository.setRafCheckOutValue(path, checkOut, userName, checkTime);
@@ -271,6 +280,13 @@ public class RafService implements Serializable {
             sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
         }
         return rafRepository.getDocumentContent(id);
+    }
+    
+    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
+        }
+        rafRepository.getDocumentContent(id, out);
     }
 
     public InputStream getPreviewContent(String id) throws RafException {

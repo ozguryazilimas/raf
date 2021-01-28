@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.ozguryazilim.telve</groupId>
         <artifactId>telve-app-parent</artifactId>
-        <version>4.0.0-Beta-21</version> 
+        <version>4.0.0-Beta-29</version> 
     </parent>
 
     <groupId>com.ozguryazilim.raf</groupId>
@@ -170,6 +170,9 @@
                         <owner>${project.organization.name}</owner>
                         <url>${project.organization.url}</url>
                     </properties>
+                    <excludes>
+                        <exclude>docker/**</exclude>
+                    </excludes>
                     <includes>
                         <include>**/*.java</include>
                     </includes>

@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.definition;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.RafPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
@@ -32,6 +34,9 @@ public class RafDefinitionDialogController implements Serializable {
     private RafDefinitionService service;
 
     @Inject
+    private RafService rafService;
+
+    @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
 
     @Inject
@@ -57,11 +62,14 @@ public class RafDefinitionDialogController implements Serializable {
 
     public void closeDialog() {
         try {
-            service.createNewRaf(rafDefinition);
-            rafDataChangedEvent.fire(new RafDataChangedEvent());
-            
-            //Burada nasıl davranıyor ki?
-            RequestContext.getCurrentInstance().closeDialog(null);
+            if (rafService.checkRafName(rafDefinition.getName())) {
+
+                service.createNewRaf(rafDefinition);
+                rafDataChangedEvent.fire(new RafDataChangedEvent());
+
+                //Burada nasıl davranıyor ki?
+                RequestContext.getCurrentInstance().closeDialog(null);
+            }
         } catch (RafException ex) {
             //TODO: i18n
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
@@ -87,8 +95,10 @@ public class RafDefinitionDialogController implements Serializable {
     }
     
     public void onNameChange(){
-        RafEncoder encoder = RafEncoderFactory.getEncoder();
-        //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
-        rafDefinition.setCode(encoder.encode(rafDefinition.getName()));
+        if (rafService.checkRafName(rafDefinition.getName())) {
+            RafEncoder encoder = RafEncoderFactory.getRafNameEncoder();
+            //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
+            rafDefinition.setCode(encoder.encode(rafDefinition.getName()));
+        }
     }
 }

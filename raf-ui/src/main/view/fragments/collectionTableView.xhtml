@@ -35,12 +35,32 @@
                     <tr>
                         <th></th>
                         <th></th>
-                        <th>#{messages['collection.table.Title']}</th>
-                        <th>#{messages['collection.table.File']}</th>
-                        <th>#{messages['collection.table.User']}</th>
-                        <th>#{messages['collection.table.Date']}</th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('NAME', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Title']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MIMETYPE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.File']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.User']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Date']}
+                            </p:commandLink>
+                        </th>
                         <th>#{messages['collection.table.Info']}</th>
-                        <th>#{messages['collection.table.Category']}</th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('CATEGORY', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Category']}
+                            </p:commandLink>
+                        </th>
                         <th></th>
                     </tr>
                     <p:repeat value="#{viewBean.getGroupItems(group)}" var="item">

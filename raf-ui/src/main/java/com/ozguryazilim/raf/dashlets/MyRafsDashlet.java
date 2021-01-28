@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.dashlets;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
@@ -7,7 +8,10 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.dashboard.AbstractDashlet;
 import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -15,7 +19,7 @@ import javax.inject.Inject;
  *
  * @author oyas
  */
-@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canMinimize })
+@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canMinimize, DashletCapability.canEdit }, permission = "public")
 public class MyRafsDashlet extends AbstractDashlet{
 
     @Inject
@@ -26,6 +30,11 @@ public class MyRafsDashlet extends AbstractDashlet{
     
     private List<RafDefinition> rafs;
     
+    
+    private String filter = "";
+    private Boolean sortAsc = Boolean.TRUE;
+    private Integer size = 10;
+    
     @Override
     public void load() {
         super.load(); //To change body of generated methods, choose Tools | Templates.
@@ -33,7 +42,17 @@ public class MyRafsDashlet extends AbstractDashlet{
     }
     
     public List<RafDefinition> getRafs() {
-        return rafs;
+        //TODO: The locale should come from configuration
+        Locale locale = new Locale("tr", "TR");
+
+        return rafs.stream()
+                //.sorted( sortAsc ? Comparator.comparing(RafDefinition::getName) : Comparator.comparing(RafDefinition::getName))
+                .sorted( (r1, r2) -> 
+                    sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1 
+                )
+                .filter( r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(locale).contains(filter.toLowerCase(locale)))
+                .limit(size)
+                .collect(Collectors.toList());
     }
     
     /**
@@ -43,5 +62,31 @@ public class MyRafsDashlet extends AbstractDashlet{
     public void rafDataChangedListener(@Observes RafDataChangedEvent event) {
         load();
     }
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public Boolean getSortAsc() {
+        return sortAsc;
+    }
+
+    public void setSortAsc(Boolean sortAsc) {
+        this.sortAsc = sortAsc;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+    
+    
     
 }
