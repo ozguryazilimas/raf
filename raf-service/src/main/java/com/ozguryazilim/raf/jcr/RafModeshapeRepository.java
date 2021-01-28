@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -1715,7 +1716,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            copy(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1730,7 +1732,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            copy(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1746,7 +1749,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                copy(session.getWorkspace(), o.getPath(), pathArr[0], pathArr[1]);
             }
 
             session.save();
@@ -1763,7 +1767,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                copy(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1779,7 +1784,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            move(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1794,7 +1800,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            move(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1810,7 +1817,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                move(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1827,7 +1835,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                move(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1837,7 +1846,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    protected String targetPath(Session session, RafObject o, String targetBase) throws RepositoryException, RafException {
+    protected String[] targetPath(Session session, RafObject o, String targetBase) throws RepositoryException, RafException {
         //jcrTools.findOrCreateNode(session, PROP_TAG)
         //Önce folder var mı bakalım yoksa yoksa zaten exception ile çıkacağız.
         Node folderNode = session.getNode(targetBase);
@@ -1851,13 +1860,14 @@ public class RafModeshapeRepository implements Serializable {
         String result = targetBase + "/" + o.getName();
 
         if (!session.itemExists(result)) {
-            return result;
+            return new String[]{result, o.getName()};
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
-        result = targetBase + "/" + o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
+        String pathName =  o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        result = targetBase + "/" + pathName;
 
-        return result;
+        return new String[]{result, pathName};
     }
 
     /**
@@ -1880,6 +1890,21 @@ public class RafModeshapeRepository implements Serializable {
         }
 
     }
+
+    protected void copy(Workspace workspace, String fromPath, String toPath, String name) throws RepositoryException {
+        workspace.copy(fromPath, toPath);
+
+        //Copy sonrasında sürümlü dosyalar checkedout kalıyor. Checkedin yapalım.
+        Node n = workspace.getSession().getNode(toPath);
+        n.setProperty(PROP_TITLE, name);
+        if (n.isNodeType(NODE_FILE)) {
+            checkinCopiedNode(n);
+        } else if (n.isNodeType(NODE_FOLDER)) {
+            chekinCopiedFolderNodes(n);
+        }
+
+    }
+
 
     /**
      * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek
