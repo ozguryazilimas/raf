@@ -96,7 +96,7 @@ public class RafDefinitionDialogController implements Serializable {
     
     public void onNameChange(){
         if (rafService.checkRafName(rafDefinition.getName())) {
-            RafEncoder encoder = RafEncoderFactory.getEncoder();
+            RafEncoder encoder = RafEncoderFactory.getRafNameEncoder();
             //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
             rafDefinition.setCode(encoder.encode(rafDefinition.getName()));
         }

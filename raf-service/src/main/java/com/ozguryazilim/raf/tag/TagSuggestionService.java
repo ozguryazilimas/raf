@@ -47,6 +47,15 @@ public class TagSuggestionService{
         return tagTable.get(key);
     }
 
+    public Map<String, List<String>> getSuggestionsWithKeys() {
+        Map<String, List<String>> tags = new HashMap<>();
+        List<SuggestionItem> suggestionItems = repository.findByGroup(SUGGESSTION_GROUP);
+        List<String> keys = suggestionItems.stream().map(SuggestionItem::getKey).distinct().collect(Collectors.toList());
+        for (String key : keys)
+            tags.put(key, getSuggestions(key));
+        return tags;
+    }
+
     public void saveSuggestion(String key, String tag) {
         if (!getSuggestions(key).contains(tag)) {
             SuggestionItem si = new SuggestionItem();

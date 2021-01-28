@@ -51,16 +51,31 @@ public class RafUploadRest implements Serializable{
             
             //FIXME: fieldlar doğru mu? Dolumu kontrol edilmeli
             
-            RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
+            String nodePath = "";
+            if( raf.equals("SHARED")){
+                nodePath = "/SHARED";
+            } else if ( raf.startsWith("PRIVATE")){
+                nodePath = "/" + raf;
+            } else {
+                RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
+                nodePath = rafDefinition.getNode().getPath();
+            }
+            
             
             //FIXME: Burada yetki kontrolü gerek.
+            //FIXME: Shared ve Private'lar için bu API'de değişiklik gerekecek. rafDefinition olmayacak ama varlığının kontrol edilmesi lazım
             
-            RafFolder folder = rafService.createFolder( rafDefinition.getNode().getPath() + "/" + folderPath);
+            if( folderPath.startsWith("/")){
+                folderPath = folderPath.replaceFirst("/", "");
+            }
+                
+            
+            RafFolder folder = rafService.createFolder( nodePath + "/" + folderPath);
             LOG.debug("Folder Created : {}", folder.getPath());
             return Response.ok(folder.getId()).build();
         } catch (RafException ex) {
             LOG.error("Cannot Create Folder", ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
     
@@ -79,6 +94,7 @@ public class RafUploadRest implements Serializable{
             if( uploadInfo == null ){
                 return Response.status(Response.Status.BAD_REQUEST).entity("TUS URI not found").build();
             }
+            
             
             LOG.debug("Uploaded File : {}", uploadInfo.getFileName());
             RafDocument doc = rafService.uploadDocument( o.getPath() + "/" + uploadInfo.getFileName(), fileUploadService.getUploadedBytes(uri));
@@ -100,23 +116,45 @@ public class RafUploadRest implements Serializable{
      */
     @GET
     @Path("/{raf}/{folderPath}")
-    public Response getObjectData( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath, @QueryParam("p") String docPath ) throws RafException, UnsupportedEncodingException{
+    public Response getObjectData( @PathParam("raf") String raf, @PathParam("folderPath") String folderPath, @QueryParam("p") String docPath ) throws UnsupportedEncodingException{
         
         //FIXME: yetki kontrolü
         //FIXME: hata kontrolü
         
-        LOG.debug("Raf : {}, Requested object path: {}", raf, folderPath);
+        LOG.debug("Raf : {}, Requested object path: {}", raf, docPath);
         
         docPath = URLDecoder.decode(docPath, "UTF-8");
         
-        RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
-        RafObject o = rafService.getRafObjectByPath(rafDefinition.getNode().getPath() + "/" + docPath );
-        
-        if( o instanceof RafDocument ){
-            return Response.ok(((RafDocument)o).getHash()).build();
+
+        if( docPath.startsWith("/")){
+            docPath = docPath.replaceFirst("/", "");
         }
         
-        return Response.ok(o.getId()).build();
+        try{
+            
+            String nodePath = "";
+            if( raf.equals("PRIVATE")){
+                nodePath = "/PRIVATE";
+            } else if ( raf.equals("SHARED")){
+                nodePath = "/SHARED";
+            } else {
+                RafDefinition rafDefinition = rafDefinitionService.getRafDefinitionByCode(raf);
+                nodePath = rafDefinition.getNode().getPath();
+            }
+            
+            
+            
+            RafObject o = rafService.getRafObjectByPath(nodePath + "/" + docPath );
+
+            if( o instanceof RafDocument ){
+                return Response.ok(((RafDocument)o).getHash()).build();
+            }
+
+            return Response.ok(o.getId()).build();
+        } catch ( RafException e ){
+            LOG.error("Raf Exception", e);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
     
 }

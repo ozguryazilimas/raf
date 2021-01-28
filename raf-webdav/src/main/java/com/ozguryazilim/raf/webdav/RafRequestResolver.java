@@ -39,7 +39,7 @@ public class RafRequestResolver implements RequestResolver{
             //throw new IllegalStateException(msg.text(INIT_WORKSPACE_NAME));
         }
         
-        encoder = RafEncoderFactory.getEncoder();
+        encoder = RafEncoderFactory.getFileNameEncoder();
     }
 
     @Override
