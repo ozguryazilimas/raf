@@ -10,33 +10,37 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.messages.FacesMessages;
+
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
+import org.primefaces.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Her hangi bir belge için temel bilgiler.
- * 
+ *
  * RafObject üzerinden alınır.
- * 
+ *
  * FIXME: edit süreci ile ilgili yapılacak şeyler var.
- * 
+ *
  * @author Hakan Uygun
  */
 @MetadataPanel(type = "nt:file", view = MetadataPanelPages.BasicMetadataPanel.class, editor = MetadataPanelPages.BasicMetadataEditorDialog.class, order = 0)
 public class BasicMetadataPanel extends AbstractMetadataPanel{
 
     private static final Logger LOG = LoggerFactory.getLogger(BasicMetadataPanel.class);
-    
+
     @Inject
     private RafService rafService;
-    
+
     @Inject
     private RafContext context;
-    
+
     @Inject
     private RafCategoryService categoryService;
-    
+
     private RafCategory category;
 
     private RafObject object;
@@ -48,7 +52,7 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     public void setObject(RafObject object) {
         this.object = object;
     }
-    
+
     @Override
     protected void initEditModel() {
         //FIXME: Burada servisten nesneyi bulacağız.
@@ -57,11 +61,10 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
             category = categoryService.findById(getObject().getCategoryId());
         }
     }
-    
+
     @Override
     protected void save() {
         try {
-            
             LOG.info("Selected Category : {}", category);
             if( category != null ){
                 getObject().setCategory(category.getName());
@@ -75,13 +78,23 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
                 getObject().setCategoryPath(null);
                 getObject().setCategoryId(null);
             }
-            
             //FIXME: yetki kontrolü nerede yapılacak?
             rafService.saveProperties(getObject());
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Properties cannot saved", ex);
             FacesMessages.error("Properties cannot saved");
+        }
+    }
+
+    @Override
+    public void closeDialog() {
+
+        if (getObject().getTitle() == null || getObject().getTitle().isEmpty()) {
+            FacesMessages.error("Object name can not be empty");
+        } else {
+            save();
+            RequestContext.getCurrentInstance().closeDialog(null);
         }
     }
 
@@ -92,5 +105,5 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     public void setCategory(RafCategory category) {
         this.category = category;
     }
-    
+
 }
