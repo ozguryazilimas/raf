@@ -55,7 +55,8 @@ public class DefaultContentMapper implements ContentMapper{
 
     private final Logger logger = Logger.getLogger(getClass());
 
-    private RafEncoder encoder;
+    private RafEncoder fileNameEncoder;
+    private RafEncoder dirNameEncoder;
     
     @Override
     public void initialize( ServletContext servletContext ) {
@@ -78,7 +79,8 @@ public class DefaultContentMapper implements ContentMapper{
         this.newResourcePrimaryType = newResourcePrimaryType != null ? newResourcePrimaryType : DEFAULT_NEW_RESOURCE_PRIMARY_TYPE;
         this.newContentPrimaryType = newContentPrimaryType != null ? newContentPrimaryType : DEFAULT_NEW_CONTENT_PRIMARY_TYPE;
         
-        encoder = RafEncoderFactory.getEncoder();
+        fileNameEncoder = RafEncoderFactory.getFileNameEncoder();
+        dirNameEncoder = RafEncoderFactory.getDirNameEncoder();
     }
 
     protected String getParam( ServletContext servletContext,
@@ -166,7 +168,7 @@ public class DefaultContentMapper implements ContentMapper{
     @Override
     public Node createFile( Node parentNode,
                             String fileName ) throws RepositoryException {
-        Node resourceNode = parentNode.addNode( encoder.encode(fileName), newResourcePrimaryType);
+        Node resourceNode = parentNode.addNode( fileNameEncoder.encode(fileName), newResourcePrimaryType);
 
         resourceNode.addMixin(MIXIN_TITLE);
         resourceNode.addMixin(MIXIN_TAGGABLE);
@@ -186,7 +188,7 @@ public class DefaultContentMapper implements ContentMapper{
     @Override
     public Node createFolder( Node parentNode,
                               String folderName ) throws RepositoryException {
-        Node folderNode = parentNode.addNode(encoder.encode(folderName), newFolderPrimaryType);
+        Node folderNode = parentNode.addNode(dirNameEncoder.encode(folderName), newFolderPrimaryType);
         folderNode.addMixin(MIXIN_TITLE);
         folderNode.addMixin(MIXIN_TAGGABLE);
 

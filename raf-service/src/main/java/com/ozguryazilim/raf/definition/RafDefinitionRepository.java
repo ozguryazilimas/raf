@@ -1,8 +1,11 @@
 package com.ozguryazilim.raf.definition;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafDefinition_;
 import com.ozguryazilim.telve.data.RepositoryBase;
+import com.ozguryazilim.telve.idm.entities.User;
+import com.ozguryazilim.telve.idm.entities.User_;
 import com.ozguryazilim.telve.query.QueryDefinition;
 import com.ozguryazilim.telve.query.filters.Filter;
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ public abstract class RafDefinitionRepository extends RepositoryBase<RafDefiniti
         
         decorateFilters(filters, predicates, criteriaBuilder, from);
         
+        buildSearchTextControl(queryDefinition.getSearchText(), criteriaBuilder, predicates, from);
+        
         //Person filtremize ekledik.
         criteriaQuery.where(predicates.toArray(new Predicate[]{}));
         
@@ -54,5 +59,21 @@ public abstract class RafDefinitionRepository extends RepositoryBase<RafDefiniti
         List<RafDefinition> resultList = typedQuery.getResultList();
 
         return resultList;
+    }
+    
+    /**
+     * Verilen searchText'i code name info like ile arayacak şekilde filtreler
+     *
+     * @param searchText
+     * @param criteriaBuilder
+     * @param predicates
+     * @param from
+     */
+    private void buildSearchTextControl(String searchText, CriteriaBuilder criteriaBuilder, List<Predicate> predicates, Root<RafDefinition> from) {
+        if (!Strings.isNullOrEmpty(searchText)) {
+            predicates.add(criteriaBuilder.or(criteriaBuilder.like(from.get(RafDefinition_.code), "%" + searchText + "%"),
+                    criteriaBuilder.like(from.get(RafDefinition_.name), "%" + searchText + "%"),
+                    criteriaBuilder.like(from.get(RafDefinition_.info), "%" + searchText + "%")));
+        }
     }
 }

@@ -6,6 +6,7 @@ target
 *.jasper
 .idea
 *.iml
+*~
 nbproject
 .directory
 nb-configuration.xml

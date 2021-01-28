@@ -16,7 +16,7 @@ import javax.inject.Inject;
  * 
  * @author Hakan Uygun
  */
-@Dashlet(capability = {DashletCapability.canHide, DashletCapability.canEdit, DashletCapability.canMinimize, DashletCapability.canRefresh})
+@Dashlet(capability = {DashletCapability.canHide, DashletCapability.canEdit, DashletCapability.canMinimize, DashletCapability.canRefresh}, permission = "public")
 public class EventsDashlet extends AbstractDashlet{
    
     @Inject

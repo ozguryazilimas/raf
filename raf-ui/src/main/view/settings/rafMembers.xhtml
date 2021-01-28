@@ -134,6 +134,24 @@
             </div>
             <h:panelGroup id="members" layout="block" styleClass="box-body">
 
+                <ui:remove>
+                <t:inputText value="#{rafMemberController.filter}" label="general.label.Filter" columnClass="col-xs-12"/>
+                </ui:remove>
+                
+                <h:form id="member_search">
+                <div class="col-md-3 col-xs-12 pull-right">
+                            <span class="value">
+                                <div class="input-group">
+                                    <p:inputText id="filter" value="#{rafMemberController.filter}" 
+                                                 placeholder="#{messages['general.info.SearchText']}" />
+                                    <div class="input-group-btn">
+                                        <p:commandButton action="#{rafMemberController.search()}" process="@form" icon="fa fa-search" styleClass="ui-icon-only btn btn-default" update="members" />
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
+                    </h:form>
+                
                 <table class="table">
                     <p:repeat value="#{rafMemberController.members}" var="member" >
                         <ui:fragment rendered="#{member.memberType eq 'USER'}">
@@ -145,7 +163,10 @@
                                 <td style="text-align: right">
                                     #{messages['member.role.'.concat(member.role)]}
                                 </td>
-                                <td class="actionColumn">
+                                <td class="actionColumn" style="width: 64px;">
+                                    <p:commandLink action="#{rafMemberController.editMember(member)}" process="@this" update="memberPopup" oncomplete="PF('memberPopup').show();">
+                                        <i class="fa fa-pencil"/>
+                                    </p:commandLink>
                                     <p:commandLink action="#{rafMemberController.deleteMember(member)}" process="@this" update="members">
                                         <i class="fa fa-trash"/>
                                     </p:commandLink>
@@ -161,7 +182,10 @@
                                 <td style="text-align: right">
                                     #{messages['member.role.'.concat(member.role)]}
                                 </td>
-                                <td class="actionColumn">
+                                <td class="actionColumn" style="width: 64px;">
+                                    <p:commandLink action="#{rafMemberController.editMember(member)}" process="@this" update="memberPopup" oncomplete="PF('memberPopup').show();">
+                                        <i class="fa fa-pencil"/>
+                                    </p:commandLink>
                                     <p:commandLink action="#{rafMemberController.deleteMember(member)}" process="@this" update="members">
                                         <i class="fa fa-trash"/>
                                     </p:commandLink>
@@ -188,6 +212,46 @@
 
             </h:panelGroup>
         </div>
+        
+        
+        <p:dialog id="memberPopup"  header="#{messages['module.caption.Member']}" widgetVar="memberPopup" modal="true" width="420">
+            <ui:fragment rendered="#{rafMemberController.selectedMember ne null}">
+                <h:form id="memberPopupForm">
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <ui:fragment rendered="#{member.memberType eq 'USER'}">
+                                <i class="fa fa-user"/>
+                                #{userLookup.getUserName(rafMemberController.selectedMember.memberName)}
+                            </ui:fragment>
+                            
+                            <ui:fragment rendered="#{member.memberType eq 'GROUP'}">
+                                <i class="fa fa-users"/>
+                                #{rafMemberController.selectedMember.memberName}
+                            </ui:fragment>
+                        </div>
+                        <t:inputCombobox label="general.label.Role" value="#{rafMemberController.selectedMember.role}" required="true" columnClass="col-xs-12">
+                                <f:selectItem itemLabel="Okuyucu" itemValue="CONSUMER" />
+                                <f:selectItem itemLabel="Katkıcı" itemValue="CONTRIBUTER" />
+                                <f:selectItem itemLabel="Editör" itemValue="EDITOR" />
+                                <f:selectItem itemLabel="Yönetici" itemValue="MANAGER" />
+                            </t:inputCombobox>
+                    </div>
+                    
+                    <div class="actionButtons">
+                        <p:commandButton id="select" 
+                                         value="#{messages['general.button.Ok']}" 
+                                         icon="fa fa-save" 
+                                         action="#{rafMemberController.closeDialog()}" 
+                                         update=":members" 
+                                         oncomplete="PF('memberPopup').hide();" 
+                                         validateClient="true"
+                                         styleClass="btn-primary"/>
+                        <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafMemberController.cancelDialog()}" oncomplete="PF('memberPopup').hide();" partialSubmit="true" process="@this"/>
+                    </div>
+                </h:form>
+            </ui:fragment>
+        </p:dialog>
     </ui:define>
 
 </ui:composition>

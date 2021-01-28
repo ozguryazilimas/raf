@@ -63,7 +63,7 @@ public class CreateFolderAction extends AbstractAction {
             if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
                 permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
-                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
             }
 
             return permission && super.applicable(forCollection);
@@ -107,7 +107,7 @@ public class CreateFolderAction extends AbstractAction {
     }
 
     public void onNameChange() {
-        RafEncoder encoder = RafEncoderFactory.getEncoder();
+        RafEncoder encoder = RafEncoderFactory.getDirNameEncoder();
         //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
         folder.setName(encoder.encode(folder.getTitle()));
     }
