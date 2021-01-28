@@ -70,7 +70,7 @@ public class DownloadAction extends AbstractAction {
 
         //FIXME: Yetki kontrolü ve event fırlatılacak
         try {
-            InputStream is = rafService.getDocumentContent(doc.getId());
+            //InputStream is = rafService.getDocumentContent(doc.getId());
 
             HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
             response.setContentType(doc.getMimeType());
@@ -80,7 +80,8 @@ public class DownloadAction extends AbstractAction {
             //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
 
             try (OutputStream out = response.getOutputStream()) {
-                IOUtils.copy(is, out);
+                //IOUtils.copy(is, out);
+                rafService.getDocumentContent(doc.getId(), out );
                 out.flush();
             }
 

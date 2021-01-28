@@ -66,6 +66,8 @@ public class RafDefinitionService implements Serializable {
 
         //Oluşturan kişiyi MANAGER olarak atayalım.
         memberService.addMember(rd, identity.getLoginName(), RafMemberType.USER, "MANAGER");
+        
+        refresh();
     }
 
     public RafDefinition getRafDefinitionByCode(String code) throws RafException {

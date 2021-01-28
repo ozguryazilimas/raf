@@ -69,7 +69,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
     @Override
     public void execute(DoxoftImporterCommand command) {
         this.command = command;
-        this.re = RafEncoderFactory.getEncoder();
+        this.re = RafEncoderFactory.getFileNameEncoder();
         this.sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         if (command == null || Strings.isNullOrEmpty(command.getDbHostName())) {
             FacesMessages.error("Komut ayarları tanımlı değil.");

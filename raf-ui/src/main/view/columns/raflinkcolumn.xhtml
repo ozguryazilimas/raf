@@ -1,0 +1,11 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:link  outcome="/raf.xhtml" title="#{item.code}">
+                                <i class="fa fa-archive"></i>
+                                <f:param name="id" value="#{item.code}" />
+                                #{messages[item.name]}
+                            </h:link>
+</ui:composition>

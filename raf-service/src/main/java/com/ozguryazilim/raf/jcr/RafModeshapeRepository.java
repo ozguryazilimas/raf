@@ -22,13 +22,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -119,7 +122,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_UPDATED_DATE = "jcr:lastModified";
     private static final String PROP_UPDATED_BY = "jcr:lastModifiedBy";
 
-    private RafEncoder encoder;
+    private RafEncoder fileNameEncoder;
+    private RafEncoder rafNameEncoder;
+    private RafEncoder dirNameEncoder;
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
@@ -137,7 +142,9 @@ public class RafModeshapeRepository implements Serializable {
 
     public void start() throws RafException {
         try {
-            encoder = RafEncoderFactory.getEncoder();
+            fileNameEncoder = RafEncoderFactory.getFileNameEncoder();
+            rafNameEncoder = RafEncoderFactory.getRafNameEncoder();
+            dirNameEncoder = RafEncoderFactory.getDirNameEncoder();
 
             //Engine'de başlatılsın
             Session session = ModeShapeRepositoryFactory.getSession();
@@ -155,7 +162,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(RAF_ROOT + definition.getCode());
+            String fullPath = getEncodedName(RAF_ROOT + definition.getCode());
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -182,7 +189,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(RAF_ROOT + definition.getCode());
+            String fullPath = getEncodedName(RAF_ROOT + definition.getCode());
 
             Node node = session.getNode(fullPath);
 
@@ -211,7 +218,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(RAF_ROOT + code);
+            String fullPath = getEncodedName(RAF_ROOT + code);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -236,7 +243,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(PRIVATE_ROOT + username);
+            String fullPath = getEncodedName(PRIVATE_ROOT + username);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -271,7 +278,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(SHARED_ROOT);
+            String fullPath = getEncodedName(SHARED_ROOT);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -305,7 +312,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(PROCESS_ROOT);
+            String fullPath = getEncodedName(PROCESS_ROOT);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -343,7 +350,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -368,7 +375,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -400,7 +407,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -435,7 +442,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = rafPath;//getEncodedPath(RAF_ROOT + rafCode);
+            String fullPath = rafPath;
 
             Node node = session.getNode(fullPath);
 
@@ -468,7 +475,8 @@ public class RafModeshapeRepository implements Serializable {
                 QueryManager queryManager = session.getWorkspace().getQueryManager();
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-                String expression = "SELECT * FROM [" + (justFolders ? NODE_FOLDER : NODE_SEARCH) + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath + "')";
+                String expression = String.format("SELECT * FROM [%s] as nodes WHERE ISCHILDNODE(nodes,'%s')",
+                                                  justFolders ? NODE_FOLDER : NODE_SEARCH, escapeQueryParam(absPath));
 
                 if (justFolders) {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
@@ -481,8 +489,10 @@ public class RafModeshapeRepository implements Serializable {
                         sortBy = PROP_UPDATED_DATE;
                     } else if ("DATE".equals(sortBy)) {
                         sortBy = "jcr:mimeType";
+                    } else if ("CATEGORY".equals(sortBy)) {
+                        sortBy = PROP_CATEGORY;
                     }
-                    expression += " ORDER BY nodes.[" + sortBy + "] " + (descSort ? " DESC " : " ASC ");
+                    expression += String.format(" ORDER BY nodes.[%s] %s", sortBy, descSort ? "DESC" : "ASC");
                 }
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
@@ -565,7 +575,8 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
-            String expression = "SELECT * FROM [" + MIXIN_TAGGABLE + "] WHERE [" + PROP_CATEGORY_PATH + "] = '" + categoryPath + "' AND  ISDESCENDANTNODE('" + rootPath + "')";
+            String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND  ISDESCENDANTNODE('%s')",
+                                              MIXIN_TAGGABLE, PROP_CATEGORY_PATH, escapeQueryParam(categoryPath), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -607,7 +618,8 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
-            String expression = "SELECT * FROM [" + MIXIN_TAGGABLE + "] WHERE [" + PROP_TAG + "] = '" + tag + "' AND  ISDESCENDANTNODE('" + rootPath + "')";
+            String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND ISDESCENDANTNODE('%s')",
+                                              MIXIN_TAGGABLE, PROP_TAG, escapeQueryParam(tag), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -695,7 +707,8 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT * FROM [" + NODE_SEARCH + "] as nodes WHERE CONTAINS(nodes.*, '" + searchText + "') AND  ISDESCENDANTNODE('" + rootPath + "')";
+            String expression = String.format("SELECT * FROM [%s] as nodes WHERE CONTAINS(nodes.*, '%s') AND  ISDESCENDANTNODE('%s')",
+                                              NODE_SEARCH, escapeQueryParam(searchText), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -754,20 +767,20 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT DISTINCT nodes.[jcr:name] as F_NAME FROM [" + NODE_SEARCH + "] as nodes ";
+            String expression = String.format("SELECT DISTINCT nodes.[jcr:name] as F_NAME FROM [%s] as nodes ", NODE_SEARCH);
 
             List<String> whereExpressions = new ArrayList();
 
             if (searchModel.getDateFrom() != null) {
-                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+                whereExpressions.add(String.format(" nodes.[%s] >= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateFrom())));
             }
 
             if (searchModel.getDateTo() != null) {
-                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+                whereExpressions.add(String.format(" nodes.[%s] <= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateTo())));
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText() + "') ");
+                whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText())));
             }
 
             if (searchModel.getSearchSubPath() == null) {
@@ -787,19 +800,19 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentType] LIKE '%s' ", searchModel.getDocumentType()));
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentStatus] LIKE '%s'", searchModel.getDocumentStatus()));
             }
 
             if (searchModel.getRegisterDateFrom() != null) {
-                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] >= %s", getJCRDate(searchModel.getRegisterDateFrom())));
             }
 
             if (searchModel.getRegisterDateTo() != null) {
-                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] <= %s", getJCRDate(searchModel.getRegisterDateTo())));
             }
 
             if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
@@ -813,7 +826,8 @@ public class RafModeshapeRepository implements Serializable {
                         } else {
                             valueStr = value.toString();
                         }
-                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                        whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
+                                                           key, escapeQueryParam(valueStr)));
                     }
                 }
             }
@@ -869,23 +883,23 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT DISTINCT nodes.* FROM [" + NODE_SEARCH + "] as nodes ";
+            String expression = String.format("SELECT DISTINCT nodes.* FROM [%s] as nodes ", NODE_SEARCH);
 
             List<String> whereExpressions = new ArrayList();
 
             if (searchModel.getDateFrom() != null) {
-                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(searchModel.getDateFrom()));
+                whereExpressions.add(String.format(" nodes.[%s] >= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateFrom())));
             }
 
             if (searchModel.getDateTo() != null) {
-                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] <= " + getJCRDate(searchModel.getDateTo()));
+                whereExpressions.add(String.format(" nodes.[%s] <= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateTo())));
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInDocumentName()) {
-                    whereExpressions.add("  nodes.[jcr:name] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
+                    whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                 } else {
-                    whereExpressions.add("  CONTAINS(nodes.*, '" + searchModel.getSearchText().trim() + "') ");
+                    whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                 }
             }
 
@@ -902,19 +916,19 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentType] LIKE '" + searchModel.getDocumentType() + "' ");
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentType] LIKE '%s' ", searchModel.getDocumentType()));
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(" exdoc.[externalDoc:documentStatus] LIKE '" + searchModel.getDocumentStatus() + "'");
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentStatus] LIKE '%s'", searchModel.getDocumentStatus()));
             }
 
             if (searchModel.getRegisterDateFrom() != null) {
-                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] >= " + getJCRDate(searchModel.getRegisterDateFrom()));
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] >= %s", getJCRDate(searchModel.getRegisterDateFrom())));
             }
 
             if (searchModel.getRegisterDateTo() != null) {
-                whereExpressions.add(" exdoc.[externalDoc:documentCreateDate] <= " + getJCRDate(searchModel.getRegisterDateTo()));
+                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] <= %s", getJCRDate(searchModel.getRegisterDateTo())));
             }
 
             if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
@@ -928,7 +942,8 @@ public class RafModeshapeRepository implements Serializable {
                         } else {
                             valueStr = value.toString();
                         }
-                        whereExpressions.add(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%" + key + "%' AND meta.[externalDocMetaTag:value]  LIKE '%" + valueStr + "%' ");
+                        whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
+                                                           key, escapeQueryParam(valueStr)));
                     }
                 }
             }
@@ -1011,7 +1026,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(folder.getPath());
+            String fullPath = getEncodedDirName(folder.getPath());
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1047,7 +1062,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            String fullPath = getEncodedPath(folderPath);
+            String fullPath = getEncodedDirName(folderPath);
 
             Node node = jcrTools.findOrCreateNode(session, fullPath, NODE_FOLDER);
 
@@ -1305,7 +1320,7 @@ public class RafModeshapeRepository implements Serializable {
             Session session = ModeShapeRepositoryFactory.getSession();
 
             String fullName = getEncodedPath(fileName);
-            LOG.debug("Encoded FileName : {}", fileName);
+            LOG.debug("Encoded FileName : {}", fullName);
 
             Node n = jcrTools.uploadFile(session, fullName, in);
 
@@ -1386,6 +1401,8 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
+            //TODO: Burada encode etmek doğru bir areket mi?
+            path = getEncodedPath(path);
             Node node = session.getNode(path);
 
             RafObject result = null;
@@ -1604,6 +1621,7 @@ public class RafModeshapeRepository implements Serializable {
             Node content = node.getNode(NODE_CONTENT);
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
+            /*
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), bos);
 
@@ -1612,6 +1630,27 @@ public class RafModeshapeRepository implements Serializable {
             ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
 
             return result;
+            */
+            return content.getProperty(PROP_DATA).getBinary().getStream();
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
+    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Content Requested: {}", node.getPath());
+
+            Node content = node.getNode(NODE_CONTENT);
+
+            IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), out);
+
+            session.logout();
 
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);
@@ -1757,7 +1796,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            copy(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1772,7 +1812,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            copy(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            copy(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1788,7 +1829,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                copy(session.getWorkspace(), o.getPath(), pathArr[0], pathArr[1]);
             }
 
             session.save();
@@ -1805,7 +1847,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                copy(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                copy(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1821,7 +1864,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            move(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1836,7 +1880,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
-            move(session.getWorkspace(), from.getPath(), targetPath(session, from, to.getPath()));
+            String[] pathArr = targetPath(session, from, to.getPath());
+            move(session.getWorkspace(), from.getPath(), pathArr[0]);
 
             session.save();
             session.logout();
@@ -1852,7 +1897,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                move(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1869,7 +1915,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: burada hedef ismin olup olmadığı kontrol edilecek. Varsa isimde (1) gibi ekler yapılacak.
             //FIXME: url encoding
             for (RafObject o : from) {
-                move(session.getWorkspace(), o.getPath(), targetPath(session, o, to.getPath()));
+                String[] pathArr = targetPath(session, o, to.getPath());
+                move(session.getWorkspace(), o.getPath(), pathArr[0]);
             }
 
             session.save();
@@ -1879,7 +1926,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    protected String targetPath(Session session, RafObject o, String targetBase) throws RepositoryException, RafException {
+    protected String[] targetPath(Session session, RafObject o, String targetBase) throws RepositoryException, RafException {
         //jcrTools.findOrCreateNode(session, PROP_TAG)
         //Önce folder var mı bakalım yoksa yoksa zaten exception ile çıkacağız.
         Node folderNode = session.getNode(targetBase);
@@ -1893,13 +1940,14 @@ public class RafModeshapeRepository implements Serializable {
         String result = targetBase + "/" + o.getName();
 
         if (!session.itemExists(result)) {
-            return result;
+            return new String[]{result, o.getName()};
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
-        result = targetBase + "/" + o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
+        String pathName =  o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        result = targetBase + "/" + pathName;
 
-        return result;
+        return new String[]{result, pathName};
     }
 
     /**
@@ -1922,6 +1970,21 @@ public class RafModeshapeRepository implements Serializable {
         }
 
     }
+
+    protected void copy(Workspace workspace, String fromPath, String toPath, String name) throws RepositoryException {
+        workspace.copy(fromPath, toPath);
+
+        //Copy sonrasında sürümlü dosyalar checkedout kalıyor. Checkedin yapalım.
+        Node n = workspace.getSession().getNode(toPath);
+        n.setProperty(PROP_TITLE, name);
+        if (n.isNodeType(NODE_FILE)) {
+            checkinCopiedNode(n);
+        } else if (n.isNodeType(NODE_FOLDER)) {
+            chekinCopiedFolderNodes(n);
+        }
+
+    }
+
 
     /**
      * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek
@@ -1994,8 +2057,8 @@ public class RafModeshapeRepository implements Serializable {
      * @param path
      * @return
      */
-    protected String getEncodedPath(String path) {
-        return encoder.encode(path);
+    protected String getEncodedPath(String name) {
+        return fileNameEncoder.encode(name);
     }
 
     /**
@@ -2005,7 +2068,27 @@ public class RafModeshapeRepository implements Serializable {
      * @return
      */
     protected String getDecodedPath(String path) {
-        return encoder.decode(path);
+        return fileNameEncoder.decode(path);
+    }
+
+    /**
+     * Türkçe ya da raf isminde kabul edilmeyecek karakterler temizleniyor
+     *
+     * @param name
+     * @return
+     */
+    protected String getEncodedName(String name) {
+        return rafNameEncoder.encode(name);
+    }
+
+    /**
+     * Türkçe ya da dizin isminde kabul edilmeyecek karakterler temizleniyor
+     *
+     * @param name
+     * @return
+     */
+    protected String getEncodedDirName(String name) {
+        return dirNameEncoder.encode(name);
     }
 
     protected RafNode nodeToRafNode(Node node) throws RepositoryException {
@@ -2199,7 +2282,7 @@ public class RafModeshapeRepository implements Serializable {
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
-            String expression = "SELECT * FROM [" + NODE_FOLDER + "] WHERE ISDESCENDANTNODE('" + node.getPath() + "')";
+            String expression = String.format("SELECT * FROM [%s] WHERE ISDESCENDANTNODE('%s')", NODE_FOLDER, escapeQueryParam(node.getPath()));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -2482,5 +2565,9 @@ public class RafModeshapeRepository implements Serializable {
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0021] Raf cannot turn to version", ex);
         }
+    }
+
+    private String escapeQueryParam(String param) {
+        return param.replace("'", "\\'");
     }
 }
