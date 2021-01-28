@@ -490,6 +490,8 @@ public class RafModeshapeRepository implements Serializable {
                         sortBy = PROP_UPDATED_DATE;
                     } else if ("DATE".equals(sortBy)) {
                         sortBy = "jcr:mimeType";
+                    } else if ("CATEGORY".equals(sortBy)) {
+                        sortBy = PROP_CATEGORY;
                     }
                     expression += String.format(" ORDER BY nodes.[%s] %s", sortBy, descSort ? "DESC" : "ASC");
                 }
