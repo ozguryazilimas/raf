@@ -22,14 +22,18 @@
             <div class="row">
 
                 <div class="col-xs-12">
-                    <span class="text-bold">#{rafContext.collection.title}</span> klasörü içine oluşturulacak
+                    <span>
+                        <h:outputFormat value="#{messages['create.folder.dialog.sub.title']}">
+                           <f:param value="#{rafContext.collection.title}" />
+                        </h:outputFormat>
+                    </span>
                 </div>
 
-                <t:inputText label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="Görünecek isim" required="true">
+                <t:inputText label="general.label.Title" value="#{createFolderAction.folder.title}" placeholder="#{messages['create.folder.input.title']}" required="true">
                     <p:ajax event="blur" listener="#{createFolderAction.onNameChange()}" process="@this" update=":ff:code" />
                 </t:inputText>
-                <t:inputText id="code" label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="Klasör ismi" required="true"/>
-                <t:inputTextarea label="general.label.Info" value="#{createFolderAction.folder.info}" placeholder="Açıklama"/>
+                <t:inputText id="code" label="general.label.Code" value="#{createFolderAction.folder.name}" placeholder="#{messages['create.folder.input.name']}" required="true"/>
+                <t:inputTextarea label="general.label.Info" value="#{createFolderAction.folder.info}" placeholder="#{messages['create.folder.input.description']}"/>
 
 
             </div>
