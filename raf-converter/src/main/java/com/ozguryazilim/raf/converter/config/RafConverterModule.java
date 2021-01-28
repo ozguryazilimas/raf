@@ -1,7 +1,7 @@
 package com.ozguryazilim.raf.converter.config;
 
 import com.ozguryazilim.raf.SequencerRegistery;
-import com.ozguryazilim.raf.jod.OfficeManagerFactory;
+import com.ozguryazilim.raf.converter.OfficeManagerFactory;
 import com.ozguryazilim.raf.preview.ImagePreviewSequencer;
 import com.ozguryazilim.raf.preview.OfficePreviewSequencer;
 import com.ozguryazilim.telve.api.module.TelveModule;
