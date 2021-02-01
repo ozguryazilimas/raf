@@ -55,6 +55,16 @@
                                 #{messages['collection.table.Date']}
                             </p:commandLink>
                         </th>
+                         <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.UpdateUser']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.UpdateDate']}
+                            </p:commandLink>
+                        </th>
                         <th>#{messages['collection.table.Info']}</th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('CATEGORY', !controllerBean.descSort)}" process="@this" update="raf-view-content">
@@ -84,10 +94,16 @@
                                 #{item.name}
                             </td>
                             <td>
-                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))}
+                                #{userLookup.getUserName(item.createBy)}
                             </td>
                             <td>
-                                <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
+                                <t:cellOutputDateTime value="#{item.createDate}"/>
+                            </td>
+                            <td>
+                                #{userLookup.getUserName(item.updateBy)}
+                            </td>
+                            <td>
+                                <t:cellOutputDateTime value="#{item.updateDate}"/>
                             </td>
                             <td>
                                 #{item.info}
