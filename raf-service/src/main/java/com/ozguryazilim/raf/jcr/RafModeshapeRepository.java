@@ -2705,4 +2705,36 @@ public class RafModeshapeRepository implements Serializable {
             LOG.error("Exception", e);
         }
     }
+
+    public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
+        long result = 0;
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            //TODO : JCR SQL içerisinde SUM(LENGTH(jcr:data)) gibi bir özellik gelirse bu kod güncellenebilir.
+            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            NodeIterator nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                Node n = nodes.nextNode();
+                if (n.hasProperty("jcr:content/jcr:data")) {
+                    result += n.getProperty("jcr:content/jcr:data").getLength();
+                    if (maxSumSize > 0 && maxSumSize < result) {
+                        throw new RafException(String.format("Max file limit is over, Max File Limit : %d, File Size : %d", maxSumSize, result));
+                    }
+                }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
 }
