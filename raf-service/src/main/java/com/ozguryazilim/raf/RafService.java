@@ -474,4 +474,8 @@ public class RafService implements Serializable {
 
         return readLogEnabled;
     }
+
+    public void reindex() {
+        rafRepository.reindex();
+    }
 }
