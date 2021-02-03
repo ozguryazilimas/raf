@@ -91,6 +91,12 @@ public class RafExportProcessDocumentsTaskHandler implements WorkItemHandler {
         if (workItem.getParameter("departman") != null) {
             result.put("departman", workItem.getParameter("departman"));
         }
+        if (workItem.getParameter("uzman") != null) {
+            result.put("uzman", workItem.getParameter("uzman"));
+        }
+        if (workItem.getParameter("departmanlar") != null) {
+            result.put("departmanlar", workItem.getParameter("departmanlar"));
+        }
 
         //Geriye dönecek bir bilgimiz yok!
         manager.completeWorkItem(workItem.getId(), result);

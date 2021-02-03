@@ -61,9 +61,9 @@ public class CreateFolderAction extends AbstractAction {
             boolean permission = false;
 
             if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = rafPathMemberService.hasManagerRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                permission = rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
-                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasManagerRole(identity.getLoginName(), getContext().getSelectedRaf());
+                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
             }
 
             return permission && super.applicable(forCollection);

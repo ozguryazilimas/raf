@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.entities.RafDepartment;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.model.MultiSelectField;
 import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
@@ -263,6 +264,14 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                     }
                 });
 
+            } else if (f instanceof MultiSelectField) {
+                ((MultiSelectField) f).setSelecedValues(null);
+                ((MultiSelectField) f).getValues().clear();
+                if ("departman".equals(((MultiSelectField) f).getGroup())) {
+                    departmentRepository.findAll().forEach((k) -> {
+                        ((MultiSelectField) f).getValues().add(k.getCode());
+                    });
+                }
             }
             f.setData(data);
         }
@@ -331,6 +340,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                 if (e.getKey().contains("uzman")) {
                     completeParams.putIfAbsent("uzman", e.getValue());
                 }
+
+                if (e.getKey().contains("departmanlar")) {
+                    completeParams.putIfAbsent("departmanlar", e.getValue());
+                }
             }
         }
 
@@ -340,10 +353,8 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
         //FIXME: Eğer kullanıcının yöneticisi yok ise merkezi bir kullanıcıya düşürsek mi? Boşta kalan şeylerin yöneticisi şeklinde?
         completeParams.put("manager", identity.getUserInfo().getManager());
-
         LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
-
         //FIXME: eğer geriye task kalmamış ise ne olacak?
 //        List<TaskSummary> ls = getTasks();
 //        if (!ls.isEmpty()) {
