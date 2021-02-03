@@ -253,7 +253,6 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         for (Field f : form.getFields()) {
             if (f instanceof PersonSelectionField) {
                 ((PersonSelectionField) f).getValues().clear();
-                ((PersonSelectionField) f).setValue(null);
                 metadata.forEach((k, v) -> {
                     if (k.contains("departman")) {
                         List<RafDepartment> listDP = departmentRepository.findByCode(v.toString());

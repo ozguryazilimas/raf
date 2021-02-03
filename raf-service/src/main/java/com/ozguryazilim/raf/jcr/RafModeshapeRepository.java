@@ -126,6 +126,7 @@ public class RafModeshapeRepository implements Serializable {
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
+
     @PostConstruct
     public void init() {
         try {
@@ -474,7 +475,7 @@ public class RafModeshapeRepository implements Serializable {
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
                 String expression = String.format("SELECT * FROM [%s] as nodes WHERE ISCHILDNODE(nodes,'%s')",
-                                                  justFolders ? NODE_FOLDER : NODE_SEARCH, escapeQueryParam(absPath));
+                        justFolders ? NODE_FOLDER : NODE_SEARCH, escapeQueryParam(absPath));
 
                 if (justFolders) {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
@@ -576,7 +577,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
             String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND  ISDESCENDANTNODE('%s')",
-                                              MIXIN_TAGGABLE, PROP_CATEGORY_PATH, escapeQueryParam(categoryPath), escapeQueryParam(rootPath));
+                    MIXIN_TAGGABLE, PROP_CATEGORY_PATH, escapeQueryParam(categoryPath), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -619,7 +620,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
             String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND ISDESCENDANTNODE('%s')",
-                                              MIXIN_TAGGABLE, PROP_TAG, escapeQueryParam(tag), escapeQueryParam(rootPath));
+                    MIXIN_TAGGABLE, PROP_TAG, escapeQueryParam(tag), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -685,7 +686,6 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
 
-
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
@@ -708,7 +708,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
             String expression = String.format("SELECT * FROM [%s] as nodes WHERE CONTAINS(nodes.*, '%s') AND  ISDESCENDANTNODE('%s')",
-                                              NODE_SEARCH, escapeQueryParam(searchText), escapeQueryParam(rootPath));
+                    NODE_SEARCH, escapeQueryParam(searchText), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -827,7 +827,7 @@ public class RafModeshapeRepository implements Serializable {
                             valueStr = value.toString();
                         }
                         whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
-                                                           key, escapeQueryParam(valueStr)));
+                                key, escapeQueryParam(valueStr)));
                     }
                 }
             }
@@ -943,7 +943,7 @@ public class RafModeshapeRepository implements Serializable {
                             valueStr = value.toString();
                         }
                         whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
-                                                           key, escapeQueryParam(valueStr)));
+                                key, escapeQueryParam(valueStr)));
                     }
                 }
             }
@@ -967,10 +967,6 @@ public class RafModeshapeRepository implements Serializable {
                     }
                 }
             }
-
-            if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
-                whereExpressions.add(" nodes.[" + PROP_RECORD_TYPE + "] = '" + searchModel.getRecordType() + "' ");
-            }          
 
             String lastWhereExpression = "";
 
@@ -1658,16 +1654,16 @@ public class RafModeshapeRepository implements Serializable {
             ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
 
             return result;
-            */
+             */
             return content.getProperty(PROP_DATA).getBinary().getStream();
-            
+
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-    
-    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+
+    public void getDocumentContent(String id, OutputStream out) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
@@ -1728,7 +1724,7 @@ public class RafModeshapeRepository implements Serializable {
             Node nodeContent = node.getNode(NODE_CONTENT);
             if (node.hasNode("raf:preview")) {
                 String mimeType = null;
-                if ( node.getNode("raf:preview") != null &&  node.getNode("raf:preview").isNode()) {
+                if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
                     Node preview = node.getNode("raf:preview");
                     mimeType = getPropertyAsString(preview, "jcr:mimeType");
                     preview.remove();
@@ -1746,7 +1742,6 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-
 
     /**
      * ID'si verilen nodu siler.
@@ -1972,7 +1967,7 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
-        String pathName =  o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        String pathName = o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
         result = targetBase + "/" + pathName;
 
         return new String[]{result, pathName};
@@ -2012,7 +2007,6 @@ public class RafModeshapeRepository implements Serializable {
         }
 
     }
-
 
     /**
      * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek
