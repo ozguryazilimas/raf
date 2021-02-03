@@ -885,7 +885,7 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = String.format("SELECT DISTINCT nodes.* FROM [%s] as nodes ", NODE_SEARCH);
+            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
 
             List<String> whereExpressions = new ArrayList();
 
@@ -950,6 +950,26 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
 
+            if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
+                whereExpressions.add(" nodes.[" + PROP_RECORD_TYPE + "] = '" + searchModel.getRecordType() + "' ");
+            }
+
+            String metadataName = "";
+            if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
+                    metadataName = searchModel.getRecordMetaDataName().split(":")[0];
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof String) {
+                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " LIKE '%" + value.toString() + "%'");
+                        } else if (value instanceof Date) {
+                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " = " + getJCRDate((Date) value) + "");
+                        }
+                    }
+                }
+            }
+
             String lastWhereExpression = "";
 
             if (!whereExpressions.isEmpty()) {
@@ -972,6 +992,10 @@ public class RafModeshapeRepository implements Serializable {
                 expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
             }
 
+            if (!Strings.isNullOrEmpty(metadataName)) {
+                expression += " JOIN [" + metadataName + ":metadata] as " + metadataName + " on ISCHILDNODE(" + metadataName + ",nodes) ";
+            }
+
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -985,7 +1009,7 @@ public class RafModeshapeRepository implements Serializable {
             while (it.hasNext()) {
                 LOG.debug("Search result next.");
                 Node n = it.nextNode();
-                Node sn = n;
+                Node sn = session.getNode(n.getPath());
 
                 if (n.isNodeType("nt:resource")) {
                     sn = n.getParent();

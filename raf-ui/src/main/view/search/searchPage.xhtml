@@ -2,9 +2,8 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"        
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui"                   
                 template="#{themeManager.layoutTemplate}">
 
     <ui:define name="body">
@@ -55,17 +54,6 @@
                                             <p:ajax event="dialogReturn" listener="#{detailedSearchController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />   
                                         </p:commandButton>
                                     </p:panelGrid>                                    
-
-                                    <ui:remove>
-                                        <t:inputRafObjectLookupDialog value="#{detailedSearchController.searchModel.searchSubPath}" label="Klasör Yolu"  
-                                                                      lookupBean="#{rafObjectLookup}" lookupListener="userHome.entity.domainGroup" 
-                                                                      leafSelect="true" required="false" readonly="false" placeholder="klasör seçiniz."
-                                                                      lookupProfile="selectionType:Folder"
-                                                                      columnClass="col-md-6 col-xs-12"/>         
-
-                                    </ui:remove>
-
-
                                     <ui:remove>
                                         <p:outputLabel value="#{messages['permission.label.raf']}"/>
                                         <p:selectOneMenu id="raf" value="#{detailedSearchController.searchModel.searchRaf}">
@@ -81,6 +69,14 @@
                                         <p:outputLabel value=":"/>
                                         <p:calendar value="#{detailedSearchController.searchModel.dateTo}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true" />
                                     </p:panelGrid>
+
+                                    <p:outputLabel value="Süreç Tipi"/>
+                                    <p:selectOneMenu value="#{detailedSearchController.recordType}" required="false">
+                                        <p:ajax listener="#{detailedSearchController.onRecordTypeChange}" update="searchWithWFMetaDatas" />
+                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{recordController.recordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
+                                    </p:selectOneMenu>
+
 
                                     <p:outputLabel value="#{messages['general.label.Search']}"/>
                                     <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
@@ -108,6 +104,34 @@
                                     </p:selectOneMenu>
                                 </p:panelGrid>
                             </div>
+
+                            <p:panel id="searchWithWFMetaDatas" header="Özel Alan Verilerine Göre Ara" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
+                                <ui:fragment rendered="#{detailedSearchController.metaDataFields ne null and detailedSearchController.metaDataFields.size() > 0}">
+                                    <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
+                                        <ui:repeat value="#{detailedSearchController.metaDataFields}" var="mdf" varStatus="status">
+                                            <div class="row">                   
+                                                <div class="col-md-4">
+                                                    <p:outputLabel value="#{mdf.label}"/>    
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <ui:fragment rendered="#{mdf.type eq 'Suggestion'}">
+                                                        <p:selectOneMenu value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}" filter="true" filterMatchMode="startsWith" required="false">
+                                                            <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
+                                                            <f:selectItems value="#{detailedSearchController.getSuggestion(mdf.group)}" var="sgfRec" itemLabel="#{sgfRec}" itemValue="#{sgfRec}"/>
+                                                        </p:selectOneMenu>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{mdf.type eq 'Text'}">
+                                                        <p:inputText value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}"  required="false"/>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{mdf.type eq 'Date'}">
+                                                        <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}" required="false"/>
+                                                    </ui:fragment>
+                                                </div>
+                                            </div>
+                                        </ui:repeat>
+                                    </p:scrollPanel>
+                                </ui:fragment>
+                            </p:panel>                            
                         </div>
 
                         <div class="tab-pane" id="externalDocSearch">
