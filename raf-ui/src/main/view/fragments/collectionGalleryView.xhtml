@@ -57,7 +57,7 @@
 
                                         <div class="text-muted text-sm">#{item.name}</div>
                                         <div class="text-muted text-sm">
-                                            #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))} | <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
+                                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
                                         </div>
 
                                         <ui:remove>
