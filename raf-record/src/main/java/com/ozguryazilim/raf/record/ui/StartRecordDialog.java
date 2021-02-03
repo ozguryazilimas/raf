@@ -51,13 +51,13 @@ public class StartRecordDialog implements Serializable, FormController, Document
 
     @Inject
     private ProcessLookupService lookupService;
-    
+
     @Inject
     private RuntimeDataService runtimeDataService;
 
     @Inject
     private RafContext context;
-    
+
     @Inject
     private RafDepartmentService departmentService;
 
@@ -102,30 +102,39 @@ public class StartRecordDialog implements Serializable, FormController, Document
 
         LOG.info("Record Data : {}", data);
 
+        LOG.info("Checking Data..");
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (entry.getValue() instanceof String && entry.getValue().toString().length() > 255) {
+                LOG.error("{} field string data length more then 255 characters error throwing..", entry.getKey());
+                FacesMessages.error("Metin uzunluğu 255 karakterden uzun olamaz."); //FIXME: i18n
+                return;
+            }
+        }
+
         data.put("recordType", recordType.getName());
         data.put("initiator", identity.getLoginName());
-        
+
         data.put("department", departmentService.getDerpartmentName(identity.getLoginName()));
         //Belgeleri de parametre olarak ekleyelim.
         serializeRafObjects();
-        
 
         String processId = (String) data.get("processId");
         long processInstanceId = processService.startProcess(lookupService.getDeploymentId(processId), processId, data);
 
         ProcessInstanceDesc processInstance = runtimeDataService.getProcessInstanceById(processInstanceId);
-        
+
         Long taskId = null;
-        for( UserTaskInstanceDesc ut : processInstance.getActiveTasks() ){
-            if( identity.getLoginName().equals(ut.getActualOwner()) ){
+        for (UserTaskInstanceDesc ut : processInstance.getActiveTasks()) {
+            if (identity.getLoginName().equals(ut.getActualOwner())) {
                 //Bu task bizim kullanıcımıza ait hadi oraya zıplayalım.
                 taskId = ut.getTaskId();
             }
         }
-        
+
         //FIXME: Burada Açılan task eğer kullanıcının kendisine ait ise oraya redirect lazım.
         FacesMessages.info("Süreç başarı ile başlatıldı"); //FIXME: i18n
-        
+
         //Geriye sonuç olarak taskId döndürüyoruz. RecordController#onRecordStarted methodunda redirect gerçekleşiyor.
         RequestContext.getCurrentInstance().closeDialog(taskId);
     }
@@ -146,21 +155,20 @@ public class StartRecordDialog implements Serializable, FormController, Document
         this.data = data;
     }
 
-    
-    public List<RafObject> getSelectedDocuments(){
+    public List<RafObject> getSelectedDocuments() {
         return selectedRafItems;
     }
-    
+
     /**
      * Seçili olan RafObject'lerin id'lerini bir liste olarak yazacağız.
      */
-    protected void serializeRafObjects(){
-        
+    protected void serializeRafObjects() {
+
         List<String> rafOIDs = new ArrayList<>();
-        for( RafObject o : selectedRafItems ){
+        for (RafObject o : selectedRafItems) {
             rafOIDs.add(o.getId());
         }
-        
+
         data.put("initialDocuments", rafOIDs);
     }
 

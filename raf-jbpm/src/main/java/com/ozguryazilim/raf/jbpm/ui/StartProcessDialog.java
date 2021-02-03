@@ -91,6 +91,16 @@ public class StartProcessDialog implements Serializable, FormController, Documen
 
         LOG.info("Process Data : {}", data);
 
+        LOG.info("Checking Data..");
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (entry.getValue() instanceof String && entry.getValue().toString().length() > 255) {
+                LOG.error("{} field string data length more then 255 characters error throwing..", entry.getKey());
+                FacesMessages.error("Metin uzunluğu 255 karakterden uzun olamaz."); //FIXME: i18n
+                return;
+            }
+        }
+
         //Belgeleri de parametre olarak ekleyelim.
         serializeRafObjects();
 
