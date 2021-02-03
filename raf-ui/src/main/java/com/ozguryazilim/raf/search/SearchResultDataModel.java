@@ -2,11 +2,13 @@ package com.ozguryazilim.raf.search;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
+import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafObject;
 import java.util.List;
 import java.util.Map;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 import org.slf4j.LoggerFactory;
@@ -18,19 +20,24 @@ import org.slf4j.LoggerFactory;
 public class SearchResultDataModel extends LazyDataModel<RafObject> {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SearchResultDataModel.class);
+    private boolean elasticSearch = true;
 
     private List<RafObject> datasource;
     private List<RafDefinition> rafs;
     private DetailedSearchModel searchModel;
     private SearchService searchService;
+    private ElasticSearchService elasticSearchService;
 
-    public SearchResultDataModel(List<RafDefinition> rafs, DetailedSearchModel searchModel, SearchService searchService) {
+    public SearchResultDataModel(List<RafDefinition> rafs, DetailedSearchModel searchModel, SearchService searchService, ElasticSearchService elasticSearchService) {
         this.rafs = rafs;
         this.searchModel = searchModel;
         this.searchService = searchService;
+        this.elasticSearchService = elasticSearchService;
+        this.elasticSearch = ConfigResolver.getPropertyValue("rafSearch.provider", "elasticsearch").equals("elasticsearch");
     }
 
     @Override
+
     public RafObject getRowData(String rowKey) {
         for (RafObject rec : datasource) {
             if (rec.getId().equals(rowKey)) {
@@ -51,6 +58,11 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             if (!searchModel.getSearchInDocumentName()) {
                 datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
                 this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
+            } else {
+                if (elasticSearch) {
+                    datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
+                    this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs));
+                }
             }
         } catch (RafException ex) {
             LOG.error("RafException", ex);

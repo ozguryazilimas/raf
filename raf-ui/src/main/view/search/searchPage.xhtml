@@ -71,7 +71,7 @@
                                     </p:panelGrid>
 
                                     <p:outputLabel value="Süreç Tipi"/>
-                                    <p:selectOneMenu value="#{detailedSearchController.recordType}" required="false">
+                                    <p:selectOneMenu value="#{detailedSearchController.recordType}" required="false" filter="true" filterMatchMode="startsWith">
                                         <p:ajax listener="#{detailedSearchController.onRecordTypeChange}" update="searchWithWFMetaDatas" />
                                         <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
                                         <f:selectItems value="#{recordController.recordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
@@ -85,7 +85,7 @@
                                     <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 
                                     <p:outputLabel value="Sıralama Alanı"/>
-                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false">
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
                                         <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
                                         <f:selectItem itemLabel="Dosya Yolu" itemValue="nodes.[jcr:path]" />
                                         <f:selectItem itemLabel="Dosya Adı" itemValue="nodes.[jcr:title]" />
@@ -106,7 +106,7 @@
                             </div>
 
                             <p:panel id="searchWithWFMetaDatas" header="Özel Alan Verilerine Göre Ara" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
-                                <ui:fragment rendered="#{detailedSearchController.metaDataFields ne null and detailedSearchController.metaDataFields.size() > 0}">
+                                <ui:fragment rendered="#{detailedSearchController.metaDataFields ne null and detailedSearchController.searchModel.mapWFAttValue ne null and detailedSearchController.metaDataFields.size() > 0}">
                                     <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
                                         <ui:repeat value="#{detailedSearchController.metaDataFields}" var="mdf" varStatus="status">
                                             <div class="row">                   
@@ -144,7 +144,7 @@
                                     <p:calendar locale="tr" pattern="dd.MM.yyyy" value="#{detailedSearchController.searchModel.registerDateTo}" required="false"/>
 
                                     <p:outputLabel value="Evrak Tipi"/>
-                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false">
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false" filter="true" filterMatchMode="startsWith">
                                         <p:ajax listener="#{detailedSearchController.onDocumentTypeChange}" update="searchWithMetaDatas" />
                                         <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
                                         <f:selectItems value="#{detailedSearchController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
@@ -167,7 +167,7 @@
                                             </div>
                                             <div class="col-md-8">
                                                 <ui:fragment rendered="#{recc.attributeType eq 'List'}">
-                                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false">
+                                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" filter="true" filterMatchMode="startsWith">
                                                         <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
                                                         <f:selectItems value="#{detailedSearchController.getListedAttributeValues(recc)}" var="listValueRec" itemLabel="#{listValueRec.listValue}" itemValue="#{listValueRec.listValue}" />
                                                     </p:selectOneMenu>

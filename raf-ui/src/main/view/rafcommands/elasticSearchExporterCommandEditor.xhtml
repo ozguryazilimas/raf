@@ -1,0 +1,33 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="dbSettings" header="Elastic Veritabanı Ayarları">
+            <p:outputLabel value="Elastic Veritabanı Sunucusu"/>
+            <p:inputText value="#{elasticSearchExporterCommandEditor.command.dbHostName}"/>
+
+            <p:outputLabel value="Elastic Veritabanı Port No."/>
+            <p:inputText value="#{elasticSearchExporterCommandEditor.command.dbPort}"/>            
+
+            <p:outputLabel value="Elastic Veritabanı Adı"/>
+            <p:inputText value="#{elasticSearchExporterCommandEditor.command.dbName}"/>       
+
+            <p:outputLabel value="Elastic Veritabanı Kullanıcı Adı"/>
+            <p:inputText value="#{elasticSearchExporterCommandEditor.command.dbUserName}"/>
+
+            <p:outputLabel value="Elastic Veritabanı Parola"/>
+            <p:inputText value="#{elasticSearchExporterCommandEditor.command.dbPassword}"/>
+
+            <p:outputLabel value="Başlangıç Tarih"/>
+            <p:calendar lang="tr" locale="tr" pattern="dd.MM.yyyy" value="#{elasticSearchExporterCommandEditor.command.startDate}"/>
+
+            <p:outputLabel value="Üzerine Yaz"/>
+            <p:selectBooleanCheckbox value="#{elasticSearchExporterCommandEditor.command.owerwrite}"/>
+
+            <p:outputLabel value="Reindex"/>
+            <p:selectBooleanCheckbox value="#{elasticSearchExporterCommandEditor.command.reindexRepository}"/>
+
+        </p:panel>
+    </p:scrollPanel>
+</ui:composition>
