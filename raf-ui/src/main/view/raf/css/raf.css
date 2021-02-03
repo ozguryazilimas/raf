@@ -195,7 +195,7 @@
     /*align-items: stretch;*/
     /*justify-items: stretch;*/
     justify-content: flex-start;
-    
+
 }
 
 .raf-container-item-group{
@@ -210,7 +210,7 @@
 }
 
 .raf-container-item-group-item{
-    
+
     display: inline-flex;
     flex-flow: column wrap;
     align-content: flex-start;
@@ -258,15 +258,15 @@
 }
 
 .raf-container-item-item-img{
-  grid-column-start: 1;
-  grid-row-start: 1;
-  
+    grid-column-start: 1;
+    grid-row-start: 1;
+
 }
 
 .raf-container-item-item-cnd{
-  grid-column-start: 2;
-  grid-row-start: 1;
-  padding-left: 8px;
+    grid-column-start: 2;
+    grid-row-start: 1;
+    padding-left: 8px;
 }
 
 .raf-container-item-item-chk {
@@ -284,10 +284,10 @@
 }
 
 .raf-item-selected{
-   /* background-color: #3c8dbc !important;
-    color: #fff !important;
-   */
-   /* font: normal normal normal 14px/1 FontAwesome !important; */
+    /* background-color: #3c8dbc !important;
+     color: #fff !important;
+    */
+    /* font: normal normal normal 14px/1 FontAwesome !important; */
 }
 
 .raf-item-select-icon {
@@ -309,14 +309,14 @@
 */
 
 .raf-item-selected > a{
-  /*  background-color: #3c8dbc !important;*/
+    /*  background-color: #3c8dbc !important;*/
     /*color: #d2d6de !important; */
-    
+
 }
 
 .raf-item-selected > a:hover{
- /*   background-color: #3c8dbc !important;*/
-    
+    /*   background-color: #3c8dbc !important;*/
+
 }
 
 .content-view-port{
@@ -324,10 +324,14 @@
 }
 
 .raf-file{
-    
+
 }
 
 .margin-left-5 {
     margin-left: 5rem;
 }
 
+.raf-file-meta{
+    height: 600px !important;
+    overflow: auto !important;
+}
