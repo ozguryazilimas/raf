@@ -1966,9 +1966,10 @@ public class RafModeshapeRepository implements Serializable {
             return new String[]{result, o.getName()};
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
-        String pathName = o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
-        result = targetBase + "/" + pathName;
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
+        int extensionStringIndex = o.getName().lastIndexOf(".");
+        String fileExtension = o.getName().substring(extensionStringIndex);
+        result = targetBase + "/" + o.getName().substring(0, extensionStringIndex) + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + fileExtension;
 
         return new String[]{result, pathName};
     }
