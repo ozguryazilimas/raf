@@ -331,7 +331,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         record.setCreateDate(rs.getDate("REGISTER_DATE"));
                         record = rafService.createRecord(record);
 
-                        rafService.copyObject(rafDocument, record);
+                        rafService.moveObject(rafDocument, record);
 
                         List<RafMetadata> metaDatas = new ArrayList();
                         RafMetadata m = new RafMetadata();
@@ -724,8 +724,9 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                         + "                        left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
                         + "                        left join arc_wf_document awfdoc on awfdoc.ID = dmdoc.ID\n"
                         + "                        left join wf_document wfdoc on wfdoc.ID = dmdoc.ID\n"
-                        + " where wfdoc.DBID is null and awfdoc.DBID is null "
-                        + " and   IFNULL(parentfolder.NAME, folder.NAME) in ( %s ) ", getFolderNamesForQuery()
+                        + "                        left join wf_workflow_document wwdoc on wwdoc.DOCUMENT = wfdoc.DBID\n"
+                        + "                        left join arc_wf_workflow_document awwdoc on awwdoc.DOCUMENT = awfdoc.DBID\n"
+                        + " where  wwdoc.INST_UUID_ is null and awwdoc.INST_UUID_ is null  and IFNULL(parentfolder.NAME, folder.NAME) in ( %s ) ", getFolderNamesForQuery()
                 );
 
                 ResultSet rs = st.executeQuery(query);
@@ -773,7 +774,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             RafObject relatedDoc = rafService.getRafObjectByPath(relatedDocPath);
 
                             if (parentRecord != null && relatedDoc != null && !childIsExists(parentRecord, relatedDoc)) {
-                                rafService.copyObject(relatedDoc, parentRecord);
+                                rafService.moveObject(relatedDoc, parentRecord);
                             }
                         }
 
@@ -827,7 +828,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
                             RafObject relatedDoc = rafService.getRafObjectByPath(relatedDocPath);
 
                             if (parentRecord != null && relatedDoc != null && !childIsExists(parentRecord, relatedDoc)) {
-                                rafService.copyObject(relatedDoc, parentRecord);
+                                rafService.moveObject(relatedDoc, parentRecord);
                             }
                         }
                     }
