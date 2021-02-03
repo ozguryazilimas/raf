@@ -28,6 +28,7 @@ public class DirNameEncoder extends BaseRafEncoder {
                     break;
                 case ' ':
                 case ':':
+                case '"':
                 case '\'':
                     sb.append('_');
                     break;
