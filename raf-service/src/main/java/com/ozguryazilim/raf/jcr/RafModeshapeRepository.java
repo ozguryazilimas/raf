@@ -1967,6 +1967,7 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım. 
+        String pathName = o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
         int extensionStringIndex = o.getName().lastIndexOf(".");
         String fileExtension = o.getName().substring(extensionStringIndex);
         result = targetBase + "/" + o.getName().substring(0, extensionStringIndex) + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + fileExtension;
