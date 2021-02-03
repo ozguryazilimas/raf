@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.entities.ExternalDocType;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
 import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.entities.SavedSearch;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
 import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
@@ -18,12 +19,14 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.raf.saved_search.SavedSearchService;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
 import com.ozguryazilim.raf.ui.base.metadatapanels.DynaFormMetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.entities.SuggestionItem;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
+import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.suggestion.SuggestionRepository;
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,6 +71,9 @@ public class DetailedSearchController implements Serializable {
     @Inject
     private ElasticSearchService elasticSearchService;
 
+    @Inject
+    private SavedSearchService savedSearchService;
+
     private List<RafDefinition> rafList;
 
     private List<ExternalDocType> documentTypes;
@@ -77,6 +83,9 @@ public class DetailedSearchController implements Serializable {
     private SearchResultDataModel searchResult;
     private List<Field> metaDataFields;
     private String recordType;
+    private String saveSearchName;
+    private Long savedSearch;
+    private List<SavedSearch> savedSearchs;
 
     @Inject
     ExternalDocTypeRepository externalDocTypeRepository;
@@ -108,6 +117,18 @@ public class DetailedSearchController implements Serializable {
 
     public String getRecordType() {
         return recordType;
+    }
+
+    public String getSaveSearchName() {
+        return saveSearchName;
+    }
+
+    public Long getSavedSearch() {
+        return savedSearch;
+    }
+
+    public List<SavedSearch> getSavedSearchs() {
+        return savedSearchService.getSavedSearchs();
     }
 
     public DetailedSearchModel getSearchModel() {
@@ -188,22 +209,26 @@ public class DetailedSearchController implements Serializable {
         if (searchModel != null && !Strings.isNullOrEmpty(recordType)) {
             searchModel.setRecordType(recordType.split(";")[0]);
             searchModel.setRecordMetaDataName(recordType.split(";")[1]);
-            metaDataFields = new ArrayList();
-            searchModel.setMapWFAttValue(new HashMap());
-            List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(searchModel.getRecordMetaDataName());
-            for (AbstractMetadataPanel l : ls) {
-                if (l instanceof DynaFormMetadataPanel) {
-                    DynaFormMetadataPanel panel = ((DynaFormMetadataPanel) l);
-                    if (panel.getForm() != null) {
-                        metaDataFields = panel.getForm().getFields();
-                        metaDataFields.forEach((mdf) -> {
-                            if ("Suggestion".equals(mdf.getType()) || "Text".equals(mdf.getType()) || "RafFolder".equals(mdf.getType())) {
-                                searchModel.getMapWFAttValue().put(mdf.getDataKey(), "");
-                            } else if ("Date".equals(mdf.getType())) {
-                                searchModel.getMapWFAttValue().put(mdf.getDataKey(), null);
-                            }
-                        });
-                    }
+            prepareMetaDataPanel();
+        }
+    }
+
+    private void prepareMetaDataPanel() {
+        metaDataFields = new ArrayList();
+        searchModel.setMapWFAttValue(new HashMap());
+        List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(searchModel.getRecordMetaDataName());
+        for (AbstractMetadataPanel l : ls) {
+            if (l instanceof DynaFormMetadataPanel) {
+                DynaFormMetadataPanel panel = ((DynaFormMetadataPanel) l);
+                if (panel.getForm() != null) {
+                    metaDataFields = panel.getForm().getFields();
+                    metaDataFields.forEach((mdf) -> {
+                        if ("Suggestion".equals(mdf.getType()) || "Text".equals(mdf.getType()) || "RafFolder".equals(mdf.getType())) {
+                            searchModel.getMapWFAttValue().put(mdf.getDataKey(), "");
+                        } else if ("Date".equals(mdf.getType())) {
+                            searchModel.getMapWFAttValue().put(mdf.getDataKey(), null);
+                        }
+                    });
                 }
             }
         }
@@ -236,6 +261,14 @@ public class DetailedSearchController implements Serializable {
 
     public void setRecordType(String recordType) {
         this.recordType = recordType;
+    }
+
+    public void setSaveSearchName(String saveSearchName) {
+        this.saveSearchName = saveSearchName;
+    }
+
+    public void setSavedSearch(Long savedSearch) {
+        this.savedSearch = savedSearch;
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {
@@ -278,4 +311,42 @@ public class DetailedSearchController implements Serializable {
                 .distinct().collect(Collectors.toList());
     }
 
+    public void saveSearch() {
+        try {
+            savedSearchService.saveSearch(saveSearchName, searchModel);
+            saveSearchName = "";
+            FacesMessages.info("Arama kaydedildi");
+        } catch (Exception e) {
+            FacesMessages.error("Hata", e.getMessage());
+            LOG.error("Search Save Error", e);
+        }
+
+    }
+
+    public void onSavedSearchChanged() {
+        if (savedSearch != null) {
+            try {
+                searchModel = savedSearchService.getSearchModel(savedSearch);
+                if (searchModel.getRecordType() != null && !searchModel.getRecordType().isEmpty()) {
+                    setRecordType(searchModel.getRecordType());
+                    prepareMetaDataPanel();
+                    searchModel = savedSearchService.getSearchModel(savedSearch);
+                }
+
+                if (searchModel.getDocumentType() != null && !searchModel.getDocumentType().isEmpty()) {
+                    onDocumentTypeChange();
+                    searchModel = savedSearchService.getSearchModel(savedSearch);
+                }
+
+            } catch (IOException ex) {
+                FacesMessages.error("Hata", ex.getMessage());
+                LOG.error("Saved Search Read Error", ex);
+            }
+        }
+    }
+
+    public void removeSearch() {
+        clearSearch();
+        savedSearchService.removeSearchById(savedSearch);
+    }
 }
