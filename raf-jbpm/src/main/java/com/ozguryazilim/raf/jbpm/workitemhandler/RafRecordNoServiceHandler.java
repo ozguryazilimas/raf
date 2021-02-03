@@ -40,6 +40,10 @@ public class RafRecordNoServiceHandler implements WorkItemHandler {
         Map<String, Object> result = new HashMap<>();
         result.put("metadata", metadata);
 
+        if (workItem.getParameter("departman") != null) {
+            result.put("departman", workItem.getParameter("departman"));
+        }
+
         manager.completeWorkItem(workItem.getId(), result);
     }
 
