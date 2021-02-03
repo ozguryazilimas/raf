@@ -970,6 +970,26 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
 
+            if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
+                whereExpressions.add(" nodes.[" + PROP_RECORD_TYPE + "] = '" + searchModel.getRecordType() + "' ");
+            }
+
+            String metadataName = "";
+            if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
+                for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
+                    metadataName = searchModel.getRecordMetaDataName().split(":")[0];
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        if (value instanceof String) {
+                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " LIKE '%" + value.toString() + "%'");
+                        } else if (value instanceof Date) {
+                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " = " + getJCRDate((Date) value) + "");
+                        }
+                    }
+                }
+            }
+
             String lastWhereExpression = "";
 
             if (!whereExpressions.isEmpty()) {

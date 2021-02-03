@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.forms;
 
 import com.ozguryazilim.raf.forms.builders.AbstractFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.DateFieldBuilder;
+import com.ozguryazilim.raf.forms.builders.MultiPersonSelectionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.MultiSelectFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.PersonSelectionFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.RafDocumentFieldBuilder;
@@ -12,6 +13,7 @@ import com.ozguryazilim.raf.forms.builders.TextFieldBuilder;
 import com.ozguryazilim.raf.forms.builders.UserFieldBuilder;
 import com.ozguryazilim.raf.forms.model.AbstractField;
 import com.ozguryazilim.raf.forms.model.DateField;
+import com.ozguryazilim.raf.forms.model.MultiPersonSelectionField;
 import com.ozguryazilim.raf.forms.model.MultiSelectField;
 import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.model.RafDocumentField;
@@ -73,5 +75,6 @@ public class FieldTypeRegistery {
         FieldTypeRegistery.register("RafFolder", RafFolderField.class, RafFolderFieldBuilder.class);
         FieldTypeRegistery.register("RafDocument", RafDocumentField.class, RafDocumentFieldBuilder.class);
         FieldTypeRegistery.register("MultiSelect", MultiSelectField.class, MultiSelectFieldBuilder.class);
+        FieldTypeRegistery.register("MultiPersonSelection", MultiPersonSelectionField.class, MultiPersonSelectionFieldBuilder.class);
     }
 }
