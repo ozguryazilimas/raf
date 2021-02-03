@@ -233,10 +233,6 @@ public class DetailedSearchController implements Serializable {
         this.recordType = recordType;
     }
 
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
-    }
-
     public void setSearchModel(DetailedSearchModel searchModel) {
         this.searchModel = searchModel;
     }
