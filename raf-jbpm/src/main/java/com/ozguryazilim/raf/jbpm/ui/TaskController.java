@@ -127,10 +127,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     public List<TaskSummary> getTasks() {
         TaskSummaryQueryBuilder queryBuilder;
-        if (filter.getShowAll()) {
+        if ("*".equals(filter.getTaskOwner())) {//show all
             queryBuilder = runtimeDataService.taskSummaryQuery("Administrator").and();
         } else {
-            queryBuilder = runtimeDataService.taskSummaryQuery(identity.getLoginName()).and();
+            queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         }
 
         TaskTypes taskType = filter.getTaskType();
