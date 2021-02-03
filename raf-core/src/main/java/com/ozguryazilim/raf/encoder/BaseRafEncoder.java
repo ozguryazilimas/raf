@@ -4,8 +4,6 @@ public abstract class BaseRafEncoder implements RafEncoder {
 
     public String encode(String text) {
         StringBuilder sb = new StringBuilder();
-        //toLowerCase(new Locale("tr")) hepsini küçük harfer çevirmek için eklenebilir
-
         char[] source = text.toCharArray();
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {

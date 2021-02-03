@@ -471,7 +471,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
      */
     @Override
     public Boolean getCanUpload() {
-        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
+        return recordObject != null;
     }
 
     @Override
@@ -496,7 +496,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     @Override
     public Boolean getCanAdd() {
-        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
+        return recordObject != null;
     }
 
     /**
