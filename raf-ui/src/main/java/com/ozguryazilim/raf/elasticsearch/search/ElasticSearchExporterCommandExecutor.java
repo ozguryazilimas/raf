@@ -4,8 +4,6 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.encoder.RafEncoder;
-import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -119,8 +117,12 @@ public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecute
             for (RafDefinition r : rafDefinitionService.getRafs()) {
                 try {
                     LOG.info("{} raf exporting to elastic.", r.getCode());
-                    RafCollection searchResult = rafService.getLastCreatedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}));
+                    RafCollection searchResult = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), true);
                     exportRafCollection(searchResult, r.getCode());
+
+                    RafCollection searchResultModified = rafService.getLastCreatedOrModifiedFilesCollection(command.getStartDate(), Arrays.asList(new RafDefinition[]{r}), false);
+                    exportRafCollection(searchResultModified, r.getCode());
+
                     LOG.info("{} raf exported.", r.getCode());
                 } catch (RafException ex) {
                     LOG.error("RafException", ex);

@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -902,6 +903,10 @@ public class RafModeshapeRepository implements Serializable {
                 } else {
                     whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                 }
+
+                if (searchModel.getSearchInDocumentTags()) {
+                    whereExpressions.add("  nodes.[" + PROP_TAG + "] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
+                }
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
@@ -1495,6 +1500,11 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_CATEGORY_ID, object.getCategoryId() == null ? 0 : object.getCategoryId());
             node.setProperty(PROP_TAG, object.getTags().toArray(new String[]{}));
             //node.setProperty(PROP_TAG, "");
+            Node cn = node.getNode(NODE_CONTENT);
+            cn.setProperty(PROP_UPDATED_BY, session.getUserID());
+            GregorianCalendar gCal = new GregorianCalendar();
+            gCal.setTime(new Date());
+            cn.setProperty(PROP_UPDATED_DATE, gCal);
 
             session.save();
 
@@ -1615,7 +1625,6 @@ public class RafModeshapeRepository implements Serializable {
                     //FIXME: bu exception nedir söylemek lazım.
                     throw new RafException("[RAF-0005] Raf node not found");
                 }
-
                 metaNode = node.addNode(metadata.getType(), metadata.getType());
             } else {
                 //MetadataNode var update için kendisini bulalım
@@ -2610,7 +2619,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public RafCollection getLastCreatedFilesCollection(Date fromDate, List<RafDefinition> rafs) throws RafException {
+    public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -2629,7 +2638,7 @@ public class RafModeshapeRepository implements Serializable {
             List<String> whereExpressions = new ArrayList();
 
             if (fromDate != null) {
-                whereExpressions.add(" nodes.[" + PROP_CREATED_DATE + "] >= " + getJCRDate(fromDate));
+                whereExpressions.add(" nodes.[" + (created ? PROP_CREATED_DATE : PROP_UPDATED_DATE) + "] >= " + getJCRDate(fromDate));
             }
 
             String rafWheres = " ( ";

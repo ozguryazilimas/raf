@@ -162,6 +162,11 @@ public class ElasticSearchService implements Serializable {
                 mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("title", "*" + str + "*")));
             });
 
+            if (searchModel.getSearchInDocumentTags()) {
+                Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
+                    mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("tags", "*" + str + "*")));
+                });
+            }
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {

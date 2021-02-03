@@ -480,8 +480,8 @@ public class RafService implements Serializable {
         rafRepository.reindex();
     }
 
-    public RafCollection getLastCreatedFilesCollection(Date fromDate, List<RafDefinition> rafs) throws RafException {
-        return rafRepository.getLastCreatedFilesCollection(fromDate, rafs);
+    public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
+        return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
     }
 
     public void unregisterIndexes(String... indexNames) {
