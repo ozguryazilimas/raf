@@ -154,7 +154,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
         if (pathIndex > -1 && pathIndex < splittedRafNames.length) {
 //            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
-            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder);
+            return "/RAF/".concat(splittedRafNames[pathIndex]).concat(command.isImportInWFDocuments() ? "/EVRAKLAR/" : "/BELGELER/").concat(folder);
         } else {
             LOG.debug("{} Parent folder not found.", parentFolder);
             return null;
@@ -166,7 +166,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         String[] splittedRafNames = command.getRafNames().split(",");
         int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
         if (pathIndex > -1 && pathIndex < splittedRafNames.length) {
-            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
+            return "/RAF/".concat(splittedRafNames[pathIndex]).concat(command.isImportInWFDocuments() ? "/EVRAKLAR/" : "/BELGELER/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
         } else {
             LOG.debug("{} Parent folder not found.", parentFolder);
             return "";
@@ -178,7 +178,7 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
         String[] splittedRafNames = command.getRafNames().split(",");
         int pathIndex = Arrays.asList(splittedDoxoftFolderNames).indexOf(parentFolder);
         if (pathIndex > -1 && pathIndex < splittedRafNames.length) {
-            return "/RAF/".concat(splittedRafNames[pathIndex]).concat("/EVRAKLAR/EKLER/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
+            return "/RAF/".concat(splittedRafNames[pathIndex]).concat(command.isImportInWFDocuments() ? "/EVRAKLAR/EKLER/" : "/BELGELER/EKLER/").concat(folder).concat("/").concat(docName).concat(".").concat(docFormat);
         } else {
             LOG.debug("{} Parent folder not found.", parentFolder);
             return "";
@@ -195,6 +195,9 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
 
     private boolean checkRafPath(String rafPath) {
         try {
+            if (Strings.isNullOrEmpty(rafPath)) {
+                return true;
+            }
             return rafService.getRafObjectByPath(rafPath) != null;
         } catch (RafException e) {
             return false;

@@ -22,36 +22,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Process içinde bulunan belgeleri başka bir raf'a taşır.
- * 
- * 3 adet paremetre gelir. 
- * * Documents içerisinde neler kopyalanacak
- * * RootFolder içinde hangi foldera kopyalanacak
- * * NewFolder içinde bir alt folder açılacak ise onun ismi yoksa RootFolder'a kopyalanır.
- * 
- * 
+ *
+ * 3 adet paremetre gelir. * Documents içerisinde neler kopyalanacak *
+ * RootFolder içinde hangi foldera kopyalanacak * NewFolder içinde bir alt
+ * folder açılacak ise onun ismi yoksa RootFolder'a kopyalanır.
+ *
+ *
  * @author Hakan Uygun
  */
 @ApplicationScoped
-public class RafExportProcessDocumentsTaskHandler implements WorkItemHandler{
+public class RafExportProcessDocumentsTaskHandler implements WorkItemHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafExportProcessDocumentsTaskHandler.class);
 
     @Inject
     private RafService rafService;
-    
+
     @Inject
     private RuntimeDataService runtimeDataService;
 
-    
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         LOG.info("Work Item Params : {}", workItem.getParameters());
-        
+
         //FIXME: Burada bir yetki problemi var. Task'ı gören kişi belgeleri göremiyor olabilir! Kontrol edilmeli.
         List<RafObject> rafObjects = new ArrayList<>();
-        
+
         List<String> rafOIDs = (List<String>) workItem.getParameter("Documents");
         if (rafOIDs != null) {
             for (String oid : rafOIDs) {
@@ -63,51 +61,57 @@ public class RafExportProcessDocumentsTaskHandler implements WorkItemHandler{
                 }
             }
         }
-        
-        
-        Map<String,Object> resultParams = new HashMap<>();
+
+        Map<String, Object> resultParams = new HashMap<>();
         try {
             //TODO: processId v.s. için ek servis mi çalıştıracağız?
             ProcessInstanceDesc processInstance = runtimeDataService.getProcessInstanceById(workItem.getProcessInstanceId());
-            
-            
+
             //FIXME: RootFolder verilmemiş ise ne olacak?
             String folderPath = (String) workItem.getParameter("RootFolder");
             String newFolder = (String) workItem.getParameter("NewFolder");
-            if( !Strings.isNullOrEmpty(newFolder)){
+            if (!Strings.isNullOrEmpty(newFolder)) {
                 folderPath = folderPath + "/" + newFolder;
             }
-            
+
             LOG.debug("Process documents {} exported to {}", rafOIDs, folderPath);
-            RafFolder targetFolder = getTargetFolder( folderPath );
+            RafFolder targetFolder = getTargetFolder(folderPath);
             rafService.copyObject(rafObjects, targetFolder);
-            
+
         } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
             //FIXME: buarda runtime exception fırlatmak lazım sanırım. İşlem tamamlanamadı sonuçta süreç devam etmemeli!
         }
-        
+
+        Map<String, Object> metadata = (Map<String, Object>) workItem.getParameter("metadata");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("metadata", metadata);
+
+        if (workItem.getParameter("departman") != null) {
+            result.put("departman", workItem.getParameter("departman"));
+        }
+
         //Geriye dönecek bir bilgimiz yok!
-        manager.completeWorkItem(workItem.getId(), null);
+        manager.completeWorkItem(workItem.getId(), result);
     }
 
     @Override
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         //Abort için özel bir işlemimiz yok!
     }
-    
-    private RafFolder getProcessFolder( String processId, Long processInstanceId, Date startDate ) throws RafException {
-        
+
+    private RafFolder getProcessFolder(String processId, Long processInstanceId, Date startDate) throws RafException {
+
         RafNode processNode = rafService.getProcessRafNode();
-        
+
         //FIXME: buarda tarih ile yıl/ay eklenecek klasör yoluna
-        
-        String folderPath  = processNode.getPath() + "/" + processId + "/" + processInstanceId;
-        
+        String folderPath = processNode.getPath() + "/" + processId + "/" + processInstanceId;
+
         return rafService.createFolder(folderPath);
     }
-    
-    private RafFolder getTargetFolder( String folderPath ) throws RafException {
+
+    private RafFolder getTargetFolder(String folderPath) throws RafException {
         return rafService.createFolder(folderPath);
     }
 }
