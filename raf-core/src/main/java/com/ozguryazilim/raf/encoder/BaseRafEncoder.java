@@ -43,6 +43,21 @@ public abstract class BaseRafEncoder implements RafEncoder {
                 case 'Ö':
                     sb.append('O');
                     break;
+                case ' ':
+                    sb.append('_');
+                    break;
+                case '[':
+                    sb.append('(');
+                    break;
+                case ']':
+                    sb.append(')');
+                    break;
+                case ':':
+                    sb.append('_');
+                    break;
+                case '"':
+                    sb.append('_');
+                    break;
                 default:
                     sb.append(source[i]);
             }

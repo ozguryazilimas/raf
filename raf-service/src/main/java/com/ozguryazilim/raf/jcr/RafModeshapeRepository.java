@@ -1507,7 +1507,7 @@ public class RafModeshapeRepository implements Serializable {
                 gCal.setTime(new Date());
                 cn.setProperty(PROP_UPDATED_DATE, gCal);
             }
-            
+
             session.save();
 
             //FIXME: Buradan geriye RafObject'in yeni halini dönmek lazım ki UI düzgün render edilebilsin!
