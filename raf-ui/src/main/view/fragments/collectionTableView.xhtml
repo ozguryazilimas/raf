@@ -121,10 +121,16 @@
                                     <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
+                                    <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[deleteAction.title]}" styleClass="btn btn-box-tool">
                                         <i class="fa fa-trash" />
                                         <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
                                     </p:commandLink>
+
+                                    <p:commandLink action="#{zipExtractAction.extractZipFile(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[zipExtractAction.title]}" styleClass="btn btn-box-tool">
+                                        <i class="fa fa-file-zip-o" />
+                                        <p:confirm header="#{messages['confirmation.header.ExtractAction']}" message="#{messages['confirmation.message.ExtractAction']}" icon="fa fa-alert" />
+                                    </p:commandLink>
+
                                 </ui:fragment>
 
                                 <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
