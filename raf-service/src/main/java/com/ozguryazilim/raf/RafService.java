@@ -483,4 +483,8 @@ public class RafService implements Serializable {
     public RafCollection getLastCreatedFilesCollection(Date fromDate, List<RafDefinition> rafs) throws RafException {
         return rafRepository.getLastCreatedFilesCollection(fromDate, rafs);
     }
+
+    public void unregisterIndexes(String... indexNames) {
+        rafRepository.unregisterIndexes(indexNames);
+    }
 }
