@@ -7,6 +7,9 @@ import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.idm.entities.Group;
+import com.ozguryazilim.telve.idm.group.GroupRepository;
+import com.google.common.base.Strings;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +30,7 @@ import org.slf4j.LoggerFactory;
 public class RafDefinitionService implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafDefinitionService.class);
+    private static final String RAF_ROLE_MANAGER = "MANAGER";
 
     @Inject
     private Identity identity;
@@ -38,6 +43,9 @@ public class RafDefinitionService implements Serializable {
 
     @Inject
     private RafMemberService memberService;
+
+    @Inject
+    private GroupRepository groupRepository;
 
     private List<RafDefinition> rafs = new ArrayList<>();
 
@@ -65,8 +73,11 @@ public class RafDefinitionService implements Serializable {
         repository.save(rd);
 
         //Oluşturan kişiyi MANAGER olarak atayalım.
-        memberService.addMember(rd, identity.getLoginName(), RafMemberType.USER, "MANAGER");
-        
+        memberService.addMember(rd, identity.getLoginName(), RafMemberType.USER, RAF_ROLE_MANAGER);
+
+        //Varsayılan manager grubu varsa, grubu rafa MANAGER yetkisi ile ekleyelim.
+        addDefaultManagerMembers(rd);
+
         refresh();
     }
 
@@ -180,6 +191,21 @@ public class RafDefinitionService implements Serializable {
             populateRafs();
         } catch (RafException ex) {
             LOG.error("Raf bilgileri toplanamadı", ex);
+        }
+    }
+
+    private void addDefaultManagerMembers(RafDefinition rd) {
+
+        String defaultManagerGroup = ConfigResolver.getPropertyValue("raf.default.managerGroup", "");
+        if (Strings.isNullOrEmpty(defaultManagerGroup)) return;
+
+        List<Group> groupList = groupRepository.findByCode(defaultManagerGroup);
+        if (groupList.isEmpty()) return;
+
+        try {
+            memberService.addMember(rd, groupList.get(0).getCode(), RafMemberType.GROUP, RAF_ROLE_MANAGER);
+        } catch (RafException e) {
+            LOG.error("Raf icin on tanimli yonetici grubu atanamadi.", e);
         }
     }
 

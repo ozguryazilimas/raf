@@ -4,7 +4,6 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
-import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
@@ -46,9 +45,6 @@ public class RafMemberService implements Serializable {
 
     @Inject
     private UserGroupRepository userGrouprepository;
-
-    @Inject
-    private UserService userService;
 
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
         //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
