@@ -1,0 +1,30 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:remove>
+        <!-- Basic Metadata panel -->
+        FIXME: i18n
+    </ui:remove>
+
+    <t:accordion id="etemdp" label="#{emailDocMetadataPanel.title}" columnClass="col-xs-12">
+
+        <t:outputText label="emailDoc.messageId" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:messageId']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.date" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:date']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.from" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:from']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.subject" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:subject']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.toList" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:toList']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.ccList" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:ccList']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.bccList" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:bccList']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.references" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:references']}" columnClass="col-xs-12"/>
+        <t:outputText label="emailDoc.relatedReferenceId" value="#{emailDocMetadataPanel.metadata.attributes['emailDoc:relatedReferenceId']}" columnClass="col-xs-12"/>
+
+    </t:accordion>
+
+
+</ui:composition>
+
