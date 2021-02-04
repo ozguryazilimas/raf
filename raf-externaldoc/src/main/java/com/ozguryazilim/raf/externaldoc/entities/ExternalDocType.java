@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.entities;
+package com.ozguryazilim.raf.externaldoc.entities;
 
 import com.ozguryazilim.telve.entities.EntityBase;
 import javax.persistence.Column;

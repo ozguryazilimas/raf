@@ -17,11 +17,6 @@ public interface RafCommandPages extends Pages {
 
     @SecuredPage
     @View
-    public class DoxoftImporterCommandEditor implements Admin {
-    };
-
-    @SecuredPage
-    @View
     public class FolderDivideByYearsCommandEditor implements Admin {
     };
 

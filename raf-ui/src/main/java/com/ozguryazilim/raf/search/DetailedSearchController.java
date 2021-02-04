@@ -1,18 +1,13 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.MetadataConfigBuilder;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
-import com.ozguryazilim.raf.entities.ExternalDocType;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.SavedSearch;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -34,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -76,10 +70,7 @@ public class DetailedSearchController implements Serializable {
 
     private List<RafDefinition> rafList;
 
-    private List<ExternalDocType> documentTypes;
-    private List<ExternalDocTypeAttribute> attributes;
     private DetailedSearchModel searchModel;
-    private Map<String, List<ExternalDocTypeAttributeList>> listValueCache;
     private SearchResultDataModel searchResult;
     private List<Field> metaDataFields;
     private String recordType;
@@ -88,28 +79,7 @@ public class DetailedSearchController implements Serializable {
     private List<SavedSearch> savedSearchs;
 
     @Inject
-    ExternalDocTypeRepository externalDocTypeRepository;
-
-    @Inject
-    ExternalDocTypeAttributeRepository externalDocTypeAttributeRepository;
-
-    @Inject
-    ExternalDocTypeAttributeListRepository externalDocTypeAttributeListRepository;
-
-    @Inject
     private SuggestionRepository suggestionRepository;
-
-    public List<ExternalDocTypeAttribute> getAttributes() {
-        return attributes;
-    }
-
-    public List<ExternalDocType> getDocumentTypes() {
-        return documentTypes;
-    }
-
-    public List<ExternalDocTypeAttributeList> getListedAttributeValues(ExternalDocTypeAttribute attribute) {
-        return listValueCache.get(attribute.getAttributeName());
-    }
 
     public List<Field> getMetaDataFields() {
         return metaDataFields;
@@ -146,11 +116,9 @@ public class DetailedSearchController implements Serializable {
 
     public void clearSearch() {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
-        documentTypes = externalDocTypeRepository.findAll();
         searchModel = new DetailedSearchModel();
         searchModel.setSearchInDocumentName(Boolean.TRUE);
         searchModel.setSearchInDocumentTags(Boolean.TRUE);
-        listValueCache = new HashMap();
         searchResult = null;
     }
 
@@ -179,29 +147,6 @@ public class DetailedSearchController implements Serializable {
             if (sl != null) {
                 searchModel.setSearchSubPath(((RafFolder) sl.getValue()).getPath());
             }
-        }
-    }
-
-    public String getMapKey(ExternalDocTypeAttribute attribute) {
-        return attribute.getDocumentType().getDocumentType().replaceAll(":", "").concat(":").concat(attribute.getAttributeName());
-    }
-
-    void listDocTypeAttributes(ExternalDocType externalDocType) {
-        if (externalDocType == null) {
-            attributes = externalDocTypeAttributeRepository.findAll();
-        } else {
-            attributes = externalDocTypeAttributeRepository.findByDocumentType(externalDocType);
-        }
-        searchModel.setMapAttValue(new HashMap());
-        for (ExternalDocTypeAttribute attr : attributes) {
-            listValueCache.put(attr.getAttributeName(), externalDocTypeAttributeListRepository.findByAttributeName(attr.getAttributeName()));
-            searchModel.getMapAttValue().put(getMapKey(attr), null);
-        }
-    }
-
-    public void onDocumentTypeChange() {
-        if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-            listDocTypeAttributes(externalDocTypeRepository.findByDocumentType(searchModel.getDocumentType()).get(0));
         }
     }
 
@@ -236,14 +181,6 @@ public class DetailedSearchController implements Serializable {
 
     public List<RafDefinition> getRafList() {
         return rafList;
-    }
-
-    public void setAttributes(List<ExternalDocTypeAttribute> attributes) {
-        this.attributes = attributes;
-    }
-
-    public void setDocumentTypes(List<ExternalDocType> documentTypes) {
-        this.documentTypes = documentTypes;
     }
 
     public void setMetaDataFields(List<Field> metaDataFields) {
@@ -334,7 +271,7 @@ public class DetailedSearchController implements Serializable {
                 }
 
                 if (searchModel.getDocumentType() != null && !searchModel.getDocumentType().isEmpty()) {
-                    onDocumentTypeChange();
+//                    onDocumentTypeChange();
                     searchModel = savedSearchService.getSearchModel(savedSearch);
                 }
 
@@ -349,4 +286,9 @@ public class DetailedSearchController implements Serializable {
         clearSearch();
         savedSearchService.removeSearchById(savedSearch);
     }
+
+    public Boolean getExternalDocModuleInstalled() {
+        return MetadataConfigBuilder.of("ExternalDoc") != null;
+    }
+
 }

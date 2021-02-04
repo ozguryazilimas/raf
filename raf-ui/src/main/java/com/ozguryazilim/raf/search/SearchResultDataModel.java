@@ -33,7 +33,7 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
         this.searchModel = searchModel;
         this.searchService = searchService;
         this.elasticSearchService = elasticSearchService;
-        this.elasticSearch = ConfigResolver.getPropertyValue("rafSearch.provider", "elasticsearch").equals("elasticsearch");
+        this.elasticSearch = "elasticsearch".equals(ConfigResolver.getPropertyValue("rafSearch.provider", "modeshape"));//default search provider is modeshape
     }
 
     @Override
@@ -55,14 +55,13 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     @Override
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
-            if (!searchModel.getSearchInDocumentName()) {
+            if (!searchModel.getSearchInDocumentName() || !elasticSearch) {
+                //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
                 datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
                 this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
             } else {
-                if (elasticSearch) {
-                    datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
-                    this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs));
-                }
+                datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
+                this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs));
             }
         } catch (RafException ex) {
             LOG.error("RafException", ex);

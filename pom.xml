@@ -156,6 +156,8 @@
         -->
         <module>raf-externaldoc</module>
         <module>raf-emaildoc</module>
+        
+        <module>raf-externaldoc-war</module>
     </modules>
     
     <build>

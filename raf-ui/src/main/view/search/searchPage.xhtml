@@ -43,7 +43,9 @@
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#generalSearch" data-toggle="tab">Genel Arama</a></li>
-                        <li><a href="#externalDocSearch" data-toggle="tab">İçeri Aktarılan Dosya Arama</a></li>                       
+                        <ui:fragment rendered="#{detailedSearchController.externalDocModuleInstalled}">
+                            <li><a href="#externalDocSearch" data-toggle="tab">İçeri Aktarılan Dosya Arama</a></li>                       
+                        </ui:fragment>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="generalSearch">
@@ -156,59 +158,12 @@
                             </p:panel>                            
                         </div>
 
-                        <div class="tab-pane" id="externalDocSearch">
-                            <div class="ui-fluid">
-                                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                                    <p:outputLabel value="Kayıt Tarihi (Başlangıç)"/>
-                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.registerDateFrom}" required="false"/>
-
-                                    <p:outputLabel value="Kayıt Tarihi (Bitiş)"/>
-                                    <p:calendar locale="tr" pattern="dd.MM.yyyy" value="#{detailedSearchController.searchModel.registerDateTo}" required="false"/>
-
-                                    <p:outputLabel value="Evrak Tipi"/>
-                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false" filter="true" filterMatchMode="startsWith">
-                                        <p:ajax listener="#{detailedSearchController.onDocumentTypeChange}" update="searchWithMetaDatas" />
-                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
-                                        <f:selectItems value="#{detailedSearchController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
-                                    </p:selectOneMenu>
-
-                                    <p:outputLabel value="İş Durumu"/>
-                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.documentStatus}" required="false">
-                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
-                                        <f:selectItem itemLabel="Açık İşler" itemValue="AÇIK" />
-                                        <f:selectItem itemLabel="Kapalı İşler" itemValue="KAPALI" />
-                                    </p:selectOneMenu>
-                                </p:panelGrid>
+                        <ui:fragment rendered="#{detailedSearchController.externalDocModuleInstalled}">
+                            <div class="tab-pane" id="externalDocSearch">
+                                <strong>Waiting for implementation........</strong>
+                                <!--<ui:include src="externaldoc/search/externalDocSearchPage.xhtml"/>-->
                             </div>
-                            <p:panel id="searchWithMetaDatas" header="Özel Alan Verilerine Göre Ara" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
-                                <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
-                                    <ui:repeat value="#{detailedSearchController.attributes}" var="recc" varStatus="status">
-                                        <div class="row">                   
-                                            <div class="col-md-4">
-                                                <p:outputLabel value="#{recc.attributeName}"/>    
-                                            </div>
-                                            <div class="col-md-8">
-                                                <ui:fragment rendered="#{recc.attributeType eq 'List'}">
-                                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" filter="true" filterMatchMode="startsWith">
-                                                        <f:selectItem itemLabel="Seçiniz." itemValue="" noSelectionOption="true" />
-                                                        <f:selectItems value="#{detailedSearchController.getListedAttributeValues(recc)}" var="listValueRec" itemLabel="#{listValueRec.listValue}" itemValue="#{listValueRec.listValue}" />
-                                                    </p:selectOneMenu>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{recc.attributeType eq 'String'}">
-                                                    <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{recc.attributeType eq 'Date'}">
-                                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false"/>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{recc.attributeType eq 'Number'}">
-                                                    <p:inputNumber lang="tr" value="#{detailedSearchController.searchModel.mapAttValue[detailedSearchController.getMapKey(recc)]}" required="false" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
-                                                </ui:fragment>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </p:scrollPanel>
-                            </p:panel>
-                        </div>
+                        </ui:fragment>
                     </div>
                 </div>                
             </div>

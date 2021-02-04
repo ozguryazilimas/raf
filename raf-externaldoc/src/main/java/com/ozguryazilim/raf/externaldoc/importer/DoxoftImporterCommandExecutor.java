@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.imports;
+package com.ozguryazilim.raf.externaldoc.importer;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
@@ -6,12 +6,12 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
-import com.ozguryazilim.raf.entities.ExternalDocType;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttribute;
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeListRepository;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeAttributeRepository;
-import com.ozguryazilim.raf.externaldoc.ExternalDocTypeRepository;
+import com.ozguryazilim.raf.externaldoc.entities.ExternalDocType;
+import com.ozguryazilim.raf.externaldoc.entities.ExternalDocTypeAttribute;
+import com.ozguryazilim.raf.externaldoc.entities.ExternalDocTypeAttributeList;
+import com.ozguryazilim.raf.externaldoc.repositories.ExternalDocTypeAttributeListRepository;
+import com.ozguryazilim.raf.externaldoc.repositories.ExternalDocTypeAttributeRepository;
+import com.ozguryazilim.raf.externaldoc.repositories.ExternalDocTypeRepository;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;

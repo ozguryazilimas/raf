@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.imports;
+package com.ozguryazilim.raf.externaldoc.importer;
 
 import com.ozguryazilim.telve.messagebus.command.AbstractStorableCommand;
 

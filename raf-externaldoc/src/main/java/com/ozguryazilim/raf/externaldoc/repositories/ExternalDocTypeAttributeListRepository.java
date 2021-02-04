@@ -1,6 +1,6 @@
-package com.ozguryazilim.raf.externaldoc;
+package com.ozguryazilim.raf.externaldoc.repositories;
 
-import com.ozguryazilim.raf.entities.ExternalDocTypeAttributeList;
+import com.ozguryazilim.raf.externaldoc.entities.ExternalDocTypeAttributeList;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import java.util.List;
 import javax.enterprise.context.Dependent;
