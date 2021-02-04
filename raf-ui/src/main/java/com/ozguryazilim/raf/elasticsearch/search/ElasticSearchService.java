@@ -1,8 +1,7 @@
 package com.ozguryazilim.raf.elasticsearch.search;
 
 import com.google.common.base.Strings;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
+import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -26,7 +25,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.primefaces.json.JSONObject;
 import org.primefaces.model.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +52,8 @@ public class ElasticSearchService implements Serializable {
     private WebResource myWebResource;
     private Client myClient;
 
+    Gson gson = new Gson();
+
     WebResource getWebResource() {
         if (myClient == null) {
             myClient = Client.create();
@@ -71,9 +71,10 @@ public class ElasticSearchService implements Serializable {
             ClientResponse clientResponse = getWebResource().path("_count").type(MediaType.APPLICATION_JSON).post(ClientResponse.class, query);
             if (clientResponse != null && clientResponse.hasEntity()) {
                 String output = clientResponse.getEntity(String.class);
-                BasicDBObject dboMsg = BasicDBObject.parse(output);
-                if (dboMsg != null && dboMsg.containsField("count")) {
-                    result = Long.parseLong(dboMsg.get("count").toString());
+//                BasicDBObject dboMsg = BasicDBObject.parse(output);                
+                Map dboMsg = gson.fromJson(output, Map.class);
+                if (dboMsg != null && dboMsg.containsKey("count")) {
+                    result = Math.round(Double.parseDouble(dboMsg.get("count").toString()));
                 }
             }
         }
@@ -93,17 +94,19 @@ public class ElasticSearchService implements Serializable {
             ClientResponse clientResponse = getWebResource().path("_search").type(MediaType.APPLICATION_JSON).post(ClientResponse.class, query);
             if (clientResponse != null && clientResponse.hasEntity()) {
                 String output = clientResponse.getEntity(String.class);
-                BasicDBObject dboMsg = BasicDBObject.parse(output);
-                if (dboMsg.containsField("hits")) {
-                    BasicDBList list = new BasicDBList();
-                    if (dboMsg.containsField("hits") && ((BasicDBObject) dboMsg.get("hits")).get("hits") instanceof BasicDBList) {
-                        list = (BasicDBList) ((BasicDBObject) dboMsg.get("hits")).get("hits");
+//                BasicDBObject dboMsg = BasicDBObject.parse(output);
+                Map dboMsg = gson.fromJson(output, Map.class);
+                if (dboMsg.containsKey("hits")) {
+//                    BasicDBList list = new BasicDBList();
+                    List<Map<String, Object>> list = new ArrayList();
+                    if (dboMsg.containsKey("hits") && ((Map) dboMsg.get("hits")).get("hits") instanceof List) {
+                        list = (List) ((Map) dboMsg.get("hits")).get("hits");
                         for (Object dbo : list) {
-                            BasicDBObject bDbo = (BasicDBObject) dbo;
-                            if (bDbo != null && bDbo.containsField("_source")) {
-                                BasicDBObject dboSource = (BasicDBObject) bDbo.get("_source");
-                                if (dboSource.containsField("filePath")) {
-                                    String filePath = dboSource.getString("filePath");
+                            Map bDbo = (Map) dbo;
+                            if (bDbo != null && bDbo.containsKey("_source")) {
+                                Map dboSource = (Map) bDbo.get("_source");
+                                if (dboSource.containsKey("filePath")) {
+                                    String filePath = dboSource.get("filePath").toString();
                                     if (identity != null && !Strings.isNullOrEmpty(identity.getLoginName())) {
                                         if (!rafPathMemberService.hasMemberInPath(identity.getLoginName(), filePath) || rafPathMemberService.hasReadRole(identity.getLoginName(), filePath)) {
                                             try {
@@ -135,58 +138,112 @@ public class ElasticSearchService implements Serializable {
         sortFieldConvertMap.put("exdoc.[externalDoc:documentCreator]", "externalDoc:documentCreator");
         sortFieldConvertMap.put("exdoc.[externalDoc:documentCreateDate]", "externalDoc:documentCreateDate");
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        BasicDBObject result = new BasicDBObject();
+//        BasicDBObject result = new BasicDBObject();
+        Map result = new HashMap();
 //        BasicDBList shouldRafList = new BasicDBList();
-        BasicDBList mustQueryList = new BasicDBList();
+//        BasicDBList mustQueryList = new BasicDBList();
+        List mustQueryList = new ArrayList();
 
         if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
-            mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("filePath", searchModel.getSearchSubPath() + "*")));
+            Map wildcard = new HashMap();
+            Map filePath = new HashMap();
+            filePath.put("filePath", searchModel.getSearchSubPath() + "*");
+            wildcard.put("wildcard", filePath);
+            mustQueryList.add(wildcard);
         } else {
             List<String> rafCodes = new ArrayList();
             rafs.forEach((r) -> {
                 rafCodes.add(r.getCode());
             });
-            mustQueryList.add(new BasicDBObject("terms", new BasicDBObject("rafCode", rafCodes)));
+            Map terms = new HashMap();
+            Map rafCode = new HashMap();
+            rafCode.put("rafCode", rafCodes);
+            terms.put("terms", rafCode);
+            mustQueryList.add(terms);
         }
 
         if (searchModel.getDateFrom() != null) {
-            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("createDate", new BasicDBObject("gte", searchModel.getDateFrom().getTime()))));
+            Map range = new HashMap();
+            Map createDate = new HashMap();
+            Map gte = new HashMap();
+            gte.put("gte", searchModel.getDateFrom().getTime());
+            createDate.put("createDate", gte);
+            range.put("range", createDate);
+            mustQueryList.add(range);
         }
 
         if (searchModel.getDateTo() != null) {
-            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("createDate", new BasicDBObject("lte", searchModel.getDateTo().getTime()))));
+            Map range = new HashMap();
+            Map createDate = new HashMap();
+            Map lte = new HashMap();
+            lte.put("lte", searchModel.getDateTo().getTime());
+            createDate.put("createDate", lte);
+            range.put("range", createDate);
+            mustQueryList.add(range);
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
             Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
-                mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("title", "*" + str + "*")));
+                Map wildcard = new HashMap();
+                Map filePath = new HashMap();
+                filePath.put("title", "*" + str + "*");
+                wildcard.put("wildcard", filePath);
+                mustQueryList.add(wildcard);
             });
 
             if (searchModel.getSearchInDocumentTags()) {
                 Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
-                    mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("tags", "*" + str + "*")));
+                    Map wildcard = new HashMap();
+                    Map filePath = new HashMap();
+                    filePath.put("tags", "*" + str + "*");
+                    wildcard.put("wildcard", filePath);
+                    mustQueryList.add(wildcard);
                 });
             }
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
             Arrays.asList(searchModel.getDocumentType().split(" ")).forEach((str) -> {
-                mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDoc:documentType", "*" + str + "*")));
+                Map wildcard = new HashMap();
+                Map filePath = new HashMap();
+                filePath.put("externalDoc:documentType", "*" + str + "*");
+                wildcard.put("wildcard", filePath);
+                mustQueryList.add(wildcard);
+//                mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDoc:documentType", "*" + str + "*")));
             });
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
             Arrays.asList(searchModel.getDocumentStatus().split(" ")).forEach((str) -> {
-                mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDoc:documentStatus", "*" + str + "*")));
+                Map wildcard = new HashMap();
+                Map filePath = new HashMap();
+                filePath.put("externalDoc:documentStatus", "*" + str + "*");
+                wildcard.put("wildcard", filePath);
+                mustQueryList.add(wildcard);
+//                mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDoc:documentStatus", "*" + str + "*")));
             });
         }
 
         if (searchModel.getRegisterDateFrom() != null) {
-            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("externalDoc:documentCreateDate", new BasicDBObject("gte", searchModel.getRegisterDateFrom().getTime()))));
+            Map range = new HashMap();
+            Map createDate = new HashMap();
+            Map gte = new HashMap();
+            gte.put("gte", searchModel.getRegisterDateFrom().getTime());
+            createDate.put("externalDoc:documentCreateDate", gte);
+            range.put("range", createDate);
+            mustQueryList.add(range);
+//            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("externalDoc:documentCreateDate", new BasicDBObject("gte", searchModel.getRegisterDateFrom().getTime()))));
         }
 
         if (searchModel.getRegisterDateTo() != null) {
-            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("externalDoc:documentCreateDate", new BasicDBObject("lte", searchModel.getRegisterDateTo().getTime()))));
+            Map range = new HashMap();
+            Map createDate = new HashMap();
+            Map lte = new HashMap();
+            lte.put("lte", searchModel.getRegisterDateTo().getTime());
+            createDate.put("externalDoc:documentCreateDate", lte);
+            range.put("range", createDate);
+            mustQueryList.add(range);
+//            mustQueryList.add(new BasicDBObject("range", new BasicDBObject("externalDoc:documentCreateDate", new BasicDBObject("lte", searchModel.getRegisterDateTo().getTime()))));
         }
 
         if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
@@ -202,18 +259,33 @@ public class ElasticSearchService implements Serializable {
                     }
 
                     Arrays.asList(key.split(" ")).forEach((str) -> {
-                        mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDocMetaTag:externalDocTypeAttribute", "*" + str + "*")));
+                        Map wildcard = new HashMap();
+                        Map filePath = new HashMap();
+                        filePath.put("externalDocMetaTag:externalDocTypeAttribute", "*" + str + "*");
+                        wildcard.put("wildcard", filePath);
+                        mustQueryList.add(wildcard);
+//                        mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDocMetaTag:externalDocTypeAttribute", "*" + str + "*")));
                     });
 
                     Arrays.asList(valueStr.split(" ")).forEach((str) -> {
-                        mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDocMetaTag:value", "*" + str + "*")));
+                        Map wildcard = new HashMap();
+                        Map filePath = new HashMap();
+                        filePath.put("externalDocMetaTag:value", "*" + str + "*");
+                        wildcard.put("wildcard", filePath);
+                        mustQueryList.add(wildcard);
+//                        mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject("externalDocMetaTag:value", "*" + str + "*")));
                     });
                 }
             }
         }
 
         if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
-            mustQueryList.add(new BasicDBObject("match", new BasicDBObject("recordType", searchModel.getRecordType())));
+            Map match = new HashMap();
+            Map recordType = new HashMap();
+            recordType.put("recordType", searchModel.getRecordType());
+            match.put("match", recordType);
+            mustQueryList.add(match);
+//            mustQueryList.add(new BasicDBObject("match", new BasicDBObject("recordType", searchModel.getRecordType())));
         }
         if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
             for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
@@ -223,26 +295,47 @@ public class ElasticSearchService implements Serializable {
                     if (value instanceof String) {
 
                         Arrays.asList(value.toString().split(" ")).forEach((str) -> {
-                            mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject(key, "*" + str + "*")));
+                            Map wildcard = new HashMap();
+                            Map filePath = new HashMap();
+                            filePath.put(key, "*" + str + "*");
+                            wildcard.put("wildcard", filePath);
+                            mustQueryList.add(wildcard);
+//                            mustQueryList.add(new BasicDBObject("wildcard", new BasicDBObject(key, "*" + str + "*")));
                         });
 
                     } else if (value instanceof Date) {
-                        mustQueryList.add(new BasicDBObject("match", new BasicDBObject(key, value)));
+                        Map match = new HashMap();
+                        Map filePath = new HashMap();
+                        filePath.put(key, value);
+                        match.put("match", filePath);
+                        mustQueryList.add(match);
+//                        mustQueryList.add(new BasicDBObject("match", new BasicDBObject(key, value)));
                     }
                 }
             }
 
         }
-        result.append("query", new BasicDBObject("bool", new BasicDBObject("must", mustQueryList)));
+        Map must = new HashMap();
+        Map bool = new HashMap();
+        must.put("must", mustQueryList);
+        bool.put("bool", must);
+//        result.put("query", new BasicDBObject("bool", new BasicDBObject("must", mustQueryList)));
+        result.put("query", bool);
         if (!Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder())) {
-            BasicDBList sortList = new BasicDBList();
-            sortList.add(new BasicDBObject(sortFieldConvertMap.get(searchModel.getSortBy()), new BasicDBObject("order", searchModel.getSortOrder().toLowerCase())));
-            result.append("sort", sortList);
+//            BasicDBList sortList = new BasicDBList();
+            List sortList = new ArrayList();
+            Map order = new HashMap();
+            Map sortBy = new HashMap();
+            order.put("order", searchModel.getSortOrder().toLowerCase());
+            sortBy.put(sortFieldConvertMap.get(searchModel.getSortBy()), order);
+            sortList.add(sortBy);
+//            sortList.add(new BasicDBObject(sortFieldConvertMap.get(searchModel.getSortBy()), new BasicDBObject("order", searchModel.getSortOrder().toLowerCase())));
+            result.put("sort", sortList);
         }
 
-        result.append("from", offset);
-        result.append("size", limit);
+        result.put("from", offset);
+        result.put("size", limit);
         LOG.debug("ES Search Query : {}", result.toString());
-        return new JSONObject(result.toMap()).toString();
+        return gson.toJson(result);
     }
 }

@@ -69,11 +69,7 @@
             <version>1.19</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.4.2</version>
-        </dependency>
+       
     </dependencies>
     
     <build>
