@@ -875,4 +875,13 @@ public class RafController implements Serializable {
         return showRafObjectManagerTools;
     }
 
+    public Boolean hasWriteRole(RafObject obj) throws RafException {
+        return memberService.hasWriteRole(identity.getLoginName(), rafDefinition) ||
+            rafObjectMemberService.hasWriteRole(identity.getLoginName(), obj.getPath());
+    }
+
+    public Boolean hasDeleteRole(RafObject obj) throws RafException {
+        return memberService.hasDeleteRole(identity.getLoginName(), rafDefinition) ||
+            rafObjectMemberService.hasDeleteRole(identity.getLoginName(), obj.getPath());
+    }
 }
