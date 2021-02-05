@@ -6,9 +6,12 @@ import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafObject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.modeshape.jcr.JcrRepository.QueryLanguage;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 import org.slf4j.LoggerFactory;
@@ -55,13 +58,25 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     @Override
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
+            List<String> searchPanels = SearchRegistery.getSearchPanels();
+
             if (!searchModel.getSearchInDocumentName() || !elasticSearch) {
                 //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
-                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
-                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
+                List extendedQuery = new ArrayList();
+                for (String searchPanel : searchPanels) {
+                    SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+                    extendedQuery.addAll(spc.getSearchQuery(rafs, QueryLanguage.JCR_SQL2, searchModel));
+                }
+                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery).getItems();
+                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
             } else {
-                datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder).getItems();
-                this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs));
+                List extendedQuery = new ArrayList();
+                for (String searchPanel : searchPanels) {
+                    SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+                    extendedQuery.addAll(spc.getSearchQuery(rafs, "elasticSearch", searchModel));
+                }
+                datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery).getItems();
+                this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs, extendedQuery));
             }
         } catch (RafException ex) {
             LOG.error("RafException", ex);

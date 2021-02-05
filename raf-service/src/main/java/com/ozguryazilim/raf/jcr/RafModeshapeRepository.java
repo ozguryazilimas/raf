@@ -870,7 +870,7 @@ public class RafModeshapeRepository implements Serializable {
 
     public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
             List<RafDefinition> rafs,
-            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -889,90 +889,7 @@ public class RafModeshapeRepository implements Serializable {
 
             List<String> whereExpressions = new ArrayList();
 
-            if (searchModel.getDateFrom() != null) {
-                whereExpressions.add(String.format(" nodes.[%s] >= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateFrom())));
-            }
-
-            if (searchModel.getDateTo() != null) {
-                whereExpressions.add(String.format(" nodes.[%s] <= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateTo())));
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.getSearchInDocumentName()) {
-                    whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
-                } else {
-                    whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
-                }
-
-                if (searchModel.getSearchInDocumentTags()) {
-                    whereExpressions.add("  nodes.[" + PROP_TAG + "] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
-                }
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
-                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
-            } else {
-                String rafWheres = " ( ";
-                for (RafDefinition raf : rafs) {
-                    rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
-                }
-                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
-                rafWheres += " ) ";
-                whereExpressions.add(rafWheres);
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentType] LIKE '%s' ", searchModel.getDocumentType()));
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentStatus] LIKE '%s'", searchModel.getDocumentStatus()));
-            }
-
-            if (searchModel.getRegisterDateFrom() != null) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] >= %s", getJCRDate(searchModel.getRegisterDateFrom())));
-            }
-
-            if (searchModel.getRegisterDateTo() != null) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] <= %s", getJCRDate(searchModel.getRegisterDateTo())));
-            }
-
-            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
-                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
-                    String key = entry.getKey().split(":")[1];
-                    Object value = entry.getValue();
-                    String valueStr = "";
-                    if (value != null && !value.toString().trim().isEmpty()) {
-                        if (value instanceof Date) {
-                            valueStr = sdf.format((Date) value);
-                        } else {
-                            valueStr = value.toString();
-                        }
-                        whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
-                                key, escapeQueryParam(valueStr)));
-                    }
-                }
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
-                whereExpressions.add(" nodes.[" + PROP_RECORD_TYPE + "] = '" + searchModel.getRecordType() + "' ");
-            }
-
-            String metadataName = "";
-            if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
-                for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
-                    metadataName = searchModel.getRecordMetaDataName().split(":")[0];
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-                    if (value != null && !value.toString().trim().isEmpty()) {
-                        if (value instanceof String) {
-                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " LIKE '%" + value.toString() + "%'");
-                        } else if (value instanceof Date) {
-                            whereExpressions.add(" " + metadataName.concat(".[").concat(key).concat("]") + " = " + getJCRDate((Date) value) + "");
-                        }
-                    }
-                }
-            }
+            whereExpressions.addAll(extendedQuery);
 
             String lastWhereExpression = "";
 
@@ -986,18 +903,6 @@ public class RafModeshapeRepository implements Serializable {
 
             if (!Strings.isNullOrEmpty(searchModel.getSortBy())) {
                 lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()).concat(" "));
-            }
-
-            if (lastWhereExpression.contains("exdoc")) {
-                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
-            }
-
-            if (lastWhereExpression.contains("meta")) {
-                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
-            }
-
-            if (!Strings.isNullOrEmpty(metadataName)) {
-                expression += " JOIN [" + metadataName + ":metadata] as " + metadataName + " on ISCHILDNODE(" + metadataName + ",nodes) ";
             }
 
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));

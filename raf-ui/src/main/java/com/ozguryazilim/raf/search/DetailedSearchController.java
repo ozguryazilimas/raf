@@ -1,42 +1,24 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
-import com.ozguryazilim.raf.MetadataConfigBuilder;
-import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.entities.SavedSearch;
-import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
-import com.ozguryazilim.raf.models.RafFolder;
-import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
-import com.ozguryazilim.raf.saved_search.SavedSearchService;
-import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
-import com.ozguryazilim.raf.ui.base.MetadataPanelRegistery;
-import com.ozguryazilim.raf.ui.base.metadatapanels.DynaFormMetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
-import com.ozguryazilim.telve.entities.SuggestionItem;
-import com.ozguryazilim.telve.lookup.LookupSelectTuple;
-import com.ozguryazilim.telve.messages.FacesMessages;
-import com.ozguryazilim.telve.suggestion.SuggestionRepository;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,41 +47,13 @@ public class DetailedSearchController implements Serializable {
     @Inject
     private ElasticSearchService elasticSearchService;
 
-    @Inject
-    private SavedSearchService savedSearchService;
-
-    private List<RafDefinition> rafList;
-
     private DetailedSearchModel searchModel;
     private SearchResultDataModel searchResult;
-    private List<Field> metaDataFields;
-    private String recordType;
-    private String saveSearchName;
-    private Long savedSearch;
-    private List<SavedSearch> savedSearchs;
 
-    @Inject
-    private SuggestionRepository suggestionRepository;
+    private static final String DEFAULT_TAB_NAME = "genericSearchPanelController";
+    private String activeSearchPanelController = DEFAULT_TAB_NAME;
 
-    public List<Field> getMetaDataFields() {
-        return metaDataFields;
-    }
-
-    public String getRecordType() {
-        return recordType;
-    }
-
-    public String getSaveSearchName() {
-        return saveSearchName;
-    }
-
-    public Long getSavedSearch() {
-        return savedSearch;
-    }
-
-    public List<SavedSearch> getSavedSearchs() {
-        return savedSearchService.getSavedSearchs();
-    }
+    private List<RafDefinition> rafList;
 
     public DetailedSearchModel getSearchModel() {
         return searchModel;
@@ -111,101 +65,22 @@ public class DetailedSearchController implements Serializable {
 
     @PostConstruct
     public void init() {
-        clearSearch();
-    }
-
-    public void clearSearch() {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
         searchModel = new DetailedSearchModel();
-        searchModel.setSearchInDocumentName(Boolean.TRUE);
-        searchModel.setSearchInDocumentTags(Boolean.TRUE);
         searchResult = null;
     }
 
-    public void searchFromFolder(RafContext context, String searchText) {
-        if (context != null) {
-            if (context.getSelectedObject() instanceof RafFolder) {
-                searchModel.setSearchSubPath(context.getSelectedObject().getPath());
-            } else if (context.getSelectedRaf() != null && context.getSelectedRaf().getNode() != null) {
-                searchModel.setSearchSubPath(context.getSelectedRaf().getNode().getPath());
-            }
+    public void clearSearch() {
+        searchModel = new DetailedSearchModel();
+        for (String searchPanel : SearchRegistery.getSearchPanels()) {
+            SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+            spc.clearEvent();
         }
-        if (searchText != null) {
-            searchModel.setSearchText(searchText);
-        }
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        try {
-            response.sendRedirect("/dolap/search/searchPage.jsf");
-        } catch (IOException ex) {
-            LOG.error("IOException", ex);
-        }
-    }
-
-    public void selectFolder(SelectEvent event) {
-        if (searchModel != null && event != null) {
-            LookupSelectTuple sl = (LookupSelectTuple) event.getObject();
-            if (sl != null) {
-                searchModel.setSearchSubPath(((RafFolder) sl.getValue()).getPath());
-            }
-        }
-    }
-
-    public void onRecordTypeChange() {
-        if (searchModel != null && !Strings.isNullOrEmpty(recordType)) {
-            searchModel.setRecordType(recordType.split(";")[0]);
-            searchModel.setRecordMetaDataName(recordType.split(";")[1]);
-            prepareMetaDataPanel();
-        }
-    }
-
-    private void prepareMetaDataPanel() {
-        metaDataFields = new ArrayList();
-        searchModel.setMapWFAttValue(new HashMap());
-        List<AbstractMetadataPanel> ls = MetadataPanelRegistery.getPanels(searchModel.getRecordMetaDataName());
-        for (AbstractMetadataPanel l : ls) {
-            if (l instanceof DynaFormMetadataPanel) {
-                DynaFormMetadataPanel panel = ((DynaFormMetadataPanel) l);
-                if (panel.getForm() != null) {
-                    metaDataFields = panel.getForm().getFields();
-                    metaDataFields.forEach((mdf) -> {
-                        if ("Suggestion".equals(mdf.getType()) || "Text".equals(mdf.getType()) || "RafFolder".equals(mdf.getType())) {
-                            searchModel.getMapWFAttValue().put(mdf.getDataKey(), "");
-                        } else if ("Date".equals(mdf.getType())) {
-                            searchModel.getMapWFAttValue().put(mdf.getDataKey(), null);
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    public List<RafDefinition> getRafList() {
-        return rafList;
-    }
-
-    public void setMetaDataFields(List<Field> metaDataFields) {
-        this.metaDataFields = metaDataFields;
-    }
-
-    public void setRafList(List<RafDefinition> rafList) {
-        this.rafList = rafList;
     }
 
     public void search() {
         LOG.info("Search for {}", searchModel);
         searchResult = new SearchResultDataModel(rafList, searchModel, searchService, elasticSearchService);
-    }
-
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
-    }
-
-    public void setSaveSearchName(String saveSearchName) {
-        this.saveSearchName = saveSearchName;
-    }
-
-    public void setSavedSearch(Long savedSearch) {
-        this.savedSearch = savedSearch;
     }
 
     public void setSearchModel(DetailedSearchModel searchModel) {
@@ -225,70 +100,37 @@ public class DetailedSearchController implements Serializable {
         return String.format("/dolap/raf.jsf?id=%s&o=%s", getRafFromPath(doc.getPath()), doc.getId());
     }
 
-    public String getExternalDocCreatedBy(RafObject rafObject) {
-        for (RafMetadata metadata : rafObject.getMetadatas()) {
-            if ("externalDoc:metadata".equals(metadata.getType())) {
-                return metadata.getAttributes().get("externalDoc:documentCreator").toString();
+    public String getActiveSearchPanelController() {
+        return activeSearchPanelController;
+    }
+
+    public void setActiveSearchPanelController(String activeSearchPanelController) {
+        this.activeSearchPanelController = activeSearchPanelController;
+    }
+
+    public String getSearchTab(String tabName) {
+        if (Strings.isNullOrEmpty(tabName)) {
+            tabName = DEFAULT_TAB_NAME;
+        }
+        SearchPanelController spc = (SearchPanelController) BeanProvider.getContextualReference(tabName, false);
+        return spc.getTabFragment();
+    }
+
+    public Object[] getSearchPanels() {
+        return SearchRegistery.getSearchPanels().stream().sorted(new Comparator<String>() {
+            @Override
+            public int compare(String t, String t1) {
+                SearchPanelController tspc = (SearchPanelController) BeanProvider.getContextualReference(t, false);
+                SearchPanelController tspc1 = (SearchPanelController) BeanProvider.getContextualReference(t1, false);
+                return tspc.getOrder().compareTo(tspc1.getOrder());
             }
-        }
-        return "";
+        }).toArray();
     }
 
-    public Date getExternalDocCreatedDate(RafObject rafObject) {
-        for (RafMetadata metadata : rafObject.getMetadatas()) {
-            if ("externalDoc:metadata".equals(metadata.getType())) {
-                return (Date) metadata.getAttributes().get("externalDoc:documentCreateDate");
-            }
-        }
-        return null;
-    }
-
-    public List<String> getSuggestion(String group) {
-        return suggestionRepository.findByGroup(group).stream().map(SuggestionItem::getData)
-                .distinct().collect(Collectors.toList());
-    }
-
-    public void saveSearch() {
-        try {
-            savedSearchService.saveSearch(saveSearchName, searchModel);
-            saveSearchName = "";
-            FacesMessages.info("Arama kaydedildi");
-        } catch (Exception e) {
-            FacesMessages.error("Hata", e.getMessage());
-            LOG.error("Search Save Error", e);
-        }
-
-    }
-
-    public void onSavedSearchChanged() {
-        if (savedSearch != null) {
-            try {
-                searchModel = savedSearchService.getSearchModel(savedSearch);
-                if (searchModel.getRecordType() != null && !searchModel.getRecordType().isEmpty()) {
-                    setRecordType(searchModel.getRecordType());
-                    prepareMetaDataPanel();
-                    searchModel = savedSearchService.getSearchModel(savedSearch);
-                }
-
-                if (searchModel.getDocumentType() != null && !searchModel.getDocumentType().isEmpty()) {
-//                    onDocumentTypeChange();
-                    searchModel = savedSearchService.getSearchModel(savedSearch);
-                }
-
-            } catch (IOException ex) {
-                FacesMessages.error("Hata", ex.getMessage());
-                LOG.error("Saved Search Read Error", ex);
-            }
-        }
-    }
-
-    public void removeSearch() {
-        clearSearch();
-        savedSearchService.removeSearchById(savedSearch);
-    }
-
-    public Boolean getExternalDocModuleInstalled() {
-        return MetadataConfigBuilder.of("ExternalDoc") != null;
+    public void setActiveTab() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Map<String, String> map = context.getExternalContext().getRequestParameterMap();
+        this.setActiveSearchPanelController(map.get("activeSearchPanelController"));
     }
 
 }
