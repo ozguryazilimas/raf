@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"        
+                xmlns:p="http://primefaces.org/ui"    
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div class="ui-fluid">
+        <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+            <p:outputLabel value="#{messages['generic.search.saved.search']}"/>
+            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectOneMenu value="#{genericSearchPanelController.savedSearch}" required="false" filter="true" filterMatchMode="startsWith">
+                    <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                    <p:ajax listener="#{genericSearchPanelController.onSavedSearchChanged}" update="searchForm" />
+                    <f:selectItems value="#{genericSearchPanelController.savedSearchs}" var="ss" itemLabel="#{ss.searchName}" itemValue="#{ss.id}" />
+                </p:selectOneMenu>
+                <p:commandButton style="width: 50px; height: 30px;" onclick="PF('saveSearch').show();"
+                                 icon="fa fa-save" title="#{message['generic.search.save_search']}" styleClass="btn btn-default">
+                </p:commandButton>
+                <p:commandButton action="#{genericSearchPanelController.removeSearch()}" process="@this" ajax="true" update="searchForm" title="#{messages['generic.search.remove_search']}" styleClass="btn btn-box-tool">
+                    <i class="fa fa-trash" />
+                    <p:confirm header="#{messages['action.title.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
+                </p:commandButton>
+            </p:panelGrid>
+
+            <p:outputLabel value="#{messages['fileImporterCommand.label.RafPath']}"/>
+            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" readonly="true" required="false"/>
+                <p:commandButton style="width: 50px; height: 30px;" action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', detailedSearchController.searchModel.searchSubPath )}" 
+                                 partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
+                    <p:ajax event="dialogReturn" listener="#{genericSearchPanelController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />   
+                </p:commandButton>
+            </p:panelGrid>
+
+            <p:outputLabel value="#{messages['collection.table.Date']}"/>
+            <p:panelGrid columns="3">
+                <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true"/>
+                <p:outputLabel value=":"/>
+                <p:calendar value="#{detailedSearchController.searchModel.dateTo}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true" />
+            </p:panelGrid>           
+
+            <p:outputLabel value="#{messages['general.label.Search']}"/>
+            <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
+
+            <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
+
+            <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
+
+            <p:outputLabel value="#{messages['view.action.SortBy']}"/>
+            <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="nodes.[jcr:path]" />
+                <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="nodes.[jcr:title]" />
+                <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="nodes.[jcr:createBy]" />
+                <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="nodes.[jcr:created]" />
+                <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="nodes.[jcr:lastModifiedBy]" />
+                <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="nodes.[jcr:lastModified]" />
+            </p:selectOneMenu>
+            <p:outputLabel value="#{messages['view.action.SortType']}"/>
+            <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+            </p:selectOneMenu>
+        </p:panelGrid>
+    </div>
+
+    <p:dialog header="#{messages['generic.search.save_search']}" widgetVar="saveSearch" modal="true" width="450" height="100">
+        <div class="row">
+            <t:inputText label="#{messages['create.folder.input.description']}" value="#{genericSearchPanelController.saveSearchName}" 
+                         required="false"
+                         columnClass="col-xs-12"/>
+        </div>
+        <div class="row" style="margin-top: 4px;">
+            <div class="col-xs-12">
+                <div class="pull-right">
+                    <p:commandButton value="#{messages['generic.search.save_search']}" action="#{genericSearchPanelController.saveSearch()}" process="@form" update="searchForm" styleClass="btn btn-primary" oncomplete="PF('saveSearch').hide();"/>
+                    <p:commandButton value="#{messages['general.label.cancel']}" onclick="PF('saveSearch').hide();" styleClass="btn btn-default"/>
+                </div>
+            </div>
+        </div>
+    </p:dialog>   
+
+
+</ui:composition>
