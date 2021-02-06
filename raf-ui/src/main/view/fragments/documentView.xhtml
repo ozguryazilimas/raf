@@ -24,7 +24,9 @@
                 <div class="col-xs-12">
                     <h2 class="page-header">#{viewBean.object.title} <span class="label #{viewBean.object.checkedout ? 'label-warning' : 'label-default' } text-sm pull-right">#{viewBean.object.version}</span>
                         <span class="text-muted text-sm">#{viewBean.object.name}</span>
-                        <p:commandButton styleClass="btn btn-primary margin-left-5" value="#{messages['raf.button.label.ReGeneratePreview']}" action="#{viewBean.reGeneratePreview()}" process="@this" update="raf-view-content"/>
+                        <ui:remove>
+                            <p:commandButton styleClass="btn btn-primary margin-left-5" value="#{messages['raf.button.label.ReGeneratePreview']}" action="#{viewBean.reGeneratePreview()}" process="@this" update="raf-view-content"/>
+                        </ui:remove>
                     </h2>
                     <ui:fragment rendered="#{viewBean.object.info ne ''}">
                         <div>#{viewBean.object.info}</div>
