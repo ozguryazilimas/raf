@@ -34,4 +34,9 @@ public interface RafCommandPages extends Pages {
     @View
     public class EMailFetchCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class RegeneratePreviewCommandEditor implements Admin {
+    };
 }

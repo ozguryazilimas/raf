@@ -27,25 +27,24 @@ import javax.inject.Inject;
  *
  * @author oyas
  */
-@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canMinimize, DashletCapability.canEdit }, permission = "public")
-public class MyRafsDashlet extends AbstractDashlet{
+@Dashlet(capability = {DashletCapability.canHide, DashletCapability.canMinimize, DashletCapability.canEdit}, permission = "public")
+public class MyRafsDashlet extends AbstractDashlet {
 
     @Inject
     private RafDefinitionService rafDefinitionService;
-    
+
     @Inject
     private Identity identity;
 
     @Inject
     private RafService rafService;
-    
+
     private List<RafDefinition> rafs;
-    
-    
+
     private String filter = "";
     private Boolean sortAsc = Boolean.TRUE;
     private Integer size = 10;
-    
+
     @Override
     public void load() {
         super.load(); //To change body of generated methods, choose Tools | Templates.
@@ -61,26 +60,27 @@ public class MyRafsDashlet extends AbstractDashlet{
             }
             return null;
         }).flatMap(Collection::stream).collect(Collectors.toList());
-        rafService.reGenerateObjectPreviews(rafObjects);
+        rafService.reGenerateObjectPreviews(rafObjects, 0);
     }
-    
+
     public List<RafDefinition> getRafs() {
         //TODO: The locale should come from configuration
         Locale locale = new Locale("tr", "TR");
 
         return rafs.stream()
                 //.sorted( sortAsc ? Comparator.comparing(RafDefinition::getName) : Comparator.comparing(RafDefinition::getName))
-                .sorted( (r1, r2) -> 
-                    sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1 
+                .sorted((r1, r2)
+                        -> sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1
                 )
-                .filter( r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(locale).contains(filter.toLowerCase(locale)))
+                .filter(r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(locale).contains(filter.toLowerCase(locale)))
                 .limit(size)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Yeni raf eklenir,silinir ya da ismi değişirse dashlet'i güncelle
-     * @param event 
+     *
+     * @param event
      */
     public void rafDataChangedListener(@Observes RafDataChangedEvent event) {
         load();
@@ -109,7 +109,5 @@ public class MyRafsDashlet extends AbstractDashlet{
     public void setSize(Integer size) {
         this.size = size;
     }
-    
-    
-    
+
 }

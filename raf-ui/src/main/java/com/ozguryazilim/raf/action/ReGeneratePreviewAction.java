@@ -55,7 +55,7 @@ public class ReGeneratePreviewAction extends AbstractAction {
     protected boolean finalizeAction() {
         try {
             if (getContext().getSelectedObject() instanceof RafFolder) {
-                rafService.reGenerateObjectPreviews(getContext().getCollection().getItems());
+                rafService.reGenerateObjectPreviews(getContext().getCollection().getItems(), 0);
             } else {
                 rafService.reGeneratePreview(getContext().getSelectedObject().getId());
             }
