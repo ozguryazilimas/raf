@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.imports.email;
 import com.google.common.base.Charsets;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.imports.email.parser.EMailParser;
@@ -13,11 +14,13 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.email.EMailAttacment;
 import com.ozguryazilim.raf.models.email.EMailMessage;
 import com.ozguryazilim.raf.models.email.MeetingFile;
+import com.ozguryazilim.raf.tag.TagSuggestionService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -32,13 +35,17 @@ import org.slf4j.LoggerFactory;
 public class RafEMailImporter implements Serializable {
 
     private RafService rafService;
+    private RafCategoryService rafCategoryService;
+    private TagSuggestionService tagSuggestionService;
 
     RafEncoder re;
 
     private static final Logger LOG = LoggerFactory.getLogger(RafEMailImporter.class);
 
-    public RafEMailImporter(RafService rafService) {
+    public RafEMailImporter(RafService rafService, RafCategoryService rafCategoryService, TagSuggestionService tagSuggestionService) {
         this.rafService = rafService;
+        this.rafCategoryService = rafCategoryService;
+        this.tagSuggestionService = tagSuggestionService;
         if (this.re == null) {
             this.re = RafEncoderFactory.getFileNameEncoder();
         }
@@ -191,19 +198,11 @@ public class RafEMailImporter implements Serializable {
         }
     }
 
-    public void createEmailRafDocument(String rafAttachmentFolder, String rafBodyFilePath, String rafTargetPath, EMailMessage message) {
-        debug("Email is importing to raf : ".concat(message.getMessageId()));
-        RafDocument bodyDocument = uploadEmail(message, rafBodyFilePath);
-        RafRecord record = moveToRecord(bodyDocument, rafTargetPath);
-        addEmailMetadataToRecord(record, message);
-        uploadAttachmentsToRecord(message, rafAttachmentFolder, record);
-    }
-
-    public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName) {
+    public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName, String tags) {
         RafRecord record = null;
         try {
             temporaryFolderPath = encodeFilePath(temporaryFolderPath);
-            String emailFilePath = encodeFilePath(temporaryFolderPath.concat("/").concat(fileName));
+            String emailFilePath = encodeFilePath(temporaryFolderPath.concat("/").concat(fileName.replace("/", "_")));
             String emailRecordPath = encodeFilePath(rafEmailFolder);
             if (!checkRafFolder(temporaryFolderPath)) {
                 rafService.createFolder(temporaryFolderPath);
@@ -217,6 +216,17 @@ public class RafEMailImporter implements Serializable {
                 if (record != null) {
                     addEmailMetadataToRecord(record, message);
                     uploadAttachmentsToRecord(message, temporaryFolderPath, record);
+                    if (tags != null) {
+                        String rafCode = temporaryFolderPath.split("/")[2];
+                        List<String> tagList = Arrays.asList(tags.split(","));
+                        for (String tag : tagList) {
+                            if (!tagSuggestionService.getSuggestions(rafCode).contains(tag)) {
+                                tagSuggestionService.saveSuggestion(rafCode, tag);
+                            }
+                        }
+                        record.setTags(tagList);
+                        rafService.saveProperties(record);
+                    }
                 }
             }
         } catch (RafException ex) {
@@ -225,47 +235,4 @@ public class RafEMailImporter implements Serializable {
         return record;
     }
 
-    public void importMail(EMailImportCommand command) {
-        try {
-
-            EMailParser parser = new EMailParser();
-
-            EMailMessage message = parser.parse(command.getEml());
-
-//            String emailExtension = "text/html".equals(message.getMimeType()) ? ".html" : ".txt";
-//            String rafAttachmentFilePath = re.encode(command.getRafPath().concat("/Attachments"));
-//            String rafBodyFilePath = re.encode(command.getRafPath().concat("/Attachments/").concat(message.getSubject()).concat(emailExtension));
-//            String rafFilePath = re.encode(command.getRafPath().concat("/").concat(message.getSubject()).concat(emailExtension));
-            MeetingFile meetingFile = getMeetingFile(message);
-            Boolean isMeetingFile = meetingFile != null;
-
-//            callJEXL(command, message, isMeetingFile, meetingFile);
-            //this action moving to jexl
-//            if (isImportedBefore(rafFilePath)) {
-//                LOG.info("Message with messageId (" + message.getMessageId() + ") already imported");
-//                return;
-//            }
-//            if (!isMeetingFile) {
-//                createEmailRafDocument(rafAttachmentFilePath, rafBodyFilePath, command.getRafPath(), message);
-//            }//do nothing for meeting files.            
-        } catch (MessagingException | IOException | MimeTypeParseException ex) {
-            LOG.error("Mail Import Error", ex);
-        }
-    }
-
-//    void callJEXL(EMailImportCommand command, EMailMessage message, Boolean isMeetingFile, MeetingFile meetingFile) {
-//        LOG.info("E-mail importer jexl command executing.");
-//        JexlEngine jexl = new JexlBuilder().create();
-//        JexlScript e = jexl.createScript(command.getJexlExp());
-//        JexlContext jc = new MapContext();
-//        jc.set("message", message);
-//        jc.set("isMeetingFile", isMeetingFile);
-//        jc.set("meetingFile", meetingFile);
-//        jc.set("rafEncoder", re);
-//        jc.set("rafService", rafService);
-//        jc.set("debug", this.getClass());
-//        Object o = e.execute(jc);
-//        LOG.debug("E-mail importer jexl result. {}", o);
-//        LOG.info("E-mail importer jexl command executed.");
-//    }
 }

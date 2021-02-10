@@ -17,7 +17,8 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
                 + "var rafTemporaryEmailFolder = \"/RAF/Email/Temp\";\n"
                 + "var rafEmailFolder = \"/RAF/Email\";\n"
                 + "var fileName = message.getSubject().concat(emailExtension);\n"
-                + "importer.uploadEmailRecord(message, rafTemporaryEmailFolder, rafEmailFolder, fileName);";
+                + "var tags = \"Email,Imported Email\";\n"
+                + "importer.uploadEmailRecord(message, rafTemporaryEmailFolder, rafEmailFolder, fileName, tags);";
         return new EMailFetchCommand("imap", "", 993, "", "", Boolean.TRUE, "INBOX", "archive", "", "telve", defaultCode);
     }
 

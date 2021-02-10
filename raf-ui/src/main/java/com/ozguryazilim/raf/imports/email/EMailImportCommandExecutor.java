@@ -1,8 +1,8 @@
 package com.ozguryazilim.raf.imports.email;
 
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.models.email.EMailMessage;
-import com.ozguryazilim.raf.models.email.MeetingFile;
+import com.ozguryazilim.raf.category.RafCategoryService;
+import com.ozguryazilim.raf.tag.TagSuggestionService;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import javax.inject.Inject;
@@ -24,7 +24,13 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
     private static final Logger LOG = LoggerFactory.getLogger(EMailImportCommandExecutor.class);
 
     @Inject
+    RafCategoryService categoryService;
+
+    @Inject
     RafService rafService;
+
+    @Inject
+    TagSuggestionService tagService;
 
     @Override
     public void execute(EMailImportCommand command) {
@@ -38,7 +44,7 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         JexlEngine jexl = new JexlBuilder().create();
         JexlScript e = jexl.createScript(command.getJexlExp());
         JexlContext jc = new MapContext();
-        RafEMailImporter importer = new RafEMailImporter(rafService);
+        RafEMailImporter importer = new RafEMailImporter(rafService, categoryService, tagService);
         jc.set("rafService", rafService);
         jc.set("message", importer.parseEmail(command.getEml()));
         jc.set("importer", importer);
