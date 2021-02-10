@@ -12,7 +12,6 @@ import javax.mail.internet.InternetAddress;
  */
 public class EMailMessage implements Serializable {
 
-
     private String messageId;
     private Date date;
     private String subject;
@@ -22,11 +21,12 @@ public class EMailMessage implements Serializable {
     private List<InternetAddress> ccList = new ArrayList<>();
     private List<InternetAddress> bccList = new ArrayList<>();
 
-
     private String relatedReferenceId;
     private List<String> references = new ArrayList<>();
 
     private List<EMailAttacment> attachments = new ArrayList<>();
+
+    private String mimeType;
 
     public String getMessageId() {
         return messageId;
@@ -123,9 +123,17 @@ public class EMailMessage implements Serializable {
     @Override
     public String toString() {
         return "EMailMessage{" + "messageId=" + messageId + ", subject=" + subject + ", from="
-            + from + ", toList=" + toList + ", ccList=" + ccList + ", bccList=" + bccList
-            + ", relatedReferenceId=" + relatedReferenceId + ", references=" + references
-            + ", attachments=" + attachments + '}';
+                + from + ", toList=" + toList + ", ccList=" + ccList + ", bccList=" + bccList
+                + ", relatedReferenceId=" + relatedReferenceId + ", references=" + references
+                + ", attachments=" + attachments + ", mimeType=" + mimeType + "}";
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
 }

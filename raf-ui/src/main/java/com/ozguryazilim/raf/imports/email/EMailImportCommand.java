@@ -13,6 +13,7 @@ public class EMailImportCommand extends AbstractCommand {
 
     private String eml;
     private String rafPath;
+    private String jexlExp;
 
     public String getEml() {
         return eml;
@@ -28,6 +29,14 @@ public class EMailImportCommand extends AbstractCommand {
 
     public void setRafPath(String rafPath) {
         this.rafPath = rafPath;
+    }
+
+    public String getJexlExp() {
+        return jexlExp;
+    }
+
+    public void setJexlExp(String jexlExp) {
+        this.jexlExp = jexlExp;
     }
 
 }

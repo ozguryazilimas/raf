@@ -19,11 +19,12 @@ public class EMailFetchCommand extends AbstractStorableCommand {
     private String domain;
     private String defaultUser;
     private String rafPath;
+    private String jexlExp;
 
     public EMailFetchCommand() {
     }
 
-    public EMailFetchCommand(String protocol, String host, Integer port, String user, String pass, Boolean ssl, String folder, String archiveFolder, String domain, String defaultUser) {
+    public EMailFetchCommand(String protocol, String host, Integer port, String user, String pass, Boolean ssl, String folder, String archiveFolder, String domain, String defaultUser, String jexlExp) {
         this.protocol = protocol;
         this.host = host;
         this.port = port;
@@ -34,6 +35,7 @@ public class EMailFetchCommand extends AbstractStorableCommand {
         this.archiveFolder = archiveFolder;
         this.domain = domain;
         this.defaultUser = defaultUser;
+        this.jexlExp = jexlExp;
     }
 
     public String getProtocol() {
@@ -122,6 +124,14 @@ public class EMailFetchCommand extends AbstractStorableCommand {
 
     public void setDefaultUser(String defaultUser) {
         this.defaultUser = defaultUser;
+    }
+
+    public String getJexlExp() {
+        return jexlExp;
+    }
+
+    public void setJexlExp(String jexlExp) {
+        this.jexlExp = jexlExp;
     }
 
 }

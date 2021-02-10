@@ -76,6 +76,7 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                 EMailImportCommand importCommand = new EMailImportCommand();
                 importCommand.setEml(eml);
                 importCommand.setRafPath(command.getRafPath());
+                importCommand.setJexlExp(command.getJexlExp());
 
                 commandSender.sendCommand(importCommand);
                 message.setFlag(Flags.Flag.DELETED, true);

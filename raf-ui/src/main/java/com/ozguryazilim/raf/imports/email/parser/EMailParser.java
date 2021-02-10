@@ -191,22 +191,23 @@ public class EMailParser {
             result.setContent(content);
         }
          */
+        result.setMimeType("text/plain");
         result.setContent(content);
     }
 
     protected void parseHtml(String html) throws MessagingException, IOException {
         //Eğer daha önce Text hali alınmamış ise
-        if (Strings.isNullOrEmpty(result.getContent())) {
-            // get pretty printed html with preserved br and p tags
-            // String prettyPrintedBodyFragment = Jsoup.clean(html, "", Whitelist.none().addTags("br", "p"), new OutputSettings().prettyPrint(true));
-            // get plain text with preserved line breaks by disabled prettyPrint
-            // String text = Jsoup.clean(prettyPrintedBodyFragment, "", Whitelist.none(), new OutputSettings().prettyPrint(false));
+//        if (Strings.isNullOrEmpty(result.getContent())) {
+        // get pretty printed html with preserved br and p tags
+        // String prettyPrintedBodyFragment = Jsoup.clean(html, "", Whitelist.none().addTags("br", "p"), new OutputSettings().prettyPrint(true));
+        // get plain text with preserved line breaks by disabled prettyPrint
+        // String text = Jsoup.clean(prettyPrintedBodyFragment, "", Whitelist.none(), new OutputSettings().prettyPrint(false));
 
-//            String text = html;//Don't change the html.
-            String text = Jsoup.clean(html, Whitelist.basic());//Clean the html
-
-            result.setContent(text);
-        }
+        String text = html;//Don't change the html.
+//        String text = Jsoup.clean(html, Whitelist.basic());//Clean the html
+        result.setMimeType("text/html");
+        result.setContent(text);
+//        }
     }
 
     protected void parseAttachment(Part part) throws MessagingException, IOException {
