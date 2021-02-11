@@ -75,7 +75,7 @@ public class DownloadAction extends AbstractAction {
             HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
             response.setContentType(doc.getMimeType());
 
-            response.setHeader("Content-disposition", "attachment;filename=" + doc.getName());
+            response.setHeader("Content-disposition", String.format("attachment;filename=\"%s\"", doc.getName()));
             //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
             //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
 
