@@ -158,6 +158,7 @@
         <module>raf-emaildoc</module>
         
         <module>raf-externaldoc-war</module>
+        <module>raf-ocr</module>
     </modules>
     
     <build>
