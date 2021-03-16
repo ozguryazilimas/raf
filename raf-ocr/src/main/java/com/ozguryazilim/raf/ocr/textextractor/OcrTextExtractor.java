@@ -3,9 +3,9 @@ package com.ozguryazilim.raf.ocr.textextractor;
 import com.ozguryazilim.raf.ocr.config.RafOcrConfig;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Set;
 import org.modeshape.jcr.api.Binary;
 import org.modeshape.jcr.api.text.TextExtractor;
 import org.slf4j.Logger;
@@ -38,10 +38,13 @@ public class OcrTextExtractor extends TextExtractor {
             LOG.debug("OCR Text Extractiong {}", extension);
             String fileName = "temp.".concat(extension);
             File tempFile = new File(fileName);
-            byte[] buffer = new byte[binary.getStream().available()];
-            binary.getStream().read(buffer);
+            byte[] buffer = new byte[8 * 1024];
             FileOutputStream fos = new FileOutputStream(tempFile);
-            fos.write(buffer);
+            InputStream is = binary.getStream();
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
             fos.close();
             String extractedText = RafOcrConfig.tesseract.doOCR(tempFile);
             output.recordText(extractedText);
