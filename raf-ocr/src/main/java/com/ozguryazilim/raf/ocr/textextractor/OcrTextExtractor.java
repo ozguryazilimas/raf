@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import org.jgroups.util.UUID;
 import org.modeshape.jcr.api.Binary;
 import org.modeshape.jcr.api.text.TextExtractor;
 import org.slf4j.Logger;
@@ -34,9 +35,10 @@ public class OcrTextExtractor extends TextExtractor {
             TextExtractor.Output output,
             Context context) throws Exception {
         try {
+
             String extension = binary.getMimeType().contains("/") ? binary.getMimeType().split("/")[1] : "pdf";
             LOG.debug("OCR Text Extractiong {}", extension);
-            String fileName = "temp.".concat(extension);
+            String fileName = "temp".concat(UUID.randomUUID().toString()).concat(".").concat(extension);
             File tempFile = new File(fileName);
             byte[] buffer = new byte[8 * 1024];
             FileOutputStream fos = new FileOutputStream(tempFile);
