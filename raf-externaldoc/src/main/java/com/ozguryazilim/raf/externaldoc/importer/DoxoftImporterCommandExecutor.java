@@ -308,9 +308,10 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
 
                     String rafPathMain = re.encode(getRafPathFolder(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
                     String rafPath = re.encode(getRafPath(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                    String rafRecordPath = re.encode(getRafRecordPath(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
 
-                    if (checkRafPath(rafPathMain) || checkRafPath(rafPath)) {
-                        LOG.debug("{} Document is exists.", fileName);
+                    if (checkRafPath(rafRecordPath) || checkRafPath(rafPath)) {
+                        LOG.debug("{} {} Document is exists.", fileName, rafPath);
                     } else {
                         String folder = rafPath.substring(0, rafPath.lastIndexOf("/"));
                         if (!checkRafFolder(folder)) {
