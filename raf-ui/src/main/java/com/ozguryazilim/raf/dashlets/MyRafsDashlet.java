@@ -43,7 +43,7 @@ public class MyRafsDashlet extends AbstractDashlet {
 
     private String filter = "";
     private Boolean sortAsc = Boolean.TRUE;
-    private Integer size = 10;
+    private Integer size = 25;
 
     @Override
     public void load() {
