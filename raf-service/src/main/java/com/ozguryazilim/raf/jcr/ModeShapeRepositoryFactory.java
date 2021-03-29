@@ -15,7 +15,7 @@ import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
-import org.modeshape.jcr.RepositoryConfiguration.BinaryStorage;
+import org.modeshape.jcr.value.binary.BinaryStore;
 import org.modeshape.schematic.document.EditableArray;
 import org.modeshape.schematic.document.EditableDocument;
 import org.modeshape.schematic.document.Editor;
@@ -35,7 +35,7 @@ public class ModeShapeRepositoryFactory {
 
     private static Repository repository;
 
-    private static BinaryStorage binaryStore;
+    private static BinaryStore binaryStore;
 
     public static ModeShapeEngine getEngine() {
         if (engine == null) {
@@ -47,7 +47,7 @@ public class ModeShapeRepositoryFactory {
         return engine;
     }
 
-    public static BinaryStorage getBinaryStore() {
+    public static BinaryStore getBinaryStore() {
         return binaryStore;
     }
 
@@ -119,7 +119,11 @@ public class ModeShapeRepositoryFactory {
 
             // Deploy the repository ...
             repository = getEngine().deploy(config);
-            binaryStore = config.getBinaryStorage();
+            try {
+                binaryStore = config.getBinaryStorage().getBinaryStore();
+            } catch (Exception ex) {
+                LOGGER.error("Problems getting binaryStore.", ex);
+            }
         } catch (ParsingException | FileNotFoundException | ConfigurationException | RepositoryException e) {
             LOGGER.error("Problems starting the engine.", e);
         }

@@ -2657,12 +2657,24 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-
+            if (node == null) {
+                return "";
+            }
             LOG.debug("Document Content Requested: {}", node.getPath());
 
             Node content = node.getNode(NODE_CONTENT);
-            BinaryValue binaryValue = (BinaryValue) content.getProperty(PROP_DATA).getBinary();
-            return ModeShapeRepositoryFactory.getBinaryStore().getBinaryStore().getText(binaryValue);
+            if (content == null) {
+                return "";
+            }
+            Property prop = content.getProperty(PROP_DATA);
+            if (prop == null) {
+                return "";
+            }
+            BinaryValue binaryValue = (BinaryValue) prop.getBinary();
+            if (binaryValue == null) {
+                return "";
+            }
+            return ModeShapeRepositoryFactory.getBinaryStore().getText(binaryValue);
 
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
