@@ -237,13 +237,23 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
-                    Map wildcard = new HashMap();
-                    Map filePath = new HashMap();
-                    filePath.put("title", "*" + str + "*");
-                    wildcard.put("wildcard", filePath);
-                    mustQueryList.add(wildcard);
-                });
+                if (searchModel.getSearchInDocumentName()) {
+                    Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
+                        Map wildcard = new HashMap();
+                        Map filePath = new HashMap();
+                        filePath.put("title", "*" + str + "*");
+                        wildcard.put("wildcard", filePath);
+                        mustQueryList.add(wildcard);
+                    });
+                } else {
+                    Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
+                        Map wildcard = new HashMap();
+                        Map filePath = new HashMap();
+                        filePath.put("query", str);
+                        wildcard.put("query_string", filePath);
+                        mustQueryList.add(wildcard);
+                    });
+                }
 
                 if (searchModel.getSearchInDocumentTags()) {
                     Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {

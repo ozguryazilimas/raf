@@ -40,7 +40,6 @@ public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecute
     ElasticSearchExporterCommand command;
 
 //    RafEncoder re;
-
     private WebResource myWebResource;
     private Client myClient;
 
@@ -147,6 +146,7 @@ public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecute
                 } else if (itm instanceof RafDocument) {
                     dboRec = insertRafDocument(rafCode, (RafDocument) itm);
                 }
+                dboRec.put("extractedText", rafService.getDocumentExtractedText(itm.getId()).replace("\"", "_").replace("'", "_"));
                 getWebResource().path(command.getDbName()).path("default").path(itm.getId()).post(new JSONObject(dboRec).toString());
             } catch (Exception e) {
                 LOG.error("Exception", e);

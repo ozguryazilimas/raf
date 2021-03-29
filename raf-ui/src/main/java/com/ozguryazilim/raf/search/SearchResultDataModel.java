@@ -60,7 +60,7 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
         try {
             List<String> searchPanels = SearchRegistery.getSearchPanels();
 
-            if (!searchModel.getSearchInDocumentName() || !elasticSearch) {
+            if (!elasticSearch) {
                 //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
                 List extendedQuery = new ArrayList();
                 for (String searchPanel : searchPanels) {
