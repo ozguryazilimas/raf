@@ -79,13 +79,15 @@ public class OcrTextExtractor extends TextExtractor {
                         }
                         LOG.debug("text recording.");
                         output.recordText(extractedText.trim().replaceAll("\"", " ").replace("'", " "));
-                        LOG.debug("temp file deleting.");
-                        Files.delete(Paths.get(tempFile.getAbsolutePath()));
-                        LOG.debug("garbage collector.");
-                        System.gc();
+                        LOG.debug("text result {}.", extractedText.length() > 100 ? extractedText.substring(100) : extractedText);
                     }
                 } catch (Exception e) {
                     LOG.error("Exception in ocr", e);
+                } finally {
+                    LOG.debug("temp file deleting.");
+                    Files.delete(Paths.get(fileName));
+                    LOG.debug("garbage collector.");
+                    System.gc();
                 }
                 return null;
             });
