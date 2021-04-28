@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.jbpm.identity;
 
+import com.ozguryazilim.raf.department.RafDepartmentService;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import java.util.List;
@@ -34,6 +35,9 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafTaskAssignmentStrategy.class);
     private static final String IDENTIFIER = "RafTaskAssignment";
+
+    @Inject
+    private RafDepartmentService departmentService;
 
     @Inject
     private UserTaskService taskService;
@@ -73,6 +77,28 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy {
 
                     }
                 }
+//                if (oe.getId().startsWith("departmanlar")) {
+//                    LOG.debug("Find experts in departments : {}", oe.getId());
+//                    Map<String, Object> content = taskService.getTaskInputContentByTaskId(task.getId());
+//                    if (content != null) {
+//                        for (Map.Entry<String, Object> entry : content.entrySet()) {
+//                            String key = entry.getKey();
+//                            Object value = entry.getValue();
+//                            if (key.contains("departmanlar")) {
+//                                String[] departments = value.toString().split(";");
+//                                for (String departmentCode : departments) {
+//                                    RafDepartment dep = departmentService.findByCode(departmentCode);
+//                                    if (dep != null) {
+//                                        dep.getMembers().forEach((k) -> {
+//                                            return new Assignment(value.toString());
+//                                        });
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//                }
                 /*
                 List<com.ozguryazilim.telve.idm.entities.Group> gls = getGroupRepository().findByCode(oe.getId());
                 if( !gls.isEmpty()){
@@ -88,8 +114,15 @@ public class RafTaskAssignmentStrategy implements AssignmentStrategy {
                 }
                  */
             } else {
+                LOG.debug(task.getDescription());
                 return new Assignment(oe.getId());
             }
+        } else {
+            String ownersIds = "";
+            for (OrganizationalEntity potentialOwner : potentialOwners) {
+                ownersIds += potentialOwner.getId().concat(",");
+            }
+            return new Assignment(ownersIds);
         }
 
         /* FIXME: POT 1 tane değil ise neler olacak?

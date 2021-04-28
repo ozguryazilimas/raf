@@ -321,4 +321,12 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             FacesMessages.error("File cannot downloaded");
         }
     }
+
+    public void reGeneratePreview() {
+        try {
+            rafService.reGeneratePreview(getObject().getId());
+        } catch (RafException e) {
+            e.printStackTrace();
+        }
+    }
 }

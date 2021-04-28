@@ -11,6 +11,8 @@ import com.ozguryazilim.raf.entities.RafDepartment;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
+import com.ozguryazilim.raf.forms.model.MultiPersonSelectionField;
+import com.ozguryazilim.raf.forms.model.MultiSelectField;
 import com.ozguryazilim.raf.forms.model.PersonSelectionField;
 import com.ozguryazilim.raf.forms.ui.FormController;
 import com.ozguryazilim.raf.models.RafObject;
@@ -20,6 +22,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -124,10 +127,10 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     public List<TaskSummary> getTasks() {
         TaskSummaryQueryBuilder queryBuilder;
-        if (filter.getShowAll()) {
+        if ("*".equals(filter.getTaskOwner())) {//show all
             queryBuilder = runtimeDataService.taskSummaryQuery("Administrator").and();
         } else {
-            queryBuilder = runtimeDataService.taskSummaryQuery(identity.getLoginName()).and();
+            queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         }
 
         TaskTypes taskType = filter.getTaskType();
@@ -249,9 +252,9 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
         for (Field f : form.getFields()) {
             if (f instanceof PersonSelectionField) {
+                ((PersonSelectionField) f).getValues().clear();
                 metadata.forEach((k, v) -> {
                     if (k.contains("departman")) {
-                        ((PersonSelectionField) f).getValues().clear();
                         List<RafDepartment> listDP = departmentRepository.findByCode(v.toString());
                         if (!listDP.isEmpty()) {
                             listDP.get(0).getMembers().forEach((m) -> {
@@ -263,6 +266,24 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                     }
                 });
 
+            } else if (f instanceof MultiSelectField) {
+                ((MultiSelectField) f).setSelecedValues(null);
+                ((MultiSelectField) f).getValues().clear();
+                if ("departman".equals(((MultiSelectField) f).getGroup())) {
+                    departmentRepository.findAll().forEach((k) -> {
+                        ((MultiSelectField) f).getValues().add(k.getCode());
+                    });
+                }
+            } else if (f instanceof MultiPersonSelectionField) {
+                ((MultiPersonSelectionField) f).getValues().clear();
+                ((MultiPersonSelectionField) f).setSelecedValues(null);
+                departmentRepository.findAll().forEach((d) -> {
+                    d.getMembers().forEach((m) -> {
+                        if (((MultiPersonSelectionField) f).getRole().equals(m.getRole()) || ((MultiPersonSelectionField) f).getRole().equals("*") && !((MultiPersonSelectionField) f).getValues().contains(m.getMemberName())) {
+                            ((MultiPersonSelectionField) f).getValues().add(m.getMemberName());
+                        }
+                    });
+                });
             }
             f.setData(data);
         }
@@ -331,6 +352,24 @@ public class TaskController implements Serializable, FormController, DocumentsWi
                 if (e.getKey().contains("uzman")) {
                     completeParams.putIfAbsent("uzman", e.getValue());
                 }
+
+                if (e.getKey().contains("departmanlar")) {
+                    completeParams.putIfAbsent("departmanlar", e.getValue());
+                }
+
+                if (e.getKey().contains("persons")) {
+                    completeParams.putIfAbsent("persons", e.getValue());
+                }
+
+                if (e.getKey().contains("uzmanlar")) {
+                    completeParams.putIfAbsent("persons", e.getValue());
+                    completeParams.putIfAbsent("personList", Arrays.asList(e.getValue().toString().split(",")));
+                }
+
+                if (e.getKey().contains("personList")) {
+                    completeParams.putIfAbsent("personList", Arrays.asList(data.get("persons").toString().split(",")));
+                }
+
             }
         }
 
@@ -340,10 +379,8 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //Kullanıcı yöneticisini bulup response'a koyalım ki bir sonraki adım yönetici içinse ona düşsün.
         //FIXME: Eğer kullanıcının yöneticisi yok ise merkezi bir kullanıcıya düşürsek mi? Boşta kalan şeylerin yöneticisi şeklinde?
         completeParams.put("manager", identity.getUserInfo().getManager());
-
         LOG.debug("Task Complete Params : {}", completeParams);
         taskService.completeAutoProgress(selectedTaskId, identity.getLoginName(), completeParams);
-
         //FIXME: eğer geriye task kalmamış ise ne olacak?
 //        List<TaskSummary> ls = getTasks();
 //        if (!ls.isEmpty()) {
@@ -438,6 +475,11 @@ public class TaskController implements Serializable, FormController, DocumentsWi
     }
 
     @Override
+    public Boolean getCanRemove() {
+        return recordObject != null && (recordObject.getCreateBy().equals(identity.getLoginName()) || identity.isPermitted("admin"));
+    }
+
+    @Override
     public void upload() {
         fileUploadAction.execute("PROCESS", recordObject.getPath(), recordObject);
     }
@@ -493,6 +535,17 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         //FIXME: aslında doğru bir yöntem değil. Başka nesneler varsa sorun çıkarır. Tek nesnenin RafRecord olduğu varsayımı ile hareket ediyor.
         rafObjectItems.clear();
         rafObjectItems.add(recordObject);
+    }
+
+    public void removeDocument(RafObject object) {
+        if (recordObject != null && recordObject.getDocuments() != null) {
+            try {
+                rafService.deleteObject(object);
+                refreshRecordObject();
+            } catch (RafException ex) {
+                LOG.error("RafException", ex);
+            }
+        }
     }
 
 }

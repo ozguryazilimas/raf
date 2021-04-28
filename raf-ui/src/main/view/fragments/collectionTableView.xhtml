@@ -35,12 +35,42 @@
                     <tr>
                         <th></th>
                         <th></th>
-                        <th>#{messages['collection.table.Title']}</th>
-                        <th>#{messages['collection.table.File']}</th>
-                        <th>#{messages['collection.table.User']}</th>
-                        <th>#{messages['collection.table.Date']}</th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('NAME', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Title']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MIMETYPE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.File']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.User']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Date']}
+                            </p:commandLink>
+                        </th>
+                         <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.UpdateUser']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.UpdateDate']}
+                            </p:commandLink>
+                        </th>
                         <th>#{messages['collection.table.Info']}</th>
-                        <th>#{messages['collection.table.Category']}</th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('CATEGORY', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Category']}
+                            </p:commandLink>
+                        </th>
                         <th></th>
                     </tr>
                     <p:repeat value="#{viewBean.getGroupItems(group)}" var="item">
@@ -66,10 +96,16 @@
                                 #{item.name}
                             </td>
                             <td>
-                                #{userLookup.getUserName(rafController.getRafObjectCreatorOrUpdater(item))}
+                                #{userLookup.getUserName(item.createBy)}
                             </td>
                             <td>
-                                <t:cellOutputDateTime value="#{rafController.getRafObjectCreateDateOrUpdateDate(item)}"/>
+                                <t:cellOutputDateTime value="#{item.createDate}"/>
+                            </td>
+                            <td>
+                                #{userLookup.getUserName(item.updateBy)}
+                            </td>
+                            <td>
+                                <t:cellOutputDateTime value="#{item.updateDate}"/>
                             </td>
                             <td>
                                 #{item.info}
@@ -87,10 +123,16 @@
                                     <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
-                                    <p:commandLink rendered="#{hasDeleteRole}" action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasDeleteRole}" action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[deleteAction.title]}" styleClass="btn btn-box-tool">
                                         <i class="fa fa-trash" />
                                         <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
                                     </p:commandLink>
+
+                                    <p:commandLink action="#{zipExtractAction.extractZipFile(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[zipExtractAction.title]}" styleClass="btn btn-box-tool">
+                                        <i class="fa fa-file-zip-o" />
+                                        <p:confirm header="#{messages['confirmation.header.ExtractAction']}" message="#{messages['confirmation.message.ExtractAction']}" icon="fa fa-alert" />
+                                    </p:commandLink>
+
                                 </ui:fragment>
 
                                 <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">

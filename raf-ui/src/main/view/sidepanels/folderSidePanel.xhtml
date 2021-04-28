@@ -47,6 +47,8 @@
                         root_node = jstree.get_node('#').children[0];
                         jstree.select_node(root_node);
                         jstree.open_node(root_node);
+
+
                     })
                     .jstree({
                         "plugins": ["wholerow", "types", "sort"],
@@ -56,6 +58,7 @@
                             }
                         },
                         'core': {
+                            'open_parents': true,
                             'data': {
                                 'url' : "rest/folderData",
                                 'data' : function(node) {
@@ -84,6 +87,23 @@
         }
 
         //setNodeSelections();
+
+        function openSelectedNodes(...nodes) {
+            let deffereds = jQuery.Deferred(function (def) { def.resolve(); });
+            jQuery("#data").jstree().deselect_all(true);
+            nodes.forEach(node => {
+                deffereds = (function(name, deferreds) {
+                    return deferreds.pipe(function () {
+                        return jQuery.Deferred(function(def) {
+                            jQuery("#data").jstree("open_node", name, function () {
+                                jQuery('#data').jstree("select_node", nodes.reduceRight(node => node));
+                                def.resolve();
+                            });
+                        });
+                    });
+                })(node, deffereds);
+            });
+        }
 
     </script>
     

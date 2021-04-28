@@ -8,9 +8,14 @@ public class TaskFilter implements Serializable {
     private Long processId;
     private Boolean showAll = false;
     private TaskTypes taskType = TaskTypes.ACTIVE;
+    private String taskOwner;
 
     public String getKeyword() {
         return keyword;
+    }
+
+    public String getTaskOwner() {
+        return taskOwner;
     }
 
     public void setKeyword(String keyword) {
@@ -35,6 +40,10 @@ public class TaskFilter implements Serializable {
 
     public TaskTypes getTaskType() {
         return taskType;
+    }
+
+    public void setTaskOwner(String taskOwner) {
+        this.taskOwner = taskOwner;
     }
 
     public void setTaskType(TaskTypes taskType) {

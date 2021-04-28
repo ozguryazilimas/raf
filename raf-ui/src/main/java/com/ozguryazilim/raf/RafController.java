@@ -306,6 +306,7 @@ public class RafController implements Serializable {
                 }
 
             } catch (RafException ex) {
+                FacesMessages.error("Document Selection Error", ex.getLocalizedMessage());
                 LOG.error("Raf Exception", ex);
             }
 
@@ -337,38 +338,23 @@ public class RafController implements Serializable {
         return rafCode;
     }
 
-    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
-        if (rafObject.getUpdateDate() != null) {
-            return rafObject.getUpdateDate();
-        } else {
-            return rafObject.getCreateDate();
-        }
-    }
-
-    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
-        if (rafObject.getUpdateBy() != null) {
-            return rafObject.getUpdateBy();
-        } else {
-            return rafObject.getCreateBy();
-        }
-    }
-
+//    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
+//        if (rafObject.getUpdateDate() != null) {
+//            return rafObject.getUpdateDate();
+//        } else {
+//            return rafObject.getCreateDate();
+//        }
+//    }
+//
+//    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
+//        if (rafObject.getUpdateBy() != null) {
+//            return rafObject.getUpdateBy();
+//        } else {
+//            return rafObject.getCreateBy();
+//        }
+//    }
     public void setDescSort(Boolean descSort) {
-        boolean changing = this.descSort != descSort;
-        this.descSort = descSort;
-        if (changing) {
-            kahve.put("raf.descSort", descSort);
-            try {
-                if (context.getSelectedObject() != null) {
-                    populateFolderCollection(context.getSelectedObject().getId());
-                } else if (context.getCollection() != null) {
-                    populateFolderCollection(context.getCollection().getId());
-                }
-
-            } catch (RafException ex) {
-                LOG.error("Raf Exception", ex);
-            }
-        }
+        setSortByAndType(this.sortBy, descSort);
     }
 
     public void setPage(Integer page) {
@@ -697,10 +683,17 @@ public class RafController implements Serializable {
     }
 
     public void setSortBy(String sortBy) {
-        boolean changing = !this.sortBy.equals(sortBy);
-        this.sortBy = sortBy;
+        setSortByAndType(sortBy, this.descSort);
+    }
+
+    public void setSortByAndType(String sortBy, Boolean descSort) {
+        boolean changing = !this.sortBy.equals(sortBy) || this.descSort != descSort;
         if (changing) {
+            setPage(0);
+            this.sortBy = sortBy;
+            this.descSort = descSort;
             kahve.put("raf.sortBy", sortBy);
+            kahve.put("raf.descSort", descSort);
             try {
                 if (context.getSelectedObject() != null) {
                     populateFolderCollection(context.getSelectedObject().getId());

@@ -27,16 +27,34 @@ public class DetailedSearchModel {
 
     private Map<String, Object> mapAttValue;
 
+    private Map<String, Object> mapWFAttValue;
+
     private Boolean searchInDocumentName = Boolean.TRUE;
+    private Boolean searchInDocumentTags = Boolean.FALSE;
 
     private String sortBy;
     private String sortOrder;
 
+    private String recordType;
+    private String recordMetaDataName;
+
     public DetailedSearchModel() {
+    }
+
+    public Map<String, Object> getMapWFAttValue() {
+        return mapWFAttValue;
+    }
+
+    public String getRecordMetaDataName() {
+        return recordMetaDataName;
     }
 
     public Boolean getSearchInDocumentName() {
         return searchInDocumentName;
+    }
+
+    public Boolean getSearchInDocumentTags() {
+        return searchInDocumentTags;
     }
 
     public String getSearchRaf() {
@@ -55,8 +73,24 @@ public class DetailedSearchModel {
         return sortOrder;
     }
 
+    public String getRecordType() {
+        return recordType;
+    }
+
+    public void setMapWFAttValue(Map<String, Object> mapWFAttValue) {
+        this.mapWFAttValue = mapWFAttValue;
+    }
+
+    public void setRecordMetaDataName(String recordMetaDataName) {
+        this.recordMetaDataName = recordMetaDataName;
+    }
+
     public void setSearchInDocumentName(Boolean searchInDocumentName) {
         this.searchInDocumentName = searchInDocumentName;
+    }
+
+    public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
+        this.searchInDocumentTags = searchInDocumentTags;
     }
 
     public void setSearchRaf(String searchRaf) {
@@ -137,6 +171,10 @@ public class DetailedSearchModel {
 
     public void setSortOrder(String sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 
 }

@@ -1,0 +1,93 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <ui:fragment rendered="#{viewBean.supportBreadcrumb}" >
+        <ui:include src="/fragments/breadcrumb.xhtml" >
+            <ui:param name="forCollection" value="true" />
+        </ui:include>
+    </ui:fragment>
+
+    <ui:remove>
+        <p:toolbar>
+            <f:facet name="left">
+                <p:commandButton action="#{rafController.previousPage()}" update="raf-view-content" ajax="true" process="@this" value="Önceki Sayfa" icon="pi pi-chevron-left" />
+
+                <p:commandButton action="#{rafController.nextPage()}" update="raf-view-content" ajax="true" process="@this"  value="Sonraki Sayfa" icon="pi pi-chevron-right" />
+            </f:facet>
+        </p:toolbar>
+    </ui:remove>
+    <div class="content-view-port">        
+        <div class="raf-container" >
+            <ui:repeat value="#{viewBean.groupNames}" var="group" >
+                <div class="raf-container-item-group">
+                    <ui:fragment rendered="#{viewBean.groupBy}">
+                        <div class="raf-container-item-group-header" >
+                            <div>#{group}</div>
+                        </div>
+                    </ui:fragment>
+
+                    <div class="raf-container-item-group-item">
+                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item" >
+                            <div class="raf-container-item">
+                                <div class="raf-container-item-item thumbnail-icon">
+                                    <span class="raf-container-item-item-img" >
+                                        <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
+                                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                                <ui:fragment rendered="#{not viewBean.hasPreview(item)}">
+                                                    <svg class="raf-container-item-item-gallery-thumbnail">
+                                                        <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                                                    </svg>    
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{viewBean.hasPreview(item)}">
+                                                    <img class="raf-container-item-item-gallery-thumbnail" src="#{request.contextPath}/resource/#{item.id}#{item.hasPreview ? '/preview' : ''}"/>
+                                                </ui:fragment>
+                                            </p:commandLink>
+                                        </div>
+                                    </span>
+                                    <span class="raf-container-item-item-gallery-cnd">
+                                        <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                            <span class="text-sm">#{item.title}</span>
+                                        </p:commandLink>
+
+                                        <div class="text-muted text-sm">#{item.name}</div>
+                                        <div class="text-muted text-sm">
+                                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                        </div>
+
+                                        <ui:remove>
+                                            <ui:fragment rendered="#{not empty item.info}">
+                                                <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
+                                            </ui:fragment>
+
+
+                                            <ui:fragment rendered="#{not empty item.category}">
+                                                <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
+                                            </ui:fragment>
+
+                                            <ui:fragment rendered="#{not empty item.tags}">
+                                                <div class="text-muted text-sm">
+                                                    <p:repeat value="#{item.tags}" var="tag">
+                                                        <i class="fa fa-tag" /> #{tag}
+                                                    </p:repeat>
+                                                </div>
+                                            </ui:fragment>
+                                        </ui:remove>
+
+                                    </span>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </div>
+            </ui:repeat>
+        </div>
+    </div>
+
+</ui:composition>
+

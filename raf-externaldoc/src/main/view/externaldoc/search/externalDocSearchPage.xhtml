@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"        
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="ui-fluid">
+        <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+            <p:outputLabel value="#{messages['externalDoc.documentCreateDate']}"/>
+            <p:panelGrid columns="3">
+                <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.registerDateFrom}" required="false"/>
+                <p:outputLabel value=":"/>
+                <p:calendar locale="tr" pattern="dd.MM.yyyy" value="#{detailedSearchController.searchModel.registerDateTo}" required="false"/>    
+            </p:panelGrid>
+            <p:outputLabel value="#{messages['externalDoc.documentType']}"/>
+            <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false" filter="true" filterMatchMode="startsWith">
+                <p:ajax listener="#{externalSearchPanelController.onDocumentTypeChange}" update="searchWithMetaDatas" />
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItems value="#{externalSearchPanelController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
+            </p:selectOneMenu>
+
+            <p:outputLabel value="#{messages['externalDoc.documentStatus']}"/>
+            <p:selectOneMenu value="#{detailedSearchController.searchModel.documentStatus}" required="false">
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItem itemLabel="#{messages['general.label.Incomplete']}" itemValue="AÇIK" />
+                <f:selectItem itemLabel="#{messages['general.label.Complete']}" itemValue="KAPALI" />
+            </p:selectOneMenu>
+        </p:panelGrid>
+    </div>
+    <p:panel id="searchWithMetaDatas" header="#{messages['panel.title.ExternalDocMetaTagMetadataPanel']}" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
+        <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
+            <ui:repeat value="#{externalSearchPanelController.attributes}" var="recc" varStatus="status">
+                <div class="row">                   
+                    <div class="col-md-4">
+                        <p:outputLabel value="#{recc.attributeName}"/>    
+                    </div>
+                    <div class="col-md-8">
+                        <ui:fragment rendered="#{recc.attributeType eq 'List'}">
+                            <p:selectOneMenu value="#{detailedSearchController.searchModel.mapAttValue[externalSearchPanelController.getMapKey(recc)]}" required="false" filter="true" filterMatchMode="startsWith">
+                                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{externalSearchPanelController.getListedAttributeValues(recc)}" var="listValueRec" itemLabel="#{listValueRec.listValue}" itemValue="#{listValueRec.listValue}" />
+                            </p:selectOneMenu>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{recc.attributeType eq 'String'}">
+                            <p:inputText value="#{detailedSearchController.searchModel.mapAttValue[externalSearchPanelController.getMapKey(recc)]}" required="false"/>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{recc.attributeType eq 'Date'}">
+                            <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapAttValue[externalSearchPanelController.getMapKey(recc)]}" required="false"/>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{recc.attributeType eq 'Number'}">
+                            <p:inputNumber lang="tr" value="#{detailedSearchController.searchModel.mapAttValue[externalSearchPanelController.getMapKey(recc)]}" required="false" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+                        </ui:fragment>
+                    </div>
+                </div>
+            </ui:repeat>
+        </p:scrollPanel>
+    </p:panel>
+
+</ui:composition>

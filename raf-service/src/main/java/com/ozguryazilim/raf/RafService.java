@@ -1,7 +1,9 @@
 package com.ozguryazilim.raf;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
@@ -20,10 +22,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -50,6 +55,13 @@ public class RafService implements Serializable {
     private Identity identity;
 
     private Boolean readLogEnabled;
+
+    public boolean checkRafName(String name) {
+        return !Strings.isNullOrEmpty(name)
+                && !name.matches("\\s*")
+                && !name.equals(ApplicationContstants.PRIVATE_RAF)
+                && !name.equals(ApplicationContstants.SHARED_RAF);
+    }
 
     public RafObject setRafCheckOutValue(String path, Boolean checkOut, String userName, Date checkTime) throws RafException {
         return rafRepository.setRafCheckOutValue(path, checkOut, userName, checkTime);
@@ -273,8 +285,8 @@ public class RafService implements Serializable {
         }
         return rafRepository.getDocumentContent(id);
     }
-    
-    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+
+    public void getDocumentContent(String id, OutputStream out) throws RafException {
         if (isReadLogEnabled()) {
             sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
         }
@@ -286,6 +298,30 @@ public class RafService implements Serializable {
             sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
         }
         return rafRepository.getPreviewContent(id);
+    }
+
+    public void reGeneratePreview(String id) throws RafException {
+        rafRepository.reGeneratePreview(id);
+    }
+
+    public void reGenerateObjectPreviews(List<RafObject> rafObjects, Integer recursiveCallCounter) throws RafException {
+        if (recursiveCallCounter == 10) {
+            //Devre Kesici !! En fazla 10 defa kendini çağırabilir. (10 alt klasör çalıştırılabilir.)
+            return;
+        }
+        for (RafObject rafObject : rafObjects) {
+            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
+                reGeneratePreview(rafObject.getId());
+            } else if (rafObject instanceof RafFolder) {
+                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
+                reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
+
+            }
+        }
+    }
+
+    public RafCollection getRafCollectionForAllNode() throws RafException {
+        return rafRepository.getRafCollectionForAllNode();
     }
 
     public InputStream getDocumentVersionContent(String id, String version) throws RafException {
@@ -442,5 +478,28 @@ public class RafService implements Serializable {
         }
 
         return readLogEnabled;
+    }
+
+    public void reindex() {
+        rafRepository.reindex();
+    }
+
+    public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
+        return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
+    }
+
+    public void unregisterIndexes(String... indexNames) {
+        rafRepository.unregisterIndexes(indexNames);
+    }
+
+    public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
+        return rafRepository.getFolderSize(absPath, maxSumSize);
+    }
+
+    public String getDocumentExtractedText(String id) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_DOCUMENT_EXTRACTED_TEXT", "");
+        }
+        return rafRepository.getDocumentExtractedText(id);
     }
 }

@@ -18,6 +18,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +60,12 @@ public class CreateFolderAction extends AbstractAction {
     public boolean applicable(boolean forCollection) {
         try {
             boolean permission = false;
+            String createFolderPermission = ConfigResolver.getPropertyValue("createFolder.permission", "hasWrite");
 
             if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                permission = "hasWrite".equals(createFolderPermission) ? rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath()) : rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
-                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                permission = getContext().getSelectedRaf().getId() > 0 && "hasWrite".equals(createFolderPermission) ? memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf()) : memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
             }
 
             return permission && super.applicable(forCollection);
@@ -83,7 +85,9 @@ public class CreateFolderAction extends AbstractAction {
     @Override
     protected boolean finalizeAction() {
         folder.setPath(getContext().getCollection().getPath() + "/" + folder.getName());
-
+        if (!rafService.checkRafName(folder.getTitle())) {
+            return false;
+        }
         try {
             rafService.createFolder(folder);
         } catch (RafException ex) {
@@ -107,8 +111,10 @@ public class CreateFolderAction extends AbstractAction {
     }
 
     public void onNameChange() {
-        RafEncoder encoder = RafEncoderFactory.getDirNameEncoder();
-        //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
-        folder.setName(encoder.encode(folder.getTitle()));
+        if (rafService.checkRafName(folder.getTitle())) {
+            RafEncoder encoder = RafEncoderFactory.getDirNameEncoder();
+            //TODO aslında code içinde bir şey var ise bunu yapmasak mı?
+            folder.setName(encoder.encode(folder.getTitle()));
+        }
     }
 }

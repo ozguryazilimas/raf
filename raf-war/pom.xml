@@ -104,6 +104,12 @@
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>raf-emaildoc</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>raf-converter</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
@@ -113,21 +119,17 @@
             <artifactId>raf-webdav</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.6</version>
-        </dependency>
+        </dependency>             
+
+
         <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>raf-cmis</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-                -->
+<dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>raf-cmis</artifactId>
+    <version>${project.version}</version>
+    <type>ejb</type>
+</dependency>
+        -->
     </dependencies>  
     
     <build>

@@ -1,0 +1,20 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents">
+
+    <div id="#{field.id}" class="prop #{field.columnClass} columns">
+        <p:outputLabel for="#{field.id}_inp" value="#{messages[field.label]}" styleClass="name #{invalid?'errors':''}" />
+        <span class="value" style="height: 30px;">
+            <p:selectCheckboxMenu id="#{field.id}_inp" value="#{field.selecedValues}" required="#{field.required}" disabled="#{field.readonly}" multiple="true" filter="true" filterMatchMode="startsWith">
+                <f:selectItems value="#{field.values}" var="val" itemLabel="#{val}" itemValue="#{val}" />
+            </p:selectCheckboxMenu>
+        </span>
+        <p:message for="#{field.id}_inp" display="tooltip" />
+    </div>
+
+</ui:composition>
+

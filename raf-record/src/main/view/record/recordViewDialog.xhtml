@@ -10,7 +10,16 @@
 
     <ui:param name="title" value="Evrak Detayları" />
 
+
+
     <ui:define name="form" >
+
+        <style>
+            .raf-file-meta{
+                height: 600px !important;
+                overflow: auto !important;
+            }
+        </style>
 
         <script>
 
@@ -30,7 +39,7 @@
                         wd.css('width', w + 'px');
                         wd.css('top', '0px');
                         wd.css('left', '0px');
-                        wd.css('z-index', '1035');
+                        wd.css('z-index', '9000');
 
                         iff = jQuery('iframe', this);
                         h = h - 90;
@@ -46,7 +55,7 @@
             //Dosya Seçim dialğu hem maximize olsun
             setTimeout(function () {
                 maximazeDialog2();
-                zIndexChange();
+//                zIndexChange();
             }, 100);
         </script>
 

@@ -24,8 +24,10 @@
                 <div class="col-xs-12">
                     <h2 class="page-header">#{viewBean.object.title} <span class="label #{viewBean.object.checkedout ? 'label-warning' : 'label-default' } text-sm pull-right">#{viewBean.object.version}</span>
                         <span class="text-muted text-sm">#{viewBean.object.name}</span>
+                        <ui:remove>
+                            <p:commandButton styleClass="btn btn-primary margin-left-5" value="#{messages['raf.button.label.ReGeneratePreview']}" action="#{viewBean.reGeneratePreview()}" process="@this" update="raf-view-content"/>
+                        </ui:remove>
                     </h2>
-
                     <ui:fragment rendered="#{viewBean.object.info ne ''}">
                         <div>#{viewBean.object.info}</div>
                     </ui:fragment>
@@ -122,11 +124,11 @@
                 <h:form id="checkinform">
                     <div class="row">
                         <div class="col-xs-12">
-                            <i class="fa fa-lock" /><strong>Dosya Kilitli</strong><br/>
+                            <i class="fa fa-lock" /><strong>#{messages['document.view.locked']}</strong><br/>
                             Kilitleyen Kullanıcı : <p:outputLabel value="#{viewBean.rafCheckerUser}"/><br/>                                
                             <p:commandLink rendered="#{viewBean.canRafCheckIn}" action="#{viewBean.unlockFile()}" process="@this" styleClass="btn" update="raf-view-content">
                                 <i class="fa fa-unlock" />
-                                Dosya Kilidini Aç
+                                #{messages['document.view.unlock']}
                             </p:commandLink>
                         </div>
                     </div>                    
@@ -139,7 +141,7 @@
                     <div class="col-xs-12">
                         <p:commandLink action="#{viewBean.lockFile()}" process="@this" styleClass="btn" update="raf-view-content">
                             <i class="fa fa-lock" />
-                            Dosyayı Kilitle
+                            #{messages['document.view.lock']}
                         </p:commandLink>
                     </div>
                 </div>                    

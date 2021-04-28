@@ -9,13 +9,18 @@
     <ui:param name="name" value="myRafsDashlet" />
     <ui:param name="bean" value="#{myRafsDashlet}" />
 
-    
+    <ui:remove>
+        <ui:define name="extraButtons">
+            <p:commandLink action="#{bean.reGeneratePreviews()}" update=":#{dashlet}" styleClass="ui-panel-titlebar-icon ui-corner-all ui-state-default"><h:outputText styleClass="ui-icon ui-icon-refresh" title="#{messages['action.title.ReGeneratePreviewAction']}" /></p:commandLink>
+        </ui:define>
+    </ui:remove>
+
     <ui:define name="edit">
         <t:inputText label="general.label.Filter" value="#{myRafsDashlet.filter}" columnClass="col-xs-12"/>
         <t:inputText label="general.label.Count" value="#{myRafsDashlet.size}" columnClass="col-xs-6"/>
         <t:inputCheckbox label="general.label.SortOrder" itemLabel="general.sort.Asc" value="#{myRafsDashlet.sortAsc}" columnClass="col-xs-6"/>
     </ui:define>
-    
+
     <ui:define name="view">
         <p:outputPanel deferred="true">
             <div class="box-body no-padding">

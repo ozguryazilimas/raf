@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import java.text.Collator;
@@ -34,6 +35,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     private static final String SORT_BY_NAME = "NAME";
     private static final String SORT_BY_DATE = "DATE";
+    private static final String SORT_BY_MODIFY_DATE = "MODIFY_DATE";
     private static final String SORT_BY_MIMETYPE = "MIMETYPE";
     private static final String SORT_BY_CATEGORY = "CATEGORY";
     private static final String SORT_BY_TAG = "TAG";
@@ -110,7 +112,10 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                                                     return x.getTags().isEmpty() ? "" : x.getTags().get(0);
                                                 case SORT_BY_DATE:
                                                     //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
-                                                    return sdfForSort.format(getRafObjectDate(x)); // DateUtils.dateToStr(x.getCreateDate());
+                                                    return sdfForSort.format(x.getCreateDate()); // DateUtils.dateToStr(x.getCreateDate());
+                                                case SORT_BY_MODIFY_DATE:
+                                                    //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
+                                                    return sdfForSort.format(x.getUpdateDate()); // DateUtils.dateToStr(x.getCreateDate());
                                                 default:
                                                     return x.getName();
                                             }
@@ -174,6 +179,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
                                 //FIXME: aslında birden fazla tag olabilir o durumda nasıl sıralama ve gruplama yapılır? Şu anda ilki sadece kontrol ediliyor.
                                 return rafController.getDescSort() ? compareTag(t2, t1) : compareTag(t1, t2);
                             case SORT_BY_DATE:
+                            case SORT_BY_MODIFY_DATE:
                                 //FIXME: Ay Yıl, Tarih yaklaştıkça dün, bugün olmalı. Dolayısı ile sıralaması da doğru olmalı.
                                 return rafController.getDescSort() ? compareDate(t2, t1) : compareDate(t1, t2);
                             default:
@@ -256,7 +262,12 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
      */
     private int compareDate(RafObject t1, RafObject t2) {
         int r = compareFolder(t1, t2);
-        return r == 0 ? getRafObjectDate(t1).compareTo(getRafObjectDate(t2)) : r;
+        if (SORT_BY_DATE.equals(rafController.getSortBy())) {
+            return r == 0 ? t1.getCreateDate().compareTo(t2.getCreateDate()) : r;
+        } else {
+            return r == 0 ? getRafObjectDate(t1).compareTo(getRafObjectDate(t2)) : r;
+        }
+
     }
 
     public List<RafObject> getGroupItems(String group) {
@@ -294,4 +305,13 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         this.showDetails = showDetails;
     }
 
+    public Boolean hasPreview(RafObject rafObject) {
+        if (rafObject instanceof RafFolder) {
+            return false;
+        } else if (rafObject instanceof RafDocument) {
+            return ((RafDocument) rafObject).getHasPreview();
+        } else {
+            return false;
+        }
+    }
 }
