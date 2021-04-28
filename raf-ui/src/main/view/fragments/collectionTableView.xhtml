@@ -74,6 +74,8 @@
                         <th></th>
                     </tr>
                     <p:repeat value="#{viewBean.getGroupItems(group)}" var="item">
+                        <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
+                        <ui:param name="hasDeleteRole" value="#{rafController.hasDeleteRole(item)}" />
                         <tr>
                             <td style="width: 16px; text-align: center; ">
                                 <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
@@ -118,10 +120,10 @@
                                             <i class="fa fa-download" />
                                         </p:commandLink>
                                     </h:form>
-                                    <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[deleteAction.title]}" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasDeleteRole}" action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[deleteAction.title]}" styleClass="btn btn-box-tool">
                                         <i class="fa fa-trash" />
                                         <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
                                     </p:commandLink>
@@ -134,11 +136,11 @@
                                 </ui:fragment>
 
                                 <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
-                                    <p:commandLink action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
 
-                                    <p:commandLink action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasDeleteRole}" action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{deleteAction.title}" styleClass="btn btn-box-tool">
                                         <i class="fa fa-trash" />
                                         <p:confirm header="#{messages['confirmation.header.DeleteAction']}" message="#{messages['confirmation.message.DeleteAction']}" icon="fa fa-alert" />
                                     </p:commandLink>
