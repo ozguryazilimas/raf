@@ -18,9 +18,7 @@ public class RafOcrModule {
         if (ocrEnabled) {
             RafOcrConfig.tessDataPath = ConfigResolver.getPropertyValue("raf.ocr.tessdatapath", "/usr/share/tesseract-ocr/4.00/tessdata");
             RafOcrConfig.language = ConfigResolver.getPropertyValue("raf.ocr.language", "tur");
-            RafOcrConfig.tesseract = new Tesseract();
-            RafOcrConfig.tesseract.setDatapath(RafOcrConfig.tessDataPath);
-            RafOcrConfig.tesseract.setLanguage(RafOcrConfig.language);
+            RafOcrConfig.tempFilePath = ConfigResolver.getPropertyValue("raf.ocr.tempfilepath", "");
         }
     }
 }

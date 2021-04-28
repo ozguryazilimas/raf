@@ -55,7 +55,7 @@ public class RafNavigationController implements Serializable{
     }
 
     public List<RafDefinition> getRafs() {
-        return rafs.stream().limit(10).collect(Collectors.toList());
+        return rafs.stream().collect(Collectors.toList());
     }
     
     public void rafDataChangedListener( @Observes RafDataChangedEvent event){

@@ -495,4 +495,11 @@ public class RafService implements Serializable {
     public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
         return rafRepository.getFolderSize(absPath, maxSumSize);
     }
+
+    public String getDocumentExtractedText(String id) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_DOCUMENT_EXTRACTED_TEXT", "");
+        }
+        return rafRepository.getDocumentExtractedText(id);
+    }
 }

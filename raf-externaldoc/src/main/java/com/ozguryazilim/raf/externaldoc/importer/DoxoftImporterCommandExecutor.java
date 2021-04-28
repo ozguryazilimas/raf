@@ -308,9 +308,10 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
 
                     String rafPathMain = re.encode(getRafPathFolder(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
                     String rafPath = re.encode(getRafPath(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
+                    String rafRecordPath = re.encode(getRafRecordPath(fileName, rs.getString("FORMAT"), rs.getString("FOLDER"), rs.getString("PARENT_FOLDER")));
 
-                    if (checkRafPath(rafPathMain) || checkRafPath(rafPath)) {
-                        LOG.debug("{} Document is exists.", fileName);
+                    if (checkRafPath(rafRecordPath) || checkRafPath(rafPath)) {
+                        LOG.debug("{} {} Document is exists.", fileName, rafPath);
                     } else {
                         String folder = rafPath.substring(0, rafPath.lastIndexOf("/"));
                         if (!checkRafFolder(folder)) {
@@ -703,30 +704,29 @@ public class DoxoftImporterCommandExecutor extends AbstractCommandExecuter<Doxof
             Statement st;
             try {
                 st = con.createStatement();
-                String query = String.format("SELECT distinct \n"
-                        + "                        dmtype.NAME DOCUMENT_TYPE,\n"
-                        + "                        dmdoc.ID,\n"
-                        + "                        dmdoc.NAME,\n"
-                        + "                        dmdoc.REGISTER_DATE,\n"
-                        + "                        usr.FULLNAME REGISTER_USER,\n"
-                        + "                        dmdoc.FORMAT,\n"
-                        + "                        folder.NAME FOLDER,\n"
-                        + "                        IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER,\n"
-                        + "                        vault.`PATH` VAULT_PATH,\n"
-                        + "                        vaultfolder.VAULT_LEVEL\n"
-                        + "                        FROM dm_document dmdoc                        \n"
-                        + "                        inner join dm_type dmtype on dmtype.ID = dmdoc.`TYPE`\n"
-                        + "                        inner join dm_vault_folder vaultfolder on vaultfolder.ID = dmdoc.VAULT_FOLDER\n"
-                        + "                        inner join dm_vault vault on vault.ID = vaultfolder.VAULT\n"
-                        + "                        inner join dm_document_folder docfold on docfold.DOCUMENT = dmdoc.ID\n"
-                        + "                        inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
-                        + "                        inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
-                        + "                        left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
-                        + "                        left join arc_wf_document awfdoc on awfdoc.ID = dmdoc.ID\n"
-                        + "                        left join wf_document wfdoc on wfdoc.ID = dmdoc.ID\n"
-                        + "                        left join wf_workflow_document wwdoc on wwdoc.DOCUMENT = wfdoc.DBID\n"
-                        + "                        left join arc_wf_workflow_document awwdoc on awwdoc.DOCUMENT = awfdoc.DBID\n"
-                        + " where  wwdoc.INST_UUID_ is null and awwdoc.INST_UUID_ is null  and IFNULL(parentfolder.NAME, folder.NAME) in ( %s ) ", getFolderNamesForQuery()
+                String query = String.format("SELECT distinct  dmtype.NAME DOCUMENT_TYPE,\n"
+                        + "dmdoc.ID,\n"
+                        + "dmdoc.NAME,\n"
+                        + "dmdoc.REGISTER_DATE,\n"
+                        + "usr.FULLNAME REGISTER_USER,\n"
+                        + "dmdoc.FORMAT,\n"
+                        + "folder.NAME FOLDER,\n"
+                        + "IFNULL(parentfolder.NAME, folder.NAME) PARENT_FOLDER,\n"
+                        + "vault.`PATH` VAULT_PATH,\n"
+                        + "vaultfolder.VAULT_LEVEL\n"
+                        + "FROM dm_document dmdoc                        \n"
+                        + "inner join dm_type dmtype on dmtype.ID = dmdoc.`TYPE`\n"
+                        + "inner join dm_vault_folder vaultfolder on vaultfolder.ID = dmdoc.VAULT_FOLDER\n"
+                        + "inner join dm_vault vault on vault.ID = vaultfolder.VAULT\n"
+                        + "inner join dm_document_folder docfold on docfold.DOCUMENT = dmdoc.ID\n"
+                        + "inner join dm_folder folder on folder.ID = docfold.FOLDER\n"
+                        + "inner join co_user usr on usr.ID = dmdoc.REGISTER_USER\n"
+                        + "left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER\n"
+                        + "left join arc_wf_document awfdoc on awfdoc.ID = dmdoc.ID\n"
+                        + "left join wf_document wfdoc on wfdoc.ID = dmdoc.ID\n"
+                        + "left join wf_workflow_document wwdoc on wwdoc.DOCUMENT = wfdoc.DBID\n"
+                        + "left join arc_wf_workflow_document awwdoc on awwdoc.DOCUMENT = awfdoc.DBID\n"
+                        + "where dmdoc.ID not in (select dmdoc.ID FROM arc_wf_workflow workflow inner join arc_wf_workflow_document awfdoc on awfdoc.INST_UUID_ = workflow.INST_UUID_  inner join arc_wf_document document on document.DBID = awfdoc.DOCUMENT inner join dm_type dmtype on dmtype.ID = document.`TYPE` inner join dm_document dmdoc on dmdoc.ID = document.ID inner join dm_vault_folder vaultfolder on vaultfolder.ID = dmdoc.VAULT_FOLDER inner join dm_vault vault on vault.ID = vaultfolder.VAULT inner join dm_document_folder docfold on docfold.DOCUMENT = dmdoc.ID inner join dm_folder folder on folder.ID = docfold.FOLDER left join dm_folder parentfolder on parentfolder.Id = folder.PARENT_FOLDER inner join co_user usr on usr.ID = dmdoc.REGISTER_USER where  IFNULL(parentfolder.NAME, folder.NAME) in ( %s )) ", getFolderNamesForQuery()
                 );
 
                 ResultSet rs = st.executeQuery(query);
