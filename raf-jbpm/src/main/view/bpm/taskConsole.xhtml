@@ -94,11 +94,12 @@
                                     </t:inputAny>
                                     <t:inputAny label="taskFilter.label.taskOwner"
                                                 rendered="#{identity.isPermitted('allTasks:update')}">
-                                        <p:selectOneMenu value="#{taskController.filter.showAll}">
+                                        <p:selectOneMenu value="#{taskController.filter.taskOwner}">
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.allTasks']}"
-                                                          itemValue="true"/>
+                                                          itemValue="*"/>
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.myTasks']}"
-                                                          itemValue="false"/>
+                                                          itemValue="#{identity.loginName}"/>
+                                            <f:selectItems value="#{userLookup.loginNames}" var="usr" itemLabel="#{usr}" itemValue="#{usr}"/>
                                             <p:ajax update="taskConsole" event="change"/>
                                         </p:selectOneMenu>
                                     </t:inputAny>

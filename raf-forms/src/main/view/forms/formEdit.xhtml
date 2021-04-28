@@ -6,16 +6,21 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents">
 
-    
-    
+
+
     <div class="row">
-        <c:forEach id="ffi" items="#{frm.form.fields}" var="field" varStatus="rowCounter2">
-            <ui:include src="/forms/templates/input#{field.getClass().getSimpleName()}.xhtml" />
+        <c:forEach id="ffi" items="#{frm.form.fields}" var="field" varStatus="rowCounter2">            
+            <ui:fragment rendered="${not field.readonly}">
+                <ui:include src="/forms/templates/input#{field.getClass().getSimpleName()}.xhtml" />
+            </ui:fragment>            
+            <ui:fragment rendered="${field.readonly}">
+                <ui:include src="/forms/templates/output#{field.getClass().getSimpleName()}.xhtml" />
+            </ui:fragment>
         </c:forEach>
     </div>
 
 
-    
+
 
 
 </ui:composition>

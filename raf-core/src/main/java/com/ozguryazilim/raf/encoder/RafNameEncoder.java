@@ -29,6 +29,7 @@ public class RafNameEncoder extends BaseRafEncoder {
                 case '.':
                 case ' ':
                 case ':':
+                case '"':
                 case '\'':
                     sb.append('_');
                     break;

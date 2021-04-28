@@ -17,11 +17,26 @@ public interface RafCommandPages extends Pages {
 
     @SecuredPage
     @View
-    public class DoxoftImporterCommandEditor implements Admin {
+    public class FolderDivideByYearsCommandEditor implements Admin {
     };
 
     @SecuredPage
     @View
-    public class FolderDivideByYearsCommandEditor implements Admin {
+    public class ElasticSearchExporterCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class IndexRemoverCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class EMailFetchCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class RegeneratePreviewCommandEditor implements Admin {
     };
 }

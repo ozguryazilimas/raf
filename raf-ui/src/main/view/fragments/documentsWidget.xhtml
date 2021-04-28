@@ -66,6 +66,12 @@
                             <td>
                                 <h:outputText value="Asıl Belge" rendered="#{doc.name eq ro.mainDocument}" />
                                 <h:outputText value="Ek Belge" rendered="#{doc.name ne ro.mainDocument}" />
+                            </td>       
+                            <td>
+                                <p:commandLink action="#{controller.removeDocument(doc)}" process="@this" rendered="#{controller.getCanRemove()}" update="tfrm:xdocs" partialSubmit="true">
+                                    <i class="fa fa-remove" />
+                                    <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['general.message.confirm.Delete']}" icon="ui-icon-alert" />
+                                </p:commandLink>
                             </td>
                         </tr>
                     </p:repeat>

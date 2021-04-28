@@ -3,6 +3,8 @@ package com.ozguryazilim.raf.externaldoc.config;
 import com.ozguryazilim.raf.MetadataConfig;
 import com.ozguryazilim.raf.MetadataConfigBuilder;
 import com.ozguryazilim.raf.MetadataRegistery;
+import com.ozguryazilim.raf.externaldoc.search.ExternalSearchPanelController;
+import com.ozguryazilim.raf.search.SearchRegistery;
 import com.ozguryazilim.telve.api.module.TelveModule;
 import javax.annotation.PostConstruct;
 
@@ -49,5 +51,7 @@ public class RafExternalDocModule {
                 .build();
 
         MetadataRegistery.register(configD);
+
+        SearchRegistery.register(ExternalSearchPanelController.class);
     }
 }

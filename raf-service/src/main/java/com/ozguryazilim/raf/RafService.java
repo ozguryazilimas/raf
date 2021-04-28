@@ -3,6 +3,7 @@ package com.ozguryazilim.raf;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
@@ -284,8 +285,8 @@ public class RafService implements Serializable {
         }
         return rafRepository.getDocumentContent(id);
     }
-    
-    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+
+    public void getDocumentContent(String id, OutputStream out) throws RafException {
         if (isReadLogEnabled()) {
             sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
         }
@@ -303,13 +304,17 @@ public class RafService implements Serializable {
         rafRepository.reGeneratePreview(id);
     }
 
-    public void reGenerateObjectPreviews(List<RafObject> rafObjects) throws RafException {
+    public void reGenerateObjectPreviews(List<RafObject> rafObjects, Integer recursiveCallCounter) throws RafException {
+        if (recursiveCallCounter == 10) {
+            //Devre Kesici !! En fazla 10 defa kendini çağırabilir. (10 alt klasör çalıştırılabilir.)
+            return;
+        }
         for (RafObject rafObject : rafObjects) {
             if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
                 reGeneratePreview(rafObject.getId());
             } else if (rafObject instanceof RafFolder) {
                 RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
-                reGenerateObjectPreviews(r.getItems());
+                reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
 
             }
         }
@@ -473,5 +478,21 @@ public class RafService implements Serializable {
         }
 
         return readLogEnabled;
+    }
+
+    public void reindex() {
+        rafRepository.reindex();
+    }
+
+    public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
+        return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
+    }
+
+    public void unregisterIndexes(String... indexNames) {
+        rafRepository.unregisterIndexes(indexNames);
+    }
+
+    public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
+        return rafRepository.getFolderSize(absPath, maxSumSize);
     }
 }

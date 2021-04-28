@@ -26,12 +26,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -49,6 +48,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.modeshape.jcr.api.JcrTools;
@@ -128,6 +128,7 @@ public class RafModeshapeRepository implements Serializable {
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
+
     @PostConstruct
     public void init() {
         try {
@@ -476,7 +477,7 @@ public class RafModeshapeRepository implements Serializable {
 
                 //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
                 String expression = String.format("SELECT * FROM [%s] as nodes WHERE ISCHILDNODE(nodes,'%s')",
-                                                  justFolders ? NODE_FOLDER : NODE_SEARCH, escapeQueryParam(absPath));
+                        justFolders ? NODE_FOLDER : NODE_SEARCH, escapeQueryParam(absPath));
 
                 if (justFolders) {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
@@ -485,8 +486,10 @@ public class RafModeshapeRepository implements Serializable {
                 if (!Strings.isNullOrEmpty(sortBy)) {
                     if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
                         sortBy = PROP_TITLE;
-                    } else if ("DATE".equals(sortBy)) {
+                    } else if ("MODIFY_DATE".equals(sortBy)) {
                         sortBy = PROP_UPDATED_DATE;
+                    } else if ("DATE".equals(sortBy)) {
+                        sortBy = PROP_CREATED_DATE;
                     } else if ("DATE".equals(sortBy)) {
                         sortBy = "jcr:mimeType";
                     } else if ("CATEGORY".equals(sortBy)) {
@@ -576,7 +579,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
             String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND  ISDESCENDANTNODE('%s')",
-                                              MIXIN_TAGGABLE, PROP_CATEGORY_PATH, escapeQueryParam(categoryPath), escapeQueryParam(rootPath));
+                    MIXIN_TAGGABLE, PROP_CATEGORY_PATH, escapeQueryParam(categoryPath), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -619,7 +622,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: recursive olduğunda = yerine like olacak, path sonuna % eklenecek
             String expression = String.format("SELECT * FROM [%s] WHERE [%s] = '%s' AND ISDESCENDANTNODE('%s')",
-                                              MIXIN_TAGGABLE, PROP_TAG, escapeQueryParam(tag), escapeQueryParam(rootPath));
+                    MIXIN_TAGGABLE, PROP_TAG, escapeQueryParam(tag), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -685,7 +688,6 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
 
-
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
@@ -708,7 +710,7 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
             String expression = String.format("SELECT * FROM [%s] as nodes WHERE CONTAINS(nodes.*, '%s') AND  ISDESCENDANTNODE('%s')",
-                                              NODE_SEARCH, escapeQueryParam(searchText), escapeQueryParam(rootPath));
+                    NODE_SEARCH, escapeQueryParam(searchText), escapeQueryParam(rootPath));
 
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -827,7 +829,7 @@ public class RafModeshapeRepository implements Serializable {
                             valueStr = value.toString();
                         }
                         whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
-                                                           key, escapeQueryParam(valueStr)));
+                                key, escapeQueryParam(valueStr)));
                     }
                 }
             }
@@ -868,7 +870,7 @@ public class RafModeshapeRepository implements Serializable {
 
     public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
             List<RafDefinition> rafs,
-            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset) throws RafException {
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -883,70 +885,11 @@ public class RafModeshapeRepository implements Serializable {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = String.format("SELECT DISTINCT nodes.* FROM [%s] as nodes ", NODE_SEARCH);
+            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
 
             List<String> whereExpressions = new ArrayList();
 
-            if (searchModel.getDateFrom() != null) {
-                whereExpressions.add(String.format(" nodes.[%s] >= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateFrom())));
-            }
-
-            if (searchModel.getDateTo() != null) {
-                whereExpressions.add(String.format(" nodes.[%s] <= %s", PROP_CREATED_DATE, getJCRDate(searchModel.getDateTo())));
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.getSearchInDocumentName()) {
-                    whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
-                } else {
-                    whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
-                }
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
-                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
-            } else {
-                String rafWheres = " ( ";
-                for (RafDefinition raf : rafs) {
-                    rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
-                }
-                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
-                rafWheres += " ) ";
-                whereExpressions.add(rafWheres);
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentType] LIKE '%s' ", searchModel.getDocumentType()));
-            }
-
-            if (!Strings.isNullOrEmpty(searchModel.getDocumentStatus())) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentStatus] LIKE '%s'", searchModel.getDocumentStatus()));
-            }
-
-            if (searchModel.getRegisterDateFrom() != null) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] >= %s", getJCRDate(searchModel.getRegisterDateFrom())));
-            }
-
-            if (searchModel.getRegisterDateTo() != null) {
-                whereExpressions.add(String.format(" exdoc.[externalDoc:documentCreateDate] <= %s", getJCRDate(searchModel.getRegisterDateTo())));
-            }
-
-            if (searchModel.getMapAttValue() != null && !searchModel.getMapAttValue().isEmpty()) {
-                for (Map.Entry<String, Object> entry : searchModel.getMapAttValue().entrySet()) {
-                    String key = entry.getKey().split(":")[1];
-                    Object value = entry.getValue();
-                    String valueStr = "";
-                    if (value != null && !value.toString().trim().isEmpty()) {
-                        if (value instanceof Date) {
-                            valueStr = sdf.format((Date) value);
-                        } else {
-                            valueStr = value.toString();
-                        }
-                        whereExpressions.add(String.format(" meta.[externalDocMetaTag:externalDocTypeAttribute] LIKE '%%%s%%' AND meta.[externalDocMetaTag:value] LIKE '%%%s%%' ",
-                                                           key, escapeQueryParam(valueStr)));
-                    }
-                }
-            }
+            whereExpressions.addAll(extendedQuery);
 
             String lastWhereExpression = "";
 
@@ -962,14 +905,6 @@ public class RafModeshapeRepository implements Serializable {
                 lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()).concat(" "));
             }
 
-            if (lastWhereExpression.contains("exdoc")) {
-                expression += " JOIN [externalDoc:metadata] as exdoc on ISCHILDNODE(exdoc,nodes) ";
-            }
-
-            if (lastWhereExpression.contains("meta")) {
-                expression += " JOIN [externalDocMetaTag:metadata] as meta on ISCHILDNODE(meta,nodes) ";
-            }
-
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
@@ -983,7 +918,7 @@ public class RafModeshapeRepository implements Serializable {
             while (it.hasNext()) {
                 LOG.debug("Search result next.");
                 Node n = it.nextNode();
-                Node sn = n;
+                Node sn = session.getNode(n.getPath());
 
                 if (n.isNodeType("nt:resource")) {
                     sn = n.getParent();
@@ -1470,6 +1405,13 @@ public class RafModeshapeRepository implements Serializable {
             node.setProperty(PROP_CATEGORY_ID, object.getCategoryId() == null ? 0 : object.getCategoryId());
             node.setProperty(PROP_TAG, object.getTags().toArray(new String[]{}));
             //node.setProperty(PROP_TAG, "");
+            if (node.hasNode(NODE_CONTENT)) {
+                Node cn = node.getNode(NODE_CONTENT);
+                cn.setProperty(PROP_UPDATED_BY, session.getUserID());
+                GregorianCalendar gCal = new GregorianCalendar();
+                gCal.setTime(new Date());
+                cn.setProperty(PROP_UPDATED_DATE, gCal);
+            }
 
             session.save();
 
@@ -1590,7 +1532,6 @@ public class RafModeshapeRepository implements Serializable {
                     //FIXME: bu exception nedir söylemek lazım.
                     throw new RafException("[RAF-0005] Raf node not found");
                 }
-
                 metaNode = node.addNode(metadata.getType(), metadata.getType());
             } else {
                 //MetadataNode var update için kendisini bulalım
@@ -1630,16 +1571,16 @@ public class RafModeshapeRepository implements Serializable {
             ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
 
             return result;
-            */
+             */
             return content.getProperty(PROP_DATA).getBinary().getStream();
-            
+
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-    
-    public void getDocumentContent(String id, OutputStream out ) throws RafException {
+
+    public void getDocumentContent(String id, OutputStream out) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
@@ -1700,7 +1641,7 @@ public class RafModeshapeRepository implements Serializable {
             Node nodeContent = node.getNode(NODE_CONTENT);
             if (node.hasNode("raf:preview")) {
                 String mimeType = null;
-                if ( node.getNode("raf:preview") != null &&  node.getNode("raf:preview").isNode()) {
+                if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
                     Node preview = node.getNode("raf:preview");
                     mimeType = getPropertyAsString(preview, "jcr:mimeType");
                     preview.remove();
@@ -1718,7 +1659,6 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-
 
     /**
      * ID'si verilen nodu siler.
@@ -1943,9 +1883,11 @@ public class RafModeshapeRepository implements Serializable {
             return new String[]{result, o.getName()};
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
-        String pathName =  o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
-        result = targetBase + "/" + pathName;
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.    
+        String pathName = o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
+        String fileName = FilenameUtils.removeExtension(o.getName());
+        String fileExtension = FilenameUtils.getExtension(o.getName());
+        result = targetBase + "/" + fileName + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + "." + fileExtension;
 
         return new String[]{result, pathName};
     }
@@ -1984,7 +1926,6 @@ public class RafModeshapeRepository implements Serializable {
         }
 
     }
-
 
     /**
      * Folder ağacı üzerinde yürüyerek nt:file tipindekileri tespit ederek
@@ -2570,4 +2511,146 @@ public class RafModeshapeRepository implements Serializable {
     private String escapeQueryParam(String param) {
         return param.replace("'", "\\'");
     }
+
+    public void reindex() {
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+                ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindex("/RAF/");
+                session.logout();
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+    }
+
+    public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle("Detay Arama");
+        result.setPath("SEARCH");
+        result.setName("Detay Arama");
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
+            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
+
+            List<String> whereExpressions = new ArrayList();
+
+            if (fromDate != null) {
+                whereExpressions.add(" nodes.[" + (created ? PROP_CREATED_DATE : PROP_UPDATED_DATE) + "] >= " + getJCRDate(fromDate));
+            }
+
+            String rafWheres = " ( ";
+            for (RafDefinition raf : rafs) {
+                rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+            }
+            rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
+            rafWheres += " ) ";
+            whereExpressions.add(rafWheres);
+
+            String lastWhereExpression = "";
+
+            if (!whereExpressions.isEmpty()) {
+                lastWhereExpression += " WHERE ";
+                for (String whereExpression : whereExpressions) {
+                    lastWhereExpression += whereExpression.concat(" AND ");
+                }
+                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            }
+
+            expression = expression.concat(lastWhereExpression);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+
+            LOG.debug("Query executed for  {}", expression);
+            LOG.debug("Query plan : {}", plan);
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                LOG.debug("Search result next.");
+                Node n = it.nextNode();
+                Node sn = session.getNode(n.getPath());
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!sn.isNodeType(MIXIN_RAF)) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        result.getItems().add(nodeToRafDocument(sn));
+                    }
+                }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
+    public void unregisterIndexes(String... indexNames) {
+        try {
+            try {
+                Session session = ModeShapeRepositoryFactory.getSession();
+                ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).getIndexManager().unregisterIndexes(indexNames);
+                session.logout();
+            } catch (RepositoryException ex) {
+                throw new RafException("[RAF-0007] Raf Query Error", ex);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+    }
+
+    public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
+        long result = 0;
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            //TODO : JCR SQL içerisinde SUM(LENGTH(jcr:data)) gibi bir özellik gelirse bu kod güncellenebilir.
+            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            NodeIterator nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                Node n = nodes.nextNode();
+                if (n.hasProperty("jcr:content/jcr:data")) {
+                    result += n.getProperty("jcr:content/jcr:data").getLength();
+                    if (maxSumSize > 0 && maxSumSize < result) {
+                        throw new RafException(String.format("Max file limit is over, Max File Limit : %d, File Size : %d", maxSumSize, result));
+                    }
+                }
+
+            }
+
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+
+        return result;
+    }
+
 }

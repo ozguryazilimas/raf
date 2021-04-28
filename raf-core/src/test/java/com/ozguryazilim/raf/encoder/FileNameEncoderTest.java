@@ -37,9 +37,9 @@ public class FileNameEncoderTest {
     @org.junit.Test
     public void testEncode() {
         System.out.println("encode");
-        String text = "ÜĞİŞÇÖI üğişçöı :.%/_-?=.txt";
-        FileNameEncoder instance = new FileNameEncoder();
-        String expResult = "UGISCOI_ugiscoi__.%/_-?=.txt";
+        String text = "ÜĞİŞÇÖI üğişçöı :%/_-?=.txt";
+        RafEncoder instance = RafEncoderFactory.getFileNameEncoder();
+        String expResult = "UGISCOI_ugiscoi__%/_-?=.txt";
         String result = instance.encode(text);
         assertEquals(expResult, result);
     }
@@ -50,9 +50,9 @@ public class FileNameEncoderTest {
     @org.junit.Test
     public void testDecode() {
         System.out.println("decode");
-        String encodedText = "ugiscoi ugiscoi .%/_-?=";
-        FileNameEncoder instance = new FileNameEncoder();
-        String expResult = "ugiscoi ugiscoi .%/_-?=";
+        String encodedText = "ugiscoi ugiscoi %/_-?=";
+        RafEncoder instance = RafEncoderFactory.getFileNameEncoder();
+        String expResult = "ugiscoi ugiscoi %/_-?=";
         String result = instance.decode(encodedText);
         assertEquals(expResult, result);
     }

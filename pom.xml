@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.ozguryazilim.telve</groupId>
         <artifactId>telve-app-parent</artifactId>
-        <version>4.0.0-Beta-29</version> 
+        <version>4.0.0-Beta-30</version>
     </parent>
 
     <groupId>com.ozguryazilim.raf</groupId>
@@ -71,7 +71,8 @@
                 <type>pom</type>
                 <version>${jbpm.version}</version>
                 <scope>import</scope>
-            </dependency>
+            </dependency>                      
+
         </dependencies>
     </dependencyManagement>
 
@@ -154,6 +155,10 @@
         <module>raf-help-war</module>
         -->
         <module>raf-externaldoc</module>
+        <module>raf-emaildoc</module>
+        
+        <module>raf-externaldoc-war</module>
+        <module>raf-ocr</module>
     </modules>
     
     <build>

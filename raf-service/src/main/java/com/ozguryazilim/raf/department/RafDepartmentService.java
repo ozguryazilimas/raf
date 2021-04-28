@@ -19,7 +19,7 @@ public class RafDepartmentService implements Serializable {
 
     @Inject
     private RafDepartmentRepository departmentRepository;
-    
+
     @Inject
     private RafDepartmentMemberRepository departmentMemberRepository;
 
@@ -57,6 +57,11 @@ public class RafDepartmentService implements Serializable {
         return department;
     }
 
+    public RafDepartment findByCode(String code) {
+        List<RafDepartment> searchResult = departmentRepository.findByCode(code);
+        return searchResult.isEmpty() ? searchResult.get(0) : null;
+    }
+
     @Transactional
     public void removeDepartment(RafDepartment department) {
         departmentRepository.remove(department);
@@ -66,25 +71,26 @@ public class RafDepartmentService implements Serializable {
     public void saveDepartment(RafDepartment department) {
         departmentRepository.save(department);
     }
-    
-    public List<RafDepartmentMember> getMemberships( String memberName ){
+
+    public List<RafDepartmentMember> getMemberships(String memberName) {
         //TODO: Burada cahcleme v.s. yapmak lazım.
         return departmentMemberRepository.findByMemberName(memberName);
     }
-    
+
     /**
      * Geriye kullanıcı deparman adını döndürür.
+     *
      * @param memberName
-     * @return 
+     * @return
      */
-    public String getDerpartmentName( String memberName ){
+    public String getDerpartmentName(String memberName) {
         String result = "";
-        List<RafDepartmentMember> ls = getMemberships( memberName );
-        
-        if( !ls.isEmpty()){
+        List<RafDepartmentMember> ls = getMemberships(memberName);
+
+        if (!ls.isEmpty()) {
             result = ls.get(0).getDepartment().getCode();
         }
         return result;
     }
-    
+
 }

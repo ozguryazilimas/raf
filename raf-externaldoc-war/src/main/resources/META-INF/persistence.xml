@@ -1,0 +1,39 @@
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+    <persistence-unit name="raf" transaction-type="JTA">
+        <jta-data-source>java:jboss/datasources/RafDS</jta-data-source>
+        <shared-cache-mode>DISABLE_SELECTIVE</shared-cache-mode>
+        <!--
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <jar-file></jar-file>
+        -->
+        <jar-file>lib/telve-core-model-${version.telve}.jar</jar-file>
+        <jar-file>lib/telve-idm-model-${version.telve}.jar</jar-file>
+        <jar-file>lib/raf-model-${project.version}.jar</jar-file>
+        <jar-file>lib/raf-externaldoc-${project.version}.jar</jar-file>
+        
+        
+        <properties>
+            <!-- Properties for Hibernate -->
+            <!--
+            <property name="hibernate.dialect" value="${hibernate.dialect}"/>
+            -->
+            <property name="hibernate.hbm2ddl.auto" value="none"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.JBossTransactionManagerLookup"/>
+            <!-- <property name="hibernate.connection.release_mode" value="after_statement"/> -->
+            <property name="hibernate.connection.autocommit" value="false"/>
+            
+            <!-- cache config -->
+            <property name="hibernate.cache.use_second_level_cache" value="true" />
+            <property name="hibernate.cache.use_query_cache" value="true" />
+            <!--
+            <property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.infinispan.JndiInfinispanRegionFactory" />
+            <property name="hibernate.cache.infinispan.cachemanager" value="java:CacheManager" /> 
+            -->
+        </properties>
+    </persistence-unit>
+    
+</persistence>

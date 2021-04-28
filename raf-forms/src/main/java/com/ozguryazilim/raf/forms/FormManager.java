@@ -53,21 +53,20 @@ public class FormManager {
             formMap.put(f.getFormKey(), f);
             LOG.info("Form deployed : {}", f);
         }
-        
+
         //FieldID ataması yapalım. Eğer parse edilen form'da field id verilmemiş ise biz verelim.
         frms.forEach((f) -> {
             int i = 0;
-            for( Field fl : f.getFields()){
-                if( Strings.isNullOrEmpty(fl.getId()) ){
+            for (Field fl : f.getFields()) {
+                if (Strings.isNullOrEmpty(fl.getId())) {
                     fl.setId("f_" + i);
                     i++;
                 }
             }
         });
-        
-        
+
         //Şimdi de base'den miras alınan fieldları setleyelim.
-        frms.stream().filter((f) -> ( !Strings.isNullOrEmpty(f.getBase()))).forEachOrdered((f) -> {
+        frms.stream().filter((f) -> (!Strings.isNullOrEmpty(f.getBase()))).forEachOrdered((f) -> {
             Form bf = getForm(f.getBase());
             bf.getFields().forEach((fld) -> {
                 try {
@@ -78,7 +77,6 @@ public class FormManager {
                 }
             });
         });
-        
 
         List<Form> fl = kjarFormMap.get(kjarId);
         if (fl == null) {
@@ -99,6 +97,16 @@ public class FormManager {
         }
     }
 
+    public List<String> getFormKeys() {
+        List<String> result = new ArrayList();
+        if (formMap != null) {
+            formMap.keySet().forEach((k) -> {
+                result.add(k);
+            });
+        }
+        return result;
+    }
+
     public Form getForm(String formKey) {
         //FIXME: Field üzerinde data bağlantısı olduğu için aslında her istenildiğinde ( daha doğrusu oturum başına ) yeni bir instance üretmek lazım. Clone?
         Form result = formMap.get(formKey);
@@ -108,9 +116,9 @@ public class FormManager {
         }
         return result;
     }
-    
+
     public List<RafAsset> getAssests(String kjarId) {
-        List<RafAsset>  result = new ArrayList<>();
+        List<RafAsset> result = new ArrayList<>();
         List<Form> fl = kjarFormMap.get(kjarId);
         if (fl != null) {
             for (Form f : fl) {

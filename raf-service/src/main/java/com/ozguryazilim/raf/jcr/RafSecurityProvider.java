@@ -91,19 +91,31 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
     @Override
     public boolean hasPermission(ExecutionContext context, String repositoryName, String repositorySourceName, String workspaceName, Path absPath, String... actions) {
         //FIXME: Bunun detaylarına bir bakmak lazım.
-        boolean permission = true;
+        boolean permission = false;
         if (absPath != null) {
             try {
                 if (absPath.isAbsolute()) {
 //                    LOG.debug("Actions : {}", actions);
                     List<String> actionList = Arrays.asList(actions);
                     String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
-                    //path içinde herhangi bir üyelği varsa önce ona bak.
-                    if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
-                        permission = hasRafPathPermission(docPath, actionList);
+                    if (getIdentity() != null) {
+                        if ("SYSTEM".equals(getIdentity().getLoginName())) {
+                            //SYSTEM kullanıcısı zamanlanmış görevlerin çalıştırıldığı kullanıcıdır..
+                            permission = true;
+                        } else {
+                            //path içinde herhangi bir üyelği varsa önce ona bak.
+                            if (!Strings.isNullOrEmpty(getIdentity().getLoginName()) && !Strings.isNullOrEmpty(docPath) && getRafPathMemberService().hasMemberInPath(getIdentity().getLoginName(), docPath)) {
+                                permission = hasRafPathPermission(docPath, actionList);
+                            } else {
+                                permission = hasRafPermission(docPath, actionList);
+                            }
+                        }
                     } else {
-                        permission = hasRafPermission(docPath, actionList);
+                        //identity bulunamadı attack olabilir. false döndürelim.
+                        return false;
                     }
+                } else {
+                    return true;
                 }
             } catch (Exception ex) {
                 LOG.debug("Error in path : {}", absPath);

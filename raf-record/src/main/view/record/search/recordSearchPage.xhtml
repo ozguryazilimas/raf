@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"        
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="ui-fluid">
+        <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+            <p:outputLabel value="#{messages['process.label.Process']}"/>
+            <p:selectOneMenu value="#{recordSearchPanelController.recordType}" required="false" filter="true" filterMatchMode="startsWith">
+                <p:ajax listener="#{recordSearchPanelController.onRecordTypeChange}" update="searchWithWFMetaDatas" />
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItems value="#{recordController.recordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
+            </p:selectOneMenu>
+
+        </p:panelGrid>
+
+        <p:panel id="searchWithWFMetaDatas" header="#{messages['record.label.MetaTag']}" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
+            <ui:fragment rendered="#{recordSearchPanelController.metaDataFields ne null and detailedSearchController.searchModel.mapWFAttValue ne null and recordSearchPanelController.metaDataFields.size() > 0}">
+                <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
+                    <ui:repeat value="#{recordSearchPanelController.metaDataFields}" var="mdf" varStatus="status">
+                        <div class="row">                   
+                            <div class="col-md-4">
+                                <p:outputLabel value="#{mdf.label}"/>    
+                            </div>
+                            <div class="col-md-8">
+                                <ui:fragment rendered="#{mdf.type eq 'Suggestion'}">
+                                    <p:selectOneMenu value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}" filter="true" filterMatchMode="startsWith" required="false">
+                                        <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                                        <f:selectItems value="#{recordSearchPanelController.getSuggestion(mdf.group)}" var="sgfRec" itemLabel="#{sgfRec}" itemValue="#{sgfRec}"/>
+                                    </p:selectOneMenu>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{mdf.type eq 'Text'}">
+                                    <p:inputText value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}"  required="false"/>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{mdf.type eq 'Date'}">
+                                    <p:calendar locale="tr" pattern="dd.MM.yyyy"  value="#{detailedSearchController.searchModel.mapWFAttValue[mdf.dataKey]}" required="false"/>
+                                </ui:fragment>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </p:scrollPanel>
+            </ui:fragment>
+        </p:panel>      
+    </div>
+</ui:composition>

@@ -338,24 +338,23 @@ public class RafController implements Serializable {
         return rafCode;
     }
 
-    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
-        if (rafObject.getUpdateDate() != null) {
-            return rafObject.getUpdateDate();
-        } else {
-            return rafObject.getCreateDate();
-        }
-    }
-
-    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
-        if (rafObject.getUpdateBy() != null) {
-            return rafObject.getUpdateBy();
-        } else {
-            return rafObject.getCreateBy();
-        }
-    }
-
+//    public Date getRafObjectCreateDateOrUpdateDate(RafObject rafObject) {
+//        if (rafObject.getUpdateDate() != null) {
+//            return rafObject.getUpdateDate();
+//        } else {
+//            return rafObject.getCreateDate();
+//        }
+//    }
+//
+//    public String getRafObjectCreatorOrUpdater(RafObject rafObject) {
+//        if (rafObject.getUpdateBy() != null) {
+//            return rafObject.getUpdateBy();
+//        } else {
+//            return rafObject.getCreateBy();
+//        }
+//    }
     public void setDescSort(Boolean descSort) {
-        setSortByAndType(this.sortBy,descSort);
+        setSortByAndType(this.sortBy, descSort);
     }
 
     public void setPage(Integer page) {
@@ -690,6 +689,7 @@ public class RafController implements Serializable {
     public void setSortByAndType(String sortBy, Boolean descSort) {
         boolean changing = !this.sortBy.equals(sortBy) || this.descSort != descSort;
         if (changing) {
+            setPage(0);
             this.sortBy = sortBy;
             this.descSort = descSort;
             kahve.put("raf.sortBy", sortBy);

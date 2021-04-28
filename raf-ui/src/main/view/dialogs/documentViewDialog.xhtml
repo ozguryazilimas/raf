@@ -10,7 +10,16 @@
 
     <ui:param name="title" value="Belge Detayları" />
 
+
+
+
     <ui:define name="form" >
+        <style>
+            .raf-file-meta{
+                height: 600px !important;
+                overflow: auto !important;
+            }
+        </style>
 
         <script>
 
@@ -46,7 +55,7 @@
             //Dosya Seçim dialğu hem maximize olsun
             setTimeout(function () {
                 maximazeDialog2();
-                zIndexChange();
+//                zIndexChange();
             }, 500);
         </script>
 

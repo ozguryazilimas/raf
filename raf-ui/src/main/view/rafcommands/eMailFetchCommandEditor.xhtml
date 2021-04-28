@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="width:490px; height:400px">
+        <p:panel id="emailSettings" header="-">
+            <p:outputLabel value="#{messages['general.label.email.protocol']}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.protocol}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.server']}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.host}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.port']}"/>
+            <p:inputNumber value="#{eMailFetchCommandEditor.command.port}" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+
+            <p:outputLabel value="#{messages['general.label.email.domain']}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.domain}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.username']}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.user}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.password']}"/>
+            <p:password value="#{eMailFetchCommandEditor.command.pass}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.ssl']}"/>
+            <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" itemLabel="#{messages['general.label.yes']}"/>            
+
+            <p:outputLabel value="#{messages['general.label.email.folder']}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.folder}"/>
+
+            <p:outputLabel value="#{messages['general.label.email.fetch.jexl']}"/>
+            <p:inputTextarea rows="10" value="#{eMailFetchCommandEditor.command.jexlExp}"/>
+
+        </p:panel>
+
+    </p:scrollPanel>
+</ui:composition>
