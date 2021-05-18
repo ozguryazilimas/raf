@@ -32,7 +32,6 @@ public class FilePreviewHelper {
         }
     }
 
-
     private static boolean generateImagePreview(Property inputProperty, Node outputNode) {
         try {
             Binary binaryValue = getBinary(inputProperty);
@@ -50,7 +49,6 @@ public class FilePreviewHelper {
 
                 os.close();
             }
-
 
             LOG.debug("preview generating success..");
         } catch (Exception e) {
@@ -75,7 +73,7 @@ public class FilePreviewHelper {
 
             converter.convert(binaryValue.getStream(), mimeType, os);
 
-            createPreviewNode(os, outputNode, mimeType);
+            createPreviewNode(os, outputNode, "application/pdf");
 
             os.close();
         } catch (Exception e) {

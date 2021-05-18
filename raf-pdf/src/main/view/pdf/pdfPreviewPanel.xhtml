@@ -13,7 +13,7 @@
     <div class="embed-responsive embed-responsive-4by3">
         <object class="embed-responsive-item" type="application/pdf" data="#{request.contextPath}/resource/#{rafObject.id}#{rafObject.hasPreview ? '/preview' : ''}" width="100%" >
             <h:outputFormat value="#{messages['error.pdf.preview.support']}" escape="false">
-                    <f:param value="#{request.contextPath}/resource/#{rafObject.id}"/>
+                    <f:param value="#{request.contextPath}/resource/#{rafObject.id}#{rafObject.hasPreview ? '/preview' : ''}"/>
             </h:outputFormat>
         </object>
     </div>
