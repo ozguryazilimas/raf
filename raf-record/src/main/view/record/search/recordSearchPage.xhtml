@@ -11,7 +11,7 @@
             <p:selectOneMenu value="#{recordSearchPanelController.recordType}" required="false" filter="true" filterMatchMode="startsWith">
                 <p:ajax listener="#{recordSearchPanelController.onRecordTypeChange}" update="searchWithWFMetaDatas" />
                 <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItems value="#{recordController.recordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
+                <f:selectItems value="#{recordController.allRecordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
             </p:selectOneMenu>
 
         </p:panelGrid>
