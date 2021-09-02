@@ -38,16 +38,17 @@
                             <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
                                 #{ro.title}
                             </p:commandLink>
+                            <p:commandLink action="#{downloadAction.downloadFile(ro)}" ajax="false" update="@this" process="@this" styleClass="btn btn-box-tool">
+                                <i class="fa fa-download" /> 
+                                #{messages['action.title.DownloadAction']}
+                            </p:commandLink>
                         </ui:fragment>
 
                         <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
                             <p:commandLink action="#{rafRecordViewDialog.openDialog(ro)}" process="@this">
                                 #{ro.title}
                             </p:commandLink>
-                        </ui:fragment>
-                        <p:commandLink action="#{downloadAction.downloadFile(ro)}" ajax="false" process="@this" styleClass="btn btn-box-tool">
-                            <i class="fa fa-download" />
-                        </p:commandLink>
+                        </ui:fragment>                      
                     </td>
                     <td>#{ro.info}</td>
                 </tr>
@@ -63,8 +64,9 @@
                                 <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
                                     #{doc.title}
                                 </p:commandLink>
-                                <p:commandLink action="#{downloadAction.downloadFile(doc)}" ajax="false" process="@this" styleClass="btn btn-box-tool">
+                                <p:commandLink action="#{downloadAction.downloadFile(doc)}" ajax="false" update="@this" process="@this" styleClass="btn btn-box-tool">
                                     <i class="fa fa-download" />
+                                    #{messages['action.title.DownloadAction']}
                                 </p:commandLink>
                             </td>
                             <td>#{doc.info}</td>
