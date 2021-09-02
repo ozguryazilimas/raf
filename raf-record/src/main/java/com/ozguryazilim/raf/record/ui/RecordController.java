@@ -18,67 +18,84 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Evrak Kayıt Menü yapısı ve temel işlemleri kontrol eder.
- * 
- * Kullanıcı yetkilerine bağlı olarak, Kullanılabilecek kayıt servislerinin listesini ve yeni kayıt açma işlemlerini yönetir.
- * 
+ *
+ * Kullanıcı yetkilerine bağlı olarak, Kullanılabilecek kayıt servislerinin
+ * listesini ve yeni kayıt açma işlemlerini yönetir.
+ *
  * @author Hakan Uygun
  */
 @WindowScoped
 @Named
-public class RecordController implements Serializable{
-    
+public class RecordController implements Serializable {
+
     private static final Logger LOG = LoggerFactory.getLogger(RecordController.class);
-    
+
     @Inject
     private RecordTypeManager recordTypeManager;
-    
+
     @Inject
     private StartRecordDialog startRecordDialog;
 
     @Inject
     private NavigationParameterContext navigationParameterContext;
-    
+
     @Inject
     private ViewNavigationHandler vnh;
-    
+
     @Inject
     private Identity identity;
-    
+
     /**
      * Geriye Kullanılabilir kayıt tipleirni döndürür.
-     * @return 
+     *
+     * @return
      */
-    public List<RafRecordType> getRecordTypes(){
+    public List<RafRecordType> getRecordTypes() {
         //FIXME: yetki kontrolü yapılacak ve cachelenecek
         //FIXME: aktif olan record tipleri dönülecek!
-        
+
         List<RafRecordType> result = recordTypeManager.getRecordTypes();
-        
+
         //Aslında rol kontrolü yapıyoruz!
-        result = result.stream().filter( r -> r.getPermission().equals("ALL") || identity.getRoles().contains(r.getPermission()))
+        result = result.stream().filter(r -> r.getPermission().equals("ALL") || identity.getRoles().contains(r.getPermission()))
                 .collect(Collectors.toList());
-        
+
         return result;
     }
-    
-    
-    public void startRecord( RafRecordType recordType){
+
+    /**
+     * Geriye Kullanılabilir kayıt tipleirni döndürür.
+     *
+     * @return
+     */
+    public List<RafRecordType> getAllRecordTypes() {
+        //FIXME: aktif olan record tipleri dönülecek!
+
+        List<RafRecordType> result = recordTypeManager.getRecordTypes();
+
+        result = result.stream().collect(Collectors.toList());
+
+        return result;
+    }
+
+    public void startRecord(RafRecordType recordType) {
         LOG.debug("New Record will be started for : {}", recordType);
         startRecordDialog.openDialog(recordType);
     }
-    
+
     /**
      * Start dialoğu kapandığında çağrılır.
-     * 
+     *
      * Event içerisinde eğer TaskId varsa fodğrudan TaskConsole'a yönlendirilir.
-     * @param event 
+     *
+     * @param event
      */
-    public void onRecordStarted(SelectEvent event){
+    public void onRecordStarted(SelectEvent event) {
         Long taskId = (Long) event.getObject();
-        if( taskId != null ){
+        if (taskId != null) {
             navigationParameterContext.addPageParameter("tid", taskId);
             vnh.navigateTo(BpmPages.TaskConsole.class);
         }
     }
-    
+
 }
