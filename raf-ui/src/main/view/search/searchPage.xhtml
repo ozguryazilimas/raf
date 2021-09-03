@@ -66,12 +66,13 @@
                              widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult}" emptyMessage="Kayıt yok."
                              paginator="true" rows="20"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true">
-                    <p:column headerText="Dosya Yolu">
+                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true" sortMode="single">
+
+                    <p:column headerText="Dosya Yolu" sortable="true" sortBy="#{rafObject.path}">
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.File']}">
+                    <p:column headerText="#{messages['collection.table.File']}" sortable="true" sortBy="#{rafObject.title}">
                         <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafDocument'}">
                             <p:commandLink action="#{rafDocumentViewDialog.openDialog(rafObject)}" process="@this">
                                 #{rafObject.title}
@@ -89,21 +90,21 @@
                         </ui:remove>
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.User']}">
+                    <p:column headerText="#{messages['collection.table.User']}" sortable="true" sortBy="#{rafObject.createBy}">
                         <h:outputText value="#{rafObject.createBy}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.Date']}">
+                    <p:column headerText="#{messages['collection.table.Date']}" sortable="true" sortBy="#{rafObject.createDate}">
                         <h:outputText value="#{rafObject.createDate}">
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.UpdateUser']}">
+                    <p:column headerText="#{messages['collection.table.UpdateUser']}" sortable="true" sortBy="#{rafObject.updateBy}">
                         <h:outputText value="#{rafObject.updateBy}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.UpdateDate']}">
+                    <p:column headerText="#{messages['collection.table.UpdateDate']}" sortable="true" sortBy="#{rafObject.updateDate}">
                         <h:outputText value="#{rafObject.updateDate}">
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>

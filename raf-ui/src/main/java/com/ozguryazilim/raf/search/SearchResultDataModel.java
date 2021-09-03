@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -30,8 +31,16 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     private DetailedSearchModel searchModel;
     private SearchService searchService;
     private ElasticSearchService elasticSearchService;
+    private Map<String, String> columnMap = new HashMap();
 
     public SearchResultDataModel(List<RafDefinition> rafs, DetailedSearchModel searchModel, SearchService searchService, ElasticSearchService elasticSearchService) {
+        this.columnMap.put("path", "nodes.[jcr:path]");
+        this.columnMap.put("title", "nodes.[jcr:title]");
+        this.columnMap.put("createBy", "nodes.[jcr:createBy]");
+        this.columnMap.put("createDate", "nodes.[jcr:created]");
+        this.columnMap.put("updateBy", "nodes.[jcr:lastModifiedBy]");
+        this.columnMap.put("updateDate", "nodes.[jcr:lastModified]");
+
         this.rafs = rafs;
         this.searchModel = searchModel;
         this.searchService = searchService;
@@ -59,7 +68,10 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
             List<String> searchPanels = SearchRegistery.getSearchPanels();
-
+            if (sortField != null && sortOrder != null) {
+                searchModel.setSortBy(columnMap.get(sortField));
+                searchModel.setSortOrder(sortOrder == SortOrder.ASCENDING ? "ASC" : "DESC");
+            }
             if (!elasticSearch) {
                 //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
                 List extendedQuery = new ArrayList();
@@ -83,6 +95,14 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             this.setRowCount(0);
         }
         return datasource;
+    }
+
+    public Map<String, String> getColumnMap() {
+        return columnMap;
+    }
+
+    public void setColumnMap(Map<String, String> columnMap) {
+        this.columnMap = columnMap;
     }
 
 }
