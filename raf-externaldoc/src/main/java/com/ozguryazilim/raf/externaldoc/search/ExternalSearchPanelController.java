@@ -69,7 +69,7 @@ public class ExternalSearchPanelController implements SearchPanelController, Ser
     @PostConstruct
     public void init() {
         this.setOrder((short) 2);
-        clearEvent();        
+        clearEvent();
     }
 
     void listDocTypeAttributes(ExternalDocType externalDocType) {
@@ -83,6 +83,15 @@ public class ExternalSearchPanelController implements SearchPanelController, Ser
             listValueCache.put(attr.getAttributeName(), externalDocTypeAttributeListRepository.findByAttributeName(attr.getAttributeName()));
             detailedSearchController.getSearchModel().getMapAttValue().put(getMapKey(attr), null);
         }
+
+        detailedSearchController.setExtendedColumnMap(new HashMap());
+        detailedSearchController.getExtendedColumnMap().put("externalDoc:documentType", "externalDoc.documentType");
+        detailedSearchController.getExtendedColumnMap().put("externalDoc:documentCreator", "externalDoc.documentCreator");
+        detailedSearchController.getExtendedColumnMap().put("externalDoc:documentCreateDate", "externalDoc.documentCreateDate");
+        for (ExternalDocTypeAttribute attr : attributes) {
+            detailedSearchController.getExtendedColumnMap().put("externalDocMetaTag:externalDocTypeAttribute:".concat(getMapKey(attr)), attr.getAttributeName());
+        }
+
     }
 
     public void onDocumentTypeChange() {
@@ -125,6 +134,7 @@ public class ExternalSearchPanelController implements SearchPanelController, Ser
     @Override
     public List getSearchQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
         if ("JCR-SQL2".equals(queryLanguage)) {
             List<String> whereExpressions = new ArrayList();
             if (!Strings.isNullOrEmpty(searchModel.getDocumentType())) {
@@ -260,6 +270,41 @@ public class ExternalSearchPanelController implements SearchPanelController, Ser
     @Override
     public Short getOrder() {
         return order;
+    }
+
+    @Override
+    public List getSearchSortQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
+        if (searchModel != null && !Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder()) && !Strings.isNullOrEmpty(searchModel.getDocumentType())) {
+            if ("JCR-SQL2".equals(queryLanguage)) {
+                List<String> orderExpression = new ArrayList();
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put("externalDoc:documentType", "exdoc.[externalDoc:documentType]");
+                mapSort.put("externalDoc:documentId", "exdoc.[externalDoc:documentId]");
+                mapSort.put("externalDoc:documentCreator", "exdoc.[externalDoc:documentCreator]");
+                mapSort.put("externalDoc:documentCreateDate", "exdoc.[externalDoc:documentCreateDate]");
+
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    orderExpression.add(mapSort.get(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()));
+                }
+                return orderExpression;
+            } else if ("elasticSearch".equals(queryLanguage)) {
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put("externalDoc:documentType", "externalDoc:documentType");
+                mapSort.put("externalDoc:documentId", "externalDoc:documentId");
+                mapSort.put("externalDoc:documentCreator", "externalDoc:documentCreator");
+                mapSort.put("externalDoc:documentCreateDate", "externalDoc:documentCreateDate");
+                List sortList = new ArrayList();
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    Map order = new HashMap();
+                    Map sortBy = new HashMap();
+                    order.put("order", searchModel.getSortOrder().toLowerCase());
+                    sortBy.put(mapSort.get(searchModel.getSortBy()), order);
+                    sortList.add(sortBy);
+                }
+                return sortList;
+            }
+        }
+        return new ArrayList();
     }
 
 }

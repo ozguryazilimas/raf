@@ -21,7 +21,7 @@ public interface DocumentsWidgetController {
      * @return 
      */
     default Boolean getCanUpload(){
-        return Boolean.FALSE;
+        return Boolean.FALSE;       
     }
     
     /**

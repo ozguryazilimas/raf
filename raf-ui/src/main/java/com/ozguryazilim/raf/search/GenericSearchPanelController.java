@@ -155,6 +155,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     public void clearEvent() {
         detailedSearchController.getSearchModel().setSearchInDocumentName(Boolean.TRUE);
         detailedSearchController.getSearchModel().setSearchInDocumentTags(Boolean.FALSE);
+        detailedSearchController.setExtendedColumnMap(new HashMap());
     }
 
     @Override
@@ -290,6 +291,45 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     @Override
     public Short getOrder() {
         return order;
+    }
+
+    @Override
+    public List getSearchSortQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
+        if (searchModel != null && !Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder())) {
+            if ("JCR-SQL2".equals(queryLanguage)) {
+                List<String> orderExpression = new ArrayList();
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put("path", "nodes.[jcr:path]");
+                mapSort.put("title", "nodes.[jcr:title]");
+                mapSort.put("createBy", "nodes.[jcr:createBy]");
+                mapSort.put("created", "nodes.[jcr:created]");
+                mapSort.put("lastModifiedBy", "nodes.[jcr:lastModifiedBy]");
+                mapSort.put("lastModified", "nodes.[jcr:lastModified]");
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    orderExpression.add(mapSort.get(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()));
+                }
+                return orderExpression;
+            } else if ("elasticSearch".equals(queryLanguage)) {
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put("path", "filePath");
+                mapSort.put("title", "title");
+                mapSort.put("createBy", "createBy");
+                mapSort.put("created", "createDate");
+                mapSort.put("lastModifiedBy", "updateBy");
+                mapSort.put("lastModified", "updateDate");
+                List sortList = new ArrayList();
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    Map order = new HashMap();
+                    Map sortBy = new HashMap();
+                    order.put("order", searchModel.getSortOrder().toLowerCase());
+                    sortBy.put(mapSort.get(searchModel.getSortBy()), order);
+                    sortList.add(sortBy);
+                }
+
+                return sortList;
+            }
+        }
+        return new ArrayList();
     }
 
 }

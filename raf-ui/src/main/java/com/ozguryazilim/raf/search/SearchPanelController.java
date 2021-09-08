@@ -18,6 +18,8 @@ public interface SearchPanelController {
 
     List getSearchQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel);
 
+    List getSearchSortQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel);
+
     public void setOrder(Short order);
 
     public Short getOrder();

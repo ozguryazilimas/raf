@@ -52,6 +52,7 @@ public class ElasticSearchService implements Serializable {
     private WebResource myWebResource;
     private Client myClient;
     private List extendedQuery;
+    private List extendedSortQuery;
 
     Gson gson = new Gson();
 
@@ -82,8 +83,9 @@ public class ElasticSearchService implements Serializable {
         return result;
     }
 
-    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery) throws RafException {
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException {
         this.extendedQuery = extendedQuery;
+        this.extendedSortQuery = extendedSortQuery;
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -128,16 +130,6 @@ public class ElasticSearchService implements Serializable {
     }
 
     public String getSearchQuery(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset) {
-        Map<String, String> sortFieldConvertMap = new HashMap();
-        sortFieldConvertMap.put("nodes.[jcr:path]", "filePath");
-        sortFieldConvertMap.put("nodes.[jcr:title]", "title");
-        sortFieldConvertMap.put("nodes.[jcr:createBy]", "createBy");
-        sortFieldConvertMap.put("nodes.[jcr:created]", "createDate");
-        sortFieldConvertMap.put("nodes.[jcr:lastModifiedBy]", "updateBy");
-        sortFieldConvertMap.put("nodes.[jcr:lastModified]", "updateDate");
-        sortFieldConvertMap.put("exdoc.[externalDoc:documentCreator]", "externalDoc:documentCreator");
-        sortFieldConvertMap.put("exdoc.[externalDoc:documentCreateDate]", "externalDoc:documentCreateDate");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Map result = new HashMap();
         List mustQueryList = new ArrayList();
         mustQueryList.addAll(extendedQuery);
@@ -147,16 +139,9 @@ public class ElasticSearchService implements Serializable {
         must.put("must", mustQueryList);
         bool.put("bool", must);
         result.put("query", bool);
-        if (!Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder())) {
-            List sortList = new ArrayList();
-            Map order = new HashMap();
-            Map sortBy = new HashMap();
-            order.put("order", searchModel.getSortOrder().toLowerCase());
-            sortBy.put(sortFieldConvertMap.get(searchModel.getSortBy()), order);
-            sortList.add(sortBy);
-            result.put("sort", sortList);
+        if (extendedSortQuery != null && !extendedQuery.isEmpty()) {
+            result.put("sort", extendedSortQuery);
         }
-
         result.put("from", offset);
         result.put("size", limit);
         LOG.debug("ES Search Query : {}", result.toString());

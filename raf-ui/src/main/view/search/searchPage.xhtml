@@ -58,7 +58,28 @@
                             </div>
                         </c:forEach>                         
                     </div>
-                </div>                
+                </div>     
+                <div class="ui-fluid">
+                    <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                        <p:outputLabel value="#{messages['view.action.SortBy']}"/>
+                        <p:selectOneMenu id="searchSortBy" value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
+                            <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                            <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="path" />
+                            <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="title" />
+                            <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="createBy" />
+                            <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="created" />
+                            <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="lastModifiedBy" />
+                            <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="lastModified" />
+                            <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}">
+                            </f:selectItems>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="#{messages['view.action.SortType']}"/>
+                        <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                            <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                            <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                </div>
             </div>
 
             <div class="box box-primary">
@@ -66,13 +87,13 @@
                              widgetVar="resultDataTable" var="rafObject" value="#{detailedSearchController.searchResult}" emptyMessage="Kayıt yok."
                              paginator="true" rows="20"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true" sortMode="single">
+                             rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true" scrollable="true" scrollWidth="100%">
 
-                    <p:column headerText="Dosya Yolu" sortable="true" sortBy="#{rafObject.path}">
+                    <p:column headerText="Dosya Yolu" width="200">>
                         <h:outputText value="#{rafObject.path}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.File']}" sortable="true" sortBy="#{rafObject.title}">
+                    <p:column headerText="#{messages['collection.table.File']}" width="200">
                         <ui:fragment rendered="#{rafObject.class.simpleName eq 'RafDocument'}">
                             <p:commandLink action="#{rafDocumentViewDialog.openDialog(rafObject)}" process="@this">
                                 #{rafObject.title}
@@ -90,25 +111,33 @@
                         </ui:remove>
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.User']}" sortable="true" sortBy="#{rafObject.createBy}">
+                    <p:column headerText="#{messages['collection.table.User']}" width="150">
                         <h:outputText value="#{rafObject.createBy}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.Date']}" sortable="true" sortBy="#{rafObject.createDate}">
+                    <p:column headerText="#{messages['collection.table.Date']}" width="150">
                         <h:outputText value="#{rafObject.createDate}">
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.UpdateUser']}" sortable="true" sortBy="#{rafObject.updateBy}">
+
+                    <p:column headerText="#{messages['collection.table.UpdateUser']}" width="150">
                         <h:outputText value="#{rafObject.updateBy}" />
                     </p:column>
 
-                    <p:column headerText="#{messages['collection.table.UpdateDate']}" sortable="true" sortBy="#{rafObject.updateDate}">
+                    <p:column headerText="#{messages['collection.table.UpdateDate']}" width="150">
                         <h:outputText value="#{rafObject.updateDate}">
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>
-                    </p:column>                 
+                    </p:column>
+
+
+                    <c:forEach items="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset">
+                        <p:column headerText="#{messages[_entryset.value]}" width="150">
+                            <h:outputText value="#{detailedSearchController.getMetaDataValue(rafObject, _entryset.key)}" />
+                        </p:column>
+                    </c:forEach>
                 </p:dataTable>
             </div>         
         </h:form>

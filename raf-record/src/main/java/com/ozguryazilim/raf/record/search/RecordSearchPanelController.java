@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
+import com.ozguryazilim.raf.record.model.RafRecordType;
+import com.ozguryazilim.raf.record.ui.RecordController;
 import com.ozguryazilim.raf.search.DetailedSearchController;
 import com.ozguryazilim.raf.search.SearchPanelController;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
@@ -41,10 +43,17 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
     @Inject
     private SuggestionRepository suggestionRepository;
 
+    @Inject
+    RecordController recordController;
+
     private String recordType;
     private List<Field> metaDataFields;
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
+    private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
+    private static final String PROP_RECORD_NO = "raf:recordNo";
+    private static final String PROP_TITLE = "jcr:title";
+    private static final String PROP_DESCRIPTON = "jcr:description";
 
     @PostConstruct
     public void init() {
@@ -94,6 +103,14 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
                 }
             }
         }
+
+        detailedSearchController.setExtendedColumnMap(new HashMap());
+        detailedSearchController.getExtendedColumnMap().put(PROP_TITLE, "process.label.Subject");
+        detailedSearchController.getExtendedColumnMap().put(PROP_RECORD_NO, "record.label.RecordNo");
+        detailedSearchController.getExtendedColumnMap().put(PROP_DOCUMENT_TYPE, "process.label.DocumentType");
+        for (Field metaDataField : metaDataFields) {
+            detailedSearchController.getExtendedColumnMap().put(metaDataField.getDataKey(), metaDataField.getLabel());
+        }
     }
 
     public List<String> getSuggestion(String group) {
@@ -127,11 +144,24 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
 
     @Override
     public List getSearchQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
+
         if ("JCR-SQL2".equals(queryLanguage)) {
             List<String> whereExpressions = new ArrayList();
 
             if (!Strings.isNullOrEmpty(searchModel.getRecordType())) {
                 whereExpressions.add(" nodes.[" + PROP_RECORD_TYPE + "] = '" + searchModel.getRecordType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getRecordDocumentType())) {
+                whereExpressions.add(" nodes.[" + PROP_DOCUMENT_TYPE + "] = '" + searchModel.getRecordDocumentType() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getRecordNo())) {
+                whereExpressions.add(" nodes.[" + PROP_RECORD_NO + "] = '" + searchModel.getRecordNo() + "' ");
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getTitle())) {
+                whereExpressions.add(" nodes.[" + PROP_TITLE + "] = '" + searchModel.getTitle() + "' ");
             }
 
             String metadataName = "";
@@ -160,13 +190,38 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
                 match.put("match", recordType);
                 mustQueryList.add(match);
             }
+
+            if (!Strings.isNullOrEmpty(searchModel.getRecordDocumentType())) {
+                Map match = new HashMap();
+                Map matchValue = new HashMap();
+                matchValue.put("documentType", searchModel.getRecordDocumentType());
+                match.put("match", matchValue);
+                mustQueryList.add(match);
+
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getRecordNo())) {
+                Map match = new HashMap();
+                Map matchValue = new HashMap();
+                matchValue.put("recordNo", "*" + searchModel.getRecordNo() + "*");
+                match.put("wildcard", matchValue);
+                mustQueryList.add(match);
+            }
+
+            if (!Strings.isNullOrEmpty(searchModel.getTitle())) {
+                Map match = new HashMap();
+                Map matchValue = new HashMap();
+                matchValue.put("title", "*" + searchModel.getTitle() + "*");
+                match.put("wildcard", matchValue);
+                mustQueryList.add(match);
+            }
+
             if (searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty()) {
                 for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
                     if (value != null && !value.toString().trim().isEmpty()) {
                         if (value instanceof String) {
-
                             Arrays.asList(value.toString().split(" ")).forEach((str) -> {
                                 Map wildcard = new HashMap();
                                 Map filePath = new HashMap();
@@ -212,4 +267,53 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
     public Short getOrder() {
         return order;
     }
+
+    public RafRecordType getRecrodTypeByRecordTypeName(String recordName) {
+        for (RafRecordType rt : recordController.getAllRecordTypes()) {
+            if (recordName.split(";")[0].equals(rt.getName())) {
+                return rt;
+            }
+        }
+        return new RafRecordType();
+    }
+
+    @Override
+    public List getSearchSortQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
+        if (searchModel != null && !Strings.isNullOrEmpty(searchModel.getSortBy()) && !Strings.isNullOrEmpty(searchModel.getSortOrder()) && !Strings.isNullOrEmpty(searchModel.getRecordType())) {
+            if ("JCR-SQL2".equals(queryLanguage)) {
+                List<String> orderExpression = new ArrayList();
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put(PROP_TITLE, "nodes.[jcr:title]");
+                mapSort.put(PROP_RECORD_NO, "nodes.[" + PROP_RECORD_NO + "]");
+                mapSort.put(PROP_DOCUMENT_TYPE, "nodes.[" + PROP_DOCUMENT_TYPE + "]");
+                String metadataName = searchModel.getRecordMetaDataName().split(":")[0];
+                for (Field metaDataField : metaDataFields) {
+                    mapSort.put(metaDataField.getDataKey(), " " + metadataName.concat(".[").concat(metaDataField.getDataKey()).concat("]"));
+                }
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    orderExpression.add(mapSort.get(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()));
+                }
+                return orderExpression;
+            } else if ("elasticSearch".equals(queryLanguage)) {
+                Map<String, String> mapSort = new HashMap();
+                mapSort.put(PROP_TITLE, "title");
+                mapSort.put(PROP_RECORD_NO, "recordNo");
+                mapSort.put(PROP_DOCUMENT_TYPE, "documentType");
+                for (Field metaDataField : metaDataFields) {
+                    mapSort.put(metaDataField.getDataKey(), metaDataField.getDataKey());
+                }
+                List sortList = new ArrayList();
+                if (mapSort.containsKey(searchModel.getSortBy())) {
+                    Map order = new HashMap();
+                    Map sortBy = new HashMap();
+                    order.put("order", searchModel.getSortOrder().toLowerCase());
+                    sortBy.put(mapSort.get(searchModel.getSortBy()), order);
+                    sortList.add(sortBy);
+                }
+                return sortList;
+            }
+        }
+        return new ArrayList();
+    }
+
 }
