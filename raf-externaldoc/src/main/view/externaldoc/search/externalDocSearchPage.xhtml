@@ -15,7 +15,7 @@
             </p:panelGrid>
             <p:outputLabel value="#{messages['externalDoc.documentType']}"/>
             <p:selectOneMenu value="#{detailedSearchController.searchModel.documentType}" required="false" filter="true" filterMatchMode="startsWith">
-                <p:ajax listener="#{externalSearchPanelController.onDocumentTypeChange}" update="searchWithMetaDatas" />
+                <p:ajax listener="#{externalSearchPanelController.onDocumentTypeChange}" update="searchWithMetaDatas searchSortBy" />
                 <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
                 <f:selectItems value="#{externalSearchPanelController.documentTypes}" var="r" itemLabel="#{r.documentType}" itemValue="#{r.documentType}" />
             </p:selectOneMenu>

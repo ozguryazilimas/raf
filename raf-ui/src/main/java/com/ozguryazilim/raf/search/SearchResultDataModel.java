@@ -59,23 +59,20 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     public List<RafObject> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         try {
             List<String> searchPanels = SearchRegistery.getSearchPanels();
+            List extendedQuery = new ArrayList();
+            List extendedSortQuery = new ArrayList();
+            for (String searchPanel : searchPanels) {
+                SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+                extendedQuery.addAll(spc.getSearchQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+                extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+            }
 
             if (!elasticSearch) {
-                //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
-                List extendedQuery = new ArrayList();
-                for (String searchPanel : searchPanels) {
-                    SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
-                    extendedQuery.addAll(spc.getSearchQuery(rafs, QueryLanguage.JCR_SQL2, searchModel));
-                }
-                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery).getItems();
+                //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.               
+                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
                 this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
             } else {
-                List extendedQuery = new ArrayList();
-                for (String searchPanel : searchPanels) {
-                    SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
-                    extendedQuery.addAll(spc.getSearchQuery(rafs, "elasticSearch", searchModel));
-                }
-                datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery).getItems();
+                datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
                 this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs, extendedQuery));
             }
         } catch (RafException ex) {

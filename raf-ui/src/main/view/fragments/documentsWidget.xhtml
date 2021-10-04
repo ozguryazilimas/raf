@@ -34,17 +34,31 @@
                         </svg>
                     </td>
                     <td>
-                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafDocument'}">
+                        <ui:fragment rendered="#{ro.class.simpleName eq 'RafDocument'}">                            
                             <p:commandLink action="#{rafDocumentViewDialog.openDialog(ro)}" process="@this">
                                 #{ro.title}
                             </p:commandLink>
+                            <c:if test="#{controller.getClass().getName().contains('RafRecordViewPanel')}">
+                                <h:form style="display: inline;">
+                                    <p:commandLink action="#{downloadAction.downloadFile(ro)}" process="@this" ajax="false" immediate="true" styleClass="btn btn-box-tool">
+                                        <i class="fa fa-download" /> 
+                                        #{messages['action.title.DownloadAction']}
+                                    </p:commandLink>
+                                </h:form>
+                            </c:if>
+                            <c:if test="#{not controller.getClass().getName().contains('RafRecordViewPanel')}">
+                                <p:commandLink action="#{downloadAction.downloadFile(ro)}" process="@this" ajax="false" immediate="true" styleClass="btn btn-box-tool">
+                                    <i class="fa fa-download" /> 
+                                    #{messages['action.title.DownloadAction']}
+                                </p:commandLink>
+                            </c:if>
                         </ui:fragment>
 
                         <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
                             <p:commandLink action="#{rafRecordViewDialog.openDialog(ro)}" process="@this">
                                 #{ro.title}
                             </p:commandLink>
-                        </ui:fragment>
+                        </ui:fragment>                      
                     </td>
                     <td>#{ro.info}</td>
                 </tr>
@@ -60,6 +74,20 @@
                                 <p:commandLink action="#{rafDocumentViewDialog.openDialog(doc)}" process="@this">
                                     #{doc.title}
                                 </p:commandLink>
+                                <c:if test="#{controller.getClass().getName().contains('RafRecordViewPanel')}">
+                                    <h:form style="display: inline;">
+                                        <p:commandLink action="#{downloadAction.downloadFile(doc)}" process="@this" ajax="false" immediate="true" styleClass="btn btn-box-tool">
+                                            <i class="fa fa-download" /> 
+                                            #{messages['action.title.DownloadAction']}
+                                        </p:commandLink>
+                                    </h:form>
+                                </c:if>
+                                <c:if test="#{not controller.getClass().getName().contains('RafRecordViewPanel')}">
+                                    <p:commandLink action="#{downloadAction.downloadFile(doc)}" process="@this" ajax="false" immediate="true" styleClass="btn btn-box-tool">
+                                        <i class="fa fa-download" /> 
+                                        #{messages['action.title.DownloadAction']}
+                                    </p:commandLink>
+                                </c:if>
                             </td>
                             <td>#{doc.info}</td>
                             <td>#{doc.category}</td>

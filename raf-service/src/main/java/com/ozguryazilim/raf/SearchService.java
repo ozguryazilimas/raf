@@ -53,9 +53,9 @@ public class SearchService implements Serializable {
         return 1000;//modeshapeRepository.getDetailedSearchCount(searchModel, rafs, rafPathMemberService, identity.getLoginName());
     }
 
-    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery) throws RafException {
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException {
         //FIXME: yetki kontrolleri yapılmalı.
-        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery);
+        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery);
     }
 
 }

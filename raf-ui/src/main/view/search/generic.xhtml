@@ -47,24 +47,8 @@
             <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 
             <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>            
 
-            <p:outputLabel value="#{messages['view.action.SortBy']}"/>
-            <p:selectOneMenu value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
-                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="nodes.[jcr:path]" />
-                <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="nodes.[jcr:title]" />
-                <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="nodes.[jcr:createBy]" />
-                <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="nodes.[jcr:created]" />
-                <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="nodes.[jcr:lastModifiedBy]" />
-                <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="nodes.[jcr:lastModified]" />
-            </p:selectOneMenu>
-            <p:outputLabel value="#{messages['view.action.SortType']}"/>
-            <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
-                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItem itemLabel="A-Z" itemValue="ASC" />
-                <f:selectItem itemLabel="Z-A" itemValue="DESC" />
-            </p:selectOneMenu>
         </p:panelGrid>
     </div>
 

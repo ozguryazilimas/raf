@@ -1,16 +1,22 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
+import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -47,6 +53,9 @@ public class DetailedSearchController implements Serializable {
     @Inject
     private ElasticSearchService elasticSearchService;
 
+    @Inject
+    RafService rafService;
+
     private DetailedSearchModel searchModel;
     private SearchResultDataModel searchResult;
 
@@ -54,6 +63,16 @@ public class DetailedSearchController implements Serializable {
     private String activeSearchPanelController = DEFAULT_TAB_NAME;
 
     private List<RafDefinition> rafList;
+
+    private Map<String, String> extendedColumnMap = new HashMap();
+
+    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+    private static final String PROP_RECORD_TYPE = "raf:recordType";
+    private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
+    private static final String PROP_RECORD_NO = "raf:recordNo";
+    private static final String PROP_TITLE = "jcr:title";
+    private static final String PROP_DESCRIPTON = "jcr:description";
 
     public DetailedSearchModel getSearchModel() {
         return searchModel;
@@ -131,6 +150,59 @@ public class DetailedSearchController implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         Map<String, String> map = context.getExternalContext().getRequestParameterMap();
         this.setActiveSearchPanelController(map.get("activeSearchPanelController"));
+    }
+
+    public Map<String, String> getExtendedColumnMap() {
+        return extendedColumnMap;
+    }
+
+    public void setExtendedColumnMap(Map<String, String> extendedColumnMap) {
+        this.extendedColumnMap = extendedColumnMap;
+    }
+
+    public Object getMetaDataValue(RafObject rafObject, String metaDataTag) {
+        if (PROP_TITLE.equals(metaDataTag)) {
+            return rafObject.getName();
+        } else if (PROP_DOCUMENT_TYPE.equals(metaDataTag) && rafObject instanceof RafRecord) {
+            return ((RafRecord) rafObject).getDocumentType();
+        } else if (PROP_RECORD_NO.equals(metaDataTag) && rafObject instanceof RafRecord) {
+            return ((RafRecord) rafObject).getRecordNo();
+        } else if (PROP_RECORD_TYPE.equals(metaDataTag) && rafObject instanceof RafRecord) {
+            return ((RafRecord) rafObject).getRecordType();
+        } else if (PROP_DESCRIPTON.equals(metaDataTag) && rafObject instanceof RafRecord) {
+            return ((RafRecord) rafObject).getInfo();
+        }
+        if (metaDataTag.contains("externalDocMetaTag:externalDocTypeAttribute")) {
+            for (RafMetadata metadata : rafObject.getMetadatas()) {
+                if (metadata.getAttributes().containsKey("externalDocMetaTag:externalDocTypeAttribute")) {
+                    String[] attrNames = metadata.getAttributes().get("externalDocMetaTag:externalDocTypeAttribute").toString().split(";");
+                    String[] attrValues = metadata.getAttributes().get("externalDocMetaTag:value").toString().split(";");
+                    if (attrNames != null && attrValues != null) {
+                        String[] metaDataTagAttrNames = metaDataTag.split(":");
+                        String attrName = metaDataTagAttrNames[metaDataTagAttrNames.length - 1];
+                        int i = 0;
+                        for (String attr : attrNames) {
+                            if (attr.equals(attrName) && attrValues.length > i) {
+                                return attrValues[i];
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+        }
+        for (RafMetadata metadata : rafObject.getMetadatas()) {
+            if (metadata.getAttributes().containsKey(metaDataTag)) {
+                Object mVal = metadata.getAttributes().get(metaDataTag);
+                if (mVal instanceof Date) {
+                    return sdf.format((Date) mVal);
+                } else {
+                    return metadata.getAttributes().get(metaDataTag);
+                }
+            }
+        }
+
+        return null;
     }
 
 }

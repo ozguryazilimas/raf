@@ -33,10 +33,15 @@ public class DetailedSearchModel {
     private Boolean searchInDocumentTags = Boolean.FALSE;
 
     private String sortBy;
-    private String sortOrder;
+    private String sortOrder = "ASC";
 
     private String recordType;
     private String recordMetaDataName;
+
+    private String title;
+    private String recordNo;
+    private String info;
+    private String recordDocumentType;
 
     public DetailedSearchModel() {
     }
@@ -175,6 +180,38 @@ public class DetailedSearchModel {
 
     public void setRecordType(String recordType) {
         this.recordType = recordType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getRecordNo() {
+        return recordNo;
+    }
+
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getRecordDocumentType() {
+        return recordDocumentType;
+    }
+
+    public void setRecordDocumentType(String recordDocumentType) {
+        this.recordDocumentType = recordDocumentType;
     }
 
 }

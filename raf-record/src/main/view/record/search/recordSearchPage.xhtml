@@ -3,22 +3,35 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"        
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:p="http://primefaces.org/ui">
 
     <div class="ui-fluid">
-        <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+        <p:panelGrid id="recordSearchPanel" columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
             <p:outputLabel value="#{messages['process.label.Process']}"/>
             <p:selectOneMenu value="#{recordSearchPanelController.recordType}" required="false" filter="true" filterMatchMode="startsWith">
-                <p:ajax listener="#{recordSearchPanelController.onRecordTypeChange}" update="searchWithWFMetaDatas" />
+                <p:ajax listener="#{recordSearchPanelController.onRecordTypeChange}" update="recordSearchPanel searchWithWFMetaDatas searchSortBy" />
                 <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItems value="#{recordController.recordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
+                <f:selectItems value="#{recordController.allRecordTypes}" var="recType" itemLabel="#{recType.title}" itemValue="#{recType.name.concat(';').concat(recType.metadata)}"/>
+            </p:selectOneMenu>
+
+            <p:outputLabel value="#{messages['record.label.RecordNo']}"/>
+            <p:inputText placeholder="Kayıt No" value="#{detailedSearchController.searchModel.recordNo}" />
+
+            <p:outputLabel value="#{messages['process.label.Subject']}"/>
+            <p:inputText placeholder="Konu" value="#{detailedSearchController.searchModel.title}" />
+
+            <p:outputLabel value="#{messages['process.label.DocumentType']}"/>
+            <p:selectOneMenu value="#{detailedSearchController.searchModel.recordDocumentType}">
+                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItems value="#{recordSearchPanelController.getRecrodTypeByRecordTypeName(recordSearchPanelController.recordType).documentTypes}" var="dt" itemLabel="#{dt.title}" itemValue="#{dt.name}" />
             </p:selectOneMenu>
 
         </p:panelGrid>
 
         <p:panel id="searchWithWFMetaDatas" header="#{messages['record.label.MetaTag']}" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">
             <ui:fragment rendered="#{recordSearchPanelController.metaDataFields ne null and detailedSearchController.searchModel.mapWFAttValue ne null and recordSearchPanelController.metaDataFields.size() > 0}">
-                <p:scrollPanel mode="native" style="width: 900px; height: 300px;">
+                <p:scrollPanel mode="native" style="width: 900px; height: 200px;">
                     <ui:repeat value="#{recordSearchPanelController.metaDataFields}" var="mdf" varStatus="status">
                         <div class="row">                   
                             <div class="col-md-4">

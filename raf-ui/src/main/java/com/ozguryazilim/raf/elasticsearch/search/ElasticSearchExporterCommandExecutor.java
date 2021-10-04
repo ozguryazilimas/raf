@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sun.jersey.api.client.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -130,6 +131,7 @@ public class ElasticSearchExporterCommandExecutor extends AbstractCommandExecute
 
         }
 
+        command.setStartDate(Calendar.getInstance().getTime());
         LOG.info("Raf elastic exporting command is executed.");
     }
 

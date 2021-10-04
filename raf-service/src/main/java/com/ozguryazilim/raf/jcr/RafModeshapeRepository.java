@@ -870,7 +870,7 @@ public class RafModeshapeRepository implements Serializable {
 
     public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
             List<RafDefinition> rafs,
-            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery) throws RafException {
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery, List extendedSortQuery) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -901,8 +901,14 @@ public class RafModeshapeRepository implements Serializable {
                 lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
             }
 
-            if (!Strings.isNullOrEmpty(searchModel.getSortBy())) {
-                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ".concat(searchModel.getSortBy()).concat(" ").concat(searchModel.getSortOrder()).concat(" "));
+            if (extendedSortQuery != null && !extendedSortQuery.isEmpty()) {
+                lastWhereExpression = lastWhereExpression.concat(" ORDER BY ");
+                for (int i = 0; i < extendedSortQuery.size(); i++) {
+                    lastWhereExpression = lastWhereExpression.concat(extendedSortQuery.get(i).toString());
+                    if (i < extendedSortQuery.size() - 1) {
+                        lastWhereExpression = lastWhereExpression.concat(" AND ");
+                    }
+                }
             }
 
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
