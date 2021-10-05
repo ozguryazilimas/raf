@@ -78,9 +78,18 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                 importCommand.setRafPath(command.getRafPath());
                 importCommand.setJexlExp(command.getJexlExp());
 
+                
+                message.setFlag(Flags.Flag.DELETED, true);
+                
+                
                 commandSender.sendCommand(importCommand);
                 message.setFlag(Flags.Flag.DELETED, true);
             }
+            
+            emailFolder.expunge();
+            
+            //FIXME: Arşive alıp almama parametreye bağlanmalı. Ki aşağıdaki kod sorunlu. 
+            /*
             String archiveFolderName = command.getArchiveFolder();
             if (IMAP.equals(protocol) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
                 //arşivle
@@ -90,6 +99,7 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                 emailFolder.copyMessages(messages, archiveFolder);
                 archiveFolder.close(false);
             }
+            */
             // close the store and folder objects
             emailFolder.close(true);
             store.close();
