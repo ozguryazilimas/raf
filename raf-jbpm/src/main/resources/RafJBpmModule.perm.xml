@@ -5,5 +5,8 @@
         <permission target="allTasks">
             <action name="update"/>
         </permission>
+        <permission target="Deployment">
+            <action name="select"/>
+        </permission>
     </permissionGroup>
 </permissions>

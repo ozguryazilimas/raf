@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
@@ -54,8 +55,11 @@ public class DetailedSearchController implements Serializable {
     private ElasticSearchService elasticSearchService;
 
     @Inject
-    RafService rafService;
-
+    private RafService rafService;
+    
+    @Inject
+    private RafContext rafContext;
+    
     private DetailedSearchModel searchModel;
     private SearchResultDataModel searchResult;
 
@@ -136,14 +140,25 @@ public class DetailedSearchController implements Serializable {
     }
 
     public Object[] getSearchPanels() {
-        return SearchRegistery.getSearchPanels().stream().sorted(new Comparator<String>() {
-            @Override
-            public int compare(String t, String t1) {
-                SearchPanelController tspc = (SearchPanelController) BeanProvider.getContextualReference(t, false);
-                SearchPanelController tspc1 = (SearchPanelController) BeanProvider.getContextualReference(t1, false);
-                return tspc.getOrder().compareTo(tspc1.getOrder());
-            }
-        }).toArray();
+        
+        //FIXME: buraya daha düzgün bir çözüm lazım. Search panel tipleri felan tanımlanmalı. Process panellerini ayıklamak için daha düzgün bir yol olur.
+        //Eğer süreç sistemi yoksa geriye sadece generic search panel dönsün aksi taktirde olası tüm paneller dönsün.
+        
+        if( rafContext.getHasProcess() ){
+        
+            return SearchRegistery.getSearchPanels().stream().sorted(new Comparator<String>() {
+                @Override
+                public int compare(String t, String t1) {
+                    SearchPanelController tspc = (SearchPanelController) BeanProvider.getContextualReference(t, false);
+                    SearchPanelController tspc1 = (SearchPanelController) BeanProvider.getContextualReference(t1, false);
+                    return tspc.getOrder().compareTo(tspc1.getOrder());
+                }
+            }).toArray();
+        } 
+        
+        Object[] r = new Object[1];
+        r[0] = "genericSearchPanelController";
+        return r; 
     }
 
     public void setActiveTab() {

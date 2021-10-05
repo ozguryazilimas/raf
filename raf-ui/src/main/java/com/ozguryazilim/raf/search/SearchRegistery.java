@@ -3,7 +3,6 @@ package com.ozguryazilim.raf.search;
 import com.google.common.base.CaseFormat;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

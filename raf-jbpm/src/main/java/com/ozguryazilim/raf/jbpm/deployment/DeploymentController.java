@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.jbpm.deployment;
 
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.auth.KJarResourceHandler;
 import com.ozguryazilim.raf.auth.RafAsset;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
@@ -46,6 +47,9 @@ public class DeploymentController implements Serializable {
 
     @Inject
     private Instance<KJarResourceHandler> resourceHandlers;
+    
+    @Inject
+    private RafContext rafContext;
 
     private List<RafAsset> deployedAssets;
 
@@ -99,6 +103,11 @@ public class DeploymentController implements Serializable {
                 h.undeploy(id);
             });
 
+            //Eğer hiç Process kalmadıysa bpmn system pasif diye işaretleyelim
+            if( getDeployedUnits().isEmpty() ){
+                rafContext.setHasProcess(Boolean.FALSE);
+            }
+            
             AuditLogCommand command = new AuditLogCommand("KJAR_UNDEPLOY", identity.getLoginName(), id);
             command.setCategory("KJAR");
             command.setDomain(id);
@@ -131,6 +140,9 @@ public class DeploymentController implements Serializable {
             deploymentService.deploy(deploymentUnit);
             clear();
 
+            //Process var bpmn system aktif diye işaretleyelim
+            rafContext.setHasProcess(Boolean.TRUE);
+            
             AuditLogCommand command = new AuditLogCommand("KJAR_DEPLOY", identity.getLoginName(), kjarId);
             command.setCategory("KJAR");
             command.setDomain(kjarId);
