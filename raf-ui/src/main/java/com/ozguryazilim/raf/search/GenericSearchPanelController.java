@@ -17,12 +17,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.primefaces.event.SelectEvent;
@@ -43,6 +45,8 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     private static final Logger LOG = LoggerFactory.getLogger(GenericSearchPanelController.class);
 
     private Short order = 0;
+
+    private Boolean caseSensitiveSearchOptionEnabled = "false".equals(ConfigResolver.getPropertyValue("caseSensitiveSearchOptionEnabled", "false"));
 
     @Inject
     private SavedSearchService savedSearchService;
@@ -174,9 +178,18 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInDocumentName()) {
-                    whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    if (searchModel.getCaseSensitive()) {
+                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    } else {
+                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.forLanguageTag("tr-TR")))));
+                    }
+
                 } else {
-                    whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    if (searchModel.getCaseSensitive()) {
+                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    } else {
+                        whereExpressions.add(String.format(" CONTAINS(LOWER(nodes.*), '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.forLanguageTag("tr-TR")))));
+                    }
                 }
 
                 if (searchModel.getSearchInDocumentTags()) {
@@ -330,6 +343,14 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
         }
         return new ArrayList();
+    }
+
+    public Boolean getCaseSensitiveSearchOptionEnabled() {
+        return caseSensitiveSearchOptionEnabled;
+    }
+
+    public void setCaseSensitiveSearchOptionEnabled(Boolean caseSensitiveSearchOptionEnabled) {
+        this.caseSensitiveSearchOptionEnabled = caseSensitiveSearchOptionEnabled;
     }
 
 }

@@ -29,6 +29,7 @@ public class DetailedSearchModel {
 
     private Map<String, Object> mapWFAttValue;
 
+    private Boolean caseSensitive = Boolean.FALSE;
     private Boolean searchInDocumentName = Boolean.TRUE;
     private Boolean searchInDocumentTags = Boolean.FALSE;
 
@@ -212,6 +213,14 @@ public class DetailedSearchModel {
 
     public void setRecordDocumentType(String recordDocumentType) {
         this.recordDocumentType = recordDocumentType;
+    }
+
+    public Boolean getCaseSensitive() {
+        return caseSensitive;
+    }
+
+    public void setCaseSensitive(Boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
     }
 
 }
