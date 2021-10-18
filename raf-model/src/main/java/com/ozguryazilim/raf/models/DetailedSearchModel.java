@@ -55,11 +55,11 @@ public class DetailedSearchModel {
         return recordMetaDataName;
     }
 
-    public Boolean getSearchInDocumentName() {
+    public Boolean isSearchInDocumentName() {
         return searchInDocumentName;
     }
 
-    public Boolean getSearchInDocumentTags() {
+    public Boolean isSearchInDocumentTags() {
         return searchInDocumentTags;
     }
 
@@ -215,7 +215,7 @@ public class DetailedSearchModel {
         this.recordDocumentType = recordDocumentType;
     }
 
-    public Boolean getCaseSensitive() {
+    public Boolean isCaseSensitive() {
         return caseSensitive;
     }
 

@@ -46,7 +46,9 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
     private Short order = 0;
 
-    private Boolean caseSensitiveSearchOptionEnabled = "false".equals(ConfigResolver.getPropertyValue("caseSensitiveSearchOptionEnabled", "false"));
+    private boolean caseSensitiveSearchOptionEnabled = "false".equals(ConfigResolver.getPropertyValue("caseSensitiveSearchOptionEnabled", "false"));
+
+    private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
 
     @Inject
     private SavedSearchService savedSearchService;
@@ -177,22 +179,22 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.getSearchInDocumentName()) {
-                    if (searchModel.getCaseSensitive()) {
+                if (searchModel.isSearchInDocumentName()) {
+                    if (searchModel.isCaseSensitive()) {
                         whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.forLanguageTag("tr-TR")))));
+                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
                     }
 
                 } else {
-                    if (searchModel.getCaseSensitive()) {
+                    if (searchModel.isCaseSensitive()) {
                         whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" CONTAINS(LOWER(nodes.*), '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.forLanguageTag("tr-TR")))));
+                        whereExpressions.add(String.format(" CONTAINS(LOWER(nodes.*), '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
                     }
                 }
 
-                if (searchModel.getSearchInDocumentTags()) {
+                if (searchModel.isSearchInDocumentTags()) {
                     whereExpressions.add("  nodes.[" + PROP_TAG + "] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
                 }
             }
@@ -251,7 +253,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.getSearchInDocumentName()) {
+                if (searchModel.isSearchInDocumentName()) {
                     Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
                         Map wildcard = new HashMap();
                         Map filePath = new HashMap();
@@ -269,7 +271,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                     });
                 }
 
-                if (searchModel.getSearchInDocumentTags()) {
+                if (searchModel.isSearchInDocumentTags()) {
                     Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
                         Map wildcard = new HashMap();
                         Map filePath = new HashMap();
@@ -345,11 +347,11 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         return new ArrayList();
     }
 
-    public Boolean getCaseSensitiveSearchOptionEnabled() {
+    public boolean isCaseSensitiveSearchOptionEnabled() {
         return caseSensitiveSearchOptionEnabled;
     }
 
-    public void setCaseSensitiveSearchOptionEnabled(Boolean caseSensitiveSearchOptionEnabled) {
+    public void setCaseSensitiveSearchOptionEnabled(boolean caseSensitiveSearchOptionEnabled) {
         this.caseSensitiveSearchOptionEnabled = caseSensitiveSearchOptionEnabled;
     }
 
