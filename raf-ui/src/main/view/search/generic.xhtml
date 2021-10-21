@@ -43,6 +43,11 @@
             <p:outputLabel value="#{messages['general.label.Search']}"/>
             <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
 
+            <ui:fragment rendered="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
+                <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
+            </ui:fragment>
+
             <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
             <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 

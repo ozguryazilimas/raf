@@ -196,8 +196,8 @@
                     </ul>
                     <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;" >
                         <div class="form-group">
-                            <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
-                            <p:commandButton action="#{detailedSearchController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
+                            <p:inputText id="searchText" styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
+                            <p:commandButton action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
                             </p:commandButton>
                         </div>
                     </h:form>
@@ -237,9 +237,9 @@
                     <h:form class="navbar-form navbar-left hidden-xs" role="search" style="padding: 2px;" rendered="#{facesContext.viewRoot.viewId.contains('raf.xhtml')}">
                         <div class="form-group">
                             <div class="ui-inputgroup">
-                                <p:inputText styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
+                                <p:inputText id="searchText" styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
 
-                                <p:commandButton action="#{detailedSearchController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
+                                <p:commandButton action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
                                 </p:commandButton>
 
                             </div>                            
@@ -249,12 +249,13 @@
                     <ul class="nav navbar-nav">
 
 
-                        <li class="hidden-xs">
-                            <a href="/dolap/search/searchPage.jsf" title="#{messages['general.label.DetailSearch']}">
-                                <i class="fa fa-search"></i>
-                            </a>
-                        </li>
-
+                        <ui:fragment rendered="#{not facesContext.viewRoot.viewId.contains('raf.xhtml')}">                                                   
+                            <li class="hidden-xs">
+                                <a href="/dolap/search/searchPage.jsf" title="#{messages['general.label.DetailSearch']}">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </li>
+                        </ui:fragment>
                         <ui:include src="/fragments/notiftyPopupFragment.xhtml" />
 
 
