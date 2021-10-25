@@ -25,7 +25,9 @@
         <p:outputPanel deferred="true">
             <div class="box-body no-padding">
                 <ul class="nav nav-pills nav-stacked">
-                    <p:repeat value="#{myRafsDashlet.rafs}" var="raf" >
+                    <p:dataList value="#{myRafsDashlet.lazyRafs}" var="raf" lazy="true" type="unordered" itemType="none"
+                                paginator="true" rows="#{myRafsDashlet.size}" rowsPerPageTemplate="5,10,20,25,30,50" pageLinks="5" paginatorPosition="bottom"
+                                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
                         <li >
                             <h:link  outcome="/raf.xhtml" title="#{raf.code}">
                                 <i class="fa fa-archive"></i>
@@ -33,7 +35,7 @@
                                 #{messages[raf.name]}
                             </h:link>
                         </li>
-                    </p:repeat>
+                    </p:dataList>
                 </ul>
             </div>
         </p:outputPanel>
