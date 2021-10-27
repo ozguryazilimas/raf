@@ -18,16 +18,17 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.uploader.ui.FileUploadDialog;
 import com.ozguryazilim.telve.uploader.ui.FileUploadHandler;
-import java.io.IOException;
-import java.util.Map;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  *
@@ -196,6 +197,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
 
     @Override
     public void handleFileUpload(String uri) {
+    }
+
+    @Override
+    public void handleFileUpload(String uri, boolean decompress) {
         LOG.debug("File Upload complete : {}", uri);
 
         try {
@@ -211,6 +216,9 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
                     throw new RafException("File is exists");
                 }
                 RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
+                if (decompress && "application/zip".equals(uploadedDocument.getMimeType())) {
+                    rafService.extractZipFile(uploadedDocument);
+                }
                 //Dosya zaten PROCESS klasörüne yükleniyor, tekrar move etmeye gerek yok.
 //                if (uploadedDocument != null && "PROCESS".equals(rafCode) && targetRecord != null) {
 //                    rafService.moveObject(uploadedDocument, targetRecord);
