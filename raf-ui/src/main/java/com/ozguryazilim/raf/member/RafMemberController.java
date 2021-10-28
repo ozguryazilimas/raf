@@ -75,7 +75,7 @@ public class RafMemberController implements Serializable {
     private String filter = "";
     private List<RafMember> filteredMembers;
     private RafMember selectedMember;
-    
+
     public void init() {
 
         filteredMembers = null;
@@ -129,16 +129,17 @@ public class RafMemberController implements Serializable {
     }
 
     public List<RafMember> getMembers() {
-        
-        if( filteredMembers == null ){
+
+        if (filteredMembers == null) {
             try {
-                filteredMembers= memberService.getMembers(rafDefinition).stream()
-                        .filter( m->  
-                                Strings.isNullOrEmpty(m.getMemberName()) ? false : 
-                                    m.getMemberType().equals(RafMemberType.USER) ? 
-                                        userLookup.getUserName(m.getMemberName()).contains(filter) : m.getMemberName().contains( filter))
+                filteredMembers = memberService.getMembers(rafDefinition).stream()
+                        .filter(m
+                                -> m.getMemberType().equals(RafMemberType.USER)
+                        ? userLookup.getUserName(m.getMemberName()).contains(filter)
+                        : m.getMemberName().contains(filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent()
+                        )
                         .collect(Collectors.toList());
-                
+
                 return filteredMembers;
             } catch (RafException ex) {
                 //FIXME: i18n
@@ -148,7 +149,7 @@ public class RafMemberController implements Serializable {
 
             return Collections.emptyList();
         }
-        
+
         return filteredMembers;
     }
 
@@ -250,6 +251,10 @@ public class RafMemberController implements Serializable {
         return memberService.getGroupUsers(userGroupName);
     }
 
+    public List<String> getGroupUserNames(String userGroupName) {
+        return memberService.getGroupUsers(userGroupName).stream().map(m -> userLookup.getUserName(m)).collect(Collectors.toList());
+    }
+
     public void deleteMember(RafMember member) {
         try {
             memberService.removeMember(member);
@@ -260,11 +265,10 @@ public class RafMemberController implements Serializable {
         }
     }
 
-    
-    public void search(){
+    public void search() {
         filteredMembers = null;
     }
-    
+
     public String getFilter() {
         return filter;
     }
@@ -280,29 +284,28 @@ public class RafMemberController implements Serializable {
     public void setSelectedMember(RafMember selectedMember) {
         this.selectedMember = selectedMember;
     }
- 
 
-    public void editMember( RafMember m ){
+    public void editMember(RafMember m) {
         selectedMember = m;
     }
-    
-    public void closeDialog(){
+
+    public void closeDialog() {
         //Normal bir kapanış olduğuna göre ya save işlemi yapılacak demek.
-        
-        if( selectedMember != null){
-            
+
+        if (selectedMember != null) {
+
             try {
                 memberService.changeMemberRole(selectedMember.getRaf(), selectedMember.getMemberName(), selectedMember.getRole());
             } catch (RafException ex) {
                 LOG.error("Role Cannot Change", ex);
             }
-            
+
             search();
         }
-        
+
     }
-    
-    public void cancelDialog(){
+
+    public void cancelDialog() {
         //Aslında yapacak bir şey yok.
         selectedMember = null;
     }

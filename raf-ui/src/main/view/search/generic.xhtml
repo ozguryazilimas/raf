@@ -45,14 +45,14 @@
 
             <ui:fragment rendered="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
-                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isCaseSensitive()}"/>
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
             </ui:fragment>
 
             <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isSearchInDocumentName()}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 
             <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isSearchInDocumentTags()}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
 
         </p:panelGrid>
     </div>
