@@ -31,6 +31,7 @@
         <modeshape.version>5.4.1.Final</modeshape.version>
         <drools.version>7.13.0.Final</drools.version>
         <jbpm.version>7.13.0.Final</jbpm.version>
+        <jackson.version>2.13.0</jackson.version>
         
         <!--
         <version.liquibase-hibernate4>3.5</version.liquibase-hibernate4>
