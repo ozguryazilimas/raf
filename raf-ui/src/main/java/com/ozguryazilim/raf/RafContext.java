@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
@@ -31,6 +32,7 @@ public class RafContext implements Serializable{
     private List<RafObject> seletedItems = new ArrayList<>();
     private List<RafObject> clipboard = new ArrayList<>();
     private AbstractAction clipboardAction;
+    private Boolean hasProcess = Boolean.FALSE;
             
 
     public RafDefinition getSelectedRaf() {
@@ -97,7 +99,17 @@ public class RafContext implements Serializable{
         this.clipboardAction = clipboardAction;
     }
 
+    public Boolean getHasProcess() {
+        return hasProcess;
+    }
+
+    public void setHasProcess(Boolean hasProcess) {
+        this.hasProcess = hasProcess;
+    }
+
+    
+    
     public boolean bpmnSystemEnabled(){
-        return TelveModuleRegistery.isModuleRegistered("RafJBpmModule");
+        return getHasProcess();
     }
 }

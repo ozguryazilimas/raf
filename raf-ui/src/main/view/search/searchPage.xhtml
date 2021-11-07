@@ -36,12 +36,7 @@
             <ui:include src="/layout/messages.xhtml" />
 
             <div class="box box-primary">
-                <p:toolbar>
-                    <f:facet name="left">
-                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="ui-priority-primary" />
-                        <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="ui-priority-secondary" />
-                    </f:facet>
-                </p:toolbar>
+                
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <c:forEach items="#{detailedSearchController.searchPanels}" var="searchPanel" >
@@ -80,6 +75,14 @@
                         </p:selectOneMenu>
                     </p:panelGrid>
                 </div>
+                
+                
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="btn btn-primary" />
+                        <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="btn" />
+                    </f:facet>
+                </p:toolbar>
             </div>
 
             <div class="box box-primary">
