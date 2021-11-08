@@ -131,6 +131,17 @@
 
                             <ul class="dropdown-menu" role="menu">
 
+                                <ui:fragment rendered="#{identity.hasPermission('raf', 'insert')}">
+                                    <li >
+                                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="#{messages['raf.label.CreateRaf']}">
+                                            <i class="fa fa-plus-circle" />
+                                            #{messages['raf.label.CreateRaf']}
+                                            <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
+                                        </p:commandLink>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                </ui:fragment>
+
                                 <p:repeat value="#{rafNavigationController.rafs}" var="raf" >
                                     <li >
                                         <h:link  outcome="/raf.xhtml" title="#{raf.code}">
@@ -140,17 +151,6 @@
                                         </h:link>
                                     </li>
                                 </p:repeat>
-
-                                <ui:fragment rendered="#{identity.hasPermission('raf', 'insert')}">
-                                    <li role="separator" class="divider"></li>
-                                    <li >
-                                        <p:commandLink action="#{rafDefinitionDialogController.openDialog()}" title="#{messages['raf.label.CreateRaf']}">
-                                            <i class="fa fa-plus-circle" />
-                                            #{messages['raf.label.CreateRaf']}
-                                            <p:ajax event="dialogReturn" listener="#{rafDefinitionDialogController.goCreatedRaf}" />
-                                        </p:commandLink>
-                                    </li>
-                                </ui:fragment>
                             </ul>
 
                         </li>
