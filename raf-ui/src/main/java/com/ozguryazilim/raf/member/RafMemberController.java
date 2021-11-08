@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -128,16 +127,28 @@ public class RafMemberController implements Serializable {
         this.rafDefinition = rafDefinition;
     }
 
+    private boolean filterMembers(RafMember m) {
+        boolean result = false;
+        if (m.getMemberType().equals(RafMemberType.USER)) {
+            result = userLookup.getUserName(m.getMemberName()).contains(filter);
+            return result;
+        } else {
+            result = m.getMemberName().contains(filter);
+            if (result) {
+                return result;
+            } else {
+                result = getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent();
+                return result;
+            }
+        }
+    }
+
     public List<RafMember> getMembers() {
 
         if (filteredMembers == null) {
             try {
                 filteredMembers = memberService.getMembers(rafDefinition).stream()
-                        .filter(m
-                                -> m.getMemberType().equals(RafMemberType.USER)
-                        ? userLookup.getUserName(m.getMemberName()).contains(filter)
-                        : m.getMemberName().contains(filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent()
-                        )
+                        .filter(m -> filterMembers(m))
                         .collect(Collectors.toList());
 
                 return filteredMembers;
@@ -251,7 +262,7 @@ public class RafMemberController implements Serializable {
         return memberService.getGroupUsers(userGroupName);
     }
 
-    public List<String> getGroupUserNames(String userGroupName) {
+    private List<String> getGroupUserNames(String userGroupName) {
         return memberService.getGroupUsers(userGroupName).stream().map(m -> userLookup.getUserName(m)).collect(Collectors.toList());
     }
 
