@@ -14,20 +14,21 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.raf.uploader.RafFileUploadDialog;
+import com.ozguryazilim.raf.uploader.RafFileUploadHandler;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import com.ozguryazilim.telve.uploader.ui.FileUploadDialog;
-import com.ozguryazilim.telve.uploader.ui.FileUploadHandler;
-import java.io.IOException;
-import java.util.Map;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  *
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
         order = 0)
-public class FileUploadAction extends AbstractAction implements FileUploadHandler {
+public class FileUploadAction extends AbstractAction implements RafFileUploadHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadAction.class);
 
@@ -54,7 +55,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
     private Event<RafCheckInEvent> rafCheckInEvent;
 
     @Inject
-    private FileUploadDialog fileUploadDialog;
+    private RafFileUploadDialog fileUploadDialog;
 
     @Inject
     private TusFileUploadService fileUploadService;
@@ -137,8 +138,12 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         this.rafCode = rafCode;
         this.uploadPath = uploadPath;
         actionExec = Boolean.FALSE;
-        //openDialog();
-        fileUploadDialog.openDialog(this, "");
+        // Yeni bir versiyon eklenecekse eklenecek dosya sayısı limitini 1 yapıyoruz.
+        if (rafCode.equals("CHECKIN")) {
+            fileUploadDialog.openDialog(this, 1);
+        } else {
+            fileUploadDialog.openDialog(this);
+        }
     }
 
     public void execute(String rafCode, String uploadPath, RafRecord targetRecord) {
@@ -162,7 +167,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
      */
     @Override
     protected void openDialog() {
-        fileUploadDialog.openDialog(this, "");
+        fileUploadDialog.openDialog(this);
     }
 
     public String getRafCode() {
@@ -196,6 +201,10 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
 
     @Override
     public void handleFileUpload(String uri) {
+    }
+
+    @Override
+    public void handleFileUpload(String uri, boolean decompress) {
         LOG.debug("File Upload complete : {}", uri);
 
         try {
@@ -211,10 +220,14 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
                     throw new RafException("File is exists");
                 }
                 RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
-                //Dosya zaten PROCESS klasörüne yükleniyor, tekrar move etmeye gerek yok.
-//                if (uploadedDocument != null && "PROCESS".equals(rafCode) && targetRecord != null) {
-//                    rafService.moveObject(uploadedDocument, targetRecord);
-//                }
+
+                if (decompress && "application/zip".equals(uploadedDocument.getMimeType())) {
+                    rafService.extractZipFile(uploadedDocument);
+                    if ("true".equals(ConfigResolver.getProjectStageAwarePropertyValue("auto.extract.zip.files.remove.after.extract", "true"))) {
+                        rafService.deleteObject(uploadedDocument);
+                    }
+                }
+
             }
 
             fileUploadService.deleteUpload(uri);
