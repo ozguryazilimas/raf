@@ -128,18 +128,10 @@ public class RafMemberController implements Serializable {
     }
 
     private boolean filterMembers(RafMember m) {
-        boolean result = false;
         if (m.getMemberType().equals(RafMemberType.USER)) {
-            result = userLookup.getUserName(m.getMemberName()).contains(filter);
-            return result;
+            return userLookup.getUserName(m.getMemberName()).contains(filter);
         } else {
-            result = m.getMemberName().contains(filter);
-            if (result) {
-                return result;
-            } else {
-                result = getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent();
-                return result;
-            }
+            return m.getMemberName().contains(filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent();
         }
     }
 
