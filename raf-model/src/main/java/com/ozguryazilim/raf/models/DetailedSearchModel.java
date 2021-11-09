@@ -29,9 +29,9 @@ public class DetailedSearchModel {
 
     private Map<String, Object> mapWFAttValue;
 
-    private boolean caseSensitive = false;
-    private boolean searchInDocumentName = true;
-    private boolean searchInDocumentTags = false;
+    private Boolean caseSensitive = Boolean.FALSE;
+    private Boolean searchInDocumentName = Boolean.TRUE;
+    private Boolean searchInDocumentTags = Boolean.FALSE;
 
     private String sortBy;
     private String sortOrder = "ASC";
@@ -55,11 +55,11 @@ public class DetailedSearchModel {
         return recordMetaDataName;
     }
 
-    public boolean isSearchInDocumentName() {
+    public Boolean isSearchInDocumentName() {
         return searchInDocumentName;
     }
 
-    public boolean isSearchInDocumentTags() {
+    public Boolean isSearchInDocumentTags() {
         return searchInDocumentTags;
     }
 
@@ -91,11 +91,11 @@ public class DetailedSearchModel {
         this.recordMetaDataName = recordMetaDataName;
     }
 
-    public void setSearchInDocumentName(boolean searchInDocumentName) {
+    public void setSearchInDocumentName(Boolean searchInDocumentName) {
         this.searchInDocumentName = searchInDocumentName;
     }
 
-    public void setSearchInDocumentTags(boolean searchInDocumentTags) {
+    public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
         this.searchInDocumentTags = searchInDocumentTags;
     }
 
@@ -215,11 +215,11 @@ public class DetailedSearchModel {
         this.recordDocumentType = recordDocumentType;
     }
 
-    public boolean isCaseSensitive() {
+    public Boolean isCaseSensitive() {
         return caseSensitive;
     }
 
-    public void setCaseSensitive(boolean caseSensitive) {
+    public void setCaseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
     }
 
