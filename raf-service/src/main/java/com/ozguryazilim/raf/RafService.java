@@ -18,27 +18,19 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
-import com.ozguryazilim.telve.messages.FacesMessages;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -513,48 +505,8 @@ public class RafService implements Serializable {
         return rafRepository.getDocumentExtractedText(id);
     }
 
-    public void extractZipFile(RafObject zipFile) {
-        try {
-            RafObject destDir = getRafObject(zipFile.getParentId());
-            InputStream fileIS = getDocumentContent(zipFile.getId());
-            ZipInputStream zis = new ZipInputStream(fileIS);
-            ZipEntry zipEntry = zis.getNextEntry();
-            while (zipEntry != null) {
-                try {
-                    if (zipEntry.getSize() != 0) {
-                        newFile(destDir, zipEntry, zis);
-                    } else {
-                        createFolder(destDir.getPath().concat("/").concat(zipEntry.getName()));
-                    }
-                } catch (Exception ex) {
-                    LOG.error("RafException", ex);
-                }
-                zipEntry = zis.getNextEntry();
-            }
-            zis.closeEntry();
-            zis.close();
-            fileIS.close();
-            FacesMessages.info(String.format("Zip dosya, %s klasörüne başarılı şekilde çıkartıldı.", destDir.getPath()));
-        } catch (Exception ex) {
-            LOG.error("RafException", ex);
-            FacesMessages.error("Hata", ex.getMessage());
-        }
-    }
-
-    RafObject newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis) throws IOException, RafException {
-        String newFilePath = destinationDir.getPath().concat("/").concat(zipEntry.getName());
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        IOUtils.copy(zis, bos);
-        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-        RafObject destFile = uploadDocument(newFilePath, bis);
-        bos.close();
-        bis.close();
-        String destDirPath = destinationDir.getPath();
-        String destFilePath = destFile.getPath();
-        if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
-        }
-        return destFile;
+    public void extractZipFile(RafObject zipFile) throws RafException {
+        rafRepository.extractZipFile(zipFile);
     }
 
 }

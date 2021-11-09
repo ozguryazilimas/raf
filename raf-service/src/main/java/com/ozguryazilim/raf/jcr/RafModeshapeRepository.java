@@ -18,19 +18,14 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.value.BinaryValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -48,13 +43,22 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.modeshape.jcr.api.JcrTools;
-import org.modeshape.jcr.value.BinaryValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  *
@@ -2688,6 +2692,51 @@ public class RafModeshapeRepository implements Serializable {
         } catch (Exception ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+
+    public void extractZipFile(RafObject zipFile) throws RafException {
+        try {
+            RafObject destDir = getRafObject(zipFile.getParentId());
+            InputStream fileIS = getDocumentContent(zipFile.getId());
+            ZipInputStream zis = new ZipInputStream(fileIS);
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                try {
+                    if (zipEntry.getSize() != 0) {
+                        newFile(destDir, zipEntry, zis);
+                    } else {
+                        createFolder(destDir.getPath().concat("/").concat(zipEntry.getName()));
+                    }
+                } catch (Exception ex) {
+                    LOG.error("RafException", ex);
+                }
+                zipEntry = zis.getNextEntry();
+            }
+            zis.closeEntry();
+            zis.close();
+            fileIS.close();
+            if ("true".equals(ConfigResolver.getProjectStageAwarePropertyValue("auto.extract.zip.files.remove.after.extract", "true"))) {
+                deleteObject(zipFile.getId());
+            }
+        } catch (Exception ex) {
+            LOG.error("RafException", ex);
+            throw new RafException("[RAF-0028] Failed to extract zip object", ex);
+        }
+    }
+
+    private void newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis) throws IOException, RafException {
+        String newFilePath = destinationDir.getPath().concat("/").concat(zipEntry.getName());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        org.apache.poi.util.IOUtils.copy(zis, bos);
+        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+        RafObject destFile = uploadDocument(newFilePath, bis);
+        bos.close();
+        bis.close();
+        String destDirPath = destinationDir.getPath();
+        String destFilePath = destFile.getPath();
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
         }
     }
 

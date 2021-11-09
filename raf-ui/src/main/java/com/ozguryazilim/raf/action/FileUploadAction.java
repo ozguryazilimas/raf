@@ -14,10 +14,10 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.raf.uploader.RafFileUploadDialog;
+import com.ozguryazilim.raf.uploader.RafFileUploadHandler;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import com.ozguryazilim.telve.uploader.ui.FileUploadDialog;
-import com.ozguryazilim.telve.uploader.ui.FileUploadHandler;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
@@ -38,7 +38,7 @@ import java.util.Map;
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
         order = 0)
-public class FileUploadAction extends AbstractAction implements FileUploadHandler {
+public class FileUploadAction extends AbstractAction implements RafFileUploadHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadAction.class);
 
@@ -55,7 +55,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
     private Event<RafCheckInEvent> rafCheckInEvent;
 
     @Inject
-    private FileUploadDialog fileUploadDialog;
+    private RafFileUploadDialog fileUploadDialog;
 
     @Inject
     private TusFileUploadService fileUploadService;
@@ -138,8 +138,13 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
         this.rafCode = rafCode;
         this.uploadPath = uploadPath;
         actionExec = Boolean.FALSE;
-        //openDialog();
-        fileUploadDialog.openDialog(this, "");
+        // Yeni bir versiyon eklenecekse eklenecek dosya sayısı limitini 1 yapıyoruz.
+        if (rafCode.equals("CHECKIN")) {
+            fileUploadDialog.openDialog(this, 1);
+        } else {
+            fileUploadDialog.openDialog(this);
+        }
+
     }
 
     public void execute(String rafCode, String uploadPath, RafRecord targetRecord) {
@@ -163,7 +168,7 @@ public class FileUploadAction extends AbstractAction implements FileUploadHandle
      */
     @Override
     protected void openDialog() {
-        fileUploadDialog.openDialog(this, "");
+        fileUploadDialog.openDialog(this);
     }
 
     public String getRafCode() {
