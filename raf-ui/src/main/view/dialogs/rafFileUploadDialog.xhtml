@@ -1,0 +1,64 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:param name="title" value="#{messages['fileUploadDialog.caption']}"/>
+    <ui:define name="form">
+        <h:form id="fileUpload">
+            <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"/>
+            <div class="row">
+                <div class="DashboardContainer"></div>
+                <h:outputScript library="webjars" name="/telve-uppy/0.30.4/uppy-bundle.js"/>
+                <script>
+                    var uppyLocale;
+                    if ('#{localeSelector.language}' === 'tr') {
+                        uppyLocale = Uppy.Locale.turkish;
+                    }
+                    var uppy = Uppy.Core({
+                        allowMultipleUploads: true,
+                        debug: false,
+                        autoProceed: true,
+                        locale: uppyLocale,
+                        restrictions: {
+                            maxFileSize: #{rafFileUploadDialog.maxFileSize != null ? rafFileUploadDialog.maxFileSize : 'null'},
+                            maxNumberOfFiles: #{rafFileUploadDialog.maxNumberOfFiles != null ? rafFileUploadDialog.maxNumberOfFiles : 'null'},
+                            allowedFileTypes: #{rafFileUploadDialog.allowedFileTypes != null ? rafFileUploadDialog.allowedFileTypes : 'null'}
+                        }
+                    })
+                        .use(Uppy.Dashboard, {
+                            inline: true,
+                            target: '.DashboardContainer',
+                            replaceTargetContent: true,
+                            height: 400
+                        })
+                        .use(Uppy.Tus, {
+                            endpoint: '#{rafFileUploadDialog.endPoint}',
+                            chunkSize: #{rafFileUploadDialog.chunkSize}
+                        });
+
+                    uppy.on('upload-success', function (file, response) {
+                        sendFileUploadEvent([{'name': 'uri', 'value': response.uploadURL}]);
+                    });
+                </script>
+            </div>
+            <h:panelGroup styleClass="row actionButtons" layout="block">
+                <c:if test="#{fileUploadAction.rafCode ne 'CHECKIN'}">
+                    <h:panelGrid columns="1" style="margin-right:10px" cellpadding="5">
+                        <p:selectBooleanCheckbox value="#{rafFileUploadDialog.decompress}"
+                                                 itemLabel="#{messages['fileUploadDialog.autoExtractZipFiles']}"/>
+                    </h:panelGrid>
+                </c:if>
+                <p:commandButton id="close"
+                                 value="#{messages['general.button.Close']}"
+                                 icon="ui-icon-close"
+                                 action="#{rafFileUploadDialog.closeDialog()}"
+                                 partialSubmit="true"
+                                 styleClass="btn-primary"
+                                 process="@this"/>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>

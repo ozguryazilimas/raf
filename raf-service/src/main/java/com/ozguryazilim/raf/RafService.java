@@ -502,4 +502,9 @@ public class RafService implements Serializable {
         }
         return rafRepository.getDocumentExtractedText(id);
     }
+
+    public void extractZipFile(RafObject zipFile) throws RafException {
+        rafRepository.extractZipFile(zipFile);
+    }
+
 }
