@@ -4,16 +4,15 @@ package com.ozguryazilim.raf.rest;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.member.RafMemberService;
-import com.ozguryazilim.raf.tag.TagSuggestionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import com.ozguryazilim.raf.tag.TagSuggestionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -23,8 +22,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -111,6 +111,7 @@ public class RafRest {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addMember(@PathParam("raf") String rafCode,
                               @FormParam("member") String member,
+                              @FormParam("memberType") String memberType,
                               @FormParam("role") String role) throws RafException {
 
         RafDefinition raf = rafDefinitionService.getRafDefinitionByCode(rafCode);
@@ -118,8 +119,8 @@ public class RafRest {
             return Response.status(Response.Status.NOT_FOUND).entity("Raf Code Not Found.").build();
 
         try {
-            rafMemberService.addMember(raf, member, RafMemberType.USER, role);
-        } catch ( RafException e ){
+            rafMemberService.addMember(raf, member, RafMemberType.valueOf(memberType), role);
+        } catch (RafException e) {
             LOG.error("Member Add Error", e);
             return Response.status(Response.Status.CREATED).entity(e.getMessage()).build();
         }

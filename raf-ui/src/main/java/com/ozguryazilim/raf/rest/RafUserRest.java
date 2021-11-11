@@ -44,8 +44,10 @@ public class RafUserRest {
         user.setLastName(uvm.getLastName());
         user.setEmail(uvm.getEmail());
         user.setMobile(uvm.getMobile());
+        user.setPasswordEncodedHash(uvm.getPasswordEncodedHash());
+        user.setUserType(uvm.getUserType());
         
-        user = userRepository.saveAndFlush(user);
+        userRepository.saveAndFlush(user);
         
         return Response.ok().build();
     }

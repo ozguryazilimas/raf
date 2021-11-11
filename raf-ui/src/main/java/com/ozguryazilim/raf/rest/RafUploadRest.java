@@ -80,8 +80,8 @@ public class RafUploadRest implements Serializable{
     }
     
     @POST
-    @Path("/complate")
-    public Response uploadComplated( @FormParam("raf") String raf, @FormParam("folderId") String folderId, @FormParam("uri") String uri ){
+    @Path("/complete")
+    public Response uploadCompleted( @FormParam("raf") String raf, @FormParam("folderId") String folderId, @FormParam("uri") String uri ){
         LOG.info("Upload Complete {} {} {}", raf, folderId, uri);
         
         try {
