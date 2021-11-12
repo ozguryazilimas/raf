@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.rest;
 
+import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.entities.User;
 import com.ozguryazilim.telve.idm.entities.UserGroup;
@@ -10,6 +11,7 @@ import com.ozguryazilim.telve.utils.TreeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -43,6 +45,9 @@ public class GroupRest {
 
     @Inject
     private UserGroupRepository userGroupRepository;
+
+    @Inject
+    private Event<IdmEvent> idmEvent;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -102,9 +107,9 @@ public class GroupRest {
                 group.setParent(groupRepository.findByCode(parent).get(0));
             }
             groupRepository.save(group);
-
             group.setPath(TreeUtils.getNodeIdPath(group));
             groupRepository.save(group);
+            idmEvent.fire(new IdmEvent(IdmEvent.FROM_GROUP, IdmEvent.CREATE, groupCode));
         } catch (Exception e) {
             LOG.error(String.format("Group Create Error - %s", groupCode), e);
             return Response.status(Response.Status.CREATED).entity(e.getMessage()).build();
@@ -138,6 +143,7 @@ public class GroupRest {
                 newUserGroup.setGroup(group);
                 newUserGroup.setUser(user);
                 userGroupRepository.save(newUserGroup);
+                idmEvent.fire(new IdmEvent(IdmEvent.FROM_GROUP, IdmEvent.UPDATE, groupCode));
             }
         } catch (Exception e) {
             LOG.error("User Group Create Error", e);
