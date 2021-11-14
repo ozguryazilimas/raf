@@ -8,7 +8,9 @@
     <ui:param name="title" value="#{messages['fileUploadDialog.caption']}"/>
     <ui:define name="form">
         <h:form id="fileUpload">
-            <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"/>
+            <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"
+                             onstart="window.parent.PF('statusDialog').show()"
+                             oncomplete="window.parent.PF('statusDialog').hide()"/>
             <div class="row">
                 <div class="DashboardContainer"></div>
                 <h:outputScript library="webjars" name="/telve-uppy/0.30.4/uppy-bundle.js"/>

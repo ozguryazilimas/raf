@@ -1,17 +1,17 @@
 package com.ozguryazilim.raf.rest;
 
+import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.entities.User;
 import com.ozguryazilim.telve.idm.entities.UserGroup;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
-import com.ozguryazilim.telve.idm.user.UserRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
+import com.ozguryazilim.telve.idm.user.UserRepository;
 import com.ozguryazilim.telve.utils.TreeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -21,8 +21,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -42,6 +45,9 @@ public class GroupRest {
 
     @Inject
     private UserGroupRepository userGroupRepository;
+
+    @Inject
+    private Event<IdmEvent> idmEvent;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -74,6 +80,15 @@ public class GroupRest {
         return getGroupList(groups);
     }
 
+    @GET
+    @Path("/{group}/users")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<User> getGroupUsers(@PathParam("group") String groupCode) {
+        Group group = groupRepository.findByCode(groupCode).get(0);
+        List<UserGroup> userGroups = userGroupRepository.findByGroup(group);
+        return userGroups.stream().map(UserGroup::getUser).collect(Collectors.toList());
+    }
+
     @POST()
     @Produces(MediaType.APPLICATION_JSON)
     public Response createGroup(@FormParam("groupCode") String groupCode,
@@ -92,9 +107,9 @@ public class GroupRest {
                 group.setParent(groupRepository.findByCode(parent).get(0));
             }
             groupRepository.save(group);
-
             group.setPath(TreeUtils.getNodeIdPath(group));
             groupRepository.save(group);
+            idmEvent.fire(new IdmEvent(IdmEvent.FROM_GROUP, IdmEvent.CREATE, groupCode));
         } catch (Exception e) {
             LOG.error(String.format("Group Create Error - %s", groupCode), e);
             return Response.status(Response.Status.CREATED).entity(e.getMessage()).build();
@@ -128,6 +143,7 @@ public class GroupRest {
                 newUserGroup.setGroup(group);
                 newUserGroup.setUser(user);
                 userGroupRepository.save(newUserGroup);
+                idmEvent.fire(new IdmEvent(IdmEvent.FROM_GROUP, IdmEvent.UPDATE, groupCode));
             }
         } catch (Exception e) {
             LOG.error("User Group Create Error", e);

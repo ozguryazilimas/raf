@@ -3,17 +3,17 @@ package com.ozguryazilim.raf.rest;
 import java.io.Serializable;
 
 /**
- *
  * @author oyas
  */
-public class UserPayload implements Serializable{
-
+public class UserPayload implements Serializable {
 
     private Long id;
-    private String loginName;
+    private String email;
     private String firstName;
     private String lastName;
-    private String email;
+    private String loginName;
+    private String userType;
+    private String passwordEncodedHash;
     private String mobile;
 
     public Long getId() {
@@ -24,12 +24,12 @@ public class UserPayload implements Serializable{
         this.id = id;
     }
 
-    public String getLoginName() {
-        return loginName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -48,12 +48,28 @@ public class UserPayload implements Serializable{
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getLoginName() {
+        return loginName;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public String getPasswordEncodedHash() {
+        return passwordEncodedHash;
+    }
+
+    public void setPasswordEncodedHash(String passwordEncodedHash) {
+        this.passwordEncodedHash = passwordEncodedHash;
     }
 
     public String getMobile() {
@@ -66,9 +82,15 @@ public class UserPayload implements Serializable{
 
     @Override
     public String toString() {
-        return "UserPayload{" + "id=" + id + ", loginName=" + loginName + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", mobile=" + mobile + '}';
+        return "UserPayload{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", loginName='" + loginName + '\'' +
+                ", userType='" + userType + '\'' +
+                ", passwordEncodedHash='" + passwordEncodedHash + '\'' +
+                ", mobile='" + mobile + '\'' +
+                '}';
     }
-    
-    
-    
 }

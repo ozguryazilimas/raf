@@ -4,9 +4,18 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
+import com.ozguryazilim.telve.idm.ldapSync.IdmLdapSyncEvent;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,11 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Raf üyeliklerini yönetmek için servis sınıfı.
@@ -247,4 +251,27 @@ public class RafMemberService implements Serializable {
 
         return result;
     }
+
+    /**
+     * Gruplar üzerinde bir değişiklik oldugunda cache'leri temizliyoruz
+     *
+     * @param event
+     */
+    public void onIdmEvent(@Observes IdmEvent event) {
+        if (event.getFrom().equals(IdmEvent.FROM_GROUP)) {
+            this.groupUsers.clear();
+        }
+    }
+
+    /**
+     * LDAP grupları üzerinde sync yapıldığında cache'leri temizliyoruz.
+     *
+     * @param event
+     */
+    public void onIdmLdapSyncEvent(@Observes IdmLdapSyncEvent event) {
+        if (event.getSyncType().equals(IdmLdapSyncEvent.GROUP)) {
+            this.groupUsers.clear();
+        }
+    }
+
 }
