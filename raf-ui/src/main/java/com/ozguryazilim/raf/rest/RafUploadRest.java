@@ -7,10 +7,12 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import me.desair.tus.server.TusFileUploadService;
+import me.desair.tus.server.exception.TusException;
+import me.desair.tus.server.upload.UploadInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -19,11 +21,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import me.desair.tus.server.TusFileUploadService;
-import me.desair.tus.server.exception.TusException;
-import me.desair.tus.server.upload.UploadInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  *
@@ -78,7 +79,14 @@ public class RafUploadRest implements Serializable{
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
-    
+
+    @Deprecated
+    @POST
+    @Path("/complate")
+    public Response uploadComplated(@FormParam("raf") String raf, @FormParam("folderId") String folderId, @FormParam("uri") String uri) {
+        return uploadCompleted(raf, folderId, uri);
+    }
+
     @POST
     @Path("/complete")
     public Response uploadCompleted( @FormParam("raf") String raf, @FormParam("folderId") String folderId, @FormParam("uri") String uri ){
