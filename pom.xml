@@ -35,12 +35,6 @@
         <jackson.version>2.13.0</jackson.version>
         
         <!--
-        <version.liquibase-hibernate4>3.5</version.liquibase-hibernate4>
-        <version.mysql-connector-java>5.1.26</version.mysql-connector-java>
-        <version.maven-processor-plugin>2.0.5</version.maven-processor-plugin>
-        <version.liquibase-maven-plugin>3.4.2</version.liquibase-maven-plugin>
-        <version.hibernate-jpamodelgen>5.2.1.Final</version.hibernate-jpamodelgen>
-        
         <jdk.debug>true</jdk.debug>
         <jdk.optimize>false</jdk.optimize>
         <jdk.source>1.8</jdk.source>
@@ -77,6 +71,21 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+         <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <issueManagement>
         <system>Redmine</system>
