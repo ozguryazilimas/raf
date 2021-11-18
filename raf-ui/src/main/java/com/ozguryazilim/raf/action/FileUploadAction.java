@@ -170,6 +170,7 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
         fileUploadDialog.openDialog(this);
     }
 
+    @Override
     public String getRafCode() {
         return rafCode;
     }
@@ -211,25 +212,19 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             UploadInfo uploadInfo = fileUploadService.getUploadInfo(uri);
             LOG.debug("Uploaded File : {}", uploadInfo.getFileName());
 
-            if ("CHECKIN".equals(rafCode)) {
-                rafService.checkin(getUploadPath(), fileUploadService.getUploadedBytes(uri));
-            } else {
-                String absPath = getUploadPath() + "/" + uploadInfo.getFileName();
-                //versiyon özelliği aktif ise aynı dosya üzerine yazılmamalı, yeni versiyon eklemeli.
-                if (versionManagementEnabled && checkFileExists(absPath)) {
-                    throw new RafException("File is exists");
-                }
-                RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
-
-                if (decompress && "application/zip".equals(uploadedDocument.getMimeType())) {
-                    rafService.extractZipFile(uploadedDocument);
-                    if ("true".equals(ConfigResolver.getProjectStageAwarePropertyValue("auto.extract.zip.files.remove.after.extract", "true"))) {
-                        rafService.deleteObject(uploadedDocument);
-                    }
-                }
-
+            String absPath = getUploadPath() + "/" + uploadInfo.getFileName();
+            //versiyon özelliği aktif ise aynı dosya üzerine yazılmamalı, yeni versiyon eklemeli.
+            if (versionManagementEnabled && checkFileExists(absPath)) {
+                throw new RafException("File is exists");
             }
+            RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
 
+            if (decompress && "application/zip".equals(uploadedDocument.getMimeType())) {
+                rafService.extractZipFile(uploadedDocument);
+                if ("true".equals(ConfigResolver.getProjectStageAwarePropertyValue("auto.extract.zip.files.remove.after.extract", "true"))) {
+                    rafService.deleteObject(uploadedDocument);
+                }
+            }
             fileUploadService.deleteUpload(uri);
             //FIXME: burası her dosya yüklenmesinde çağrılıyor. Aslında Telve-Uploader dialogun kapandığına dair bilgi vermeli. #31635 işine bakın            
         } catch (IOException | TusException | RafException ex) {
@@ -240,4 +235,18 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             finalizeAction();
         }
     }
+
+    @Override
+    public void handleFileUpload(String uri, String versionComment) {
+        try {
+            rafService.checkin(getUploadPath(), fileUploadService.getUploadedBytes(uri), versionComment);
+            fileUploadService.deleteUpload(uri);
+        } catch (IOException | TusException | RafException ex) {
+            FacesMessages.error("An error occurred while installing the new version.");
+            LOG.error("An error occurred while installing the new version.", ex);
+        } finally {
+            finalizeAction();
+        }
+    }
+
 }

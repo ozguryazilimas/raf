@@ -114,6 +114,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_CHECKIN_STATE = "raf:checkInState";
     private static final String PROP_RAF_CHECKIN_PREVIOUS_VERSION = "raf:previousVersion";
 
+    private static final String MIXIN_RAF_VERSIONING = "raf:versioning";
+    private static final String PROP_RAF_VERSION_COMMENT = "raf:comment";
+
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
     private static final String RAF_TYPE_SHARED = "SHARED";
@@ -345,7 +348,7 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
-     * @param rafCode
+     * @param rafPath
      * @return
      * @throws RafException
      */
@@ -400,7 +403,7 @@ public class RafModeshapeRepository implements Serializable {
     /**
      * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
      *
-     * @param rafCode
+     * @param rafPath
      * @return
      * @throws RafException
      */
@@ -1131,14 +1134,14 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     //checkin with new version...
-    public RafObject checkin(String path, InputStream in) throws RafException {
+    public RafObject checkin(String path, InputStream in, String versionComment) throws RafException {
         RafObject result = null;
 
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
             if (!session.nodeExists(path)) {
-                //Olmayan bir dosya için chekin yapılamaz!
+                //Olmayan bir dosya için checkin yapılamaz!
                 throw new RafException("[RAF-00012] Raf Node not exist");
             }
 
@@ -1164,6 +1167,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //şimdi yeni belgeyi ekleyelim
             versionManager.checkout(content.getPath());
+            content.addMixin(MIXIN_RAF_VERSIONING);
+            content.setProperty(PROP_RAF_VERSION_COMMENT, versionComment);
             node = jcrTools.uploadFile(session, path, in);
             session.save();
             versionManager.checkin(content.getPath());
@@ -1210,7 +1215,9 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
                     rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
-                    //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
+                    if(v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)){
+                        rv.setComment(v.getFrozenNode().getProperty(PROP_RAF_VERSION_COMMENT).getString());
+                    }
                     result.add(rv);
                 }
             }
@@ -2004,7 +2011,7 @@ public class RafModeshapeRepository implements Serializable {
     /**
      * Türkçe ya da path'de kabul edilmeyecek karakterler temizleniyor
      *
-     * @param path
+     * @param name
      * @return
      */
     protected String getEncodedPath(String name) {

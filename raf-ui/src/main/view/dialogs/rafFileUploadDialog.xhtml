@@ -11,6 +11,12 @@
             <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"
                              onstart="window.parent.PF('statusDialog').show()"
                              oncomplete="window.parent.PF('statusDialog').hide()"/>
+            <ui:fragment rendered="#{fileUploadAction.rafCode eq 'CHECKIN'}">
+                <div class="row">
+                    <p:outputLabel value="#{messages['fileUploadDialog.label.versionComment']}"/>
+                    <p:inputTextarea id="versionComment"/>
+                </div>
+            </ui:fragment>
             <div class="row">
                 <div class="DashboardContainer"></div>
                 <h:outputScript library="webjars" name="/telve-uppy/0.30.4/uppy-bundle.js"/>
@@ -19,10 +25,22 @@
                     if ('#{localeSelector.language}' === 'tr') {
                         uppyLocale = Uppy.Locale.turkish;
                     }
+                    var versionLocale;
+                    if ('#{fileUploadAction.rafCode}' === 'CHECKIN') {
+                        versionLocale = {
+                            strings: {
+                                dropPaste: "#{localeSelector.language eq 'tr' ? 'Yeni sürümü buraya sürükleyip bırak, yapıştır veya %{browse}' : 'Drop new version here, paste or %{browse}'}",
+                                uploadXFiles: {
+                                    0: "#{localeSelector.language eq 'tr' ? 'Yeni Sürüm Ekle' : 'Add New Version'}",
+                                    1: "#{localeSelector.language eq 'tr' ? 'Yeni Sürüm Ekle' : 'Add New Version'}"
+                                }
+                            }
+                        }
+                    }
                     var uppy = Uppy.Core({
-                        allowMultipleUploads: true,
+                        allowMultipleUploads: #{fileUploadAction.rafCode eq 'CHECKIN' ? false : true},
                         debug: false,
-                        autoProceed: true,
+                        autoProceed: #{fileUploadAction.rafCode eq 'CHECKIN' ? false : true},
                         locale: uppyLocale,
                         restrictions: {
                             maxFileSize: #{rafFileUploadDialog.maxFileSize != null ? rafFileUploadDialog.maxFileSize : 'null'},
@@ -34,7 +52,8 @@
                             inline: true,
                             target: '.DashboardContainer',
                             replaceTargetContent: true,
-                            height: 400
+                            height: #{fileUploadAction.rafCode eq 'CHECKIN' ? 300 : 400},
+                            locale: versionLocale
                         })
                         .use(Uppy.Tus, {
                             endpoint: '#{rafFileUploadDialog.endPoint}',
@@ -42,7 +61,10 @@
                         });
 
                     uppy.on('upload-success', function (file, response) {
-                        sendFileUploadEvent([{'name': 'uri', 'value': response.uploadURL}]);
+                        sendFileUploadEvent([
+                            {'name': 'uri', 'value': response.uploadURL},
+                            {'name': 'versionComment', 'value': $('#fileUpload\\:versionComment').val()}
+                        ]);
                     });
                 </script>
             </div>

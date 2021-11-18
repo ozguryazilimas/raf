@@ -1,6 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -165,9 +164,12 @@
                                                     <t:cellOutputDateTime value="#{vh.created}" /> 
                                                     #{userLookup.getUserName(vh.createdBy)} 
                                                 </span>
-                                                <span class="text-muted">
-                                                    #{vh.comment}
-                                                </span>
+                                                <ui:fragment rendered="#{not empty vh.comment}">
+                                                    <hr/>
+                                                    <span class="text-muted">
+                                                        #{vh.comment}
+                                                    </span>
+                                                </ui:fragment>
                                             </p:commandLink>
                                         </li>
                                     </ui:fragment>

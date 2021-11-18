@@ -230,9 +230,9 @@ public class RafService implements Serializable {
     }
 
     //checkin with new version
-    public RafDocument checkin(String fileName, InputStream in) throws RafException {
+    public RafDocument checkin(String fileName, InputStream in, String versionComment) throws RafException {
         //FIXME: yetki kontrolü
-        RafDocument result = (RafDocument) rafRepository.checkin(fileName, in);
+        RafDocument result = (RafDocument) rafRepository.checkin(fileName, in, versionComment);
 
         sendEventLog("CheckInDocument", result);
         sendAuditLog(result.getId(), "CHECKIN_DOCUMENT", result.getPath());
