@@ -35,12 +35,12 @@ public class RafHelpResolver implements HelpResolver{
         
         if( rafId != null ){
             switch ( rafId ){
-                case "PRIVATE": return "/docs?topic=private_raf.html";
-                case "SHARED": return "/docs?topic=shared_raf.html";
-                default: return "/docs?topic=raf.html";
+                case "PRIVATE": return "/help/private-raf.html";
+                case "SHARED": return "/help/shared-raf.html";
+                default: return "/help/raf.html";
             }
         } else {
-            return "/docs?topic=raf.html";
+            return "/help/raf.html";
         }
     }
 

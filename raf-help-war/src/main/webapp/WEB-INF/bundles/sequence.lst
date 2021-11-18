@@ -1,6 +1,0 @@
-#Bundle isimleri RegEx olarak sıralama için kullanılıyorlar
-^raf-user-.*
-^raf-admin-.*
-^raf-core.*
-^telve-core.*
-^telve-idm.*
