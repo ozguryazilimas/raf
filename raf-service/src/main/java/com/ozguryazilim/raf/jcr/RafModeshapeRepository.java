@@ -18,22 +18,14 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.value.BinaryValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -51,13 +43,22 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.modeshape.jcr.api.JcrTools;
-import org.modeshape.jcr.value.BinaryValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  *
@@ -1423,6 +1424,10 @@ public class RafModeshapeRepository implements Serializable {
             //node.setProperty(PROP_TAG, "");
             if (node.hasNode(NODE_CONTENT)) {
                 Node cn = node.getNode(NODE_CONTENT);
+                if (cn.isNodeType(MIXIN_VERSIONABLE) && !cn.isCheckedOut()) {
+                    VersionManager vm = session.getWorkspace().getVersionManager();
+                    vm.checkout(cn.getPath());
+                }
                 cn.setProperty(PROP_UPDATED_BY, session.getUserID());
                 GregorianCalendar gCal = new GregorianCalendar();
                 gCal.setTime(new Date());
