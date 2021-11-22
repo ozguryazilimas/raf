@@ -46,7 +46,13 @@ public class RafFileUploadDialog extends FileUploadDialog {
         if (super.handler != null && super.handler instanceof RafFileUploadHandler) {
             //type casting
             RafFileUploadHandler handler = (RafFileUploadHandler) super.handler;
-            handler.handleFileUpload(uri, decompress);
+            if(handler.getRafCode().equals("CHECKIN")){
+                String versionComment = params.get("versionComment");
+                handler.handleFileUpload(uri, versionComment);
+            } else {
+                handler.handleFileUpload(uri,decompress);
+            }
+
         }
     }
 

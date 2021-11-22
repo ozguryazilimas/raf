@@ -40,3 +40,6 @@
   - raf:checkInUser (string)
   - raf:checkInState (boolean)
   - raf:previousVersion (string)
+
+[raf:versioning] mixin
+  - raf:comment (string)

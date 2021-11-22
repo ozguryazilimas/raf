@@ -18,22 +18,14 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.value.BinaryValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.jcr.Node;
@@ -51,13 +43,22 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.modeshape.jcr.api.JcrTools;
-import org.modeshape.jcr.value.BinaryValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  *
@@ -113,6 +114,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_CHECKIN_USER = "raf:checkInUser";
     private static final String PROP_RAF_CHECKIN_STATE = "raf:checkInState";
     private static final String PROP_RAF_CHECKIN_PREVIOUS_VERSION = "raf:previousVersion";
+
+    private static final String MIXIN_RAF_VERSIONING = "raf:versioning";
+    private static final String PROP_RAF_VERSION_COMMENT = "raf:comment";
 
     private static final String RAF_TYPE_DEFAULT = "DEFAULT";
     private static final String RAF_TYPE_PRIVATE = "PRIVATE";
@@ -345,7 +349,7 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
-     * @param rafCode
+     * @param rafPath
      * @return
      * @throws RafException
      */
@@ -400,7 +404,7 @@ public class RafModeshapeRepository implements Serializable {
     /**
      * FIXME: findorCreateNode kullanamayız. Yetkisiz Raf oluşur.
      *
-     * @param rafCode
+     * @param rafPath
      * @return
      * @throws RafException
      */
@@ -1131,14 +1135,14 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     //checkin with new version...
-    public RafObject checkin(String path, InputStream in) throws RafException {
+    public RafObject checkin(String path, InputStream in, String versionComment) throws RafException {
         RafObject result = null;
 
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
             if (!session.nodeExists(path)) {
-                //Olmayan bir dosya için chekin yapılamaz!
+                //Olmayan bir dosya için checkin yapılamaz!
                 throw new RafException("[RAF-00012] Raf Node not exist");
             }
 
@@ -1164,6 +1168,8 @@ public class RafModeshapeRepository implements Serializable {
 
             //şimdi yeni belgeyi ekleyelim
             versionManager.checkout(content.getPath());
+            content.addMixin(MIXIN_RAF_VERSIONING);
+            content.setProperty(PROP_RAF_VERSION_COMMENT, versionComment);
             node = jcrTools.uploadFile(session, path, in);
             session.save();
             versionManager.checkin(content.getPath());
@@ -1210,7 +1216,9 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
                     rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
-                    //FIXME: version comment için alan eklendiğinde oda RafVersion'a alınacak
+                    if(v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)){
+                        rv.setComment(v.getFrozenNode().getProperty(PROP_RAF_VERSION_COMMENT).getString());
+                    }
                     result.add(rv);
                 }
             }
@@ -1416,6 +1424,10 @@ public class RafModeshapeRepository implements Serializable {
             //node.setProperty(PROP_TAG, "");
             if (node.hasNode(NODE_CONTENT)) {
                 Node cn = node.getNode(NODE_CONTENT);
+                if (cn.isNodeType(MIXIN_VERSIONABLE) && !cn.isCheckedOut()) {
+                    VersionManager vm = session.getWorkspace().getVersionManager();
+                    vm.checkout(cn.getPath());
+                }
                 cn.setProperty(PROP_UPDATED_BY, session.getUserID());
                 GregorianCalendar gCal = new GregorianCalendar();
                 gCal.setTime(new Date());
@@ -2004,7 +2016,7 @@ public class RafModeshapeRepository implements Serializable {
     /**
      * Türkçe ya da path'de kabul edilmeyecek karakterler temizleniyor
      *
-     * @param path
+     * @param name
      * @return
      */
     protected String getEncodedPath(String name) {
