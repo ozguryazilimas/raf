@@ -33,7 +33,8 @@
                     </ui:fragment>
 
                     <div class="raf-container-item-group-item">
-                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item" >
+                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item">
+                            <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                             <div class="raf-container-item">
                                 <div class="raf-container-item-item medium-icon">
                                     <span class="raf-container-item-item-img" >
@@ -52,6 +53,11 @@
                                         <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
                                             <span class="text-sm">#{item.title}</span>
                                         </p:commandLink>
+                                        <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                                            <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                                <i class="fa fa-edit" />
+                                            </p:commandLink>
+                                        </ui:fragment>
 
                                         <ui:fragment rendered="#{viewBean.showDetails}">
 
