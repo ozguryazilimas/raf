@@ -34,7 +34,6 @@ import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +45,7 @@ import javax.enterprise.inject.Instance;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -876,5 +876,9 @@ public class RafController implements Serializable {
     public Boolean hasDeleteRole(RafObject obj) throws RafException {
         return memberService.hasDeleteRole(identity.getLoginName(), rafDefinition) ||
             rafObjectMemberService.hasDeleteRole(identity.getLoginName(), obj.getPath());
+    }
+    
+    public String byteCountToDisplaySize(long bytes) {
+        return FileUtils.byteCountToDisplaySize(bytes);
     }
 }
