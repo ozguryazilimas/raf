@@ -300,24 +300,22 @@ public class RafService implements Serializable {
         return rafRepository.getPreviewContent(id);
     }
 
-    public void reGeneratePreview(String id) throws RafException {
-        rafRepository.reGeneratePreview(id);
+    /**
+     * İdsi verilen file için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regeneratePreview(String id) throws RafException {
+        rafRepository.regeneratePreview(id);
     }
 
-    public void reGenerateObjectPreviews(List<RafObject> rafObjects, Integer recursiveCallCounter) throws RafException {
-        if (recursiveCallCounter == 10) {
-            //Devre Kesici !! En fazla 10 defa kendini çağırabilir. (10 alt klasör çalıştırılabilir.)
-            return;
-        }
-        for (RafObject rafObject : rafObjects) {
-            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
-                reGeneratePreview(rafObject.getId());
-            } else if (rafObject instanceof RafFolder) {
-                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
-                reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
-
-            }
-        }
+    /**
+     * Idsi verilen folder için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regenerateObjectPreviews(String id) throws RafException {
+        rafRepository.regeneratePreviews(id);
     }
 
     public RafCollection getRafCollectionForAllNode() throws RafException {

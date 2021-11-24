@@ -324,9 +324,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     public void reGeneratePreview() {
         try {
-            rafService.reGeneratePreview(getObject().getId());
+            rafService.regeneratePreview(getObject().getId());
         } catch (RafException e) {
-            e.printStackTrace();
+            LOG.error("Cannot regenerate preview", e);
         }
     }
 }

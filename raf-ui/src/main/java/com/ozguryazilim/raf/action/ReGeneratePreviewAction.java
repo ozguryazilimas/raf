@@ -55,12 +55,13 @@ public class ReGeneratePreviewAction extends AbstractAction {
     protected boolean finalizeAction() {
         try {
             if (getContext().getSelectedObject() instanceof RafFolder) {
-                rafService.reGenerateObjectPreviews(getContext().getCollection().getItems(), 0);
+                //aslında folderlarda çalıştırmasak iyi olur.
+                rafService.regenerateObjectPreviews(getContext().getSelectedObject().getId());
             } else {
-                rafService.reGeneratePreview(getContext().getSelectedObject().getId());
+                rafService.regeneratePreview(getContext().getSelectedObject().getId());
             }
         } catch (RafException e) {
-            e.printStackTrace();
+            LOG.error("Preview regenaration faild");
             return false;
         }
 

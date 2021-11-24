@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.modeshape.jcr.api.JcrConstants;
 
 /**
  *
@@ -394,6 +395,7 @@ public class RafModeshapeRepository implements Serializable {
                     folderList.add(f);
                 }
             }
+            session.logout();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0004] Raf Folders not found", ex);
         }
@@ -1649,37 +1651,80 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    
     /**
-     * ID'si verilen nodun preview dosyasini yeniden uretir.
-     *
+     * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
+     * 
+     * Arayüzden doğrudan çağırmamak gerekir. RegenaratePreviewCommand'ı ile çağrılmalı
+     * 
      * @param id
+     * @throws RafException 
      */
-    public void reGeneratePreview(String id) throws RafException {
-
+    public void regeneratePreviews(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            Node nodeContent = node.getNode(NODE_CONTENT);
-            if (node.hasNode("raf:preview")) {
-                String mimeType = null;
-                if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
-                    Node preview = node.getNode("raf:preview");
-                    mimeType = getPropertyAsString(preview, "jcr:mimeType");
-                    preview.remove();
-
-                }
-                if (!Strings.isNullOrEmpty(mimeType)) {
-                    FilePreviewHelper.generatePreview(nodeContent.getProperty(PROP_DATA), node, mimeType);
-                }
-
-                session.save();
-                session.logout();
-            }
+            regeneratePreviews(node);
+            session.logout();
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
+    
+    /**
+     * Verilen node nt:folder ise altındaki dosyalar için preview çıkarırır.
+     * @param node
+     * @throws RafException 
+     */
+    protected void regeneratePreviews(Node node) throws RafException {
+       
+        try {
+            if( node.isNodeType(NODE_FOLDER)){
+                for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
+                    Node child = iter.nextNode();
+                    if (child.isNodeType(NODE_FOLDER)) {
+                        regeneratePreviews(child);
+                    } else if (child.isNodeType(NODE_FILE)){
+                        //çünkü başka bir seesion açılsın istiyoruz.
+                        regeneratePreview(child.getIdentifier());
+                    }
+                }
+            }
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+        
+    }
+    
+    /**
+     * ID'si verilen nodun preview dosyasini yeniden uretir.
+     *
+     * @param id
+     */
+    public void regeneratePreview(String id) throws RafException {
+
+        try {
+            
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            if( node.isNodeType(NODE_FILE)){
+                Node nodeContent = node.getNode(NODE_CONTENT);
+
+                if( FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node) ){
+                    session.save();
+                }
+            }
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
 
     /**
      * ID'si verilen nodu siler.
@@ -2258,7 +2303,7 @@ public class RafModeshapeRepository implements Serializable {
                     result.add(nodeToRafFolder(n));
                 }
             }
-
+            
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }

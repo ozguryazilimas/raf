@@ -54,25 +54,12 @@ public class RegeneratePreviewCommandExecutor extends AbstractCommandExecuter<Re
         }
     }
 
-    public void reGenerateObjectPreviews(List<RafObject> rafObjects) throws RafException {
-        for (RafObject rafObject : rafObjects) {
-            LOG.debug("RegeneratePreview is executing. {}", rafObject.getPath());
-            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
-                rafService.reGeneratePreview(rafObject.getId());
-            } else if (rafObject instanceof RafFolder) {
-                RafCollection r = rafService.getCollection(rafObject.getId());
-                reGenerateObjectPreviews(r.getItems());
-            }
-        }
-    }
-
     void generatePreviews(RegeneratePreviewCommand command) {
         LOG.info("RegeneratePreviewCommand is executing. {}", command.getRafPath());
         RafObject rafObjet;
         try {
             rafObjet = rafService.getRafObjectByPath(command.getRafPath());
-            RafCollection rafCollection = rafService.getCollection(rafObjet.getId());
-            reGenerateObjectPreviews(rafCollection.getItems());
+            rafService.regenerateObjectPreviews(rafObjet.getId());
         } catch (RafException ex) {
             LOG.error("Path not found : {}", command.getRafPath(), ex);
         }
