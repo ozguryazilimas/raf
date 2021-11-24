@@ -269,6 +269,7 @@
 .raf-container-item-item-gallery-thumbnail{
     width: 300px;
     height: 300px;
+    vertical-align: bottom;
 }
 .raf-container-item-item-cnd{
     grid-column-start: 2;
@@ -288,18 +289,27 @@
 }
 
 .raf-container-item-item-chk > a{
-    color: #777 !important;
+    color: #777;
+}
+
+.raf-container-item-item-chk:hover {
+    background-color: #EFF3F6;
 }
 
 .raf-container-item-item-chk > a:hover{
-    color: #111111 !important;
+    color: #111111;
 }
 
 .raf-item-selected{
+    background-color: #EFF3F6;
     /* background-color: #3c8dbc !important;
      color: #fff !important;
     */
     /* font: normal normal normal 14px/1 FontAwesome !important; */
+}
+
+.raf-item-selected > a {
+    color: #111111;
 }
 
 .raf-item-select-icon {
