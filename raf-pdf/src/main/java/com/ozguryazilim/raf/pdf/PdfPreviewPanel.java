@@ -9,7 +9,6 @@ import com.ozguryazilim.raf.ui.base.PreviewPanel;
  * 
  * Chrome, Firefox bu desteğe sahip.
  * 
- * FIXME: Performans açısından bişiler yapmak lazım. Preview için bütün belgeyi istemciye göndermek çok anlamlı değil. ilk 2-3 sayfa nasıl olur?
  * 
  * @author Hakan Uygun
  */

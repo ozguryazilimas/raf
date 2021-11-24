@@ -1,14 +1,17 @@
 package com.ozguryazilim.raf.converter;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.jodconverter.LocalConverter;
-import org.jodconverter.office.LocalOfficeManager;
-import org.jodconverter.office.OfficeException;
-import org.jodconverter.office.OfficeManager;
-import org.jodconverter.office.OfficeUtils;
+import org.jodconverter.local.LocalConverter;
+import org.jodconverter.local.office.LocalOfficeManager;
+//import org.jodconverter.local.office.OfficeException;
+//import org.jodconverter.local.office.OfficeManager;
+//import org.jodconverter.local.office.OfficeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.office.OfficeManager;
+import org.jodconverter.core.office.OfficeUtils;
 
 /**
  *
@@ -18,6 +21,9 @@ public class OfficeManagerFactory {
 
     private static OfficeManager officeManager;
     private static LocalConverter localConverter;
+
+    private OfficeManagerFactory() {
+    }
 
     /**
      * Geriye Kullanılacak OfficeManager'ı döndürür.

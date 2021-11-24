@@ -75,7 +75,7 @@ public class FilePreviewHelper {
 
             converter.convert(binaryValue.getStream(), mimeType, os);
 
-            createPreviewNode(os, outputNode, mimeType);
+            createPreviewNode(os, outputNode, "application/pdf");
 
             os.close();
         } catch (Exception e) {
