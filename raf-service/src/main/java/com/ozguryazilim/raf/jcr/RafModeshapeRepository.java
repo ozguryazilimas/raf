@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -474,7 +475,7 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, String sortBy, boolean descSort) {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, SortType sortBy, boolean descSort) {
         NodeIterator result = null;
         try {
             try {
@@ -490,20 +491,44 @@ public class RafModeshapeRepository implements Serializable {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
                 }
 
-                if (!Strings.isNullOrEmpty(sortBy)) {
-                    if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
-                        sortBy = PROP_TITLE;
-                    } else if ("MODIFY_DATE".equals(sortBy)) {
-                        sortBy = PROP_UPDATED_DATE;
-                    } else if ("DATE".equals(sortBy)) {
-                        sortBy = PROP_CREATED_DATE;
-                    } else if ("DATE".equals(sortBy)) {
-                        sortBy = "jcr:mimeType";
-                    } else if ("CATEGORY".equals(sortBy)) {
-                        sortBy = PROP_CATEGORY;
+                String sortQuery;
+
+                switch (sortBy) {
+                    case DATE_ASC: {
+                        descSort = Boolean.FALSE;
+                        sortQuery = PROP_CREATED_DATE;
+                        break;
                     }
-                    expression += String.format(" ORDER BY nodes.[%s] %s", sortBy, descSort ? "DESC" : "ASC");
+                    case DATE_DESC: {
+                        descSort = Boolean.TRUE;
+                        sortQuery = PROP_CREATED_DATE;
+                        break;
+                    }
+                    case MODIFY_DATE_ASC: {
+                        descSort = Boolean.FALSE;
+                        sortQuery = PROP_UPDATED_DATE;
+                        break;
+                    }
+                    case MODIFY_DATE_DESC: {
+                        descSort = Boolean.TRUE;
+                        sortQuery = PROP_UPDATED_DATE;
+                        break;
+                    }
+                    case CATEGORY: {
+                        sortQuery = PROP_CATEGORY;
+                        break;
+                    }
+                    case MIMETYPE: {
+                        sortQuery = "jcr:mimeType";
+                        break;
+                    }
+                    default: {
+                        sortQuery = PROP_TITLE;
+                        break;
+                    }
                 }
+
+                expression += String.format(" ORDER BY nodes.[%s] %s", sortQuery, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
@@ -522,7 +547,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, SortType sortBy, Boolean descSort) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
