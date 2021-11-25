@@ -28,13 +28,8 @@ import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
-import javax.annotation.PostConstruct;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.inject.Named;
+<<<<<<< HEAD
+=======
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,6 +37,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+>>>>>>> 34c049e65d57108d6584e6efd11484b69abffadb
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+<<<<<<< HEAD
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+=======
+>>>>>>> 34c049e65d57108d6584e6efd11484b69abffadb
 import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
