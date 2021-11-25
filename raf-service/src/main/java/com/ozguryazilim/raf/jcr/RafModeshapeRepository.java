@@ -1673,7 +1673,7 @@ public class RafModeshapeRepository implements Serializable {
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
             BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-            LOG.debug("First page of the pdf has been successfully converted to an image: {}", content.getName());
+            LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
             ImageIO.write(scaledImg, "png", bos);
             session.logout();
             return new ByteArrayInputStream(bos.toByteArray());
