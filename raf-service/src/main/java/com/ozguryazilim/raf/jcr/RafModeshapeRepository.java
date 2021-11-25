@@ -21,6 +21,10 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.imgscalr.Scalr;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
@@ -28,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.ImageIO;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -43,6 +48,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.modeshape.jcr.api.JcrConstants;
 
 /**
  *
@@ -1651,7 +1656,34 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    
+    public InputStream getPreviewContentPDF(String id) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("PDF Document Preview Content Requested: {}", node.getPath());
+
+            if (!node.hasNode("raf:preview")) {
+                throw new RafException("[RAF-0035] Raf Node preview cannot found");
+            }
+
+            Node content = node.getNode("raf:preview");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+            BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
+            LOG.debug("First page of the pdf has been successfully converted to an image: {}", content.getName());
+            ImageIO.write(scaledImg, "png", bos);
+            session.logout();
+            return new ByteArrayInputStream(bos.toByteArray());
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+
     /**
      * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
      * 

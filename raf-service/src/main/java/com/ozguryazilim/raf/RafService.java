@@ -18,19 +18,17 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.jcr.RepositoryException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -298,6 +296,20 @@ public class RafService implements Serializable {
             sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
         }
         return rafRepository.getPreviewContent(id);
+    }
+
+    /**
+     * PDF dosyanın ilk sayfasını imaja dönüştürür ve png formatına çevirir.
+     *
+     * @param id
+     * @return
+     * @throws RafException
+     */
+    public InputStream getPreviewContentPDF(String id) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
+        }
+        return rafRepository.getPreviewContentPDF(id);
     }
 
     /**

@@ -42,16 +42,16 @@ public class FilePreviewHelper {
             isOrj.close();
             if (bufferedImageOrj.getWidth() > 480) {
                 BufferedImage scaledImg = Scalr.resize(bufferedImageOrj, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
-
                 ImageIO.write(scaledImg, "png", os);
-
                 createPreviewNode(os, outputNode, "image/png");
-
+                os.close();
+            } else {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImageOrj, "png", os);
+                createPreviewNode(os, outputNode, "image/png");
                 os.close();
             }
-
 
             LOG.debug("preview generating success..");
         } catch (Exception e) {

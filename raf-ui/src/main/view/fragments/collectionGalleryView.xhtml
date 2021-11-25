@@ -46,7 +46,7 @@
                                                     </svg>    
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{viewBean.hasPreview(item)}">
-                                                    <img class="raf-container-item-item-gallery-thumbnail" src="#{request.contextPath}/resource/#{item.id}#{item.hasPreview ? '/preview' : ''}"/>
+                                                    <img class="raf-container-item-item-gallery-thumbnail" src="#{request.contextPath}/resource/#{item.id}#{item.hasPreview ? '/thumbnail' : ''}?v=#{item.version}"/>
                                                 </ui:fragment>
                                                 <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                             </p:commandLink>
