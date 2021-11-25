@@ -26,19 +26,16 @@ import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ContentViewPanel;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
-import com.ozguryazilim.raf.ui.contentpanels.RafCollectionCompactViewPanel;
-import com.ozguryazilim.raf.ui.contentpanels.RafDocumentViewPanel;
-import com.ozguryazilim.raf.ui.contentpanels.RafFolderViewPanel;
+import com.ozguryazilim.raf.ui.base.metadatapanels.BasicMetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -46,11 +43,13 @@ import javax.enterprise.inject.Instance;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
@@ -103,16 +102,7 @@ public class RafController implements Serializable {
     private ContentViewPanel selectedCollectionContentPanel;
 
     @Inject
-    private RafDocumentViewPanel documentViewPanel;
-
-    @Inject
-    private RafFolderViewPanel folderViewPanel;
-
-    @Inject
     private Instance<ObjectContentViewPanel> objectViewPanels;
-
-    @Inject
-    private RafCollectionCompactViewPanel collectionCompactViewPanel;
 
     private String rafCode;
 

@@ -33,12 +33,13 @@
                     </ui:fragment>
 
                     <div class="raf-container-item-group-item">
-                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item" >
+                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item">
+                            <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                             <div class="raf-container-item">
                                 <div class="raf-container-item-item thumbnail-icon">
                                     <span class="raf-container-item-item-img" >
                                         <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
-                                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                            <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
                                                 <ui:fragment rendered="#{not viewBean.hasPreview(item)}">
                                                     <svg class="raf-container-item-item-gallery-thumbnail">
                                                         <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
@@ -47,6 +48,7 @@
                                                 <ui:fragment rendered="#{viewBean.hasPreview(item)}">
                                                     <img class="raf-container-item-item-gallery-thumbnail" src="#{request.contextPath}/resource/#{item.id}#{item.hasPreview ? '/preview' : ''}"/>
                                                 </ui:fragment>
+                                                <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                             </p:commandLink>
                                         </div>
                                     </span>
@@ -54,6 +56,11 @@
                                         <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
                                             <span class="text-sm">#{item.title}</span>
                                         </p:commandLink>
+                                        <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                                            <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                                <i class="fa fa-edit" />
+                                            </p:commandLink>
+                                        </ui:fragment>
 
                                         <div class="text-muted text-sm">#{item.name}</div>
                                         <div class="text-muted text-sm">
