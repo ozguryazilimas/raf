@@ -11,10 +11,6 @@ import java.util.Locale;
 
 public final class RafCollectionSorter {
 
-    private static boolean reverseSort;
-    private static boolean isFolderFirst;
-    private static RafCollection collection;
-
     private RafCollectionSorter() {
     }
 
@@ -28,111 +24,107 @@ public final class RafCollectionSorter {
      * @param collection     -> Sıralama yapılacak olan koleksiyon
      */
     public static void sort(SortType sortType, boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
-
-        RafCollectionSorter.reverseSort = reverseSort;
-        RafCollectionSorter.isFolderFirst = isFoldersFirst;
-        RafCollectionSorter.collection = collection;
-
+        
         switch (sortType) {
             case NAME:
-                sortByTitle();
+                sortByTitle(reverseSort, isFoldersFirst, collection);
                 break;
             case MIMETYPE:
-                sortByMimeType();
+                sortByMimeType(reverseSort, isFoldersFirst, collection);
                 break;
             case CATEGORY:
-                sortByCategory();
+                sortByCategory(reverseSort, isFoldersFirst, collection);
                 break;
             case DATE_ASC:
-                sortByCreateDate(true);
+                sortByCreateDate(true, reverseSort, isFoldersFirst, collection);
                 break;
             case DATE_DESC:
-                sortByCreateDate(false);
+                sortByCreateDate(false, reverseSort, isFoldersFirst, collection);
                 break;
             case MODIFY_DATE_ASC:
-                sortByUpdateDate(true);
+                sortByUpdateDate(true, reverseSort, isFoldersFirst, collection);
                 break;
             case MODIFY_DATE_DESC:
-                sortByUpdateDate(false);
+                sortByUpdateDate(false, reverseSort, isFoldersFirst, collection);
                 break;
             default:
-                sortByName();
+                sortByName(reverseSort, isFoldersFirst, collection);
                 break;
         }
     }
 
-    private static void sortByTitle() {
+    private static void sortByTitle(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
+            if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
-            return compareString(t1.getTitle(), t2.getTitle());
+            return compareString(t1.getTitle(), t2.getTitle(), reverseSort);
         });
     }
 
-    private static void sortByMimeType() {
+    private static void sortByMimeType(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
+            if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
-            return compareString(t1.getMimeType(), t2.getMimeType());
+            return compareString(t1.getMimeType(), t2.getMimeType(), reverseSort);
         });
     }
 
-    private static void sortByCategory() {
+    private static void sortByCategory(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
+            if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
-            return compareString(t1.getCategory(), t2.getCategory());
+            return compareString(t1.getCategory(), t2.getCategory(), reverseSort);
         });
     }
 
-    private static void sortByCreateDate(boolean isASC) {
+    private static void sortByCreateDate(boolean isASC, boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
-                int r = compareFolder(t1, t2);
-                if (r != 0) return r;
-            }
-            if (isASC) {
-                return compareDate(t1.getCreateDate(), t2.getCreateDate());
-            }
-            return compareDate(t2.getCreateDate(), t1.getCreateDate());
-        });
-    }
-
-    private static void sortByUpdateDate(boolean isASC) {
-        collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
+            if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
             if (isASC) {
-                return compareDate(t1.getUpdateDate(), t2.getUpdateDate());
+                return compareDate(t1.getCreateDate(), t2.getCreateDate(), reverseSort);
             }
-            return compareDate(t2.getUpdateDate(), t1.getUpdateDate());
+            return compareDate(t2.getCreateDate(), t1.getCreateDate(), reverseSort);
         });
     }
 
-    private static void sortByName() {
+    private static void sortByUpdateDate(boolean isASC, boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
-            if (isFolderFirst) {
+            if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
-            return compareString(t1.getName(), t2.getName());
+            if (isASC) {
+                return compareDate(t1.getUpdateDate(), t2.getUpdateDate(), reverseSort);
+            }
+            return compareDate(t2.getUpdateDate(), t1.getUpdateDate(), reverseSort);
         });
     }
 
-    private static int compareDate(Date d1, Date d2) {
+    private static void sortByName(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
+        collection.getItems().sort((t1, t2) -> {
+            if (isFoldersFirst) {
+                int r = compareFolder(t1, t2);
+                if (r != 0) return r;
+            }
+            return compareString(t1.getName(), t2.getName(), reverseSort);
+        });
+    }
+
+    private static int compareDate(Date d1, Date d2, boolean reverseSort) {
         if (d1 == null || d2 == null) return 0;
         return reverseSort ? d2.compareTo(d1) : d1.compareTo(d2);
     }
 
-    private static int compareString(String s1, String s2) {
+    private static int compareString(String s1, String s2, boolean reverseSort) {
         if (s1 == null || s2 == null) return 0;
         Collator collator = Collator.getInstance(new Locale("tr", "TR"));
         return reverseSort ? collator.compare(s2, s1) : collator.compare(s1, s2);

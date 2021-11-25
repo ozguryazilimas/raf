@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public final class RafCollectionGrouper {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static RafCollection collection;
 
     private RafCollectionGrouper() {
     }
@@ -25,27 +24,26 @@ public final class RafCollectionGrouper {
      * @return
      */
     public static LinkedHashMap<String, List<RafObject>> groupBy(SortType sortType, RafCollection collection) {
-        RafCollectionGrouper.collection = collection;
 
         switch (sortType) {
             case NAME:
-                return groupingByTitle();
+                return groupingByTitle(collection);
             case MIMETYPE:
-                return groupingByMimeType();
+                return groupingByMimeType(collection);
             case CATEGORY:
-                return groupingByCategory();
+                return groupingByCategory(collection);
             case DATE_ASC:
             case DATE_DESC:
-                return groupingByCreateDate();
+                return groupingByCreateDate(collection);
             case MODIFY_DATE_ASC:
             case MODIFY_DATE_DESC:
-                return groupingByUpdateDate();
+                return groupingByUpdateDate(collection);
             default:
-                return groupingByName();
+                return groupingByName(collection);
         }
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByTitle() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByTitle(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(g -> g.getTitle().substring(0, 1).toUpperCase(),
                         LinkedHashMap::new,
@@ -53,7 +51,7 @@ public final class RafCollectionGrouper {
                 ));
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByName() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByName(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(g -> g.getName().substring(0, 1).toUpperCase(),
                         LinkedHashMap::new,
@@ -61,7 +59,7 @@ public final class RafCollectionGrouper {
                 ));
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByMimeType() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByMimeType(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(RafObject::getMimeType,
                         LinkedHashMap::new,
@@ -69,7 +67,7 @@ public final class RafCollectionGrouper {
                 ));
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByCategory() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByCategory(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(g -> g.getCategory() != null ? g.getCategory() : "",
                         LinkedHashMap::new,
@@ -77,7 +75,7 @@ public final class RafCollectionGrouper {
                 ));
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByCreateDate() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByCreateDate(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(g -> SIMPLE_DATE_FORMAT.format(g.getCreateDate()),
                         LinkedHashMap::new,
@@ -85,7 +83,7 @@ public final class RafCollectionGrouper {
                 ));
     }
 
-    private static LinkedHashMap<String, List<RafObject>> groupingByUpdateDate() {
+    private static LinkedHashMap<String, List<RafObject>> groupingByUpdateDate(RafCollection collection) {
         return collection.getItems().stream().collect(
                 Collectors.groupingBy(g -> g.getUpdateDate() != null
                                 ? SIMPLE_DATE_FORMAT.format(g.getUpdateDate())
