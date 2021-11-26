@@ -51,11 +51,14 @@
                             </p:commandLink>
                         </th>
                         <th>
+                            #{messages['collection.table.Size']}
+                        </th>
+                        <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Date']}
                             </p:commandLink>
                         </th>
-                         <th>
+                        <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.UpdateUser']}
                             </p:commandLink>
@@ -97,6 +100,11 @@
                             </td>
                             <td>
                                 #{userLookup.getUserName(item.createBy)}
+                            </td>
+                            <td>
+                                <ui:fragment rendered="#{item.length gt 0}">
+                                    #{rafController.byteCountToDisplaySize(item.length)}
+                                </ui:fragment>                                
                             </td>
                             <td>
                                 <t:cellOutputDateTime value="#{item.createDate}"/>

@@ -494,15 +494,17 @@ public class RafModeshapeRepository implements Serializable {
                     if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
                         sortBy = PROP_TITLE;
                     } else if ("MODIFY_DATE".equals(sortBy)) {
-                        sortBy = PROP_UPDATED_DATE;
+                        sortBy = String.format("nodes.[%s]", PROP_UPDATED_DATE);
                     } else if ("DATE".equals(sortBy)) {
-                        sortBy = PROP_CREATED_DATE;
-                    } else if ("DATE".equals(sortBy)) {
-                        sortBy = "jcr:mimeType";
+                        sortBy = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                    } else if ("MIMETYPE".equals(sortBy)) {
+                        sortBy = "nodes.[jcr:mimeType]";
+                    } else if ("SIZE".equals(sortBy)) {
+                        sortBy = "LENGTH(nodes.[jcr:content/jcr:data])";
                     } else if ("CATEGORY".equals(sortBy)) {
-                        sortBy = PROP_CATEGORY;
+                        sortBy = String.format("nodes.[%s]", PROP_CATEGORY);
                     }
-                    expression += String.format(" ORDER BY nodes.[%s] %s", sortBy, descSort ? "DESC" : "ASC");
+                    expression += String.format(" ORDER BY %s %s", sortBy, descSort ? "DESC" : "ASC");
                 }
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
@@ -1216,7 +1218,7 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
                     rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
-                    if(v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)){
+                    if (v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)) {
                         rv.setComment(v.getFrozenNode().getProperty(PROP_RAF_VERSION_COMMENT).getString());
                     }
                     result.add(rv);
