@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="box-header with-border">
+        <h:outputText value="#{messages['page.title.UserRafListSubView']}" styleClass="box-title"/>
+        <div class="box-tools pull-right">            
+            <p:commandLink actionListener="#{userRafListSubView.reload()}" styleClass="btn btn-box-tool" update="@([id$=results])" process="@this" title="#{messages['general.button.Refresh']}">
+                <i class="fa fa-refresh"/>
+            </p:commandLink>
+        </div>
+    </div>
+
+    <div class="box-body">
+        <div id="subResults" class="col-xs-12">
+            <div class="box box-success">
+                <h:form id="browseListForm">
+                    <p:dataTable id="results" var="item" 
+                                 value="#{userRafListSubView.rafs}" 
+                                 paginator="true" rows="10" 
+                                 paginatorPosition="bottom" 
+                                 paginatorAlwaysVisible="false"
+                                 selectionMode="single"
+                                 rowKey="#{item.id}"
+                                 emptyMessage="#{messages['general.message.browse.EmptyDesc']}">
+                        <p:column headerText="#{messages['raf.label.Raf']}">
+                            <h:outputText value="#{item.code}" />
+                        </p:column>
+                        <p:column headerText="#{messages['raf.label.MemberRole']}">
+                            <h:outputText value="#{messages['member.role.'.concat(userRafListSubView.getMemberRole(item))]}" />
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </div>
+        </div>
+    </div>    
+
+</ui:composition>

@@ -31,6 +31,8 @@ import javax.inject.Inject;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -41,6 +43,8 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
  */
 @ApplicationScoped
 public class RafService implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RafModeshapeRepository.class);
 
     @Inject
     private RafModeshapeRepository rafRepository;
