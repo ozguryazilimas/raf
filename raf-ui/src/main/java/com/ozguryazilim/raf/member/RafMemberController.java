@@ -254,18 +254,20 @@ public class RafMemberController implements Serializable {
         return memberService.getGroupUsers(userGroupName).stream().map(m -> userLookup.getUserName(m)).collect(Collectors.toList());
     }
 
+    private boolean isLastManagerMember(RafMember member) {
+        if (RafDefinitionService.RAF_ROLE_MANAGER.equals(member.getRole())) {
+            List<RafMember> managerMembers = getManagerMembers();
+            return managerMembers.isEmpty() || (managerMembers.size() == 1 && managerMembers.get(0) == member);
+        }
+        return false;
+    }
+
     public void deleteMember(RafMember member) {
         try {
-            boolean canRemove = true;
-            if (RafDefinitionService.RAF_ROLE_MANAGER.equals(member.getRole())) {
-                List<RafMember> managerMembers = getManagerMembers();
-                if (managerMembers.size() == 1 && managerMembers.get(0) == member) {
-                    canRemove = false;
-                    LOG.error("Last manager member cannot delete");
-                    FacesMessages.error("Son Yönetici Üye Silinemez.", "Yeni bir yönetici üye ekledikten sonra tekrar deneyiniz.");
-                }
-            }
-            if (canRemove) {
+            if (!isLastManagerMember(member)) {
+                LOG.error("Last manager member cannot delete");
+                FacesMessages.error("Son Yönetici Üye Silinemez.", "Yeni bir yönetici üye ekledikten sonra tekrar deneyiniz.");
+            } else {
                 memberService.removeMember(member);
             }
         } catch (RafException ex) {
