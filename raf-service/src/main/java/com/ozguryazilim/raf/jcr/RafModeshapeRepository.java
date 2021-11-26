@@ -496,39 +496,43 @@ public class RafModeshapeRepository implements Serializable {
                 switch (sortBy) {
                     case DATE_ASC: {
                         descSort = Boolean.FALSE;
-                        sortQuery = PROP_CREATED_DATE;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
                         break;
                     }
                     case DATE_DESC: {
                         descSort = Boolean.TRUE;
-                        sortQuery = PROP_CREATED_DATE;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
                         break;
                     }
                     case MODIFY_DATE_ASC: {
                         descSort = Boolean.FALSE;
-                        sortQuery = PROP_UPDATED_DATE;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
                         break;
                     }
                     case MODIFY_DATE_DESC: {
                         descSort = Boolean.TRUE;
-                        sortQuery = PROP_UPDATED_DATE;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
                         break;
                     }
                     case CATEGORY: {
-                        sortQuery = PROP_CATEGORY;
+                        sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
                         break;
                     }
                     case MIMETYPE: {
-                        sortQuery = "jcr:mimeType";
+                        sortQuery = "nodes.[jcr:mimeType]";
+                        break;
+                    }
+                    case SIZE: {
+                        sortQuery = "LENGTH(nodes.[jcr:content/jcr:data])";
                         break;
                     }
                     default: {
-                        sortQuery = PROP_TITLE;
+                        sortQuery = String.format("nodes.[%s]", PROP_TITLE);
                         break;
                     }
                 }
 
-                expression += String.format(" ORDER BY nodes.[%s] %s", sortQuery, descSort ? "DESC" : "ASC");
+                expression += String.format(" ORDER BY %s %s", sortBy, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
@@ -1241,7 +1245,7 @@ public class RafModeshapeRepository implements Serializable {
                     rv.setCreatedBy(getPropertyAsString(v.getFrozenNode(), "jcr:lastModifiedBy"));
                     rv.setCreated(v.getProperty(PROP_CREATED_DATE).getDate().getTime());
                     rv.setPath(v.getPath());
-                    if(v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)){
+                    if (v.getFrozenNode().hasProperty(PROP_RAF_VERSION_COMMENT)) {
                         rv.setComment(v.getFrozenNode().getProperty(PROP_RAF_VERSION_COMMENT).getString());
                     }
                     result.add(rv);

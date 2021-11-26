@@ -26,16 +26,9 @@ import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ContentViewPanel;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
-import com.ozguryazilim.raf.ui.base.metadatapanels.BasicMetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
-import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -50,6 +43,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
@@ -866,5 +865,9 @@ public class RafController implements Serializable {
     public Boolean hasDeleteRole(RafObject obj) throws RafException {
         return memberService.hasDeleteRole(identity.getLoginName(), rafDefinition) ||
             rafObjectMemberService.hasDeleteRole(identity.getLoginName(), obj.getPath());
+    }
+    
+    public String byteCountToDisplaySize(long bytes) {
+        return FileUtils.byteCountToDisplaySize(bytes);
     }
 }
