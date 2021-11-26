@@ -12,6 +12,7 @@ import java.util.Locale;
 public final class RafCollectionSorter {
 
     private RafCollectionSorter() {
+        throw new IllegalStateException("Utility class");
     }
 
     /**
@@ -26,9 +27,6 @@ public final class RafCollectionSorter {
     public static void sort(SortType sortType, boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         
         switch (sortType) {
-            case NAME:
-                sortByTitle(reverseSort, isFoldersFirst, collection);
-                break;
             case MIMETYPE:
                 sortByMimeType(reverseSort, isFoldersFirst, collection);
                 break;
@@ -47,8 +45,11 @@ public final class RafCollectionSorter {
             case MODIFY_DATE_DESC:
                 sortByUpdateDate(false, reverseSort, isFoldersFirst, collection);
                 break;
+            case SIZE:
+                sortBySize(reverseSort, isFoldersFirst, collection);
+                break;
             default:
-                sortByName(reverseSort, isFoldersFirst, collection);
+                sortByTitle(reverseSort, isFoldersFirst, collection);
                 break;
         }
     }
@@ -109,13 +110,13 @@ public final class RafCollectionSorter {
         });
     }
 
-    private static void sortByName(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
+    private static void sortBySize(boolean reverseSort, boolean isFoldersFirst, RafCollection collection) {
         collection.getItems().sort((t1, t2) -> {
             if (isFoldersFirst) {
                 int r = compareFolder(t1, t2);
                 if (r != 0) return r;
             }
-            return compareString(t1.getName(), t2.getName(), reverseSort);
+            return compareSize(t1.getLength(), t2.getLength(), reverseSort);
         });
     }
 
@@ -128,6 +129,11 @@ public final class RafCollectionSorter {
         if (s1 == null || s2 == null) return 0;
         Collator collator = Collator.getInstance(new Locale("tr", "TR"));
         return reverseSort ? collator.compare(s2, s1) : collator.compare(s1, s2);
+    }
+
+    private static int compareSize(Long s1, Long s2, boolean reverseSort) {
+        if (s1 == null || s2 == null) return 0;
+        return reverseSort ? s2.compareTo(s1) : s1.compareTo(s2);
     }
 
     private static int compareFolder(RafObject t1, RafObject t2) {

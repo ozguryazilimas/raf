@@ -12,10 +12,16 @@ public enum SortType {
     DATE_DESC,
     MIMETYPE,
     CATEGORY,
-    TAG;
+    TAG,
+    SIZE;
 
     public static SortType defaultSortType(String sortType) {
-        return SortType.valueOf(sortType);
+        for (SortType s : values()) {
+            if (s.name().equals(sortType)) {
+                return s;
+            }
+        }
+        return MODIFY_DATE_DESC;
     }
 
 }

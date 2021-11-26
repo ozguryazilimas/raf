@@ -262,6 +262,11 @@
                                                 <i class="fa  #{rafController.getSortBy() eq 'CATEGORY' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Category']}
                                             </p:commandLink>
                                         </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.setSortBy('SIZE')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'SIZE' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Size']}
+                                            </p:commandLink>
+                                        </li>
                                         <ui:remove>
                                             TODO: Şimdilik TAG sıralamayı kaldırdım. Birden fazla TAG için sıralama yöntemleri belli değil.
                                             <li>

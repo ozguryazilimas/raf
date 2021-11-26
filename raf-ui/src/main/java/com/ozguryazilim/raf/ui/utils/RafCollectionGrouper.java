@@ -14,6 +14,7 @@ public final class RafCollectionGrouper {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private RafCollectionGrouper() {
+        throw new IllegalStateException("Utility class");
     }
 
     /**

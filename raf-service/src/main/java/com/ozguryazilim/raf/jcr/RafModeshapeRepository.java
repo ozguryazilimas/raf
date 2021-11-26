@@ -99,6 +99,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_TYPE = "raf:type";
     private static final String PROP_DATA = "jcr:data";
     private static final String PROP_PATH = "jcr:path";
+    private static final String PROP_MIMETYPE = "jcr:mimeType";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -495,22 +496,22 @@ public class RafModeshapeRepository implements Serializable {
 
                 switch (sortBy) {
                     case DATE_ASC: {
-                        descSort = Boolean.FALSE;
+                        descSort = false;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
                         break;
                     }
                     case DATE_DESC: {
-                        descSort = Boolean.TRUE;
+                        descSort = true;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
                         break;
                     }
                     case MODIFY_DATE_ASC: {
-                        descSort = Boolean.FALSE;
+                        descSort = false;
                         sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
                         break;
                     }
                     case MODIFY_DATE_DESC: {
-                        descSort = Boolean.TRUE;
+                        descSort = true;
                         sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
                         break;
                     }
@@ -519,7 +520,7 @@ public class RafModeshapeRepository implements Serializable {
                         break;
                     }
                     case MIMETYPE: {
-                        sortQuery = "nodes.[jcr:mimeType]";
+                        sortQuery = String.format( "nodes.[%s]", PROP_MIMETYPE);
                         break;
                     }
                     case SIZE: {
@@ -1316,15 +1317,15 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
             Node nc = n.getNode(NODE_CONTENT);
-            String mimeType = getPropertyAsString(nc, "jcr:mimeType");
+            String mimeType = getPropertyAsString(nc, PROP_MIMETYPE);
             if (Strings.isNullOrEmpty(mimeType)) {
-                nc.setProperty("jcr:mimeType", "raf/binary");
+                nc.setProperty(PROP_MIMETYPE, "raf/binary");
             }
 
             //Normalde mimeType application/xml geliyor BPMN için bunu değiştiriyoruz.
             //TODO: MimeType dedection için aslında daha düzgün bir şey gerek. 
             if (fileName.endsWith(".bpmn") || fileName.endsWith(".bpmn2")) {
-                nc.setProperty("jcr:mimeType", "application/bpmn-xml");
+                nc.setProperty(PROP_MIMETYPE, "application/bpmn-xml");
             }
 
             session.save();
@@ -1693,7 +1694,7 @@ public class RafModeshapeRepository implements Serializable {
                 String mimeType = null;
                 if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
                     Node preview = node.getNode("raf:preview");
-                    mimeType = getPropertyAsString(preview, "jcr:mimeType");
+                    mimeType = getPropertyAsString(preview, PROP_MIMETYPE);
                     preview.remove();
 
                 }
@@ -2208,7 +2209,7 @@ public class RafModeshapeRepository implements Serializable {
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);
-        String s = getPropertyAsString(cn, "jcr:mimeType");
+        String s = getPropertyAsString(cn, PROP_MIMETYPE);
         if (Strings.isNullOrEmpty(s)) {
             s = "raf/binary";
         }
@@ -2260,7 +2261,7 @@ public class RafModeshapeRepository implements Serializable {
         if (node.hasNode("raf:preview")) {
             result.setHasPreview(Boolean.TRUE);
             Node preview = node.getNode("raf:preview");
-            result.setPreviewMimeType(getPropertyAsString(preview, "jcr:mimeType"));
+            result.setPreviewMimeType(getPropertyAsString(preview, PROP_MIMETYPE));
         }
 
         return result;
