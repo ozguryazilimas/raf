@@ -264,7 +264,7 @@ public class RafMemberController implements Serializable {
 
     public void deleteMember(RafMember member) {
         try {
-            if (!isLastManagerMember(member)) {
+            if (isLastManagerMember(member)) {
                 LOG.error("Last manager member cannot delete");
                 FacesMessages.error("Son Yönetici Üye Silinemez.", "Yeni bir yönetici üye ekledikten sonra tekrar deneyiniz.");
             } else {
