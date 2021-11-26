@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -257,7 +256,18 @@ public class RafMemberController implements Serializable {
 
     public void deleteMember(RafMember member) {
         try {
-            memberService.removeMember(member);
+            boolean canRemove = true;
+            if (RafDefinitionService.RAF_ROLE_MANAGER.equals(member.getRole())) {
+                List<RafMember> managerMembers = getManagerMembers();
+                if (managerMembers.size() == 1 && managerMembers.get(0) == member) {
+                    canRemove = false;
+                    LOG.error("Last manager member cannot delete");
+                    FacesMessages.error("Son Yönetici Üye Silinemez.", "Yeni bir yönetici üye ekledikten sonra tekrar deneyiniz.");
+                }
+            }
+            if (canRemove) {
+                memberService.removeMember(member);
+            }
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("Member cannot delete", ex);
@@ -308,5 +318,22 @@ public class RafMemberController implements Serializable {
     public void cancelDialog() {
         //Aslında yapacak bir şey yok.
         selectedMember = null;
+    }
+
+    public List<RafMember> getManagerMembers() {
+        try {
+            List<RafMember> result = memberService.getMembers(rafDefinition).stream()
+                    .filter(m
+                            -> m.getRole().equals(RafDefinitionService.RAF_ROLE_MANAGER))
+                    .collect(Collectors.toList());
+
+            return result;
+        } catch (RafException ex) {
+            //FIXME: i18n
+            LOG.error("Raf Exception", ex);
+            FacesMessages.error("Yönetici Üye bilgisi alınamadı", ex.getLocalizedMessage());
+        }
+
+        return Collections.emptyList();
     }
 }
