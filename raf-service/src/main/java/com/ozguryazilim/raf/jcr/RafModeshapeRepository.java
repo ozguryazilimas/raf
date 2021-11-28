@@ -533,7 +533,7 @@ public class RafModeshapeRepository implements Serializable {
                     }
                 }
 
-                expression += String.format(" ORDER BY %s %s", sortBy, descSort ? "DESC" : "ASC");
+                expression += String.format(" ORDER BY %s %s", sortQuery, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
