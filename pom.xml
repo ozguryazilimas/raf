@@ -162,6 +162,7 @@
         <module>raf-converter</module>
         <module>raf-webdav</module>
         <module>raf-cmis</module>
+        <module>raf-wopi</module>
         <module>raf-externaldoc</module>
         <module>raf-emaildoc</module>
         

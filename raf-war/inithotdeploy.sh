@@ -15,6 +15,7 @@ rm -rf WEB-INF/lib/raf-forms-$version.jar
 rm -rf WEB-INF/lib/raf-converter-$version.jar
 rm -rf WEB-INF/lib/raf-webdav-$version.jar
 # rm -rf WEB-INF/lib/raf-cmis-$version.jar
+rm -rf WEB-INF/lib/raf-wopi-$version.jar
 
 
 ln -s ~/git/raf/raf-core/target/classes/ WEB-INF/lib/raf-core-$version.jar
@@ -29,6 +30,7 @@ ln -s ~/git/raf/raf-forms/target/classes/ WEB-INF/lib/raf-forms-$version.jar
 ln -s ~/git/raf/raf-converter/target/classes/ WEB-INF/lib/raf-converter-$version.jar
 ln -s ~/git/raf/raf-webdav/target/classes/ WEB-INF/lib/raf-webdav-$version.jar
 # ln -s ~/git/raf/raf-cmis/target/classes/ WEB-INF/lib/raf-cmis-$version.jar
+ln -s ~/git/raf/raf-wopi/target/classes/ WEB-INF/lib/raf-wopi-$version.jar
 
 cd ..
 touch raf.war.dodeploy

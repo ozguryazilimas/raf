@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+
+  libreoffice-app-code:
+    image:  collabora/code:latest
+    hostname: libreoffice.karabugday.local
+    container_name: libreoffice-app-code
+    expose:
+      - 9980
+    cap_add:
+      - MKNOD
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:libreoffice.karabugday.local
+      - traefik.http.routers.librefoffice.rule=Host(`libreoffice.karabugday.local`)
+      - traefik.port=9980
+      - traefik.protocol=http
+      - traefik.docker.network=traefik_default
+      - traefik.backend=libreoffice-app-code
+    environment:
+      - domain=raf.karabugday.local
+      - server_name=libreoffice.karabugday.local
+      
+      - username=admin
+      - password=libreoffice
+      - extra_params=--o:ssl.enable=false
+      - dictionaries=tr en_US
+      
+    networks:
+    - traefik_default
+    #- internal
+    #- services
+    extra_hosts:
+    - "raf.karabugday.local:host-gateway"
+    restart: always
+
+networks:
+  traefik_default:
+    external: true
+  internal:
+    external: false
+  #services:
+  #  external: true 

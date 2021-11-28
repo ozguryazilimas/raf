@@ -1,0 +1,57 @@
+= Raf WOPI İçin Geliştirme Ortamı
+
+Raf WOPI ile beraber LibreOffice Online ile doğrudan tarafyıcı içerisinde ofis belgelerinin düzenlenmesini sağlayacak.
+
+iki farklı docker imjı var. 
+
+* Collabora Code
+* tiredofit/libreoffice-online
+
+İkisinde de çalışmak için yaklaşık aynı şeyler yapııyor.
+
+== Host Ayarları
+
+öncelike yerel `/etc/hosts` dosyasında `libreoffice.hostname.local` ve `raf.hostname.local` girdilerini 127.0.0.1 için düzenliyorsunuz.
+
+.Örnek: /etc/hosts
+----
+127.0.0.1       localhost karabugday libreoffice.karabugday.local raf.karabugday.local
+----
+
+Bu sayede tarayıcınızdan bu domainler ile raf'a erişebilirsiniz.
+
+== Docker
+
+Bu hostların yönlendirmesi için traefik proxy kullanıyoruz. İlgili docker-compose dosyası `./docker/traefik/` altında duruyor.
+
+Yukarıdaki hostname düzenlemesine göre docker-compose.yml dosyalarının içelerinin de düzeltilmesi gerekiyor.
+
+----
+ $> cd docker/traefik
+ $> docker-compose up -d
+----
+
+ile öncelikle traefik'i ayağa kaldırıyoruz.
+
+Ardından istediğiniz libreoffice online implementasyonunu kaldıracağız.
+
+----
+ $> cd docker/code
+ $> docker-compose up -d
+----
+
+== telve.properties
+
+Telve porperties içerisinde 3 adet değişken var. Bunların host isimlerine göre düzeltilmesi gerekiyor. LibreOfficeOnline yolları için 
+
+http://libreoffice.hostname.local/hosting/discovery adresine bakınız.
+
+----
+#Eğer false ise action düğmeleri gözükmez
+raf.wopi.active=true
+#tiredofit için
+#raf.wopi.client=http://libreoffice.karabugday.local/loleaflet/078e8b854/loleaflet.html
+#code için
+raf.wopi.client=http://libreoffice.karabugday.local/browser/b5534c4/cool.html
+raf.wopi.host=http://raf.karabugday.local:8080/dolap/rest
+----

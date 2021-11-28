@@ -1,0 +1,54 @@
+version: '3.7'
+services:
+
+  libreoffice-app:
+    image: tiredofit/libreoffice-online:latest
+    hostname: libreoffice.karabugday.local
+    container_name: libreoffice-app
+    expose:
+      - 9980
+    cap_add:
+      - MKNOD
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:libreoffice.karabugday.local
+      - traefik.http.routers.librefoffice.rule=Host(`libreoffice.karabugday.local`)
+      - traefik.port=9980
+      - traefik.protocol=http
+      - traefik.docker.network=traefik_default
+      - traefik.backend=libreoffice-app
+    environment:
+      #- VIRTUAL_HOST=libreoffice.karabugday
+      #- VIRTUAL_NETWORK=proxy
+      #- VIRTUAL_PORT=9980
+      #- VIRTUAL_PROTO=https
+#      - LETSENCRYPT_HOST=libreoffice.example.com
+#      - LETSENCRYPT_EMAIL=techsupport@example.com
+ 
+      - CONTAINER_NAME=libreoffice-app
+      - INTERFACE=notebookbar
+      
+      - ADMIN_USER=admin
+      - ADMIN_PASS=libreoffice
+      - ALLOWED_HOSTS=localhost, raf.karabugday.local, raf.karabugday.local:8080
+      - DICTIONARIES=tr,en
+      
+      
+      - LOG_LEVEL=warning
+      - ENABLE_TLS=FALSE
+      - ENABLE_TLS_REVERSE_PROXY=FALSE
+    networks:
+    - traefik_default
+    #- internal
+    #- services
+    extra_hosts:
+    - "raf.karabugday.local:host-gateway"
+    restart: always
+
+networks:
+  traefik_default:
+    external: true
+  internal:
+    external: false
+  #services:
+  #  external: true 
