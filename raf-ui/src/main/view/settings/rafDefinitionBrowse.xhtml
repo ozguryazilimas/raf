@@ -1,6 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:p="http://primefaces.org/ui"
@@ -15,7 +14,7 @@
     <ui:param name="permission" value="rafDefinitionAdmin" />
     <ui:param name="onSelectUpdate" value="" />
     <ui:param name="onSelectEnabled" value="#editRafDefinition, #deleteRafDefinition" />
-
+    <ui:param name="showDetailPanel" value="true" />
 
     <ui:define name="ribbon-actions">
 
@@ -113,6 +112,20 @@
                 <span>#{messages['raf.button.DeleteObject']}</span>
             </p:commandLink>
         </li>
+    </ui:define>
+
+    <ui:define name="detailBar">
+        <ui:param name="rafDetailsMap" value="#{rafDefinitionBrowse.getDetailsForSelectedRaf()}" />
+        <ui:fragment rendered="#{rafDetailsMap.size() > 0}">
+            <t:outputText label="#{messages['raf.definition.label.totalFolderCount']}" value="#{rafDetailsMap.get('totalFolderCount')}"
+                          columnClass="col-xs-12"/>
+            <t:outputText label="#{messages['raf.definition.label.totalFileCount']}" value="#{rafDetailsMap.get('totalFileCount')}"
+                          columnClass="col-xs-12"/>
+            <t:outputText label="#{messages['raf.definition.label.totalFileSize']}" value="#{rafDetailsMap.get('totalFileSize')}"
+                          columnClass="col-xs-12"/>
+            <t:outputText label="#{messages['raf.definition.label.totalMemberCount']}" value="#{rafDetailsMap.get('totalMember')}"
+                          columnClass="col-xs-12"/>
+        </ui:fragment>
     </ui:define>
 
 </ui:composition>

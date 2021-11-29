@@ -9,15 +9,18 @@ import com.ozguryazilim.raf.member.RafMemberRepository;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import com.ozguryazilim.telve.forms.Browse;
 import com.ozguryazilim.telve.forms.BrowseBase;
-import com.ozguryazilim.telve.idm.entities.User_;
 import com.ozguryazilim.telve.query.QueryDefinition;
 import com.ozguryazilim.telve.query.columns.TextColumn;
 import com.ozguryazilim.telve.query.filters.StringFilter;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Admin tarafından raf yönetim paneli. 
@@ -42,8 +45,10 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     
     @Inject
     private RafService rafService;
-    
+
     private String objectId;
+
+    private final Map<RafDefinition, Map<String, String>> rafDefinitionPropertiesMap = new HashMap<>();
     
     @Override
     protected void buildQueryDefinition(QueryDefinition<RafDefinition, RafDefinition> queryDefinition) {
@@ -62,6 +67,12 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     @Override
     protected RepositoryBase<RafDefinition, RafDefinition> getRepository() {
         return repository;
+    }
+
+    @Override
+    public void search() {
+        super.search();
+        rafDefinitionPropertiesMap.clear();
     }
 
     @Transactional
@@ -97,6 +108,24 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
 
     public void setObjectId(String objectId) {
         this.objectId = objectId;
+    }
+
+    public Map<String, String> getDetailsForSelectedRaf() throws RafException {
+        if (selectedItem != null) {
+            if (rafDefinitionPropertiesMap.get(selectedItem) == null) {
+                Map<String, String> prettyAttributesMap = new HashMap<>();
+                Map<String, Long> attributesMap = rafService.getRafDefinitionProperties(rafService.getCollection(selectedItem.getNodeId()).getPath());
+                prettyAttributesMap.put("totalFileCount", String.valueOf(attributesMap.get("totalFileCount")));
+                prettyAttributesMap.put("totalFolderCount", String.valueOf(attributesMap.get("totalFolderCount")));
+                prettyAttributesMap.put("totalFileSize", FileUtils.byteCountToDisplaySize(attributesMap.get("totalFileSize")));
+                prettyAttributesMap.put("totalMember", String.valueOf(memberRepository.findByRaf(selectedItem).size()));
+                rafDefinitionPropertiesMap.put(selectedItem, prettyAttributesMap);
+                return prettyAttributesMap;
+            } else {
+                return rafDefinitionPropertiesMap.get(selectedItem);
+            }
+        }
+        return new HashMap<>();
     }
     
 }
