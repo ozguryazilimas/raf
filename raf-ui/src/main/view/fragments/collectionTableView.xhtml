@@ -51,17 +51,22 @@
                             </p:commandLink>
                         </th>
                         <th>
-                            <p:commandLink action="#{controllerBean.setSortByAndType('DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                            <p:commandLink action="#{controllerBean.setSortByAndType('SIZE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                                #{messages['collection.table.Size']}
+                            </p:commandLink>
+                        </th>
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('DATE_ASC', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Date']}
                             </p:commandLink>
                         </th>
-                         <th>
-                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                        <th>
+                            <p:commandLink action="#{controllerBean.setSortByAndType('USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.UpdateUser']}
                             </p:commandLink>
                         </th>
                         <th>
-                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_DATE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                            <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_DATE_ASC', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.UpdateDate']}
                             </p:commandLink>
                         </th>
@@ -97,6 +102,11 @@
                             </td>
                             <td>
                                 #{userLookup.getUserName(item.createBy)}
+                            </td>
+                            <td>
+                                <ui:fragment rendered="#{item.length gt 0}">
+                                    #{rafController.byteCountToDisplaySize(item.length)}
+                                </ui:fragment>                                
                             </td>
                             <td>
                                 <t:cellOutputDateTime value="#{item.createDate}"/>
