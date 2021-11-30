@@ -30,6 +30,9 @@
             <!-- pe:ajaxErrorHandler / -->
 
             <h:form>
+                <ui:fragment rendered="#{'true' eq telveConfigResolver.getProperty('app.stayLoggedIn')}">
+                    <p:poll interval="600" update="notifyCount" global="false"/>
+                </ui:fragment>
                 <p:remoteCommand name="updateNotifies" update="notifyCount"  />
             </h:form>
 
