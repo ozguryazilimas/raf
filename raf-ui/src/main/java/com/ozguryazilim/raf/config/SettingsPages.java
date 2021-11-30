@@ -6,6 +6,7 @@ import com.ozguryazilim.telve.nav.Navigation;
 import com.ozguryazilim.telve.view.Pages;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.deltaspike.jsf.api.config.view.Folder;
+import org.apache.deltaspike.jsf.api.config.view.View;
 
 /**
  *
@@ -24,5 +25,8 @@ public interface SettingsPages extends Pages{
     
     @SecuredPage()
     class RafMembers implements SettingsPages {};
+    
+    @SecuredPage("userRole") @View 
+    class UserRafListSubView implements Admin {};
            
 }

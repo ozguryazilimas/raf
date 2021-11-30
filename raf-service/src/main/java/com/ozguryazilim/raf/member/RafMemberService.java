@@ -199,7 +199,21 @@ public class RafMemberService implements Serializable {
     }
 
     public String getMemberRole(String username, RafDefinition raf) throws RafException {
-        return "";
+        //Kullanıcı ya da grup fark etmez üye mi diye bakıyoruz.
+        List<RafMember> b = getMembersImpl(raf).stream()
+                .filter(m -> m.getMemberName().equals(username))
+                .collect(Collectors.toList());
+
+        if (b == null || b.isEmpty()) {
+            //Burada üye gruplar üzerinden bir kontrol yapalım.
+            //Önce Grup tipi memberlar alınıp bunlardan üye listesi toplanıyor
+            //Ardından o liste içinde istenilen kullanıcı var mı diye bakılıyor.
+            b = getMembersImpl(raf).stream()
+                    .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
+                    .filter(m -> getGroupUsers(m.getMemberName()).contains(username))
+                    .collect(Collectors.toList());
+        }
+        return b != null && !b.isEmpty() ? b.get(0).getRole() : "";
     }
 
     /**

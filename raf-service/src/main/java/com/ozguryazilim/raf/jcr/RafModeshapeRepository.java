@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -21,6 +22,10 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.imgscalr.Scalr;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
@@ -28,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.ImageIO;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -43,6 +49,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -99,6 +106,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_TYPE = "raf:type";
     private static final String PROP_DATA = "jcr:data";
     private static final String PROP_PATH = "jcr:path";
+    private static final String PROP_MIMETYPE = "jcr:mimeType";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -395,6 +403,7 @@ public class RafModeshapeRepository implements Serializable {
                     folderList.add(f);
                 }
             }
+            session.logout();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0004] Raf Folders not found", ex);
         }
@@ -475,7 +484,7 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, String sortBy, boolean descSort) {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, SortType sortBy, boolean descSort) {
         NodeIterator result = null;
         try {
             try {
@@ -491,22 +500,48 @@ public class RafModeshapeRepository implements Serializable {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
                 }
 
-                if (!Strings.isNullOrEmpty(sortBy)) {
-                    if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_TITLE);
-                    } else if ("MODIFY_DATE".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_UPDATED_DATE);
-                    } else if ("DATE".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_CREATED_DATE);
-                    } else if ("MIMETYPE".equals(sortBy)) {
-                        sortBy = "nodes.[jcr:mimeType]";
-                    } else if ("SIZE".equals(sortBy)) {
-                        sortBy = "LENGTH(nodes.[jcr:content/jcr:data])";
-                    } else if ("CATEGORY".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_CATEGORY);
+                String sortQuery;
+
+                switch (sortBy) {
+                    case DATE_ASC: {
+                        descSort = false;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                        break;
                     }
-                    expression += String.format(" ORDER BY %s %s", sortBy, descSort ? "DESC" : "ASC");
+                    case DATE_DESC: {
+                        descSort = true;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                        break;
+                    }
+                    case MODIFY_DATE_ASC: {
+                        descSort = false;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
+                        break;
+                    }
+                    case MODIFY_DATE_DESC: {
+                        descSort = true;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
+                        break;
+                    }
+                    case CATEGORY: {
+                        sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
+                        break;
+                    }
+                    case MIMETYPE: {
+                        sortQuery = String.format( "nodes.[%s]", PROP_MIMETYPE);
+                        break;
+                    }
+                    case SIZE: {
+                        sortQuery = "LENGTH(nodes.[jcr:content/jcr:data])";
+                        break;
+                    }
+                    default: {
+                        sortQuery = String.format("nodes.[%s]", PROP_TITLE);
+                        break;
+                    }
                 }
+
+                expression += String.format(" ORDER BY %s %s", sortQuery, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
@@ -525,7 +560,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, SortType sortBy, Boolean descSort) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
@@ -1290,15 +1325,15 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
             Node nc = n.getNode(NODE_CONTENT);
-            String mimeType = getPropertyAsString(nc, "jcr:mimeType");
+            String mimeType = getPropertyAsString(nc, PROP_MIMETYPE);
             if (Strings.isNullOrEmpty(mimeType)) {
-                nc.setProperty("jcr:mimeType", "raf/binary");
+                nc.setProperty(PROP_MIMETYPE, "raf/binary");
             }
 
             //Normalde mimeType application/xml geliyor BPMN için bunu değiştiriyoruz.
             //TODO: MimeType dedection için aslında daha düzgün bir şey gerek. 
             if (fileName.endsWith(".bpmn") || fileName.endsWith(".bpmn2")) {
-                nc.setProperty("jcr:mimeType", "application/bpmn-xml");
+                nc.setProperty(PROP_MIMETYPE, "application/bpmn-xml");
             }
 
             session.save();
@@ -1652,37 +1687,107 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    /**
-     * ID'si verilen nodun preview dosyasini yeniden uretir.
-     *
-     * @param id
-     */
-    public void reGeneratePreview(String id) throws RafException {
-
+    public InputStream getPreviewContentPDF(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            Node nodeContent = node.getNode(NODE_CONTENT);
-            if (node.hasNode("raf:preview")) {
-                String mimeType = null;
-                if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
-                    Node preview = node.getNode("raf:preview");
-                    mimeType = getPropertyAsString(preview, "jcr:mimeType");
-                    preview.remove();
 
-                }
-                if (!Strings.isNullOrEmpty(mimeType)) {
-                    FilePreviewHelper.generatePreview(nodeContent.getProperty(PROP_DATA), node, mimeType);
-                }
+            LOG.debug("PDF Document Preview Content Requested: {}", node.getPath());
 
-                session.save();
-                session.logout();
+            if (!node.hasNode("raf:preview")) {
+                throw new RafException("[RAF-0035] Raf Node preview cannot found");
             }
+
+            Node content = node.getNode("raf:preview");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+            BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
+            LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
+            ImageIO.write(scaledImg, "png", bos);
+            session.logout();
+            return new ByteArrayInputStream(bos.toByteArray());
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+
+    /**
+     * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
+     * 
+     * Arayüzden doğrudan çağırmamak gerekir. RegenaratePreviewCommand'ı ile çağrılmalı
+     * 
+     * @param id
+     * @throws RafException 
+     */
+    public void regeneratePreviews(String id) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            regeneratePreviews(node);
+            session.logout();
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
+    
+    /**
+     * Verilen node nt:folder ise altındaki dosyalar için preview çıkarırır.
+     * @param node
+     * @throws RafException 
+     */
+    protected void regeneratePreviews(Node node) throws RafException {
+       
+        try {
+            if( node.isNodeType(NODE_FOLDER)){
+                for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
+                    Node child = iter.nextNode();
+                    if (child.isNodeType(NODE_FOLDER)) {
+                        regeneratePreviews(child);
+                    } else if (child.isNodeType(NODE_FILE)){
+                        //çünkü başka bir seesion açılsın istiyoruz.
+                        regeneratePreview(child.getIdentifier());
+                    }
+                }
+            }
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+        
+    }
+    
+    /**
+     * ID'si verilen nodun preview dosyasini yeniden uretir.
+     *
+     * @param id
+     */
+    public void regeneratePreview(String id) throws RafException {
+
+        try {
+            
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            if( node.isNodeType(NODE_FILE)){
+                Node nodeContent = node.getNode(NODE_CONTENT);
+
+                if( FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node) ){
+                    session.save();
+                }
+            }
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
 
     /**
      * ID'si verilen nodu siler.
@@ -2182,7 +2287,7 @@ public class RafModeshapeRepository implements Serializable {
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);
-        String s = getPropertyAsString(cn, "jcr:mimeType");
+        String s = getPropertyAsString(cn, PROP_MIMETYPE);
         if (Strings.isNullOrEmpty(s)) {
             s = "raf/binary";
         }
@@ -2234,7 +2339,7 @@ public class RafModeshapeRepository implements Serializable {
         if (node.hasNode("raf:preview")) {
             result.setHasPreview(Boolean.TRUE);
             Node preview = node.getNode("raf:preview");
-            result.setPreviewMimeType(getPropertyAsString(preview, "jcr:mimeType"));
+            result.setPreviewMimeType(getPropertyAsString(preview, PROP_MIMETYPE));
         }
 
         return result;
@@ -2261,7 +2366,7 @@ public class RafModeshapeRepository implements Serializable {
                     result.add(nodeToRafFolder(n));
                 }
             }
-
+            
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
