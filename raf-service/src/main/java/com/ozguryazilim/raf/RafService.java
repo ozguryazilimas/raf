@@ -30,6 +30,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
@@ -524,6 +526,10 @@ public class RafService implements Serializable {
 
     public void extractZipFile(RafObject zipFile) throws RafException {
         rafRepository.extractZipFile(zipFile);
+    }
+
+    public Map<String, Long> getRafDefinitionProperties(String absPath) throws RafException {
+        return rafRepository.getRafDefinitionProperties(absPath);
     }
 
 }

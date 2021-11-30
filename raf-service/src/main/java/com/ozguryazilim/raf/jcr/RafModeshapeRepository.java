@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -2752,28 +2753,21 @@ public class RafModeshapeRepository implements Serializable {
 
     public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
         long result = 0;
-
         try {
-            Session session = ModeShapeRepositoryFactory.getSession();
+            List<Node> folders = getAllChildFolders(absPath);
+            List<Node> files = getChildFiles(absPath);
 
-            QueryManager queryManager = session.getWorkspace().getQueryManager();
-            //TODO : JCR SQL içerisinde SUM(LENGTH(jcr:data)) gibi bir özellik gelirse bu kod güncellenebilir.
-            String expression = "SELECT nodes.* FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
-
-            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
-            QueryResult queryResult = query.execute();
-            NodeIterator nodes = queryResult.getNodes();
-            while (nodes.hasNext()) {
-                Node n = nodes.nextNode();
-                if (n.hasProperty("jcr:content/jcr:data")) {
-                    result += n.getProperty("jcr:content/jcr:data").getLength();
+            for (Node folder : folders) {
+                files.addAll(getChildFiles(folder.getPath()));
+            }
+            for (Node file : files) {
+                if (file.hasProperty("jcr:content/jcr:data")) {
+                    result += file.getProperty("jcr:content/jcr:data").getLength();
                     if (maxSumSize > 0 && maxSumSize < result) {
                         throw new RafException(String.format("Max file limit is over, Max File Limit : %d, File Size : %d", maxSumSize, result));
                     }
                 }
-
             }
-
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
@@ -2838,6 +2832,84 @@ public class RafModeshapeRepository implements Serializable {
         } catch (Exception ex) {
             LOG.error("RafException", ex);
             throw new RafException("[RAF-0028] Failed to extract zip object", ex);
+        }
+    }
+
+    /**
+     * Verilen path altındaki tüm klasör ağacını tarar ve döner.
+     * @param absPath
+     * @return
+     */
+    public List<Node> getAllChildFolders(String absPath) throws RafException {
+        List<Node> folders = new ArrayList<>();
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            String expression = "SELECT nodes.* FROM [" + NODE_FOLDER + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            NodeIterator nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                Node n = nodes.nextNode();
+                folders.add(n);
+                if (n.hasNodes()) {
+                    folders.addAll(getAllChildFolders(n.getPath()));
+                }
+            }
+            return folders;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
+        }
+    }
+
+    /**
+     * Verilen path altındaki tüm dosyaları çeker.
+     * Dikkat: Bu method klasör ağacını vs. taramaz, yalnızca verilen path altındaki dosya'ları döndürür.
+     * @param absPath
+     * @return
+     */
+    public List<Node> getChildFiles(String absPath) throws RafException {
+        List<Node> files = new ArrayList<>();
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            String expression = "SELECT nodes.* FROM [" + NODE_FILE + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            NodeIterator nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                Node n = nodes.nextNode();
+                files.add(n);
+            }
+            return files;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
+        }
+    }
+
+    public Map<String, Long> getRafDefinitionProperties(String absPath) throws RafException {
+        try {
+            // 1. root path altındaki tüm klasör ağacını topluyoruz
+            List<Node> folders = getAllChildFolders(absPath);
+            // 2. root path için tüm dosyaları alalım
+            List<Node> files = getChildFiles(absPath);
+            // 3. root path altındaki tüm raf folderlar için de dosyaları alalım.
+            for (Node f : folders) {
+                files.addAll(getChildFiles(f.getPath()));
+            }
+            long totalFolderCount = folders.size();
+            long totalFileCount = files.size();
+            long totalFileSize = 0;
+            for (Node f : files) {
+                totalFileSize += f.getProperty("jcr:content/jcr:data").getLength();
+            }
+            Map<String, Long> propertiesMap = new HashMap<>();
+            propertiesMap.put("totalFolderCount", totalFolderCount);
+            propertiesMap.put("totalFileCount", totalFileCount);
+            propertiesMap.put("totalFileSize", totalFileSize);
+            return propertiesMap;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
         }
     }
 
