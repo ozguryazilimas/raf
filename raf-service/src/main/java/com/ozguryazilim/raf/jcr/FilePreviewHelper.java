@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.modeshape.jcr.api.JcrConstants;
 
 public class FilePreviewHelper {
 
@@ -33,7 +34,7 @@ public class FilePreviewHelper {
     }
 
 
-    private static boolean generateImagePreview(Property inputProperty, Node outputNode) {
+    public static boolean generateImagePreview(Property inputProperty, Node outputNode) {
         try {
             Binary binaryValue = getBinary(inputProperty);
             InputStream isOrj = binaryValue.getStream();
@@ -41,16 +42,16 @@ public class FilePreviewHelper {
             isOrj.close();
             if (bufferedImageOrj.getWidth() > 480) {
                 BufferedImage scaledImg = Scalr.resize(bufferedImageOrj, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
-
                 ImageIO.write(scaledImg, "png", os);
-
                 createPreviewNode(os, outputNode, "image/png");
-
+                os.close();
+            } else {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImageOrj, "png", os);
+                createPreviewNode(os, outputNode, "image/png");
                 os.close();
             }
-
 
             LOG.debug("preview generating success..");
         } catch (Exception e) {
@@ -62,22 +63,23 @@ public class FilePreviewHelper {
         return true;
     }
 
-    private static boolean generatePDFPreview(Property inputProperty, Node outputNode) {
+    public static boolean generatePDFPreview(Property inputProperty, Node outputNode) {
+
         try {
+            String mimeType = inputProperty.getParent().getProperty(JcrConstants.JCR_MIME_TYPE).getString();
+            if (!PDFPreviewConverter.instance().isAcceptedMimeType(mimeType)) return false;
+        
             Binary binaryValue = getBinary(inputProperty);
-            //Node sequencedNode = getPdfMetadataNode(outputNode);
+            
+            try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
 
-            PDFPreviewConverter converter = new PDFPreviewConverter();
+                
 
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+                PDFPreviewConverter.instance().convert(binaryValue.getStream(), mimeType, os);
 
-            String mimeType = inputProperty.getParent().getProperty("jcr:mimeType").getString();
-
-            converter.convert(binaryValue.getStream(), mimeType, os);
-
-            createPreviewNode(os, outputNode, mimeType);
-
-            os.close();
+                createPreviewNode(os, outputNode, "application/pdf");
+            }
+            
         } catch (Exception e) {
             LOG.warn("Preview cannot generated", e);
             return false;
@@ -108,6 +110,8 @@ public class FilePreviewHelper {
         if (outputNode.isNew()) {
             outputNode.setPrimaryType("raf:preview");
             return outputNode;
+        } else if (outputNode.hasNode("raf:preview")) {
+            return outputNode.getNode("raf:preview");
         }
 
         return outputNode.addNode("raf:preview", "raf:preview");

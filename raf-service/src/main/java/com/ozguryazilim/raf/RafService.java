@@ -19,6 +19,11 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.jcr.RepositoryException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -302,24 +307,36 @@ public class RafService implements Serializable {
         return rafRepository.getPreviewContent(id);
     }
 
-    public void reGeneratePreview(String id) throws RafException {
-        rafRepository.reGeneratePreview(id);
+    /**
+     * PDF dosyanın ilk sayfasını imaja dönüştürür ve png formatına çevirir.
+     *
+     * @param id
+     * @return
+     * @throws RafException
+     */
+    public InputStream getPreviewContentPDF(String id) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
+        }
+        return rafRepository.getPreviewContentPDF(id);
     }
 
-    public void reGenerateObjectPreviews(List<RafObject> rafObjects, Integer recursiveCallCounter) throws RafException {
-        if (recursiveCallCounter == 10) {
-            //Devre Kesici !! En fazla 10 defa kendini çağırabilir. (10 alt klasör çalıştırılabilir.)
-            return;
-        }
-        for (RafObject rafObject : rafObjects) {
-            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
-                reGeneratePreview(rafObject.getId());
-            } else if (rafObject instanceof RafFolder) {
-                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, SortType.NAME, false);
-                reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
+    /**
+     * İdsi verilen file için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regeneratePreview(String id) throws RafException {
+        rafRepository.regeneratePreview(id);
+    }
 
-            }
-        }
+    /**
+     * Idsi verilen folder için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regenerateObjectPreviews(String id) throws RafException {
+        rafRepository.regeneratePreviews(id);
     }
 
     public RafCollection getRafCollectionForAllNode() throws RafException {

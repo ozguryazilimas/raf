@@ -55,18 +55,6 @@ public class MyRafsDashlet extends AbstractDashlet {
         lazyRafs = new LazyRafDefinitionDataModel(this);
     }
 
-    public void reGeneratePreviews() throws RafException {
-        List<RafObject> rafObjects = rafs.stream().map(RafDefinition::getNodeId).map(nodeId -> {
-            try {
-                return rafService.getCollection(nodeId).getItems();
-            } catch (RafException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).flatMap(Collection::stream).collect(Collectors.toList());
-        rafService.reGenerateObjectPreviews(rafObjects, 0);
-    }
-
     public List<RafDefinition> getRafs() {
 
         return rafs.stream()

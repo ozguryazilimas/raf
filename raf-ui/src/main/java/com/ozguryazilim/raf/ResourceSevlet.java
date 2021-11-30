@@ -1,20 +1,21 @@
 package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.models.RafDocument;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Preview v.b. de kullanmak üzere resource servlet.
@@ -52,15 +53,23 @@ public class ResourceSevlet extends HttpServlet{
             RafDocument doc = (RafDocument) service.getRafObject(resourceId);
             
             InputStream is = null;
-            //Eğer preview isteniyor ise onu alalım
-            if( req.getPathInfo().endsWith("preview") ){
-                is = service.getPreviewContent( resourceId );
+
+            // Eğer preview isteniyor ise onu alalım
+            // Not: PDF önizleme verdiğimiz tüm formatlar için preview ve thumbnail ayrımı yaptık. +
+            // Preview -> .pdf Thumbnail -> .png formatında servis ediliyor. +
+            // Thumbnail şuan için önyüzde gallery view tarafından kullanılıyor. +
+            // Memory yönetimi için belki her yerde bir sayfa image sunabiliriz.
+            if(req.getPathInfo().endsWith("thumbnail") && doc.getPreviewMimeType().equals("application/pdf")){
+                is = service.getPreviewContentPDF(resourceId);
+                resp.setContentType("image/png");
+            } else if(req.getPathInfo().endsWith("preview") || req.getPathInfo().endsWith("thumbnail")) {
+                is = service.getPreviewContent(resourceId);
                 resp.setContentType(doc.getPreviewMimeType());
             } else {
-                is = service.getDocumentContent( resourceId );
+                is = service.getDocumentContent(resourceId);
                 resp.setContentType(doc.getMimeType());
             }
-            
+
             resp.setHeader("Content-disposition", "inline;filename=" + doc.getName());
             //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
 

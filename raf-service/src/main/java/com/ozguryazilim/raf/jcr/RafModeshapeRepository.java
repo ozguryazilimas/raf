@@ -22,6 +22,10 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.imgscalr.Scalr;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
@@ -29,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.ImageIO;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -44,6 +49,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -396,6 +402,7 @@ public class RafModeshapeRepository implements Serializable {
                     folderList.add(f);
                 }
             }
+            session.logout();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0004] Raf Folders not found", ex);
         }
@@ -1679,37 +1686,107 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    /**
-     * ID'si verilen nodun preview dosyasini yeniden uretir.
-     *
-     * @param id
-     */
-    public void reGeneratePreview(String id) throws RafException {
-
+    public InputStream getPreviewContentPDF(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            Node nodeContent = node.getNode(NODE_CONTENT);
-            if (node.hasNode("raf:preview")) {
-                String mimeType = null;
-                if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
-                    Node preview = node.getNode("raf:preview");
-                    mimeType = getPropertyAsString(preview, PROP_MIMETYPE);
-                    preview.remove();
 
-                }
-                if (!Strings.isNullOrEmpty(mimeType)) {
-                    FilePreviewHelper.generatePreview(nodeContent.getProperty(PROP_DATA), node, mimeType);
-                }
+            LOG.debug("PDF Document Preview Content Requested: {}", node.getPath());
 
-                session.save();
-                session.logout();
+            if (!node.hasNode("raf:preview")) {
+                throw new RafException("[RAF-0035] Raf Node preview cannot found");
             }
+
+            Node content = node.getNode("raf:preview");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+            BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
+            LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
+            ImageIO.write(scaledImg, "png", bos);
+            session.logout();
+            return new ByteArrayInputStream(bos.toByteArray());
+
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+
+    /**
+     * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
+     * 
+     * Arayüzden doğrudan çağırmamak gerekir. RegenaratePreviewCommand'ı ile çağrılmalı
+     * 
+     * @param id
+     * @throws RafException 
+     */
+    public void regeneratePreviews(String id) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            regeneratePreviews(node);
+            session.logout();
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
+    
+    /**
+     * Verilen node nt:folder ise altındaki dosyalar için preview çıkarırır.
+     * @param node
+     * @throws RafException 
+     */
+    protected void regeneratePreviews(Node node) throws RafException {
+       
+        try {
+            if( node.isNodeType(NODE_FOLDER)){
+                for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
+                    Node child = iter.nextNode();
+                    if (child.isNodeType(NODE_FOLDER)) {
+                        regeneratePreviews(child);
+                    } else if (child.isNodeType(NODE_FILE)){
+                        //çünkü başka bir seesion açılsın istiyoruz.
+                        regeneratePreview(child.getIdentifier());
+                    }
+                }
+            }
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+        
+    }
+    
+    /**
+     * ID'si verilen nodun preview dosyasini yeniden uretir.
+     *
+     * @param id
+     */
+    public void regeneratePreview(String id) throws RafException {
+
+        try {
+            
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+            if( node.isNodeType(NODE_FILE)){
+                Node nodeContent = node.getNode(NODE_CONTENT);
+
+                if( FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node) ){
+                    session.save();
+                }
+            }
+            session.logout();
+            
+        } catch (RepositoryException ex) {
+            LOG.error("RAfException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
+    }
+    
 
     /**
      * ID'si verilen nodu siler.
@@ -2288,7 +2365,7 @@ public class RafModeshapeRepository implements Serializable {
                     result.add(nodeToRafFolder(n));
                 }
             }
-
+            
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
