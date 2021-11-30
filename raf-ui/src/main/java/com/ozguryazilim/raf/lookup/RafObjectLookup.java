@@ -2,11 +2,14 @@ package com.ozguryazilim.raf.lookup;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.DialogPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
@@ -15,11 +18,6 @@ import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.utils.ELUtils;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
@@ -27,6 +25,12 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -39,6 +43,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private static final String SELECT_TYPE_DOCUMENT = "Document";
     private static final String SELECT_TYPE_FOLDER = "Folder";
+
+    @Inject
+    @UserAware
+    private Kahve kahve;
+
+    private SortType sortBy;
 
     @Inject
     private ViewConfigResolver viewConfigResolver;
@@ -72,9 +82,17 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         return pageSize;
     }
 
+    public SortType getSortBy() {
+        return sortBy;
+    }
+
+    public void setSortBy(SortType sortBy) {
+        this.sortBy = sortBy;
+    }
+
     @PostConstruct
     public void init() {
-
+        setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
     }
 
     public void nextPage() {
@@ -82,7 +100,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
             try {
                 setPage(getPage() + getPageSize());
                 clear();
-                setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+                setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
             } catch (RafException ex) {
                 LOG.error("RafException", ex);
             }
@@ -97,7 +115,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         setPage(newPage);
         try {
             clear();
-            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
         } catch (RafException ex) {
             LOG.error("RafException", ex);
         }
@@ -356,7 +374,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -425,7 +443,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             if (object instanceof RafFolder) {
                 clear();
-                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
                 if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
                     selected = object;
                 }
@@ -469,7 +487,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         clear();
         try {
             page = 0;
-            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), "jcr:title", false));
+            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }

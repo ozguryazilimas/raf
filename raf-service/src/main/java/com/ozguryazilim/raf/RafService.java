@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
@@ -22,13 +23,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -99,7 +97,7 @@ public class RafService implements Serializable {
         return rafRepository.getChildFolderList(rafPath);
     }
 
-    public RafCollection getCollectionPaged(String id, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+    public RafCollection getCollectionPaged(String id, int page, int pageSize, boolean justFolders, SortType sortBy, Boolean descSort) throws RafException {
         //FIXME: yetki kontrolleri
         RafCollection result = rafRepository.getCollectionById(id, true, page, pageSize, justFolders, sortBy, descSort);
 
@@ -111,7 +109,7 @@ public class RafService implements Serializable {
 
     public RafCollection getCollection(String id) throws RafException {
         //FIXME: yetki kontrolleri
-        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0, false, "jcr:title", false);
+        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0, false, SortType.NAME, false);
 
         if (isReadLogEnabled()) {
             sendAuditLog(id, "GET_FOLDER_CONTENT", result.getPath());
@@ -313,7 +311,7 @@ public class RafService implements Serializable {
             if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
                 reGeneratePreview(rafObject.getId());
             } else if (rafObject instanceof RafFolder) {
-                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
+                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, SortType.NAME, false);
                 reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
 
             }

@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -98,6 +99,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String PROP_RAF_TYPE = "raf:type";
     private static final String PROP_DATA = "jcr:data";
     private static final String PROP_PATH = "jcr:path";
+    private static final String PROP_MIMETYPE = "jcr:mimeType";
 
     private static final String PROP_RECORD_TYPE = "raf:recordType";
     private static final String PROP_DOCUMENT_TYPE = "raf:documentType";
@@ -474,7 +476,7 @@ public class RafModeshapeRepository implements Serializable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, String sortBy, boolean descSort) {
+    public NodeIterator getChildNodesByPagination(String absPath, int page, int pageSize, boolean justFolders, SortType sortBy, boolean descSort) {
         NodeIterator result = null;
         try {
             try {
@@ -490,22 +492,48 @@ public class RafModeshapeRepository implements Serializable {
                     expression += " AND nodes.[jcr:mixinTypes] NOT IN ('raf:record')";
                 }
 
-                if (!Strings.isNullOrEmpty(sortBy)) {
-                    if ("NAME".equals(sortBy) || "jcr:name".equals(sortBy) || "jcr:title".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_TITLE);
-                    } else if ("MODIFY_DATE".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_UPDATED_DATE);
-                    } else if ("DATE".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_CREATED_DATE);
-                    } else if ("MIMETYPE".equals(sortBy)) {
-                        sortBy = "nodes.[jcr:mimeType]";
-                    } else if ("SIZE".equals(sortBy)) {
-                        sortBy = "LENGTH(nodes.[jcr:content/jcr:data])";
-                    } else if ("CATEGORY".equals(sortBy)) {
-                        sortBy = String.format("nodes.[%s]", PROP_CATEGORY);
+                String sortQuery;
+
+                switch (sortBy) {
+                    case DATE_ASC: {
+                        descSort = false;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                        break;
                     }
-                    expression += String.format(" ORDER BY %s %s", sortBy, descSort ? "DESC" : "ASC");
+                    case DATE_DESC: {
+                        descSort = true;
+                        sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                        break;
+                    }
+                    case MODIFY_DATE_ASC: {
+                        descSort = false;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
+                        break;
+                    }
+                    case MODIFY_DATE_DESC: {
+                        descSort = true;
+                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
+                        break;
+                    }
+                    case CATEGORY: {
+                        sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
+                        break;
+                    }
+                    case MIMETYPE: {
+                        sortQuery = String.format( "nodes.[%s]", PROP_MIMETYPE);
+                        break;
+                    }
+                    case SIZE: {
+                        sortQuery = "LENGTH(nodes.[jcr:content/jcr:data])";
+                        break;
+                    }
+                    default: {
+                        sortQuery = String.format("nodes.[%s]", PROP_TITLE);
+                        break;
+                    }
                 }
+
+                expression += String.format(" ORDER BY %s %s", sortQuery, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);
@@ -524,7 +552,7 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+    public RafCollection getCollectionById(String id, boolean withPage, int page, int pageSize, boolean justFolders, SortType sortBy, Boolean descSort) throws RafException {
         RafCollection result = new RafCollection();
 
         try {
@@ -1289,15 +1317,15 @@ public class RafModeshapeRepository implements Serializable {
 
             //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
             Node nc = n.getNode(NODE_CONTENT);
-            String mimeType = getPropertyAsString(nc, "jcr:mimeType");
+            String mimeType = getPropertyAsString(nc, PROP_MIMETYPE);
             if (Strings.isNullOrEmpty(mimeType)) {
-                nc.setProperty("jcr:mimeType", "raf/binary");
+                nc.setProperty(PROP_MIMETYPE, "raf/binary");
             }
 
             //Normalde mimeType application/xml geliyor BPMN için bunu değiştiriyoruz.
             //TODO: MimeType dedection için aslında daha düzgün bir şey gerek. 
             if (fileName.endsWith(".bpmn") || fileName.endsWith(".bpmn2")) {
-                nc.setProperty("jcr:mimeType", "application/bpmn-xml");
+                nc.setProperty(PROP_MIMETYPE, "application/bpmn-xml");
             }
 
             session.save();
@@ -1666,7 +1694,7 @@ public class RafModeshapeRepository implements Serializable {
                 String mimeType = null;
                 if (node.getNode("raf:preview") != null && node.getNode("raf:preview").isNode()) {
                     Node preview = node.getNode("raf:preview");
-                    mimeType = getPropertyAsString(preview, "jcr:mimeType");
+                    mimeType = getPropertyAsString(preview, PROP_MIMETYPE);
                     preview.remove();
 
                 }
@@ -2181,7 +2209,7 @@ public class RafModeshapeRepository implements Serializable {
 
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);
-        String s = getPropertyAsString(cn, "jcr:mimeType");
+        String s = getPropertyAsString(cn, PROP_MIMETYPE);
         if (Strings.isNullOrEmpty(s)) {
             s = "raf/binary";
         }
@@ -2233,7 +2261,7 @@ public class RafModeshapeRepository implements Serializable {
         if (node.hasNode("raf:preview")) {
             result.setHasPreview(Boolean.TRUE);
             Node preview = node.getNode("raf:preview");
-            result.setPreviewMimeType(getPropertyAsString(preview, "jcr:mimeType"));
+            result.setPreviewMimeType(getPropertyAsString(preview, PROP_MIMETYPE));
         }
 
         return result;
