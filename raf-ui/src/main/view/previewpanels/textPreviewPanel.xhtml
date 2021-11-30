@@ -7,7 +7,15 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <div class="embed-responsive embed-responsive-4by3" style="border: 1px silver solid;">
-        <iframe src="#{request.contextPath}/resource/#{rafObject.id}" class="embed-responsive-item"/>
+        <ui:remove>
+            <iframe src="#{request.contextPath}/resource/#{rafObject.id}" class="embed-responsive-item"/>
+        </ui:remove>
+        <pre id="preview_content" class="embed-responsive-item"></pre>
+        <script>
+            jQuery.ajax({url: "#{request.contextPath}/resource/#{rafObject.id}", success: function (result) {
+                    jQuery("#preview_content").html(result);
+                }});
+        </script>
     </div>
 
 </ui:composition>
