@@ -5,6 +5,7 @@ import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
@@ -117,7 +118,7 @@ public class RafController implements Serializable {
     private Integer pageSize = 50;
     private Integer pageCount = 0;
 
-    private String sortBy = "NAME";
+    private SortType sortBy = SortType.DATE_DESC;
     private Boolean descSort = Boolean.FALSE;
 
     public Boolean getDescSort() {
@@ -136,7 +137,7 @@ public class RafController implements Serializable {
         return pageCount;
     }
 
-    public String getSortBy() {
+    public SortType getSortBy() {
         return sortBy;
     }
 
@@ -153,7 +154,7 @@ public class RafController implements Serializable {
         //selectedContentPanel= collectionCompactViewPanel;
         //selectedCollectionContentPanel = collectionCompactViewPanel;
         setPage(0);
-        setSortBy(kahve.get("raf.sortBy", "NAME").getAsString());
+        setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
         setDescSort(kahve.get("raf.descSort", Boolean.FALSE).getAsBoolean());
     }
 
@@ -670,17 +671,17 @@ public class RafController implements Serializable {
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
-    public void setSortBy(String sortBy) {
+    public void setSortBy(SortType sortBy) {
         setSortByAndType(sortBy, this.descSort);
     }
 
-    public void setSortByAndType(String sortBy, Boolean descSort) {
+    public void setSortByAndType(SortType sortBy, Boolean descSort) {
         boolean changing = !this.sortBy.equals(sortBy) || this.descSort != descSort;
         if (changing) {
             setPage(0);
             this.sortBy = sortBy;
             this.descSort = descSort;
-            kahve.put("raf.sortBy", sortBy);
+            kahve.put("raf.sortBy", sortBy.name());
             kahve.put("raf.descSort", descSort);
             try {
                 if (context.getSelectedObject() != null) {

@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
@@ -18,19 +19,23 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.jcr.RepositoryException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -41,6 +46,8 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
  */
 @ApplicationScoped
 public class RafService implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RafModeshapeRepository.class);
 
     @Inject
     private RafModeshapeRepository rafRepository;
@@ -99,7 +106,7 @@ public class RafService implements Serializable {
         return rafRepository.getChildFolderList(rafPath);
     }
 
-    public RafCollection getCollectionPaged(String id, int page, int pageSize, boolean justFolders, String sortBy, Boolean descSort) throws RafException {
+    public RafCollection getCollectionPaged(String id, int page, int pageSize, boolean justFolders, SortType sortBy, Boolean descSort) throws RafException {
         //FIXME: yetki kontrolleri
         RafCollection result = rafRepository.getCollectionById(id, true, page, pageSize, justFolders, sortBy, descSort);
 
@@ -111,7 +118,7 @@ public class RafService implements Serializable {
 
     public RafCollection getCollection(String id) throws RafException {
         //FIXME: yetki kontrolleri
-        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0, false, "jcr:title", false);
+        RafCollection result = rafRepository.getCollectionById(id, false, 0, 0, false, SortType.NAME, false);
 
         if (isReadLogEnabled()) {
             sendAuditLog(id, "GET_FOLDER_CONTENT", result.getPath());
@@ -300,24 +307,36 @@ public class RafService implements Serializable {
         return rafRepository.getPreviewContent(id);
     }
 
-    public void reGeneratePreview(String id) throws RafException {
-        rafRepository.reGeneratePreview(id);
+    /**
+     * PDF dosyanın ilk sayfasını imaja dönüştürür ve png formatına çevirir.
+     *
+     * @param id
+     * @return
+     * @throws RafException
+     */
+    public InputStream getPreviewContentPDF(String id) throws RafException {
+        if (isReadLogEnabled()) {
+            sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
+        }
+        return rafRepository.getPreviewContentPDF(id);
     }
 
-    public void reGenerateObjectPreviews(List<RafObject> rafObjects, Integer recursiveCallCounter) throws RafException {
-        if (recursiveCallCounter == 10) {
-            //Devre Kesici !! En fazla 10 defa kendini çağırabilir. (10 alt klasör çalıştırılabilir.)
-            return;
-        }
-        for (RafObject rafObject : rafObjects) {
-            if (rafObject instanceof RafDocument && ((RafDocument) rafObject).getHasPreview()) {
-                reGeneratePreview(rafObject.getId());
-            } else if (rafObject instanceof RafFolder) {
-                RafCollection r = rafRepository.getCollectionById(rafObject.getId(), false, 0, 0, false, "jcr:title", false);
-                reGenerateObjectPreviews(r.getItems(), recursiveCallCounter + 1);
+    /**
+     * İdsi verilen file için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regeneratePreview(String id) throws RafException {
+        rafRepository.regeneratePreview(id);
+    }
 
-            }
-        }
+    /**
+     * Idsi verilen folder için preview hazırlar
+     * @param id
+     * @throws RafException 
+     */
+    public void regenerateObjectPreviews(String id) throws RafException {
+        rafRepository.regeneratePreviews(id);
     }
 
     public RafCollection getRafCollectionForAllNode() throws RafException {

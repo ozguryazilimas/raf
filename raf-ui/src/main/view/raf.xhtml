@@ -233,13 +233,23 @@
                                             </p:commandLink>
                                         </li>
                                         <li>
-                                            <p:commandLink action="#{rafController.setSortBy('DATE')}" process="@this" update="raf-view-content">
-                                                <i class="fa  #{rafController.getSortBy() eq 'DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.CreateDate']}
+                                            <p:commandLink action="#{rafController.setSortBy('DATE_ASC')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'DATE_ASC' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.CreateDate']} (#{messages['general.sort.oldToNew']})
                                             </p:commandLink>
                                         </li>
                                         <li>
-                                            <p:commandLink action="#{rafController.setSortBy('MODIFY_DATE')}" process="@this" update="raf-view-content">
-                                                <i class="fa  #{rafController.getSortBy() eq 'MODIFY_DATE' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.ModifyDate']}
+                                            <p:commandLink action="#{rafController.setSortBy('DATE_DESC')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'DATE_DESC' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.CreateDate']} (#{messages['general.sort.newToOld']})
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.setSortBy('MODIFY_DATE_ASC')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'MODIFY_DATE_ASC' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.ModifyDate']} (#{messages['general.sort.oldToNew']})
+                                            </p:commandLink>
+                                        </li>
+                                        <li>
+                                            <p:commandLink action="#{rafController.setSortBy('MODIFY_DATE_DESC')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'MODIFY_DATE_DESC' ? 'fa-circle' : 'fa-circle-o'}"/> #{messages['sortBy.ModifyDate']} (#{messages['general.sort.newToOld']})
                                             </p:commandLink>
                                         </li>
                                         <li>
@@ -253,11 +263,19 @@
                                             </p:commandLink>
                                         </li>
                                         <li>
-                                            <p:commandLink action="#{rafController.setSortBy('TAG')}" process="@this" update="raf-view-content">
-
-                                                <i class="fa  #{rafController.getSortBy() eq 'TAG' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Tag']}
+                                            <p:commandLink action="#{rafController.setSortBy('SIZE')}" process="@this" update="raf-view-content">
+                                                <i class="fa  #{rafController.getSortBy() eq 'SIZE' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Size']}
                                             </p:commandLink>
                                         </li>
+                                        <ui:remove>
+                                            TODO: Şimdilik TAG sıralamayı kaldırdım. Birden fazla TAG için sıralama yöntemleri belli değil.
+                                            <li>
+                                                <p:commandLink action="#{rafController.setSortBy('TAG')}" process="@this" update="raf-view-content">
+
+                                                    <i class="fa  #{rafController.getSortBy() eq 'TAG' ? 'fa-circle' : 'fa-circle-o' }"/> #{messages['sortBy.Tag']}
+                                                </p:commandLink>
+                                            </li>
+                                        </ui:remove>
                                         <li role="separator" class="divider"></li>
                                         <li>
                                             <p:commandLink action="#{rafController.selectedContentPanel.setShowDetails( not rafController.selectedContentPanel.getShowDetails())}" process="@this" update="raf-view-content">
