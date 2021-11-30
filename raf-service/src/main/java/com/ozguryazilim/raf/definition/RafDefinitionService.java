@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class RafDefinitionService implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafDefinitionService.class);
-    private static final String RAF_ROLE_MANAGER = "MANAGER";
+    public static final String RAF_ROLE_MANAGER = "MANAGER";
 
     @Inject
     private Identity identity;
