@@ -8,7 +8,7 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 template="/layout/dialogBase.xhtml">
 
-    <ui:param name="title" value="Yeni Raf Tanımı" />
+    <ui:param name="title" value="#{messages['raf.label.RafDefinition']}" />
 
     <ui:define name="form" >
 
@@ -21,11 +21,10 @@
                 </div>
             </div>
             <div class="row">
-
-                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" required="true">
+                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" required="true" regexValidator="true" regex="/[a-zA-Z0-9_ ]+/">
                     <p:ajax event="blur" listener="#{rafDefinitionDialogController.onNameChange()}" process="@this" update=":rafdef:code" />
                 </t:inputText>
-                <t:inputText id="code" label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="Sistemde kullanılacak kısa isim" required="true"/>
+                <t:inputText id="code" label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="#{messages['raf.placeholder.rafCode']}" required="true" regexValidator="true" regex="/[a-zA-Z0-9_ ]+/"/>
                 <t:inputTextarea label="general.label.Info" value="#{rafDefinitionDialogController.rafDefinition.info}" />
 
             </div>
