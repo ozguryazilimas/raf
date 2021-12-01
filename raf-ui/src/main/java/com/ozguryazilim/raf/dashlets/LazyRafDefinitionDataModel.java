@@ -25,14 +25,14 @@ public class LazyRafDefinitionDataModel extends LazyDataModel<RafDefinition> {
     @Override
     public List<RafDefinition> load(int first, int pageSize, List<SortMeta> multiSortMeta, Map<String, Object> filters) {
         List<RafDefinition> result = myRafsDashlet.getRafs(first, pageSize);
-        this.setRowCount(result.size());
+        this.setRowCount(myRafsDashlet.getTotalRowCount());
         return result;
     }
 
     @Override
     public List<RafDefinition> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
         List<RafDefinition> result = myRafsDashlet.getRafs(first, pageSize);
-        this.setRowCount(result.size());
+        this.setRowCount(myRafsDashlet.getTotalRowCount());
         return result;
     }
 

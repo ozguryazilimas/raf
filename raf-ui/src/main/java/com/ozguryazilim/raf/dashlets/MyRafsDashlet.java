@@ -1,27 +1,23 @@
 package com.ozguryazilim.raf.dashlets;
 
-import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.RafService;
 import com.google.common.base.Strings;
-
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
-import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.dashboard.AbstractDashlet;
 import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
-import java.util.stream.Collectors;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.primefaces.model.LazyDataModel;
+
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -29,6 +25,8 @@ import org.primefaces.model.LazyDataModel;
  */
 @Dashlet(capability = {DashletCapability.canHide, DashletCapability.canMinimize, DashletCapability.canEdit}, permission = "public")
 public class MyRafsDashlet extends AbstractDashlet {
+    
+    private static final String RAFS_DASHLET_PAGINATION_LIMIT = "rafs.dashlet.pagination.limit";
 
     @Inject
     private RafDefinitionService rafDefinitionService;
@@ -37,45 +35,48 @@ public class MyRafsDashlet extends AbstractDashlet {
     private Identity identity;
 
     @Inject
-    private RafService rafService;
+    @UserAware
+    private Kahve kahve;
 
     private List<RafDefinition> rafs;
 
     private String filter = "";
     private Boolean sortAsc = Boolean.TRUE;
-    private Integer size = 25;
+    private Integer size;
 
     private LazyDataModel<RafDefinition> lazyRafs;
     private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
 
     @Override
     public void load() {
+        size = getPaginationLimit();
         super.load(); //To change body of generated methods, choose Tools | Templates.
         rafs = rafDefinitionService.getRafsForUser(identity.getLoginName(), Boolean.TRUE);
         lazyRafs = new LazyRafDefinitionDataModel(this);
     }
 
-    public List<RafDefinition> getRafs() {
-
+    public List<RafDefinition> getRafs(int first, int pageSize) {
+        //User yeni bir limit seçmiş mi?
+        Integer oldSize = getPaginationLimit();
+        if (oldSize != pageSize) {
+            kahve.put(RAFS_DASHLET_PAGINATION_LIMIT, pageSize);
+        }
         return rafs.stream()
                 .sorted((r1, r2)
                         -> sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1
                 )
-                .filter(r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(searchLocale).contains(filter.toLowerCase(searchLocale)))
-                .limit(size)
+                .filter(r -> Strings.isNullOrEmpty(filter) || r.getName().toLowerCase(searchLocale).contains(filter.toLowerCase(searchLocale)))
+                .skip(first)
+                .limit(pageSize)
                 .collect(Collectors.toList());
     }
 
-    public List<RafDefinition> getRafs(int page, int pageSize) {
+    public Integer getTotalRowCount() {
+        return rafs.size();
+    }
 
-        return rafs.stream()
-                .sorted((r1, r2)
-                        -> sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1
-                )
-                .filter(r -> Strings.isNullOrEmpty(filter) ? true : r.getName().toLowerCase(searchLocale).contains(filter.toLowerCase(searchLocale)))
-                .skip(page * pageSize)
-                .limit(pageSize)
-                .collect(Collectors.toList());
+    private Integer getPaginationLimit(){
+        return kahve.get(RAFS_DASHLET_PAGINATION_LIMIT, 25).getAsInteger();
     }
 
     /**
