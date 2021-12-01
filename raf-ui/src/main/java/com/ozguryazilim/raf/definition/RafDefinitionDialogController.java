@@ -47,6 +47,8 @@ public class RafDefinitionDialogController implements Serializable {
 
     private RafDefinition rafDefinition;
 
+    private boolean isCreated;
+
     /**
      * Yeni Raf Tanımlama dialoğunu açar.
      *
@@ -54,6 +56,8 @@ public class RafDefinitionDialogController implements Serializable {
     public void openDialog() {
 
         rafDefinition = new RafDefinition();
+
+        isCreated = false;
 
         Map<String, Object> options = new HashMap<>();
 
@@ -66,7 +70,7 @@ public class RafDefinitionDialogController implements Serializable {
 
                 service.createNewRaf(rafDefinition);
                 rafDataChangedEvent.fire(new RafDataChangedEvent());
-
+                isCreated = true;
                 //Burada nasıl davranıyor ki?
                 RequestContext.getCurrentInstance().closeDialog(null);
             }
@@ -90,8 +94,10 @@ public class RafDefinitionDialogController implements Serializable {
     }
 
     public void goCreatedRaf() {
-        navigationParameterContext.addPageParameter("id", rafDefinition.getCode());
-        viewNavigationHandler.navigateTo(RafPages.class);
+        if(isCreated){
+            navigationParameterContext.addPageParameter("id", rafDefinition.getCode());
+            viewNavigationHandler.navigateTo(RafPages.class);
+        }
     }
     
     public void onNameChange(){
