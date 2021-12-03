@@ -292,11 +292,14 @@
                                                 <i class="fa #{rafController.selectedContentPanel.getFoldersFirst() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.FoldersFirst']}
                                             </p:commandLink>
                                         </li>
-                                        <li>
-                                            <p:commandLink action="#{rafController.selectedContentPanel.setGroupBy( not rafController.selectedContentPanel.getGroupBy())}" process="@this" update="raf-view-content">
-                                                <i class="fa #{rafController.selectedContentPanel.getGroupBy() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.GroupBy']}
-                                            </p:commandLink>
-                                        </li>
+                                        <ui:remove>
+                                            <!--scrollview özelliğini engellediği için kaldırılacak.-->
+                                            <li>
+                                                <p:commandLink action="#{rafController.selectedContentPanel.setGroupBy( not rafController.selectedContentPanel.getGroupBy())}" process="@this" update="raf-view-content">
+                                                    <i class="fa #{rafController.selectedContentPanel.getGroupBy() ? 'fa-check-square' : 'fa-square-o' }" /> #{messages['view.action.GroupBy']}
+                                                </p:commandLink>
+                                            </li>
+                                        </ui:remove>
                                     </ui:fragment>
                                     <ui:remove>
                                         <li role="separator" class="divider"></li>

@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
+import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.event.Event;
 
 /**
  * RafCollection için temel view controller sınıfı.
@@ -40,6 +42,9 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     private List<String> groupNames = new ArrayList<>();
     private Map<String, List<RafObject>> groupMap = new LinkedHashMap<>();
 
+    @Inject
+    private Event<RafFolderDataChangeEvent> folderDataChangeEvent;
+
     @Override
     public String getIcon() {
         if (getCollection() != null && getCollection().getMimeType() != null) {
@@ -65,6 +70,9 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     @Override
     public void setCollection(RafCollection collection) {
         this.collection = collection;
+        if (foldersFirst) {
+            RafCollectionSorter.sort(rafController.getSortBy(), rafController.getDescSort(), foldersFirst, getCollection());
+        }
     }
 
     public List<String> getGroupNames() {
@@ -127,5 +135,10 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         } else {
             return false;
         }
+    }
+
+    public void nextPage() {
+        rafController.nextPage();
+        folderDataChangeEvent.fire(new RafFolderDataChangeEvent());
     }
 }

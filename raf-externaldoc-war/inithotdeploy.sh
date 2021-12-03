@@ -14,7 +14,7 @@ rm -rf WEB-INF/lib/raf-externaldoc-$version.jar
 #rm -rf WEB-INF/lib/raf-model-$version.jar
 #rm -rf WEB-INF/lib/raf-pdf-$version.jar
 rm -rf WEB-INF/lib/raf-record-$version.jar
-#rm -rf WEB-INF/lib/raf-service-$version.jar
+rm -rf WEB-INF/lib/raf-service-$version.jar
 rm -rf WEB-INF/lib/raf-ui-$version.jar
 #rm -rf WEB-INF/lib/raf-webdav-$version.jar
 
@@ -33,7 +33,7 @@ ln -s ~/git_ozgur_yazilim/raf/raf-externaldoc/target/classes/ WEB-INF/lib/raf-ex
 #ln -s ~/git_ozgur_yazilim/raf/raf-model/target/classes/ WEB-INF/lib/raf-model-$version.jar
 #ln -s ~/git_ozgur_yazilim/raf/raf-pdf/target/classes/ WEB-INF/lib/raf-pdf-$version.jar
 ln -s ~/git_ozgur_yazilim/raf/raf-record/target/classes/ WEB-INF/lib/raf-record-$version.jar
-#ln -s ~/git_ozgur_yazilim/raf/raf-service/target/classes/ WEB-INF/lib/raf-service-$version.jar
+ln -s ~/git_ozgur_yazilim/raf/raf-service/target/classes/ WEB-INF/lib/raf-service-$version.jar
 ln -s ~/git_ozgur_yazilim/raf/raf-ui/target/classes/ WEB-INF/lib/raf-ui-$version.jar
 #ln -s ~/git_ozgur_yazilim/raf/raf-webdav/target/classes/ WEB-INF/lib/raf-webdav-$version.jar
 

@@ -528,7 +528,7 @@ public class RafModeshapeRepository implements Serializable {
                         break;
                     }
                     case MIMETYPE: {
-                        sortQuery = String.format( "nodes.[%s]", PROP_MIMETYPE);
+                        sortQuery = String.format("nodes.[%s]", PROP_MIMETYPE);
                         break;
                     }
                     case SIZE: {
@@ -1717,11 +1717,12 @@ public class RafModeshapeRepository implements Serializable {
 
     /**
      * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
-     * 
-     * Arayüzden doğrudan çağırmamak gerekir. RegenaratePreviewCommand'ı ile çağrılmalı
-     * 
+     *
+     * Arayüzden doğrudan çağırmamak gerekir. RegenaratePreviewCommand'ı ile
+     * çağrılmalı
+     *
      * @param id
-     * @throws RafException 
+     * @throws RafException
      */
     public void regeneratePreviews(String id) throws RafException {
         try {
@@ -1734,34 +1735,35 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-    
+
     /**
      * Verilen node nt:folder ise altındaki dosyalar için preview çıkarırır.
+     *
      * @param node
-     * @throws RafException 
+     * @throws RafException
      */
     protected void regeneratePreviews(Node node) throws RafException {
-       
+
         try {
-            if( node.isNodeType(NODE_FOLDER)){
+            if (node.isNodeType(NODE_FOLDER)) {
                 for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
                     Node child = iter.nextNode();
                     if (child.isNodeType(NODE_FOLDER)) {
                         regeneratePreviews(child);
-                    } else if (child.isNodeType(NODE_FILE)){
+                    } else if (child.isNodeType(NODE_FILE)) {
                         //çünkü başka bir seesion açılsın istiyoruz.
                         regeneratePreview(child.getIdentifier());
                     }
                 }
             }
-            
+
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
-        
+
     }
-    
+
     /**
      * ID'si verilen nodun preview dosyasini yeniden uretir.
      *
@@ -1770,24 +1772,23 @@ public class RafModeshapeRepository implements Serializable {
     public void regeneratePreview(String id) throws RafException {
 
         try {
-            
+
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            if( node.isNodeType(NODE_FILE)){
+            if (node.isNodeType(NODE_FILE)) {
                 Node nodeContent = node.getNode(NODE_CONTENT);
 
-                if( FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node) ){
+                if (FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node)) {
                     session.save();
                 }
             }
             session.logout();
-            
+
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
     }
-    
 
     /**
      * ID'si verilen nodu siler.
@@ -2366,7 +2367,7 @@ public class RafModeshapeRepository implements Serializable {
                     result.add(nodeToRafFolder(n));
                 }
             }
-            
+
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
@@ -2837,6 +2838,7 @@ public class RafModeshapeRepository implements Serializable {
 
     /**
      * Verilen path altındaki tüm klasör ağacını tarar ve döner.
+     *
      * @param absPath
      * @return
      */
@@ -2863,8 +2865,9 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     /**
-     * Verilen path altındaki tüm dosyaları çeker.
-     * Dikkat: Bu method klasör ağacını vs. taramaz, yalnızca verilen path altındaki dosya'ları döndürür.
+     * Verilen path altındaki tüm dosyaları çeker. Dikkat: Bu method klasör
+     * ağacını vs. taramaz, yalnızca verilen path altındaki dosya'ları döndürür.
+     *
      * @param absPath
      * @return
      */
@@ -2928,4 +2931,22 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public int getChildCount(String absPath) throws RafException {
+        int count = 0;
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            String expression = "SELECT nodes.[jcr:name] FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            NodeIterator nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                nodes.nextNode();
+                count++;
+            }
+            return count;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
+        }
+    }
 }

@@ -13,23 +13,32 @@
         </ui:include>
     </ui:fragment>
 
-    <ui:remove>
-        <p:toolbar>
-            <f:facet name="left">
-                <p:commandButton action="#{rafController.previousPage()}" update="raf-view-content" ajax="true" process="@this" value="Önceki Sayfa" icon="pi pi-chevron-left" />
+    <script type="text/javascript">
+        function containerScroll(event) {
+            var s = event.target;
+            if (s.scrollTop === 0) {
+                return;
+            }
+            if (s.scrollHeight - s.scrollTop === s.clientHeight) {
+                nextPage();
+            }
+        }
 
-                <p:commandButton action="#{rafController.nextPage()}" update="raf-view-content" ajax="true" process="@this"  value="Sonraki Sayfa" icon="pi pi-chevron-right" />
-            </f:facet>
-        </p:toolbar>
-    </ui:remove>
+        function scrollToBottom() {
+            var ctr = $("#raf-container")[0];
+            var sh = ctr.scrollHeight - ctr.clientHeight;
+            var newst = sh / 1.1;
+            $("#raf-container").scrollTop(newst);
+        }
 
-    <ui:repeat value="#{viewBean.groupNames}" var="group" >
-        <ui:fragment rendered="#{viewBean.groupBy}">
-            <div class="raf-container-item-group-header" >
-                <div>#{group}</div>
-            </div>
-        </ui:fragment>
-        <div class="raf-container" style="overflow-y: auto; overflow-x: auto;">           
+        $(document).ready(function () {
+            $(".raf-box-content").on('scroll', containerScroll);
+            $(".raf-container").on('scroll', containerScroll);
+        });
+    </script>
+
+    <h:form>        
+        <div id="raf-container" class="raf-container" style="overflow-y: auto; overflow-x: auto;">
             <table class="table table-striped"  >
                 <tbody style="font-size: 12px;">
                     <tr>
@@ -78,7 +87,7 @@
                         </th>
                         <th></th>
                     </tr>
-                    <p:repeat value="#{viewBean.getGroupItems(group)}" var="item">
+                    <p:repeat value="#{viewBean.collection.items}" var="item">
                         <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                         <ui:param name="hasDeleteRole" value="#{rafController.hasDeleteRole(item)}" />
                         <tr>
@@ -125,11 +134,11 @@
                             </td>
                             <td style="text-align: right; vertical-align: middle">
                                 <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
-                                    <h:form id="colTViewDownloadFileForm" style="display: inline;">
-                                        <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
-                                            <i class="fa fa-download" />
-                                        </p:commandLink>
-                                    </h:form>
+                                    <!--                                            <h:form id="colTViewDownloadFileForm" style="display: inline;">-->
+                                    <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
+                                        <i class="fa fa-download" />
+                                    </p:commandLink>
+                                    <!--</h:form>-->
                                     <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
@@ -161,6 +170,8 @@
                 </tbody>
             </table>
         </div>
-    </ui:repeat>
+
+        <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete="scrollToBottom()" />
+    </h:form>        
 </ui:composition>
 

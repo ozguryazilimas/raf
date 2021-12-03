@@ -1,14 +1,11 @@
 package com.ozguryazilim.raf.action;
 
 import com.ozguryazilim.raf.RafController;
-import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
-import com.ozguryazilim.raf.ui.base.Action;
-import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -20,10 +17,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-arrow-left",
-        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
-        includedMimeType = "raf/folder",
-        order = 8)
+//@Action(icon = "fa-arrow-left",
+//        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
+//        includedMimeType = "raf/folder",
+//        order = 8)
+//scrollview ile lazy load özelliği eklendiği için bu actiona gerek kalmadı.
 public class PreviousPageAction extends AbstractAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(PreviousPageAction.class);
@@ -66,4 +64,9 @@ public class PreviousPageAction extends AbstractAction {
         this.folder = folder;
     }
 
+    @Override
+    public boolean isEnabled() {
+        //scrollview ile lazy load özelliği eklendiği için bu actiona gerek kalmadı.
+        return false;
+    }
 }

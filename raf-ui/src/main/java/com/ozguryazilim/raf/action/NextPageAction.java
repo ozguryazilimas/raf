@@ -6,8 +6,6 @@ import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
-import com.ozguryazilim.raf.ui.base.Action;
-import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -19,10 +17,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-arrow-right",
-        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
-        includedMimeType = "raf/folder",
-        order = 9)
+//@Action(icon = "fa-arrow-right",
+//        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
+//        includedMimeType = "raf/folder",
+//        order = 9)
+//scrollview ile lazy load özelliği eklendiği için bu actiona gerek kalmadı.
 public class NextPageAction extends AbstractAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(NextPageAction.class);
@@ -64,4 +63,9 @@ public class NextPageAction extends AbstractAction {
         this.folder = folder;
     }
 
+    @Override
+    public boolean isEnabled() {
+        //scrollview ile lazy load özelliği eklendiği için bu actiona gerek kalmadı.
+        return false;
+    }
 }
