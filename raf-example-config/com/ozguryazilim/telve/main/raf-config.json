@@ -1,0 +1,48 @@
+{
+    "name": "raf",
+    "jndiName": "jcr/raf",
+    "node-types": ["cnd/raf.cnd"],
+    "storage": {
+        "persistence": {
+            "type": "db",
+            "dataSourceJndiName":"java:jboss/datasources/RafJCRDS"
+        },
+        "binaryStorage": {
+            "type": "file",
+            "directory": "/home/oyas/tmp/raf_persistent_repository/binaries",
+            "trash": "/home/oyas/tmp/raf_persistent_repository/binaries/trash", 
+            "minimumBinarySizeInBytes": 1024,
+            "mimeTypeDetection": "content"
+        }
+    },
+    "workspaces": {
+        "default": "default",
+        "allowCreation": true 
+    },
+    "security": {
+        "anonymous": {
+            "roles": ["admin"],
+            "useOnFailedLogin": false
+        },
+        "providers": [
+            {
+                "name": "Raf Security Provider",
+                "classname": "com.ozguryazilim.raf.jcr.RafSecurityProvider"
+            }
+        ]
+    },
+    "indexProviders": {
+        "lucene": {
+            "classname": "lucene",
+            "directory": "/home/oyas/tmp/raf_persistent_repository/indexes"
+        }
+    },
+    "indexes": {
+        "textFromFiles": {
+            "kind": "text",
+            "provider": "lucene",
+            "nodeType": "nt:resource",
+            "columns": "jcr:data(BINARY)"
+        }
+    }
+}

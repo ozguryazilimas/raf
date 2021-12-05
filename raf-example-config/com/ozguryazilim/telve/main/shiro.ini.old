@@ -1,0 +1,64 @@
+; Shiro Security Config INI
+[main]
+;LDAP AUTH
+;ldapRealm = org.apache.shiro.realm.ldap.JndiLdapRealm
+;ldapRealm.userDnTemplate = uid={0},ou=People,dc=example,dc=com
+;ldapRealm.contextFactory.url = ldap://localhost:10389
+;ldapRealm.contextFactory.systemUsername=uid=admin,ou=system;
+;ldapRealm.contextFactory.systemPassword=secret;
+
+;noPassWordCredentialMatcher=org.apache.shiro.authc.credential.AllowAllCredentialsMatcher
+;telveRealm=com.ozguryazilim.telve.idm.TelveIdmRealm
+;telveRealm.credentialsMatcher=$noPassWordCredentialMatcher
+
+;securityManager.realms= $ldapRealm, $telveRealm
+;authcStrategy = org.apache.shiro.authc.pam.AllSuccessfulStrategy
+;securityManager.authenticator.authenticationStrategy = $authcStrategy
+
+;TelveIDM AUTH
+telveRealm=com.ozguryazilim.telve.idm.TelveIdmRealm
+telveRealm.useLdap=false
+telveRealm.optionalLdap=true
+telveRealm.generateUser=true
+
+;Kullanıcı arama ve oluşturma için 
+telveRealm.userSearchBase=ou=People,dc=example,dc=com
+telveRealm.userSearchFilter=(uid={0})
+
+;Kullanıcı bilgileri için LDAP attribute isimleri
+;telveRealm.firstNameAttr = givenName
+;telveRealm.lastNameAttr = sn
+;telveRealm.emailAttr = mail
+
+;Atanack olan default Rol ismi
+telveRealm.defaultRole = Sistem Yönetimi
+
+;LDAP Login için gerekli bilgiler
+telveRealm.userDnTemplate = uid={0},ou=People,dc=example,dc=com
+telveRealm.contextFactory.url = ldap://localhost:10389
+telveRealm.contextFactory.systemUsername=uid=admin,ou=system
+telveRealm.contextFactory.systemPassword=secret
+
+
+;keycloakRealm=com.ozguryazilim.telve.idm.TelveKeyCloakRealm
+;keycloakFilter=com.ozguryazilim.telve.idm.KeyCloakAuhtcFilter
+
+securityManager.realms= $telveRealm
+;securityManager.realms= $keycloakRealm
+
+
+
+
+;Cache Manager
+cacheManager = org.apache.shiro.cache.MemoryConstrainedCacheManager
+securityManager.cacheManager = $cacheManager
+
+;Owner,Group gibi scope bazlı WildcardPermission'lar için
+globalPermissionResolver=com.ozguryazilim.telve.idm.ScopeWildcardPermissonResolver
+securityManager.authorizer.permissionResolver = $globalPermissionResolver
+
+authcBasic = org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter
+authcBasic.applicationName = RAF
+
+[urls]
+/rest/** = authcBasic
