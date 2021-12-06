@@ -115,11 +115,13 @@ public class RafController implements Serializable {
     private Boolean showRafObjectManagerTools = Boolean.TRUE;
 
     private Integer page = 0;
-    private Integer pageSize = 50;
+    private Integer pageSize = 200;
     private Integer pageCount = 0;
 
     private SortType sortBy = SortType.DATE_DESC;
     private Boolean descSort = Boolean.FALSE;
+
+    private String lastRafObjectId;
 
     public Boolean getDescSort() {
         return descSort;
@@ -767,9 +769,21 @@ public class RafController implements Serializable {
                             .collect(Collectors.toList())
             );
         }
-
-        context.setCollection(collection);
-
+        if (context.getCollection() == null || !context.getCollection().getId().equals(folderId)) {
+            //farklı bir klasör içeriği lissteleniyor veya klasörün içeriği ilk defa listeleniyor.
+            context.setCollection(collection);
+        } else {
+            //mevcut listedeki son elemanın id si ile yeni listedeki son eleman farklı ise yeni sayfa verisi eklenmeli
+            if (!collection.getItems().isEmpty() && !lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())) {
+                for (RafObject item : collection.getItems()) {
+                    if (!context.getCollection().getItems().contains(item)) {
+                        context.getCollection().getItems().add(item);
+                    }
+                }
+            }
+            context.setCollection(context.getCollection());
+        }
+        lastRafObjectId = collection.getItems().isEmpty() ? "" : collection.getItems().get(collection.getItems().size() - 1).getId();
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
@@ -858,15 +872,15 @@ public class RafController implements Serializable {
     }
 
     public Boolean hasWriteRole(RafObject obj) throws RafException {
-        return memberService.hasWriteRole(identity.getLoginName(), rafDefinition) ||
-            rafObjectMemberService.hasWriteRole(identity.getLoginName(), obj.getPath());
+        return memberService.hasWriteRole(identity.getLoginName(), rafDefinition)
+                || rafObjectMemberService.hasWriteRole(identity.getLoginName(), obj.getPath());
     }
 
     public Boolean hasDeleteRole(RafObject obj) throws RafException {
-        return memberService.hasDeleteRole(identity.getLoginName(), rafDefinition) ||
-            rafObjectMemberService.hasDeleteRole(identity.getLoginName(), obj.getPath());
+        return memberService.hasDeleteRole(identity.getLoginName(), rafDefinition)
+                || rafObjectMemberService.hasDeleteRole(identity.getLoginName(), obj.getPath());
     }
-    
+
     public String byteCountToDisplaySize(long bytes) {
         return FileUtils.byteCountToDisplaySize(bytes);
     }

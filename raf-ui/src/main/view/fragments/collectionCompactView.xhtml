@@ -22,77 +22,93 @@
             </f:facet>
         </p:toolbar>
     </ui:remove>
-    <div class="content-view-port">
-        <div class="raf-container" >           
-            <ui:repeat value="#{viewBean.groupNames}" var="group" >
-                <div class="raf-container-item-group">
-                    <ui:fragment rendered="#{viewBean.groupBy}">
-                        <div class="raf-container-item-group-header" >
-                            <div>#{group}</div>
-                        </div>
-                    </ui:fragment>
+    <script type="text/javascript">
+        function containerScroll(event) {
+            var s = event.target;
+            if (s.scrollLeft === 0) {
+                return;
+            }
+            if (s.scrollWidth - s.scrollLeft === s.clientWidth) {
+                nextPage();
+            }
+        }
+        function scrollToBottom() {
+            var ctr = $("#raf-container")[0];
+            var sh = ctr.scrollWidth - ctr.clientWidth;
+            var newst = sh / 1.1;
+            $("#raf-container").scrollLeft(newst);
+        }
+        $(document).ready(function () {
+            $(".raf-box-content").on('scroll', containerScroll);
+            $(".raf-container").on('scroll', containerScroll);
+            $(".content-view-port").on('scroll', containerScroll);
+        });
+    </script>
+    <h:form>
 
-                    <div class="raf-container-item-group-item">
-                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item">
-                            <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
-                            <div class="raf-container-item">
-                                <div class="raf-container-item-item medium-icon">
-                                    <span class="raf-container-item-item-img" >
-                                        <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
-                                            <p:commandLink action="#{selectionBean.toggle(item)}" 
-                                                           update="raf-view-content" ajax="true" process="@this" >
-                                                <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
-                                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
-                                                </svg>
-                                                <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
-                                            </p:commandLink>
-
-                                        </div>
-                                    </span>
-                                    <span class="raf-container-item-item-cnd">
-                                        <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
-                                            <span class="text-sm">#{item.title}</span>
+        <div id="raf-container" class="content-view-port">
+            <div class="raf-container">
+                <div class="raf-container-item-group-item">
+                    <ui:repeat value="#{viewBean.collection.items}" var="item">
+                        <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
+                        <div class="raf-container-item">
+                            <div class="raf-container-item-item medium-icon">
+                                <span class="raf-container-item-item-img" >
+                                    <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
+                                        <p:commandLink action="#{selectionBean.toggle(item)}" 
+                                                       update="raf-view-content" ajax="true" process="@this" >
+                                            <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
+                                                <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
+                                            </svg>
+                                            <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                         </p:commandLink>
-                                        <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
-                                            <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
-                                                <i class="fa fa-edit" />
-                                            </p:commandLink>
+
+                                    </div>
+                                </span>
+                                <span class="raf-container-item-item-cnd">
+                                    <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                        <span class="text-sm">#{item.title}</span>
+                                    </p:commandLink>
+                                    <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                                        <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectFolderItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                            <i class="fa fa-edit" />
+                                        </p:commandLink>
+                                    </ui:fragment>
+
+                                    <ui:fragment rendered="#{viewBean.showDetails}">
+
+                                        <div class="text-muted text-sm">#{item.name}</div>
+                                        <div class="text-muted text-sm">
+                                            #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                        </div>
+
+                                        <ui:fragment rendered="#{not empty item.info}">
+                                            <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
                                         </ui:fragment>
 
-                                        <ui:fragment rendered="#{viewBean.showDetails}">
 
-                                            <div class="text-muted text-sm">#{item.name}</div>
+                                        <ui:fragment rendered="#{not empty item.category}">
+                                            <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
+                                        </ui:fragment>
+
+                                        <ui:fragment rendered="#{not empty item.tags}">
                                             <div class="text-muted text-sm">
-                                                #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/>
+                                                <p:repeat value="#{item.tags}" var="tag">
+                                                    <i class="fa fa-tag" /> #{tag}
+                                                </p:repeat>
                                             </div>
-
-                                            <ui:fragment rendered="#{not empty item.info}">
-                                                <div class="text-muted text-sm"><i class="fa fa-info" /> #{item.info}</div>
-                                            </ui:fragment>
-
-
-                                            <ui:fragment rendered="#{not empty item.category}">
-                                                <div class="text-muted text-sm"><i class="fa fa-sitemap" /> #{item.category}</div>
-                                            </ui:fragment>
-
-                                            <ui:fragment rendered="#{not empty item.tags}">
-                                                <div class="text-muted text-sm">
-                                                    <p:repeat value="#{item.tags}" var="tag">
-                                                        <i class="fa fa-tag" /> #{tag}
-                                                    </p:repeat>
-                                                </div>
-                                            </ui:fragment>
                                         </ui:fragment>
+                                    </ui:fragment>
 
-                                    </span>
-                                </div>
+                                </span>
                             </div>
-                        </ui:repeat>
-                    </div>
+                        </div>
+                    </ui:repeat>
                 </div>
-            </ui:repeat>
-        </div>
-    </div>
+            </div>
+        </div>        
+        <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
+    </h:form>
 
 </ui:composition>
 

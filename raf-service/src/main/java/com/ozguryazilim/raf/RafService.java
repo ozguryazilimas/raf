@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
@@ -325,8 +326,9 @@ public class RafService implements Serializable {
 
     /**
      * İdsi verilen file için preview hazırlar
+     *
      * @param id
-     * @throws RafException 
+     * @throws RafException
      */
     public void regeneratePreview(String id) throws RafException {
         rafRepository.regeneratePreview(id);
@@ -334,8 +336,9 @@ public class RafService implements Serializable {
 
     /**
      * Idsi verilen folder için preview hazırlar
+     *
      * @param id
-     * @throws RafException 
+     * @throws RafException
      */
     public void regenerateObjectPreviews(String id) throws RafException {
         rafRepository.regeneratePreviews(id);
@@ -532,4 +535,7 @@ public class RafService implements Serializable {
         return rafRepository.getRafDefinitionProperties(absPath);
     }
 
+    public long getChildCount(String absPath) throws RafException {
+        return rafRepository.getChildCount(absPath);
+    }
 }

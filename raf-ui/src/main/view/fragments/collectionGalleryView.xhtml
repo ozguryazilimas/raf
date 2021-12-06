@@ -22,18 +22,34 @@
             </f:facet>
         </p:toolbar>
     </ui:remove>
-    <div class="content-view-port">        
-        <div class="raf-container" >
-            <ui:repeat value="#{viewBean.groupNames}" var="group" >
+    <script type="text/javascript">
+        function containerScroll(event) {
+            var s = event.target;
+            if (s.scrollLeft === 0) {
+                return;
+            }
+            if (s.scrollWidth - s.scrollLeft === s.clientWidth) {
+                nextPage();
+            }
+        }
+        function scrollToBottom() {
+            var ctr = $("#raf-container")[0];
+            var sh = ctr.scrollWidth - ctr.clientWidth;
+            var newst = sh / 1.1;
+            $("#raf-container").scrollLeft(newst);
+        }
+        $(document).ready(function () {
+            $(".raf-box-content").on('scroll', containerScroll);
+            $(".raf-container").on('scroll', containerScroll);
+            $(".content-view-port").on('scroll', containerScroll);
+        });
+    </script>
+    <h:form>
+        <div id="raf-container" class="content-view-port">        
+            <div class="raf-container">
                 <div class="raf-container-item-group">
-                    <ui:fragment rendered="#{viewBean.groupBy}">
-                        <div class="raf-container-item-group-header" >
-                            <div>#{group}</div>
-                        </div>
-                    </ui:fragment>
-
                     <div class="raf-container-item-group-item">
-                        <ui:repeat value="#{viewBean.getGroupItems(group)}" var="item">
+                        <ui:repeat value="#{viewBean.collection.items}" var="item">
                             <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                             <div class="raf-container-item">
                                 <div class="raf-container-item-item thumbnail-icon">
@@ -90,11 +106,11 @@
                                 </div>
                             </div>
                         </ui:repeat>
-                    </div>
+                    </div>                    
                 </div>
-            </ui:repeat>
+            </div>
         </div>
-    </div>
-
+        <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
+    </h:form>
 </ui:composition>
 
