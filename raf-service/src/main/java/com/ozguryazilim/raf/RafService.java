@@ -535,7 +535,7 @@ public class RafService implements Serializable {
         return rafRepository.getRafDefinitionProperties(absPath);
     }
 
-    public int getChildCount(String absPath) throws RafException {
+    public long getChildCount(String absPath) throws RafException {
         return rafRepository.getChildCount(absPath);
     }
 }

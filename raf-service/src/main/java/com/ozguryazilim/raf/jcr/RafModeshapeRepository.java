@@ -2931,20 +2931,13 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public int getChildCount(String absPath) throws RafException {
-        int count = 0;
+    public long getChildCount(String absPath) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             QueryManager queryManager = session.getWorkspace().getQueryManager();
-            String expression = "SELECT nodes.[jcr:name] FROM [" + NODE_SEARCH + "] as nodes WHERE ISCHILDNODE(nodes,'" + absPath.replaceAll("'", "") + "')";
+            String expression = String.format("SELECT nodes.[jcr:name] FROM [%s] as nodes WHERE ISCHILDNODE(nodes,'%s')", NODE_SEARCH, absPath.replaceAll("'", ""));
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
-            QueryResult queryResult = query.execute();
-            NodeIterator nodes = queryResult.getNodes();
-            while (nodes.hasNext()) {
-                nodes.nextNode();
-                count++;
-            }
-            return count;
+            return query.execute().getNodes().getSize();
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
         }
