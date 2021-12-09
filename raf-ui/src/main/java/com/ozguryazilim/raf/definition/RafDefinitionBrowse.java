@@ -110,22 +110,31 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
         this.objectId = objectId;
     }
 
-    public Map<String, String> getDetailsForSelectedRaf() throws RafException {
-        if (selectedItem != null) {
-            if (rafDefinitionPropertiesMap.get(selectedItem) == null) {
-                Map<String, String> prettyAttributesMap = new HashMap<>();
-                Map<String, Long> attributesMap = rafService.getRafDefinitionProperties(rafService.getCollection(selectedItem.getNodeId()).getPath());
-                prettyAttributesMap.put("totalFileCount", String.valueOf(attributesMap.get("totalFileCount")));
-                prettyAttributesMap.put("totalFolderCount", String.valueOf(attributesMap.get("totalFolderCount")));
-                prettyAttributesMap.put("totalFileSize", FileUtils.byteCountToDisplaySize(attributesMap.get("totalFileSize")));
-                prettyAttributesMap.put("totalMember", String.valueOf(memberRepository.findByRaf(selectedItem).size()));
-                rafDefinitionPropertiesMap.put(selectedItem, prettyAttributesMap);
-                return prettyAttributesMap;
-            } else {
+    public Map<String, String> getDetailsForSelectedRaf() {
+        try {
+
+            if (selectedItem == null) {
+                return new HashMap<>();
+            }
+
+            if (rafDefinitionPropertiesMap.get(selectedItem) != null) {
                 return rafDefinitionPropertiesMap.get(selectedItem);
             }
+
+            Map<String, String> prettyAttributesMap = new HashMap<>();
+            Map<String, Long> attributesMap = rafService.getRafDefinitionProperties(rafService.getCollection(selectedItem.getNodeId()).getPath());
+
+            prettyAttributesMap.put("totalFileCount", String.valueOf(attributesMap.get("totalFileCount")));
+            prettyAttributesMap.put("totalFolderCount", String.valueOf(attributesMap.get("totalFolderCount")));
+            prettyAttributesMap.put("totalFileSize", FileUtils.byteCountToDisplaySize(attributesMap.get("totalFileSize")));
+            prettyAttributesMap.put("totalMember", String.valueOf(memberRepository.findByRaf(selectedItem).size()));
+            rafDefinitionPropertiesMap.put(selectedItem, prettyAttributesMap);
+
+            return prettyAttributesMap;
+        } catch (RafException ex) {
+            LOGGER.warn("An error occurred while calculating RAF details. Your user may not be a member of this RAF:  {}", selectedItem.getCode());
+            return new HashMap<>();
         }
-        return new HashMap<>();
     }
     
 }

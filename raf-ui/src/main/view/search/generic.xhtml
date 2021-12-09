@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"        
                 xmlns:p="http://primefaces.org/ui"    
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
@@ -43,16 +44,16 @@
             <p:outputLabel value="#{messages['general.label.Search']}"/>
             <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
 
-            <ui:fragment rendered="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
+            <c:if test="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
-                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isCaseSensitive()}"/>
-            </ui:fragment>
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
+            </c:if>
 
             <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isSearchInDocumentName()}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
 
             <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.isSearchInDocumentTags()}"/>
+            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
 
         </p:panelGrid>
     </div>
