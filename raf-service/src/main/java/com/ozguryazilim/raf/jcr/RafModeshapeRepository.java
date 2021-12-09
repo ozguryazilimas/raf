@@ -1687,27 +1687,33 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public InputStream getPreviewContentPDF(String id) throws RafException {
+    public InputStream getThumbnailContentPDF(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
 
-            LOG.debug("PDF Document Preview Content Requested: {}", node.getPath());
+            LOG.debug("PDF Document Thumbnail Content Requested: {}", node.getPath());
 
-            if (!node.hasNode("raf:preview")) {
-                throw new RafException("[RAF-0035] Raf Node preview cannot found");
+            if(!node.hasNode("raf:thumbnail")){
+                Node content = node.getNode("raf:preview");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
+                PDFRenderer pdfRenderer = new PDFRenderer(document);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+                BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
+                LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
+                ImageIO.write(scaledImg, "png", bos);
+                session.logout();
+                document.close();
+                return new ByteArrayInputStream(bos.toByteArray());
+            } else {
+                Node content = node.getNode("raf:thumbnail");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+                session.logout();
+                ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
+                return result;
             }
-
-            Node content = node.getNode("raf:preview");
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
-            PDFRenderer pdfRenderer = new PDFRenderer(document);
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
-            BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-            LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
-            ImageIO.write(scaledImg, "png", bos);
-            session.logout();
-            return new ByteArrayInputStream(bos.toByteArray());
 
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);

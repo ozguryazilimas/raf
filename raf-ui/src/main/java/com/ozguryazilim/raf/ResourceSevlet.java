@@ -60,7 +60,7 @@ public class ResourceSevlet extends HttpServlet{
             // Thumbnail şuan için önyüzde gallery view tarafından kullanılıyor. +
             // Memory yönetimi için belki her yerde bir sayfa image sunabiliriz.
             if(req.getPathInfo().endsWith("thumbnail") && doc.getPreviewMimeType().equals("application/pdf")){
-                is = service.getPreviewContentPDF(resourceId);
+                is = service.getThumbnailContentPDF(resourceId);
                 resp.setContentType("image/png");
             } else if(req.getPathInfo().endsWith("preview") || req.getPathInfo().endsWith("thumbnail")) {
                 is = service.getPreviewContent(resourceId);

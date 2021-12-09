@@ -317,11 +317,8 @@ public class RafService implements Serializable {
      * @return
      * @throws RafException
      */
-    public InputStream getPreviewContentPDF(String id) throws RafException {
-        if (isReadLogEnabled()) {
-            sendAuditLog(id, "READ_PREVIEW_CONTENT", "");
-        }
-        return rafRepository.getPreviewContentPDF(id);
+    public InputStream getThumbnailContentPDF(String id) throws RafException {
+        return rafRepository.getThumbnailContentPDF(id);
     }
 
     /**

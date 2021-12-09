@@ -4,6 +4,7 @@ import com.ozguryazilim.raf.SequencerRegistery;
 import com.ozguryazilim.raf.converter.OfficeManagerFactory;
 import com.ozguryazilim.raf.preview.ImagePreviewSequencer;
 import com.ozguryazilim.raf.preview.OfficePreviewSequencer;
+import com.ozguryazilim.raf.preview.PdfPreviewSequencer;
 import com.ozguryazilim.telve.api.module.TelveModule;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,6 +26,10 @@ public class RafConverterModule {
         if ("true".equals(ConfigResolver.getPropertyValue("raf.preview.image", "true"))) {
             SequencerRegistery.register("ImagePreviewSequencer", ImagePreviewSequencer.class.getCanonicalName(),
                     "default://*.(jpg|jpeg|gif|bmp|pcx|png|iff|ras|pbm|pgm|ppm|psd)/jcr:content[@jcr:data]");
+        }
+        if("true".equals(ConfigResolver.getPropertyValue("raf.preview.pdf","true"))){
+            SequencerRegistery.register("PdfPreviewSequencer", PdfPreviewSequencer.class.getCanonicalName(),
+                    "default://*.(pdf)/jcr:content[@jcr:data]");
         }
     }
 

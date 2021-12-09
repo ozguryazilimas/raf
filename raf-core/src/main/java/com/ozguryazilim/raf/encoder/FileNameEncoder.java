@@ -1,5 +1,7 @@
 package com.ozguryazilim.raf.encoder;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Pattern;
 
 
@@ -20,13 +22,18 @@ public class FileNameEncoder extends BaseRafEncoder {
         //toLowerCase(new Locale("tr")) hepsini küçük harfer çevirmek için eklenebilir
 
         String[] textArray = text.split("/");
-        String fileName = textArray[textArray.length - 1];
-        if (fileName.split("\\.").length > 2) {
-            String extension = fileName.substring(fileName.lastIndexOf("."));
-            fileName = fileName.replaceAll(Pattern.quote(extension), "").replaceAll("\\.", "_").concat(extension);
-            textArray[textArray.length - 1] = fileName;
+        if (textArray.length > 1) {
+            String fileName = textArray[textArray.length - 1];
+            if (fileName.split("\\.").length > 2) {
+                String extension = fileName.substring(fileName.lastIndexOf("."));
+                fileName = fileName.replaceAll(Pattern.quote(extension), "").replaceAll("\\.", "_").concat(extension);
+                textArray[textArray.length - 1] = fileName;
+            }
         }
+
         text = String.join("/", textArray);
+
+        if(StringUtils.isBlank(text)) text = "/";
 
         char[] source = text.toCharArray();
         for (int i = 0; i < source.length; i++) {
