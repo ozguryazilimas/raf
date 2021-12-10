@@ -49,7 +49,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -761,7 +760,7 @@ public class RafController implements Serializable {
     protected void populateFolderCollection(String folderId) throws RafException {
         RafCollection collection = rafService.getCollectionPaged(folderId, getPage(), getPageSize(), false, getSortBy(), getDescSort());
 
-        if (collection == null || collection.getItems() == null || collection.getItems().isEmpty()) {
+        if (collection == null || collection.getItems() == null) {
             LOG.warn("[RAF-0006] Raf collection not found. folderID: {}", folderId);
             return;
         }
@@ -782,8 +781,8 @@ public class RafController implements Serializable {
         } else {
             //mevcut listedeki son elemanın id si ile yeni listedeki son eleman farklı ise yeni sayfa verisi eklenmeli
             //yeni dosya eklenmiş ise de context'i güncelliyoruz.
-            if (!lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())
-                    || collection.getItems().size() > context.getCollection().getItems().size()) {
+            if (!collection.getItems().isEmpty() && (!lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())
+                    || collection.getItems().size() > context.getCollection().getItems().size())) {
                 for (RafObject item : collection.getItems()) {
                     if (item != null && !context.getCollection().getItems().contains(item)) {
                         context.getCollection().getItems().add(item);
@@ -892,5 +891,9 @@ public class RafController implements Serializable {
 
     public String byteCountToDisplaySize(long bytes) {
         return FileUtils.byteCountToDisplaySize(bytes);
+    }
+
+    public Long getTotalFileCount() throws RafException {
+        return rafService.getChildCount(context.getCollection().getPath());
     }
 }
