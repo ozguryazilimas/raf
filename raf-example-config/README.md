@@ -1,0 +1,1 @@
+/com ve /org dizinlerini wildfly uygulama sunucusunda ~/modules dizini altına kopyalıyoruz.
