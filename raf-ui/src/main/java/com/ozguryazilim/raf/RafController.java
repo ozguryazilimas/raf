@@ -29,6 +29,13 @@ import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
+import org.apache.commons.io.FileUtils;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -44,12 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
@@ -758,8 +759,12 @@ public class RafController implements Serializable {
     }
 
     protected void populateFolderCollection(String folderId) throws RafException {
-
         RafCollection collection = rafService.getCollectionPaged(folderId, getPage(), getPageSize(), false, getSortBy(), getDescSort());
+
+        if (collection == null || collection.getItems() == null || collection.getItems().isEmpty()) {
+            LOG.warn("[RAF-0006] Raf collection not found. folderID: {}", folderId);
+            return;
+        }
 
         if (!showFolders) {
             //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
@@ -770,19 +775,22 @@ public class RafController implements Serializable {
                             .collect(Collectors.toList())
             );
         }
+
         if (context.getCollection() == null || !context.getCollection().getId().equals(folderId)) {
             //farklı bir klasör içeriği lissteleniyor veya klasörün içeriği ilk defa listeleniyor.
             context.setCollection(collection);
         } else {
             //mevcut listedeki son elemanın id si ile yeni listedeki son eleman farklı ise yeni sayfa verisi eklenmeli
-            if (!collection.getItems().isEmpty() && !lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())) {
+            //yeni dosya eklenmiş ise de context'i güncelliyoruz.
+            if (!lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())
+                    || collection.getItems().size() > context.getCollection().getItems().size()) {
                 for (RafObject item : collection.getItems()) {
                     if (item != null && !context.getCollection().getItems().contains(item)) {
                         context.getCollection().getItems().add(item);
                     }
                 }
             }
-            context.setCollection(context.getCollection());
+
         }
         lastRafObjectId = collection.getItems().isEmpty() ? "" : collection.getItems().get(collection.getItems().size() - 1).getId();
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
