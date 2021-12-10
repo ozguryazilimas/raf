@@ -19,7 +19,8 @@
             if (s.scrollTop === 0) {
                 return;
             }
-            if (s.scrollHeight - s.scrollTop === s.clientHeight) {
+            //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
+            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; $("#totalFileCount").text() > $("#showingFileCount").val()) {
                 nextPage();
             }
         }
