@@ -147,23 +147,27 @@ public class RafMemberService implements Serializable {
     }
 
     public boolean hasManagerRole(String username, RafDefinition raf) throws RafException {
+        if(username == null || raf == null) return false;
         return hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasReadRole(String username, RafDefinition raf) throws RafException {
+        if(username == null || raf == null) return false;
         return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasWriteRole(String username, RafDefinition raf) throws RafException {
+        if(username == null || raf == null) return false;
         return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
+        if(username == null || raf == null) return false;
         return hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     private boolean hasMemberRole(String username, String role, RafDefinition raf) throws RafException {
-
+        if(username == null || raf == null) return false;
         //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
         if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
             return !"MANAGER".equals(role);

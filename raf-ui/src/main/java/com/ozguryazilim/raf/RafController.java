@@ -42,6 +42,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
@@ -776,7 +777,7 @@ public class RafController implements Serializable {
             //mevcut listedeki son elemanın id si ile yeni listedeki son eleman farklı ise yeni sayfa verisi eklenmeli
             if (!collection.getItems().isEmpty() && !lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())) {
                 for (RafObject item : collection.getItems()) {
-                    if (!context.getCollection().getItems().contains(item)) {
+                    if (item != null && !context.getCollection().getItems().contains(item)) {
                         context.getCollection().getItems().add(item);
                     }
                 }

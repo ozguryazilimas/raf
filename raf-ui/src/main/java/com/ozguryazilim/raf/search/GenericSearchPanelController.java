@@ -179,22 +179,23 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.isSearchInDocumentName()) {
-                    if (searchModel.isCaseSensitive()) {
-                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                if (searchModel.getSearchInDocumentName()) {
+                    if (searchModel.getCaseSensitive()) {
+                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
+                        whereExpressions.add(String.format(" UPPER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  UPPER(nodes.[jcr:title]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(searchLocale))));
                     }
 
                 } else {
-                    if (searchModel.isCaseSensitive()) {
+                    if (searchModel.getCaseSensitive()) {
                         whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" CONTAINS(LOWER(nodes.*), '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
+                        //TODO: LOWER(nodes.*) hata veriyor. Burada case sensitive dogru calismiyor
+                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
                     }
                 }
 
-                if (searchModel.isSearchInDocumentTags()) {
+                if (searchModel.getSearchInDocumentTags()) {
                     whereExpressions.add("  nodes.[" + PROP_TAG + "] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
                 }
             }
@@ -253,7 +254,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
-                if (searchModel.isSearchInDocumentName()) {
+                if (searchModel.getSearchInDocumentName()) {
                     Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
                         Map wildcard = new HashMap();
                         Map filePath = new HashMap();
@@ -271,7 +272,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                     });
                 }
 
-                if (searchModel.isSearchInDocumentTags()) {
+                if (searchModel.getSearchInDocumentName()) {
                     Arrays.asList(searchModel.getSearchText().split(" ")).forEach((str) -> {
                         Map wildcard = new HashMap();
                         Map filePath = new HashMap();

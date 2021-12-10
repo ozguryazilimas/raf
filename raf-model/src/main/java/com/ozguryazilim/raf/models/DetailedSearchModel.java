@@ -55,14 +55,6 @@ public class DetailedSearchModel {
         return recordMetaDataName;
     }
 
-    public Boolean isSearchInDocumentName() {
-        return searchInDocumentName;
-    }
-
-    public Boolean isSearchInDocumentTags() {
-        return searchInDocumentTags;
-    }
-
     public String getSearchRaf() {
         return searchRaf;
     }
@@ -89,14 +81,6 @@ public class DetailedSearchModel {
 
     public void setRecordMetaDataName(String recordMetaDataName) {
         this.recordMetaDataName = recordMetaDataName;
-    }
-
-    public void setSearchInDocumentName(Boolean searchInDocumentName) {
-        this.searchInDocumentName = searchInDocumentName;
-    }
-
-    public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
-        this.searchInDocumentTags = searchInDocumentTags;
     }
 
     public void setSearchRaf(String searchRaf) {
@@ -215,7 +199,7 @@ public class DetailedSearchModel {
         this.recordDocumentType = recordDocumentType;
     }
 
-    public Boolean isCaseSensitive() {
+    public Boolean getCaseSensitive() {
         return caseSensitive;
     }
 
@@ -223,4 +207,19 @@ public class DetailedSearchModel {
         this.caseSensitive = caseSensitive;
     }
 
+    public Boolean getSearchInDocumentName() {
+        return searchInDocumentName;
+    }
+
+    public void setSearchInDocumentName(Boolean searchInDocumentName) {
+        this.searchInDocumentName = searchInDocumentName;
+    }
+
+    public Boolean getSearchInDocumentTags() {
+        return searchInDocumentTags;
+    }
+
+    public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
+        this.searchInDocumentTags = searchInDocumentTags;
+    }
 }
