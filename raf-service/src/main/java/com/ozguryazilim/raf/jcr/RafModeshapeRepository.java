@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
+import javax.jcr.AccessDeniedException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -244,6 +246,8 @@ public class RafModeshapeRepository implements Serializable {
             session.logout();
 
             return result;
+        } catch (AccessDeniedException ex) {
+            throw new RafException("[RAF-0042] Permission Denied: ", ex);
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0003] Raf node not found", ex);
         }
@@ -594,7 +598,8 @@ public class RafModeshapeRepository implements Serializable {
                         result.getItems().add(nodeToRafFolder(n));
                     }
                 } else if (n.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(n));
+                    RafDocument doc = nodeToRafDocument(n);
+                    if(doc != null) result.getItems().add(doc);
                 }
             }
 
@@ -641,7 +646,8 @@ public class RafModeshapeRepository implements Serializable {
                         result.getItems().add(nodeToRafFolder(n));
                     }
                 } else if (n.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(n));
+                    RafDocument doc = nodeToRafDocument(n);
+                    if(doc != null) result.getItems().add(doc);
                 }
             }
 
@@ -684,7 +690,8 @@ public class RafModeshapeRepository implements Serializable {
                         result.getItems().add(nodeToRafFolder(n));
                     }
                 } else if (n.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(n));
+                    RafDocument doc = nodeToRafDocument(n);
+                    if(doc != null) result.getItems().add(doc);
                 }
             }
 
@@ -729,7 +736,8 @@ public class RafModeshapeRepository implements Serializable {
                         result.getItems().add(nodeToRafFolder(sn));
                     }
                 } else if (sn.isNodeType(NODE_FILE)) {
-                    result.getItems().add(nodeToRafDocument(sn));
+                    RafDocument doc = nodeToRafDocument(sn);
+                    if(doc != null) result.getItems().add(doc);
                 }
             }
 
@@ -782,7 +790,8 @@ public class RafModeshapeRepository implements Serializable {
                             result.getItems().add(nodeToRafFolder(sn));
                         }
                     } else if (sn.isNodeType(NODE_FILE)) {
-                        result.getItems().add(nodeToRafDocument(sn));
+                        RafDocument doc = nodeToRafDocument(sn);
+                        if(doc != null) result.getItems().add(doc);
                     }
                 }
 
@@ -957,12 +966,12 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
+            LOG.debug("JCR-SQL2 Query will be executed  {}", expression);
             Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
             org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
             String plan = resultt.getPlan();
 
-            LOG.debug("Query executed for  {}", expression);
             LOG.debug("Query plan : {}", plan);
 
             NodeIterator it = queryResult.getNodes();
@@ -985,7 +994,8 @@ public class RafModeshapeRepository implements Serializable {
                             result.getItems().add(nodeToRafRecord(sn));
                         }
                     } else if (sn.isNodeType(NODE_FILE)) {
-                        result.getItems().add(nodeToRafDocument(sn));
+                        RafDocument doc = nodeToRafDocument(sn);
+                        if(doc != null) result.getItems().add(doc);
                     }
 
                 }
@@ -1125,6 +1135,13 @@ public class RafModeshapeRepository implements Serializable {
                 //Folder'lar versionlanmaz! Dolayısı ile checkout edilmez
                 throw new RafException("[RAF-00010] Folder node cannot checkout");
             }
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             VersionManager vm = session.getWorkspace().getVersionManager();
             Node content = node.getNode(NODE_CONTENT);
             if (!content.isNodeType(MIXIN_VERSIONABLE)) {
@@ -1154,6 +1171,13 @@ public class RafModeshapeRepository implements Serializable {
                 //Folder'lar versionlanmaz! Dolayısı ile checkout edilmez
                 throw new RafException("[RAF-00010] Folder node cannot checkout");
             }
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             VersionManager vm = session.getWorkspace().getVersionManager();
             Node content = node.getNode(NODE_CONTENT);
             if (!content.isNodeType(MIXIN_VERSIONABLE)) {
@@ -1168,7 +1192,7 @@ public class RafModeshapeRepository implements Serializable {
             return result;
 
         } catch (RepositoryException ex) {
-            throw new RafException("[RAF-00011] Raf Node cannot checkout", ex);
+            throw new RafException("[RAF-00014] Raf Node cannot checkin", ex);
         }
     }
 
@@ -1189,6 +1213,12 @@ public class RafModeshapeRepository implements Serializable {
             if (node.isNodeType(NODE_FOLDER) && !node.isNodeType(MIXIN_RECORD)) {
                 //Folder'lar versionlanmaz! Dolayısı ile checkin yapılamaz!
                 throw new RafException("[RAF-00013] Raf Folder cannot checked in");
+            }
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
             }
 
             VersionManager versionManager = session.getWorkspace().getVersionManager();
@@ -1241,6 +1271,12 @@ public class RafModeshapeRepository implements Serializable {
                 throw new RafException("[RAF-0029] Not a document type");
             }
 
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             Node content = node.getNode(NODE_CONTENT);
             if (content.isNodeType(MIXIN_VERSIONABLE)) {
                 VersionManager versionManager = session.getWorkspace().getVersionManager();
@@ -1273,6 +1309,13 @@ public class RafModeshapeRepository implements Serializable {
             VersionManager versionManager = session.getWorkspace().getVersionManager();
 
             Node node = session.getNodeByIdentifier(id);
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             Node content = node.getNode(NODE_CONTENT);
 
             if (!content.isNodeType(MIXIN_VERSIONABLE)) {
@@ -1323,6 +1366,12 @@ public class RafModeshapeRepository implements Serializable {
 
             session.save();
 
+            if (!n.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        n.getPath(),
+                        n.getIdentifier()));
+            }
+
             //FIXME: Bazı durumlarda upload sırasında mimeType bulunamıyor. Bu durumda null gelmesi yerine "raf/binary atadık. Buna daha iyi bir çözüm lazım.
             Node nc = n.getNode(NODE_CONTENT);
             String mimeType = getPropertyAsString(nc, PROP_MIMETYPE);
@@ -1372,11 +1421,10 @@ public class RafModeshapeRepository implements Serializable {
                 } else {
                     result = nodeToRafFolder(node);
                 }
-            } else if (node.isNodeType(NODE_FILE)) {
+            } else if (node.isNodeType(NODE_FILE) && (node.hasNode(NODE_CONTENT))) {
                 result = nodeToRafDocument(node);
             } else {
-                //FIXME:Bilinen bir node bulunamadı.
-                throw new RafException("[RAF-0019] Unknow Node Type");
+                throw new RafException("[RAF-0005] Raf node not found");
             }
 
             session.logout();
@@ -1410,11 +1458,10 @@ public class RafModeshapeRepository implements Serializable {
                 } else {
                     result = nodeToRafFolder(node);
                 }
-            } else if (node.isNodeType(NODE_FILE)) {
+            } else if (node.isNodeType(NODE_FILE) && node.hasNode(NODE_CONTENT)) {
                 result = nodeToRafDocument(node);
             } else {
-                //FIXME:Bilinen bir node bulunamadı.
-                throw new RafException("[RAF-0019] Unknow Node Type");
+                throw new RafException("[RAF-0005] Raf node not found");
             }
 
             session.logout();
@@ -1618,6 +1665,12 @@ public class RafModeshapeRepository implements Serializable {
 
             LOG.debug("Document Content Requested: {}", node.getPath());
 
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             Node content = node.getNode(NODE_CONTENT);
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
@@ -1645,6 +1698,12 @@ public class RafModeshapeRepository implements Serializable {
             Node node = session.getNodeByIdentifier(id);
 
             LOG.debug("Document Content Requested: {}", node.getPath());
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
 
             Node content = node.getNode(NODE_CONTENT);
 
@@ -1781,7 +1840,7 @@ public class RafModeshapeRepository implements Serializable {
 
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            if (node.isNodeType(NODE_FILE)) {
+            if (node.isNodeType(NODE_FILE) && node.hasNode(NODE_CONTENT)) {
                 Node nodeContent = node.getNode(NODE_CONTENT);
 
                 if (FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node)) {
@@ -1807,15 +1866,23 @@ public class RafModeshapeRepository implements Serializable {
 
             Node node = session.getNodeByIdentifier(id);
 
-            //Burada tarihçe silmek gerek. Aksi halde bütün dosyalar sistem de kalacak
-            //TODO: bu aslında bir sistem ayarı olabilir. Bazı müşteriler gerçekten hiç bir şey silmek istemezler!
-            deleteVersionHistory(node);
+            try {
+                //Burada tarihçe silmek gerek. Aksi halde bütün dosyalar sistem de kalacak
+                //TODO: bu aslında bir sistem ayarı olabilir. Bazı müşteriler gerçekten hiç bir şey silmek istemezler!
+                deleteVersionHistory(node);
+            } catch (RepositoryException ex) {
+                LOG.warn("[RAF-0045] Failed to remove version history. Path: {}, NodeID: {}",
+                        node.getPath(),
+                        node.getIdentifier());
+            }
 
             node.remove();
 
             session.save();
             session.logout();
 
+        } catch (ItemNotFoundException ex) {
+            throw new RafException("[RAF-0046] Item not found. It may be already deleted.", ex);
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0025] Raf Node cannot delete", ex);
         }
@@ -2095,7 +2162,7 @@ public class RafModeshapeRepository implements Serializable {
         Node cn = null;
 
         //Önce doğru tipi bir bulalım. File ise bir alt node olsa gerek
-        if (n.isNodeType(NODE_FILE)) {
+        if (n.isNodeType(NODE_FILE) && n.hasNode(NODE_CONTENT)) {
             Node c = n.getNode(NODE_CONTENT);
             if (c.isNodeType(MIXIN_VERSIONABLE)) {
                 cn = c;
@@ -2170,7 +2237,7 @@ public class RafModeshapeRepository implements Serializable {
 
     protected RafNode nodeToRafNode(Node node) throws RepositoryException {
         RafNode result = new RafNode();
-
+        LOG.debug("NODE ID to be converted RafNode Object: {}, {}", node.getPath(), node.getIdentifier());
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
@@ -2180,7 +2247,7 @@ public class RafModeshapeRepository implements Serializable {
 
     protected RafFolder nodeToRafFolder(Node node) throws RepositoryException {
         RafFolder result = new RafFolder();
-
+        LOG.debug("NODE ID to be converted RafFolder Object: {}, {}", node.getPath(), node.getIdentifier());
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
@@ -2211,7 +2278,7 @@ public class RafModeshapeRepository implements Serializable {
 
     protected RafRecord nodeToRafRecord(Node node) throws RepositoryException, RafException {
         RafRecord result = new RafRecord();
-
+        LOG.debug("NODE ID to be converted RafRecord Object: {}, {}", node.getPath(), node.getIdentifier());
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
@@ -2254,7 +2321,8 @@ public class RafModeshapeRepository implements Serializable {
         while (it.hasNext()) {
             Node mn = it.nextNode();
             if (mn.isNodeType("nt:file")) {
-                result.getDocuments().add(nodeToRafDocument(mn));
+                RafDocument doc = nodeToRafDocument(mn);
+                if(doc != null) result.getDocuments().add(doc);
             } else if (mn.getName().endsWith(":metadata")) {
                 MetadataConverter mc = MetadataConverterRegistery.getConverter(mn.getPrimaryNodeType().getName());
                 result.getMetadatas().add(mc.nodeToModel(mn));
@@ -2282,7 +2350,7 @@ public class RafModeshapeRepository implements Serializable {
 
     protected RafDocument nodeToRafDocument(Node node) throws RepositoryException, RafException {
         RafDocument result = new RafDocument();
-
+        LOG.debug("NODE ID to be converted RafDocument Object: {}, {}", node.getPath(), node.getIdentifier());
         result.setId(node.getIdentifier());
         result.setPath(node.getPath());
         result.setName(node.getName());
@@ -2292,6 +2360,12 @@ public class RafModeshapeRepository implements Serializable {
         result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
         result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
 
+        if (!node.hasNode(NODE_CONTENT)) {
+            LOG.warn("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: {}, NodeID: {}",
+                    node.getPath(),
+                    node.getIdentifier());
+            return null;
+        }
         //FIXME: TIKA olmadığı için mimeType bulmada sorun olabilir.
         Node cn = node.getNode(NODE_CONTENT);
         String s = getPropertyAsString(cn, PROP_MIMETYPE);
@@ -2590,6 +2664,12 @@ public class RafModeshapeRepository implements Serializable {
                 throw new RafException("[RAF-0005] Raf node not found");
             }
 
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             if (!node.isNodeType(MIXIN_RAFCHECKIN)) {
                 node.addMixin(MIXIN_RAFCHECKIN);
             }
@@ -2620,6 +2700,13 @@ public class RafModeshapeRepository implements Serializable {
             if (node == null) {
                 throw new RafException("[RAF-0005] Raf node not found");
             }
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
             VersionManager vm = session.getWorkspace().getVersionManager();
             Node content = node.getNode(NODE_CONTENT);
             VersionHistory vh = vm.getVersionHistory(content.getPath());
@@ -2731,7 +2818,9 @@ public class RafModeshapeRepository implements Serializable {
                             result.getItems().add(nodeToRafRecord(sn));
                         }
                     } else if (sn.isNodeType(NODE_FILE)) {
-                        result.getItems().add(nodeToRafDocument(sn));
+                        RafDocument doc = nodeToRafDocument(sn);
+                        if(doc != null) result.getItems().add(doc);
+
                     }
                 }
 
@@ -2790,6 +2879,12 @@ public class RafModeshapeRepository implements Serializable {
                 return "";
             }
             LOG.debug("Document Content Requested: {}", node.getPath());
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
 
             Node content = node.getNode(NODE_CONTENT);
             if (content == null) {

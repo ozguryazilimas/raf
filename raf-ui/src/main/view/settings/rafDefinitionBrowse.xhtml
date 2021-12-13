@@ -116,7 +116,7 @@
 
     <ui:define name="detailBar">
         <ui:param name="rafDetailsMap" value="#{rafDefinitionBrowse.getDetailsForSelectedRaf()}" />
-        <ui:fragment rendered="#{rafDetailsMap.size() > 0}">
+        <ui:fragment rendered="#{rafDetailsMap ne null and rafDetailsMap.size() > 0}">
             <t:outputText label="#{messages['raf.definition.label.totalFolderCount']}" value="#{rafDetailsMap.get('totalFolderCount')}"
                           columnClass="col-xs-12"/>
             <t:outputText label="#{messages['raf.definition.label.totalFileCount']}" value="#{rafDetailsMap.get('totalFileCount')}"

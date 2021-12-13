@@ -154,7 +154,7 @@ public class RafDefinitionService implements Serializable {
 
     public List<RafDefinition> getRafsForUser(String username, Boolean addCommonRafs) {
 
-        List<RafDefinition> restult = rafs.stream()
+        List<RafDefinition> result = rafs.stream()
                 .filter(r -> {
                     try {
                         return memberService.isMemberOf(username, r);
@@ -167,23 +167,19 @@ public class RafDefinitionService implements Serializable {
 
         if (addCommonRafs) {
             try {
-                restult.add(getPrivateRaf(username));
-                restult.add(getSharedRaf());
+                result.add(getPrivateRaf(username));
+                result.add(getSharedRaf());
             } catch (RafException ex) {
                 //Hata bildirsek mi?
             }
 
         }
 
-        return restult;
+        return result;
     }
 
     protected void populateRafs() throws RafException {
         rafs = repository.findAll();
-        for (RafDefinition raf : rafs) {
-            RafNode rn = rafRepository.getRafNode(raf.getCode());
-            raf.setNode(rn);
-        }
     }
 
     public void refresh() {

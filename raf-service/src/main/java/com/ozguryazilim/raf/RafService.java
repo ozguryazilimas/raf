@@ -20,6 +20,8 @@ import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,14 +33,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -383,10 +377,14 @@ public class RafService implements Serializable {
     }
 
     public void deleteObject(String id) throws RafException {
-        //FIXME: Yetki kontrolü
-        RafObject obj = rafRepository.getRafObject(id);
-        sendEventLog("DeleteObject", obj);
-        sendAuditLog(id, "DELETE_OBJECT", "");
+        try{
+            //FIXME: Yetki kontrolü
+            RafObject obj = rafRepository.getRafObject(id);
+            sendEventLog("DeleteObject", obj);
+            sendAuditLog(id, "DELETE_OBJECT", "");
+        } catch (RafException ex){
+            LOG.warn("[RAF-0044] Failed to create raf object. For this reason, event and audit logs will not be produced. item id: {}",id);
+        }
         rafRepository.deleteObject(id);
     }
 
