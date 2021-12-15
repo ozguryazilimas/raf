@@ -311,8 +311,8 @@ public class RafService implements Serializable {
      * @return
      * @throws RafException
      */
-    public InputStream getThumbnailContentPDF(String id) throws RafException {
-        return rafRepository.getThumbnailContentPDF(id);
+    public InputStream getThumbnailContent(String id) throws RafException {
+        return rafRepository.getThumbnailContent(id);
     }
 
     /**

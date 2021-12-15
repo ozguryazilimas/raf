@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.MetadataConverter;
 import com.ozguryazilim.raf.MetadataConverterRegistery;
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.SequencerConfig;
+import com.ozguryazilim.raf.SequencerRegistery;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -23,10 +25,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.imgscalr.Scalr;
 import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -1244,13 +1246,12 @@ public class RafModeshapeRepository implements Serializable {
 
             printSubgraph(node);
 
+            node = findPreviewAndWait(session, node);
             result = nodeToRafDocument(node);
             return result;
 
-        } catch (RepositoryException ex) {
+        } catch (RepositoryException | IOException | InterruptedException ex) {
             throw new RafException("[RAF-00014] Raf Node cannot checkin", ex);
-        } catch (IOException ex) {
-            throw new RafException("[RAF-00015] Raf Node cannot checkin", ex);
         }
     }
 
@@ -1386,16 +1387,23 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             session.save();
+
+            // Sequencer'lar çalışıyor, bu arada preview node oluşana kadar bekleyelim.(Eğer preview sequencer tanımlı ise)
+            n = findPreviewAndWait(session, n);
+
             result = nodeToRafDocument(n);
 
             session.logout();
             LOG.debug("Dosya JCR'e kondu : {}", fullName);
         } catch (RepositoryException ex) {
-            LOG.error("Reporsitory Exception", ex);
+            LOG.error("Repository Exception", ex);
             throw new RafException("[RAF-00017] File cannot uploaded", ex);
         } catch (IOException ex) {
             LOG.error("IO Exception", ex);
             throw new RafException("[RAF-00018] File cannot uploaded", ex);
+        } catch (InterruptedException ex) {
+            LOG.error("Interrupted Exception", ex);
+            throw new RafException("[RAF-00019] File cannot uploaded", ex);
         }
         return result;
     }
@@ -1746,38 +1754,49 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public InputStream getThumbnailContentPDF(String id) throws RafException {
+    public InputStream getThumbnailContent(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
 
             LOG.debug("PDF Document Thumbnail Content Requested: {}", node.getPath());
-
-            if(!node.hasNode("raf:thumbnail")){
+            // thumbnail jcr'de yok preview'dan bakıp oluşturalım.
+            if (!node.hasNode("raf:thumbnail") && node.hasNode("raf:preview")) {
                 Node content = node.getNode("raf:preview");
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
-                PDFRenderer pdfRenderer = new PDFRenderer(document);
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
-                BufferedImage scaledImg = Scalr.resize(bim, Scalr.Method.BALANCED, 480, 320, Scalr.OP_ANTIALIAS);
-                LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
-                ImageIO.write(scaledImg, "png", bos);
-                session.logout();
-                document.close();
-                return new ByteArrayInputStream(bos.toByteArray());
-            } else {
-                Node content = node.getNode("raf:thumbnail");
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
-                session.logout();
-                ByteArrayInputStream result = new ByteArrayInputStream(bos.toByteArray());
-                return result;
+                if (content.getProperty("jcr:mimeType").getString().equals("image/png")) {
+                    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                        InputStream is = content.getProperty("jcr:data").getBinary().getStream();
+                        BufferedImage img = ImageUtils.createThumbnailImageFromInputStream(is);
+                        LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
+                        ImageIO.write(img, "png", bos);
+                        is.close();
+                        session.logout();
+                        return new ByteArrayInputStream(bos.toByteArray());
+                    }
+                } else if (content.getProperty("jcr:mimeType").getString().equals("application/pdf")) {
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    PDDocument document = PDDocument.load(content.getProperty("jcr:data").getBinary().getStream());
+                    PDFRenderer pdfRenderer = new PDFRenderer(document);
+                    BufferedImage img = ImageUtils.createThumbnailImageFromPDF(pdfRenderer);
+                    LOG.debug("First page of the pdf has been successfully converted to an image: {}", node.getPath());
+                    ImageIO.write(img, "png", bos);
+                    session.logout();
+                    document.close();
+                    return new ByteArrayInputStream(bos.toByteArray());
+                }
+            } else if (node.hasNode("raf:thumbnail")) {
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    Node content = node.getNode("raf:thumbnail");
+                    IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
+                    session.logout();
+                    return new ByteArrayInputStream(bos.toByteArray());
+                }
             }
-
         } catch (RepositoryException | IOException ex) {
-            LOG.error("RAfException", ex);
+            LOG.error("RafException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
+        return null;
     }
 
     /**
@@ -1842,9 +1861,24 @@ public class RafModeshapeRepository implements Serializable {
             Node node = session.getNodeByIdentifier(id);
             if (node.isNodeType(NODE_FILE) && node.hasNode(NODE_CONTENT)) {
                 Node nodeContent = node.getNode(NODE_CONTENT);
+                String expPath = node.getPath() + "/" + NODE_CONTENT + "/@" + PROP_DATA;
 
-                if (FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node)) {
-                    session.save();
+                for (SequencerConfig sequencerConfig : SequencerRegistery.getSequencers()) {
+                    if (SequencerPathExpression.compile(sequencerConfig.getExpression()).matcher(expPath).matches()) {
+                        switch (sequencerConfig.getName()) {
+                            case "ImagePreviewSequencer": {
+                                FilePreviewHelper.generateImagePreview(nodeContent.getProperty(PROP_DATA), node);
+                                session.save();
+                                break;
+                            }
+                            case "PdfPreviewSequencer":
+                            case "OfficePreviewSequencer": {
+                                FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node);
+                                session.save();
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             session.logout();
@@ -3043,4 +3077,43 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0041] Raf properties cannot be calculated", ex);
         }
     }
+
+    /**
+     * Preview kaydı yapılan uzantılar için asenkron çalışan sequencer'ların sonucunu beklemek için yazıldı.
+     * Eğer 10 sn kadar preview node bulamazsa akışı kilitlemeden devam ediyor.
+     *
+     * @param session
+     * @param n
+     * @return
+     * @throws RepositoryException
+     * @throws InterruptedException
+     */
+    private Node findPreviewAndWait(Session session, Node n) throws RepositoryException, InterruptedException {
+        long start = System.currentTimeMillis();
+        long maxWaitInMillis = TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS);
+        String expPath = n.getPath() + "/" + NODE_CONTENT + "/@" + PROP_DATA;
+        do {
+            try {
+                // Session'dan güncel node'u tekrar alıyoruz.
+                Node node = session.getNode(n.getPath());
+                for (SequencerConfig sequencerConfig : SequencerRegistery.getSequencers()) {
+                    // Yüklenen dosya sequencer expression ile uymuyorsa direk atlayabiliriz.
+                    if (SequencerPathExpression.compile(sequencerConfig.getExpression()).matcher(expPath).matches()
+                            && !n.hasNode("raf:preview")) {
+                        throw new PathNotFoundException("Preview node has not been created yet.");
+                    }
+                }
+                return node;
+            } catch (PathNotFoundException e) {
+                // The node wasn't there yet, so try again ...
+            } catch (Exception e) {
+                LOG.warn("Unknown Error: ", e);
+                return n;
+            }
+            Thread.sleep(10L);
+        } while ((System.currentTimeMillis() - start) <= maxWaitInMillis);
+        LOG.warn("Failed to find preview '" + n.getPath() + "' even after waiting " + 10 + " " + TimeUnit.SECONDS);
+        return n;
+    }
+
 }
