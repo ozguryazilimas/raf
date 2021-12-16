@@ -279,6 +279,28 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     }
 
+    public void revertVersion(String version, String versionComment) {
+        try {
+            InputStream is = rafService.getDocumentVersionContent(getObject().getId(), version);
+            rafService.checkin(getObject().getPath(), is, versionComment);
+
+            commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                    .eventType("RevertVersion")
+                    .forRafObject(getObject())
+                    .message("event.RevertVersion$%&" + identity.getUserName() + "$%&" + getObject().getTitle())
+                    .user(identity.getLoginName())
+                    .build());
+
+            facesContext.responseComplete();
+            setObject((RafDocument) rafService.getRafObject(getObject().getId()));
+        } catch (RafException ex) {
+            //FIXME: i18n
+            LOG.error("File cannot revert to version", ex);
+            FacesMessages.error("File cannot revert to version");
+        }
+
+    }
+
     public Boolean getVersionManagementEnabled() {
         return versionManagementEnabled;
     }
