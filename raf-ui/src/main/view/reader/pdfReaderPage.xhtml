@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                template="/layout/raf/templateReader.xhtml">
+
+    <ui:param name="pageTitle" value="#{messages['pdf.reader.title']}"/>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{id}"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="details">
+        <div class="embed-responsive embed-responsive-4by3">
+            <object class="embed-responsive-item" type="application/pdf"
+                    data="#{request.contextPath}/resource/#{id}/pdf" width="100%">
+                <h:outputFormat value="#{messages['error.pdf.preview.support']}" escape="false">
+                    <f:param value="#{request.contextPath}/resource/#{id}/pdf"/>
+                </h:outputFormat>
+            </object>
+        </div>
+    </ui:define>
+
+</ui:composition>
+

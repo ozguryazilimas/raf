@@ -1,6 +1,6 @@
 package com.ozguryazilim.raf.jcr;
 
-import com.ozguryazilim.raf.converter.PDFPreviewConverter;
+import com.ozguryazilim.raf.converter.PdfConverter;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -81,7 +81,7 @@ public class FilePreviewHelper {
                 return generatePreviewAndThumbnailForPDFDocuments(outputNode, binaryValue);
             }
             // mimeType pdf preview converter'ın çalışması için uygun mu?
-            if (!PDFPreviewConverter.instance().isAcceptedMimeType(mimeType)) {
+            if (!PdfConverter.instance().isAcceptedMimeType(mimeType)) {
                 return false;
             }
             // diğer tüm document tipindeki dosyalar(word,excel vb.) için preview operasyonları
@@ -167,7 +167,7 @@ public class FilePreviewHelper {
     private static void generatePreviewForOtherDocuments(Node outputNode, String mimeType, Binary binaryValue) throws IOException, OfficeException, RepositoryException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 
-            PDFPreviewConverter.instance().convert(binaryValue.getStream(), mimeType, os);
+            PdfConverter.instance().convertPreview(binaryValue.getStream(), mimeType, os);
 
             if ("IMAGE".equals(ConfigResolver.getPropertyValue("raf.pdf.preview.type", "IMAGE"))) {
                 ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());

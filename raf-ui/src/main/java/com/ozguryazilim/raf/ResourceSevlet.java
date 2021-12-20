@@ -54,12 +54,15 @@ public class ResourceSevlet extends HttpServlet{
 
             InputStream is;
 
-            if(req.getPathInfo().endsWith("thumbnail")){
+            if (req.getPathInfo().endsWith("thumbnail")) {
                 is = service.getThumbnailContent(resourceId);
                 resp.setContentType("image/png");
-            }  else if(req.getPathInfo().endsWith("preview")){
+            } else if (req.getPathInfo().endsWith("preview")) {
                 is = service.getPreviewContent(resourceId);
                 resp.setContentType(doc.getPreviewMimeType());
+            } else if (req.getPathInfo().endsWith("pdf")) {
+                is = service.getFullPdfDocument(resourceId);
+                resp.setContentType("application/pdf");
             } else {
                 is = service.getDocumentContent(resourceId);
                 resp.setContentType(doc.getMimeType());

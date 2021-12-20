@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ds="http://deltaspike.apache.org/jsf"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<f:view locale="#{localeSelector.locale}">
+
+    <ui:param name="viewBean" value="#{rafController.selectDocumentByIdAndReturnContent(id)}" />
+    <ui:insert name="metadata"/>
+
+    <h:head>
+        <title>#{telveConfigResolver.getProperty('app.title')} - #{ messages[pageTitle] }</title>
+        <meta name="viewport" content="width=device-width"/>
+        <ui:include src="#{themeManager.templateHeader}"/>
+        <style>
+            .icon-bar {
+                z-index: 110000;
+                position: fixed;
+                top: 50%;
+                right: 1em;
+                -webkit-transform: translateY(-50%);
+                -ms-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+
+            .icon-bar a {
+                display: block;
+                text-align: center;
+                padding: 16px;
+                transition: all 0.3s ease;
+                color: white;
+                font-size: 20px;
+            }
+
+            .icon-bar a:hover {
+                background-color: #000;
+            }
+
+            .detail {
+                background: #3c8dbc;
+                color: white;
+            }
+        </style>
+    </h:head>
+
+    <h:body styleClass="#{skinSelector.skin}  layout-top-nav fixed">
+        <ds:windowId/>
+        <h:form>
+            <ui:fragment rendered="#{'true' eq telveConfigResolver.getProperty('app.stayLoggedIn')}">
+                <p:poll interval="600" update="notifyCount" global="false"/>
+            </ui:fragment>
+            <p:remoteCommand name="updateNotifies" update="notifyCount"/>
+        </h:form>
+
+        <div class="wrapper">
+            <ui:include src="#{themeManager.templateMainBar}"/>
+            <div class="content-wrapper" style="margin-left: 0px; padding-top: 40px;">
+                <section class="content" style="padding:0px;">
+                    <ui:insert name="details"/>
+                    <div class="icon-bar">
+                        <a href="#" class="detail" onclick="PF('sidebar').show()"><i class="fa fa-arrow-left fa-2x"></i></a>
+                    </div>
+                    <p:sidebar widgetVar="sidebar" position="right" baseZIndex="9999" style="background:white"
+                               onShow="onShowSideBar()" onHide="onHideSideBar()">
+                        <div class="row">
+                            <c:forEach items="#{viewBean.metadataPanels}" var="mp" varStatus="loop">
+                                <ui:include src="#{mp.viewId}" >
+                                    <ui:param name="idp" value="#{loop}" />
+                                    <ui:param name="mpbean" value="#{mp}" />
+                                    <ui:param name="showEditIcon" value="false" />
+                                </ui:include>
+                            </c:forEach>
+                        </div>
+                    </p:sidebar>
+                </section>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+
+            function onShowSideBar() {
+                jQuery(".icon-bar").animate({
+                        "right": "20em"
+                    },
+                    {
+                        duration: 200,
+                        complete: function () {
+                            jQuery(".icon-bar").attr("onclick", "PF('sidebar').hide()");
+                            jQuery(".icon-bar").find("i").removeClass("fa-arrow-left");
+                            jQuery(".icon-bar").find("i").addClass("fa-arrow-right");
+                        }
+                    })
+            }
+
+            function onHideSideBar() {
+                jQuery(".icon-bar").animate({
+                        "right": "1em"
+                    },
+                    {
+                        duration: 200,
+                        complete: function () {
+                            jQuery(".icon-bar").attr("onclick", "PF('sidebar').show()");
+                            jQuery(".icon-bar").find("i").removeClass("fa-arrow-right");
+                            jQuery(".icon-bar").find("i").addClass("fa-arrow-left");
+                        }
+                    })
+            }
+
+            function setSizes() {
+                var clientHeight = jQuery(window).height() - 40;
+                jQuery('.content').css('height', clientHeight);
+                jQuery('.embed-responsive-item').css('height', clientHeight);
+            }
+
+            setSizes();
+            var resizeTimer;
+            jQuery(window).resize(function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(setSizes, 100);
+            });
+
+        </script>
+    </h:body>
+
+</f:view>
+</html>

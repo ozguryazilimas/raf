@@ -6,6 +6,7 @@ import com.ozguryazilim.raf.MetadataConverterRegistery;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SequencerConfig;
 import com.ozguryazilim.raf.SequencerRegistery;
+import com.ozguryazilim.raf.converter.PdfConverter;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -26,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.jodconverter.core.office.OfficeException;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
@@ -36,6 +38,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Binary;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -1797,6 +1800,40 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
         return null;
+    }
+
+    public InputStream getFullPdfDocumentContent(String id) throws RafException {
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                throw new RafException(String.format("[RAF-0043] JCR Content is not found. \"jcr:content\" not found. Path: %s, NodeID: %s",
+                        node.getPath(),
+                        node.getIdentifier()));
+            }
+
+            LOG.debug("Requested Full PDF Review. Path: {}, NodeID: {}", node.getPath(), node.getIdentifier());
+
+            Node content = node.getNode(NODE_CONTENT);
+            String mimeType = content.getProperty(PROP_MIMETYPE).getString();
+            Binary binary = content.getProperty(PROP_DATA).getBinary();
+            if (PdfConverter.instance().isAcceptedMimeType(mimeType)) {
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    PdfConverter.instance().convertReader(binary.getStream(), mimeType, os);
+                    return new ByteArrayInputStream(os.toByteArray());
+                } catch (OfficeException ex) {
+                    throw new RafException(String.format("[RAF-0045] Office Converter Cannot Worked Properly. Path: %s, NodeID: %s",
+                            node.getPath(),
+                            node.getIdentifier()));
+                }
+            }
+            return binary.getStream();
+        } catch (RepositoryException | IOException ex) {
+            LOG.error("RafException", ex);
+            throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
+        }
     }
 
     /**
