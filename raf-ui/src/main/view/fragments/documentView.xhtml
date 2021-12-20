@@ -169,22 +169,27 @@
                                 <p:repeat value="#{viewBean.versionHistory}" var="vh" >
                                     <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
                                         <li>
-                                            <p:commandLink action="#{viewBean.downloadHistoryContent(vh.name)}" ajax="false">
-                                                <i class="fa fa-history" />
-                                                <span class="text-bold">
-                                                    #{vh.name}
-                                                </span> 
-                                                <span>
-                                                    <t:cellOutputDateTime value="#{vh.created}" /> 
-                                                    #{userLookup.getUserName(vh.createdBy)} 
-                                                </span>
-                                                <ui:fragment rendered="#{not empty vh.comment}">
-                                                    <hr/>
-                                                    <span class="text-muted">
-                                                        #{vh.comment}
+                                            <p:panelGrid columns="2" layout="grid" style="vertical-align: text-top;" columnClasses="ui-lg-1,ui-lg-11">
+                                                <p:commandLink action="#{viewBean.revertVersion(vh.name, vh.comment)}" update="raf-view">
+                                                    <i class="fa fa-history" title="#{messages['raf.label.BackToVersion']}" />
+                                                    <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['raf.confirm.BackToVersion']}" icon="pi pi-exclamation-triangle"/>
+                                                </p:commandLink>
+                                                <p:commandLink action="#{viewBean.downloadHistoryContent(vh.name)}" ajax="false">
+                                                    <span class="text-bold">
+                                                        #{vh.name}
+                                                    </span> 
+                                                    <span>
+                                                        <t:cellOutputDateTime value="#{vh.created}" /> 
+                                                        #{userLookup.getUserName(vh.createdBy)} 
                                                     </span>
-                                                </ui:fragment>
-                                            </p:commandLink>
+                                                    <ui:fragment rendered="#{not empty vh.comment}">
+                                                        <hr/>
+                                                        <span class="text-muted">
+                                                            #{vh.comment}
+                                                        </span>
+                                                    </ui:fragment>
+                                                </p:commandLink>
+                                            </p:panelGrid>
                                         </li>
                                     </ui:fragment>
                                 </p:repeat>
