@@ -51,18 +51,13 @@ public class ResourceSevlet extends HttpServlet{
         try {
             
             RafDocument doc = (RafDocument) service.getRafObject(resourceId);
-            
-            InputStream is = null;
 
-            // Eğer preview isteniyor ise onu alalım
-            // Not: PDF önizleme verdiğimiz tüm formatlar için preview ve thumbnail ayrımı yaptık. +
-            // Preview -> .pdf Thumbnail -> .png formatında servis ediliyor. +
-            // Thumbnail şuan için önyüzde gallery view tarafından kullanılıyor. +
-            // Memory yönetimi için belki her yerde bir sayfa image sunabiliriz.
-            if(req.getPathInfo().endsWith("thumbnail") && doc.getPreviewMimeType().equals("application/pdf")){
-                is = service.getPreviewContentPDF(resourceId);
+            InputStream is;
+
+            if(req.getPathInfo().endsWith("thumbnail")){
+                is = service.getThumbnailContent(resourceId);
                 resp.setContentType("image/png");
-            } else if(req.getPathInfo().endsWith("preview") || req.getPathInfo().endsWith("thumbnail")) {
+            }  else if(req.getPathInfo().endsWith("preview")){
                 is = service.getPreviewContent(resourceId);
                 resp.setContentType(doc.getPreviewMimeType());
             } else {
@@ -71,7 +66,6 @@ public class ResourceSevlet extends HttpServlet{
             }
 
             resp.setHeader("Content-disposition", "inline;filename=" + doc.getName());
-            //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
 
             try (OutputStream out = resp.getOutputStream()) {
                 IOUtils.copy(is, out);

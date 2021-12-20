@@ -13,4 +13,5 @@
 [raf:preview] > nt:unstructured, mix:mimeType
   - jcr:data (binary)
 
-
+[raf:thumbnail] > nt:unstructured, mix:mimeType
+  - jcr:data (binary)

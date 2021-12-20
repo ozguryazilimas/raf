@@ -3,8 +3,11 @@ package com.ozguryazilim.raf.action;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
+import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
+import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -13,6 +16,7 @@ import com.ozguryazilim.telve.auth.Identity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 @Action(icon = "fa-refresh",
@@ -34,6 +38,9 @@ public class ReGeneratePreviewAction extends AbstractAction {
     @Inject
     private RafPathMemberService rafPathMemberService;
 
+    @Inject
+    private Event<RafFolderChangeEvent> rafFolderChangeEvent;
+
     @Override
     public boolean applicable(boolean forCollection) {
         try {
@@ -54,12 +61,13 @@ public class ReGeneratePreviewAction extends AbstractAction {
     @Override
     protected boolean finalizeAction() {
         try {
-            if (getContext().getSelectedObject() instanceof RafFolder) {
+            if (getContext().getSelectedObject() instanceof RafFolder || getContext().getSelectedObject() instanceof RafNode) {
                 //aslında folderlarda çalıştırmasak iyi olur.
                 rafService.regenerateObjectPreviews(getContext().getSelectedObject().getId());
             } else {
                 rafService.regeneratePreview(getContext().getSelectedObject().getId());
             }
+            rafFolderChangeEvent.fire(new RafFolderChangeEvent());
         } catch (RafException e) {
             LOG.error("Preview regenaration faild");
             return false;
