@@ -124,6 +124,9 @@ public class RafController implements Serializable {
 
     private String lastRafObjectId;
 
+    private int scrollTop;
+    private int scrollLeft;
+
     public Boolean getDescSort() {
         return descSort;
     }
@@ -552,8 +555,6 @@ public class RafController implements Serializable {
     public void closeObjectPanel() {
         //FIXME: bundan pek emin değilim. SelectedObject'e null mu atamalı?
         context.setSelectedObject(null);
-        //ObjectPanel'e geçerken obje aynı zamanda seçiliyor kapatırken de silelim
-        context.getSeletedItems().clear();
         selectedContentPanel = getCollectionContentPanel();
     }
 
@@ -713,6 +714,8 @@ public class RafController implements Serializable {
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
         setPage(0);
+        setScrollTop(0);
+        setScrollLeft(0);
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
@@ -903,4 +906,24 @@ public class RafController implements Serializable {
         return selectedContentPanel;
     }
 
+}
+    public int getScrollTop() {
+        return scrollTop;
+    }
+
+    public void setScrollTop(int scrollTop) {
+        this.scrollTop = scrollTop;
+    }
+
+    public int getScrollLeft() {
+        return scrollLeft;
+    }
+
+    public void setScrollLeft(int scrollLeft) {
+        this.scrollLeft = scrollLeft;
+    }
+
+    public void setScroll() {
+        //dummy action for scroll attributes
+    }
 }
