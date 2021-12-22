@@ -533,4 +533,8 @@ public class RafService implements Serializable {
     public long getChildCount(String absPath) throws RafException {
         return rafRepository.getChildCount(absPath);
     }
+
+    public InputStream getFullPdfDocument(String id) throws RafException {
+        return rafRepository.getFullPdfDocumentContent(id);
+    }
 }

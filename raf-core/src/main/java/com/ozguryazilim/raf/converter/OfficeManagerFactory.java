@@ -31,6 +31,7 @@ public class OfficeManagerFactory {
 
     private static Map<String, Object> customProperties;
     private static DocumentFormat previewPdf;
+    private static DocumentFormat readerPdf;
     
     private static final String FILTER_DATA_PROP = "FilterData";
     private static final String LOCAL_OFFICE = "local";
@@ -124,6 +125,16 @@ public class OfficeManagerFactory {
         
         
         return previewPdf;
+    }
+
+    public static DocumentFormat toReaderPdf(){
+
+        if( readerPdf == null ){
+            readerPdf = DocumentFormat.builder().from(DefaultDocumentFormatRegistry.PDF)
+                    .build();
+        }
+
+        return readerPdf;
     }
     
     public static AbstractConverter getConverter() throws OfficeException {
