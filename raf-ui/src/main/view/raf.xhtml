@@ -170,10 +170,10 @@
                             </div>
                         </ui:remove>
 
-                        <ui:fragment rendered="#{rafController.selectedContentPanel.supportMetadata}">
+                        <ui:fragment rendered="#{rafController.selectedContentPanel.supportMetadata} and #{documentViewPanel.additonalMetadatas.size() > 0}">
                             <div style="margin-left: 10px; display: inline-block;">
                                 <div class="dropdown" style="display: inline-block;">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{messages['action.addMetadata']}">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{messages['action.title.addMetadata']}">
                                         <i class="fa fa-cubes" />
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
