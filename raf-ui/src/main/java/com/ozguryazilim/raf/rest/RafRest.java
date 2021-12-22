@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.tag.TagSuggestionService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import java.util.Map;
  * 
  * @author oyas
  */
+@RequiresPermissions("admin")
 @Path("/api/raf")
 public class RafRest {
     

@@ -8,6 +8,7 @@ import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import com.ozguryazilim.telve.idm.user.UserRepository;
 import com.ozguryazilim.telve.utils.TreeUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author oyas
  */
+@RequiresPermissions("admin")
 @Path("/api/group")
 public class GroupRest {
 

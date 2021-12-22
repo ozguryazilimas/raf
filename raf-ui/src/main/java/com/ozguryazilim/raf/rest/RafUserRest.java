@@ -8,6 +8,7 @@ import com.ozguryazilim.telve.idm.role.RoleRepository;
 import com.ozguryazilim.telve.idm.user.UserRepository;
 import com.ozguryazilim.telve.idm.user.UserRoleRepository;
 import org.apache.camel.Body;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +30,8 @@ import java.util.stream.Collectors;
  *
  * @author oyas
  */
+@RequiresPermissions("admin")
 @Path("/api/users")
-
 @Produces(MediaType.APPLICATION_JSON)
 public class RafUserRest {
 
@@ -50,9 +51,11 @@ public class RafUserRest {
 
     @GET
     public List<User> getUsers(){
-        return userRepository.findAll();
+        //Infinite recursion probleminden dolayı domain group alanını boşalttım.
+        return userRepository.findAll().stream().peek(u -> u.setDomainGroup(null)).collect(Collectors.toList());
     }
 
+    //@RequiresRoles("admin")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser( @Body UserPayload uvm ){
