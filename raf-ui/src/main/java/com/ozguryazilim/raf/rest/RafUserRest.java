@@ -55,7 +55,6 @@ public class RafUserRest {
         return userRepository.findAll().stream().peek(u -> u.setDomainGroup(null)).collect(Collectors.toList());
     }
 
-    //@RequiresRoles("admin")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser( @Body UserPayload uvm ){
