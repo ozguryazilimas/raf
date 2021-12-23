@@ -15,7 +15,9 @@
     <h:head>
         <title>#{telveConfigResolver.getProperty('app.title')} - #{ messages[pageTitle] }</title>
         <meta name="viewport" content="width=device-width"/>
-        <ui:include src="#{themeManager.templateHeader}"/>
+        <ui:include src="#{themeManager.templateHeader}" />
+        <ui:insert name="extraHead" />
+        <ui:include src="/branding/applicationExtentions.xhtml" />
         <style>
             .icon-bar {
                 z-index: 110000;
