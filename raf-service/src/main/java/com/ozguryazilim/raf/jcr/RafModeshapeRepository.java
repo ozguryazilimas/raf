@@ -93,6 +93,9 @@ public class RafModeshapeRepository implements Serializable {
     private static final String NODE_FOLDER = "nt:folder";
     private static final String NODE_FILE = "nt:file";
     private static final String NODE_CONTENT = "jcr:content";
+    private static final String NODE_PREVIEW = "raf:preview";
+    private static final String NODE_THUMBNAIL = "raf:thumbnail";
+
 
     private static final String NODE_SEARCH = "nt:base";
 
@@ -1253,8 +1256,12 @@ public class RafModeshapeRepository implements Serializable {
             result = nodeToRafDocument(node);
             return result;
 
-        } catch (RepositoryException | IOException | InterruptedException ex) {
-            throw new RafException("[RAF-00014] Raf Node cannot checkin", ex);
+        } catch (RepositoryException | IOException ex) {
+            throw new RafException("[RAF-00014] Raf Node cannot checkin.", ex);
+        } catch (InterruptedException ex) {
+            LOG.error("Interrupted Exception", ex);
+            Thread.currentThread().interrupt();
+            throw new RafException("[RAF-00014] Raf Node cannot checkin.", ex);
         }
     }
 
@@ -1406,6 +1413,7 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-00018] File cannot uploaded", ex);
         } catch (InterruptedException ex) {
             LOG.error("Interrupted Exception", ex);
+            Thread.currentThread().interrupt();
             throw new RafException("[RAF-00019] File cannot uploaded", ex);
         }
         return result;
@@ -1735,11 +1743,11 @@ public class RafModeshapeRepository implements Serializable {
 
             LOG.debug("Document Preview Content Requested: {}", node.getPath());
 
-            if (!node.hasNode("raf:preview")) {
+            if (!node.hasNode(NODE_PREVIEW)) {
                 throw new RafException("[RAF-0035] Raf Node preview cannot found");
             }
 
-            Node content = node.getNode("raf:preview");
+            Node content = node.getNode(NODE_PREVIEW);
 
             //FIXME: Burada böyle bi rtakla gerçekten lazım mı? Bütün veriyi memory'e okumak dert olcaktır...
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1764,8 +1772,8 @@ public class RafModeshapeRepository implements Serializable {
 
             LOG.debug("PDF Document Thumbnail Content Requested: {}", node.getPath());
             // thumbnail jcr'de yok preview'dan bakıp oluşturalım.
-            if (!node.hasNode("raf:thumbnail") && node.hasNode("raf:preview")) {
-                Node content = node.getNode("raf:preview");
+            if (!node.hasNode(NODE_THUMBNAIL) && node.hasNode(NODE_PREVIEW)) {
+                Node content = node.getNode(NODE_PREVIEW);
                 if (content.getProperty("jcr:mimeType").getString().equals("image/png")) {
                     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                         InputStream is = content.getProperty("jcr:data").getBinary().getStream();
@@ -1787,9 +1795,9 @@ public class RafModeshapeRepository implements Serializable {
                     document.close();
                     return new ByteArrayInputStream(bos.toByteArray());
                 }
-            } else if (node.hasNode("raf:thumbnail")) {
+            } else if (node.hasNode(NODE_THUMBNAIL)) {
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    Node content = node.getNode("raf:thumbnail");
+                    Node content = node.getNode(NODE_THUMBNAIL);
                     IOUtils.copy(content.getProperty("jcr:data").getBinary().getStream(), bos);
                     session.logout();
                     return new ByteArrayInputStream(bos.toByteArray());
@@ -1905,16 +1913,18 @@ public class RafModeshapeRepository implements Serializable {
                         switch (sequencerConfig.getName()) {
                             case "ImagePreviewSequencer": {
                                 FilePreviewHelper.generateImagePreview(nodeContent.getProperty(PROP_DATA), node);
-                                session.save();
                                 break;
                             }
                             case "PdfPreviewSequencer":
                             case "OfficePreviewSequencer": {
                                 FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node);
-                                session.save();
                                 break;
                             }
+                            default:{
+                                LOG.warn("There is no preview generator for the {}.",expPath);
+                            }
                         }
+                        session.save();
                     }
                 }
             }
@@ -2488,9 +2498,9 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         //raf:preview var ise onun bilgilerini alalım.
-        if (node.hasNode("raf:preview")) {
+        if (node.hasNode(NODE_PREVIEW)) {
             result.setHasPreview(Boolean.TRUE);
-            Node preview = node.getNode("raf:preview");
+            Node preview = node.getNode(NODE_PREVIEW);
             result.setPreviewMimeType(getPropertyAsString(preview, PROP_MIMETYPE));
         }
 
@@ -3136,7 +3146,7 @@ public class RafModeshapeRepository implements Serializable {
                 for (SequencerConfig sequencerConfig : SequencerRegistery.getSequencers()) {
                     // Yüklenen dosya sequencer expression ile uymuyorsa direk atlayabiliriz.
                     if (SequencerPathExpression.compile(sequencerConfig.getExpression()).matcher(expPath).matches()
-                            && !n.hasNode("raf:preview")) {
+                            && !n.hasNode(NODE_PREVIEW)) {
                         throw new PathNotFoundException("Preview node has not been created yet.");
                     }
                 }
@@ -3149,8 +3159,7 @@ public class RafModeshapeRepository implements Serializable {
             }
             Thread.sleep(10L);
         } while ((System.currentTimeMillis() - start) <= maxWaitInMillis);
-        LOG.warn("Failed to find preview '" + n.getPath() + "' even after waiting " + 10 + " " + TimeUnit.SECONDS);
-        return n;
+        LOG.warn("Failed to find preview {} even after waiting {} {}", n.getPath(), 10, TimeUnit.SECONDS);return n;
     }
 
 }
