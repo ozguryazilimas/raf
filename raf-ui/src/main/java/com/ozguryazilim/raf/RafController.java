@@ -896,4 +896,11 @@ public class RafController implements Serializable {
     public Long getTotalFileCount() throws RafException {
         return rafService.getChildCount(context.getCollection().getPath());
     }
+
+    public ContentViewPanel selectDocumentByIdAndReturnContent(String id) throws RafException {
+        context.setSelectedObject(rafService.getRafObject(id));
+        selectedContentPanel = getObjectContentPanel();
+        return selectedContentPanel;
+    }
+
 }

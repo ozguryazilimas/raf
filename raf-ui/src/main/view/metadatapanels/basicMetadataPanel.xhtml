@@ -10,14 +10,16 @@
         <!-- Basic Metadata panel -->
         FIXME: i18n
     </ui:remove>
-    
+
     <t:accordion id="bmd" label="#{basicMetadataPanel.title}" columnClass="col-xs-12">
-        <f:facet name="toolbar" rendered="#{basicMetadataPanel.canEdit()}">
-            <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" styleClass="btn btn-box-tool">
-                <i class="fa fa-edit" />
-                <p:ajax event="dialogReturn" update="bmd" />
-             </p:commandLink>
-        </f:facet>
+        <c:if test="#{showEditIcon ne 'false' }">
+            <f:facet name="toolbar" rendered="#{basicMetadataPanel.canEdit()}">
+                <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" styleClass="btn btn-box-tool">
+                    <i class="fa fa-edit" />
+                    <p:ajax event="dialogReturn" update="bmd" />
+                </p:commandLink>
+            </f:facet>
+        </c:if>
         <t:outputText label="general.label.Title" value="#{basicMetadataPanel.object.title}" columnClass="col-xs-12"/>
         <t:outputText label="general.label.Info" value="#{basicMetadataPanel.object.info}" columnClass="col-xs-12"/>
         <t:outputTag label="general.label.Tags" value="#{basicMetadataPanel.object.tags}" columnClass="col-xs-12"/>

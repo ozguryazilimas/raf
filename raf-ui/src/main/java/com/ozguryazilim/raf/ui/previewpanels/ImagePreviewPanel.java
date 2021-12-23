@@ -6,15 +6,11 @@ import com.ozguryazilim.raf.ui.base.PreviewPanel;
 
 /**
  * Image tipinde içerikler için preview widget controller.
- * 
+ * <p>
  * mimeType'ı image/* olan tipler için kullanılır. Tarayıcıların sunum yeteneği ile çalışır.
- * 
- * FIXME: Kalite v.s. konusunda aslında bişiler yapılmalı. Belgenin tamamını clienta sırf preview için göndermek anlamlı değil.
- * 
+ *
  * @author Hakan Uygun
  */
 @PreviewPanel(view = PreviewPanelPages.ImagePreviewPanel.class, mimeType = "image/")
-public class ImagePreviewPanel extends AbstractPreviewPanel{
-
-    
+public class ImagePreviewPanel extends AbstractPreviewPanel {
 }

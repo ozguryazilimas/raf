@@ -17,6 +17,16 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,15 +34,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.enterprise.event.Observes;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * RafDocument view controlü için taban sınıf.
@@ -73,6 +74,8 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     private Boolean versionManagementEnabled;
 
+    private Boolean readerEnabled;
+
     private RafDefinition getRafFromObject() {
         if (getObject() != null && !Strings.isNullOrEmpty(getObject().getPath()) && getObject().getPath().contains("/")) {
             try {
@@ -106,6 +109,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     @PostConstruct
     public void init() {
         versionManagementEnabled = "true".equals(ConfigResolver.getPropertyValue("raf.version.enabled", "false"));
+        readerEnabled = "true".equals(ConfigResolver.getPropertyValue("raf.reader.enabled", "true"));
     }
 
     @Override
@@ -137,6 +141,23 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             return PreviewPanelRegistery.getMimeTypePanel("default").getViewId();
         }
 
+    }
+
+    /**
+     * UI'da "incele" butonu gözüksün mü? belgenin mimetype'ına kayıtlı bir reader varsa gözükecektir.
+     *
+     * @return
+     */
+    public boolean isHaveReaderPage() {
+        if (!readerEnabled || getObject() == null || getObject().getMimeType() == null) return false;
+        return RafReaderRegistery.isAnyReaderPageForGivenMimeType(getObject().getMimeType());
+    }
+
+    /**
+     * Mimetype'a uygun reader sayfasını dönüyoruz.
+     */
+    public String getReaderPage() {
+        return RafReaderRegistery.getMimeTypePanel(getObject().getMimeType()).getViewId();
     }
 
     public boolean getRafCheckStatus() {
