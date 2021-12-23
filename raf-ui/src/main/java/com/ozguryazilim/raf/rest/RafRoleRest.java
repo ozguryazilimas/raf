@@ -39,9 +39,11 @@ public class RafRoleRest {
      */
     @GET
     public List<Role> getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
         //Infinite recursion probleminden dolayı permissions alanını boşalttım.
-        return roles.stream().peek(r -> r.setPermissions(null)).collect(Collectors.toList());
+        return roleRepository.findAll()
+                .stream()
+                .map(r -> {r.setPermissions(null); return r;})
+                .collect(Collectors.toList());
     }
 
     /**

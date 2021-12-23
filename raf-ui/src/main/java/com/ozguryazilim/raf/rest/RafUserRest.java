@@ -50,9 +50,12 @@ public class RafUserRest {
     private Event<IdmEvent> idmEvent;
 
     @GET
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         //Infinite recursion probleminden dolayı domain group alanını boşalttım.
-        return userRepository.findAll().stream().peek(u -> u.setDomainGroup(null)).collect(Collectors.toList());
+        return userRepository.findAll()
+                .stream()
+                .map(u -> {u.setDomainGroup(null); return u;})
+                .collect(Collectors.toList());
     }
 
     @POST
