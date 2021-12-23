@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.faces.event.ActionEvent;
 
 /**
  * Temel Raf arayüzü controller sınıfı.
@@ -907,7 +906,6 @@ public class RafController implements Serializable {
         return selectedContentPanel;
     }
 
-}
     public int getScrollTop() {
         return scrollTop;
     }
