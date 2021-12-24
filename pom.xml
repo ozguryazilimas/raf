@@ -24,7 +24,7 @@
         
         <buildNumber>SNAPSHOT</buildNumber>
         <minorNumber>1</minorNumber>
-        <revision>1.1.${minorNumber}</revision>
+        <revision>1.2.${minorNumber}</revision>
         <changelist>-${buildNumber}</changelist>
 
         <version.raf>${revision}${changelist}</version.raf>
