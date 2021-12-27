@@ -99,7 +99,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                     List<String> actionList = Arrays.asList(actions);
                     String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
                     if (getIdentity() != null) {
-                        if ("SYSTEM".equals(getIdentity().getLoginName())) {
+                        if ("SYSTEM".equals(getIdentity().getLoginName()) || "SUPERADMIN".equals(getIdentity().getUserInfo().getUserType())) {
                             //SYSTEM kullanıcısı zamanlanmış görevlerin çalıştırıldığı kullanıcıdır..
                             permission = true;
                         } else {
