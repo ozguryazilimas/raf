@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,8 @@ import java.io.*;
  *
  * @author Taha GÜR
  */
+
+@RequiresPermissions("admin")
 @Path("/download")
 public class RafDownloadRest implements Serializable {
 

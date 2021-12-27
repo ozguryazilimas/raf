@@ -10,6 +10,7 @@ import com.ozguryazilim.raf.models.RafObject;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ import java.net.URLDecoder;
  *
  * @author oyas
  */
+@RequiresPermissions("admin")
 @Path("/upload")
 public class RafUploadRest implements Serializable{
     
