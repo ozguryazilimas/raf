@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.primefaces.event.SelectEvent;
@@ -56,6 +56,12 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     @Inject
     DetailedSearchController detailedSearchController;
 
+    @Inject
+    private ViewNavigationHandler viewNavigationHandler;
+
+    @Inject
+    private NavigationParameterContext navigationParameterContext;
+
     private String saveSearchName;
     private Long savedSearch;
 
@@ -82,12 +88,8 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         if (searchText != null) {
             detailedSearchController.getSearchModel().setSearchText(searchText);
         }
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        try {
-            response.sendRedirect("/dolap/search/searchPage.jsf");
-        } catch (IOException ex) {
-            LOG.error("IOException", ex);
-        }
+        navigationParameterContext.addPageParameter("folderSearch", true);
+        viewNavigationHandler.navigateTo(SearchPages.SearchPage.class);
     }
 
     public void selectFolder(SelectEvent event) {
@@ -181,9 +183,9 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInDocumentName()) {
                     if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                        whereExpressions.add(String.format(" (nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" UPPER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  UPPER(nodes.[jcr:title]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(searchLocale))));
+                        whereExpressions.add(String.format(" (LOWER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  LOWER(nodes.[jcr:title]) LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
                     }
 
                 } else {

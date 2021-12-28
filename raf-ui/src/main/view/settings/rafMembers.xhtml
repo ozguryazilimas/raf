@@ -144,8 +144,9 @@
                                 <div class="input-group">
                                     <p:inputText id="filter" value="#{rafMemberController.filter}" 
                                                  placeholder="#{messages['general.info.SearchText']}" />
+                                    <p:defaultCommand target="memberSearch" />
                                     <div class="input-group-btn">
-                                        <p:commandButton action="#{rafMemberController.search()}" process="@form" icon="fa fa-search" styleClass="ui-icon-only btn btn-default" update="members" />
+                                        <p:commandButton id="memberSearch" action="#{rafMemberController.search()}" process="@form" icon="fa fa-search" styleClass="ui-icon-only btn btn-default" update="members" />
                                     </div>
                                 </div>
                             </span>
