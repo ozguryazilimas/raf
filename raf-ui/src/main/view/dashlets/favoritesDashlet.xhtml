@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/dashletBase.xhtml">
+
+
+    <ui:param name="name" value="favoritesDashlet"/>
+    <ui:param name="bean" value="#{favoritesDashlet}"/>
+
+    <ui:define name="view">
+        <style type="text/css">
+            .favorite-dashlet-box {
+                padding: 20px;
+                border-radius: 3px;
+                background-color: #fff;
+            }
+
+            .favorite-dashlet-item {
+                padding: 20px;
+                border: 1px solid #e3eaef;
+                border-radius: 5px;
+                position: relative;
+                margin-bottom: 20px
+            }
+
+            .favorite-dashlet-item .remove-favorite {
+                color: #f1556c;
+                position: absolute;
+                line-height: 24px;
+                font-size: 24px;
+                right: 10px;
+                top: 10px;
+                visibility: hidden
+            }
+
+            .favorite-dashlet-item .file-img-box {
+                line-height: 120px;
+                text-align: center
+            }
+
+            .favorite-dashlet-item .file-img-box svg, img {
+                max-width: 100%;
+                height: 64px
+            }
+
+            .favorite-dashlet-item .title {
+                padding-right: 25px
+            }
+
+            .favorite-dashlet-item:hover {
+                -webkit-box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02);
+                box-shadow: 0 0 24px 0 rgba(0, 0, 0, .06), 0 1px 0 0 rgba(0, 0, 0, .02)
+            }
+
+            .favorite-dashlet-item:hover .remove-favorite {
+                visibility: visible
+            }
+
+            .text-overflow {
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+                width: 100%;
+                overflow: hidden;
+            }
+
+            .favorite-dashlet-box .ui-paginator {
+                position: absolute;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                bottom: 10px;
+            }
+
+        </style>
+        <div class="favorite-dashlet-box">
+            <div class="ui-g">
+                <ui:fragment rendered="#{favoritesDashlet.totalCount == 0}">
+                    <p><i class="fa fa-2x fa-heart" style="display: inline;"/>
+                        #{messages['dashlet.favoritesDashlet.emptyText']}
+                    </p>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{favoritesDashlet.totalCount > 0}">
+                    <p:dataList disabled="true" value="#{favoritesDashlet.lazyFavorites}" var="fav" lazy="true"
+                                type="unordered"
+                                itemType="none"
+                                style="width: 100%"
+                                paginator="true" rows="#{favoritesDashlet.size}" rowsPerPageTemplate="4,8,12,16"
+                                pageLinks="5" paginatorPosition="bottom"
+                                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+                        <p:panel styleClass="ui-g-12 ui-md-4 ui-lg-3 ui-xl-3" style="box-shadow: none;">
+                            <div class="favorite-dashlet-item">
+                                <h:form>
+                                    <p:commandLink action="#{favoritesDashlet.removeFromFavorites(fav)}"
+                                                   process="@this" update=":#{dashlet}" ajax="true"
+                                                   styleClass="remove-favorite"
+                                                   title="#{messages['dashlet.favoritesDashlet.removeTitle']}">
+                                        <i class="fa fa-heart"/>
+                                    </p:commandLink>
+                                </h:form>
+                                <div class="file-img-box">
+                                    <ui:fragment rendered="#{not favoritesDashlet.hasPreview(fav.object)}">
+                                        <svg class="icon">
+                                            <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(fav.object.mimeType)}"/>
+                                        </svg>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{favoritesDashlet.hasPreview(fav.object)}">
+                                        <img src="#{request.contextPath}/resource/#{fav.object.id}#{fav.object.hasPreview ? '/thumbnail' : ''}?v=#{fav.object.version}"/>
+                                    </ui:fragment>
+                                </div>
+                                <div class="title">
+                                    <h:link outcome="/raf.xhtml" title="#{messages[fav.object.title]}"
+                                            styleClass="text-overflow">
+                                        #{messages[fav.object.title]}
+                                        <i class="fa fa-external-link"/>
+                                        <f:param name="id" value="#{''}"/>
+                                        <f:param name="o" value="#{fav.object.id}"/>
+                                    </h:link>
+                                </div>
+                            </div>
+                        </p:panel>
+
+                    </p:dataList>
+                </ui:fragment>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

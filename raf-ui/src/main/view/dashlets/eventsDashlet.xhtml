@@ -29,6 +29,7 @@
                                     <h:outputText value="#{formatedMessage.getMessageFromData(event.message)}" escape="false" />
                                     <h:link outcome="/raf.xhtml">
                                         <i class="fa fa-external-link"/>
+                                        <f:param name="id" value="#{''}" />
                                         <f:param name="o" value="#{event.refId}" />
                                     </h:link>
                                 </span>
