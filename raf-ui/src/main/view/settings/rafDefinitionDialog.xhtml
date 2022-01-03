@@ -21,10 +21,10 @@
                 </div>
             </div>
             <div class="row">
-                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" required="true" regexValidator="true" regex="/[a-zA-Z0-9_ ]+/">
+                <t:inputText label="general.label.Name" value="#{rafDefinitionDialogController.rafDefinition.name}" required="true" regexValidator="true" regex="/[a-zA-Z0-9ğüşöçİĞÜŞÖÇ_ ]+/">
                     <p:ajax event="blur" listener="#{rafDefinitionDialogController.onNameChange()}" process="@this" update=":rafdef:code" />
                 </t:inputText>
-                <t:inputText id="code" label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="#{messages['raf.placeholder.rafCode']}" required="true" regexValidator="true" regex="/[a-zA-Z0-9_ ]+/"/>
+                <t:inputText id="code" label="general.label.Code" value="#{rafDefinitionDialogController.rafDefinition.code}" placeholder="#{messages['raf.placeholder.rafCode']}" required="true" regexValidator="true" regex="/[a-zA-Z0-9_]+/"/>
                 <t:inputTextarea label="general.label.Info" value="#{rafDefinitionDialogController.rafDefinition.info}" />
 
             </div>
