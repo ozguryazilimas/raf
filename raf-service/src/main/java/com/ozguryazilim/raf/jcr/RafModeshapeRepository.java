@@ -1920,9 +1920,6 @@ public class RafModeshapeRepository implements Serializable {
                                 FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node);
                                 break;
                             }
-                            default:{
-                                LOG.warn("There is no preview generator for the {}.",expPath);
-                            }
                         }
                         session.save();
                     }
