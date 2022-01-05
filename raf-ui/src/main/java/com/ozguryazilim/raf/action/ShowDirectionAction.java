@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.action;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -41,15 +42,19 @@ public class ShowDirectionAction extends AbstractAction {
         RafObject rafObject = rafContext.getSelectedObject();
         List<String> parents = new ArrayList<>();
         boolean flag = true;
+        int index = 0;
         try {
 
             do {
-                rafObject = rafService.getRafObject(rafObject.getParentId());
+                if(!(rafObject instanceof RafFolder) || index > 0){
+                    rafObject = rafService.getRafObject(rafObject.getParentId());
+                }
                 if (!rafObject.getPath().equals("/RAF")) {
                     parents.add(rafObject.getId());
                 }else {
                     flag = false;
                 }
+                index++;
             } while (flag);
         } catch (RafException e) {
             e.printStackTrace();
