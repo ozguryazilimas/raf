@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.search;
 
+import com.ozguryazilim.raf.CaseSensitiveSearchService;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -17,14 +18,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.primefaces.event.SelectEvent;
@@ -46,15 +45,14 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
     private Short order = 0;
 
-    private boolean caseSensitiveSearchOptionEnabled = "false".equals(ConfigResolver.getPropertyValue("caseSensitiveSearchOptionEnabled", "false"));
-
-    private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
-
     @Inject
     private SavedSearchService savedSearchService;
 
     @Inject
     DetailedSearchController detailedSearchController;
+
+    @Inject
+    CaseSensitiveSearchService caseSensitiveSearchService;
 
     private String saveSearchName;
     private Long savedSearch;
@@ -164,6 +162,27 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         detailedSearchController.setExtendedColumnMap(new HashMap());
     }
 
+    private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel) {
+        String caseSensitiveSearchFilter = "(";
+        String fields = "[jcr:name]\n"
+                + "[jcr:title]\n"
+                + "[jcr:data]\n"
+                + "[jcr:content]\n"
+                + "[jcr:lastModified]\n"
+                + "[jcr:lastModifiedBy]\n"
+                + "[jcr:created]\n"
+                + "[jcr:createdBy]";
+        String[] fieldArray = fields.split("\n");
+        for (String field : fieldArray) {
+            caseSensitiveSearchFilter += String.format(" nodes." + field + "  LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim()));
+            if (!field.equals(fieldArray[fieldArray.length - 1])) {
+                caseSensitiveSearchFilter += " OR ";
+            }
+        }
+        caseSensitiveSearchFilter += ")";
+        return caseSensitiveSearchFilter;
+    }
+
     @Override
     public List getSearchQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
         if ("JCR-SQL2".equals(queryLanguage)) {
@@ -181,22 +200,23 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInDocumentName()) {
                     if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                        whereExpressions.add(String.format(" (nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" UPPER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  UPPER(nodes.[jcr:title]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(searchLocale))));
+                        whereExpressions.add(String.format(" (UPPER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  UPPER(nodes.[jcr:title]) LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(caseSensitiveSearchService.getSearchLocale()))));
                     }
-
                 } else {
                     if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
+                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel));
                     } else {
-                        //TODO: LOWER(nodes.*) hata veriyor. Burada case sensitive dogru calismiyor
-                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(searchLocale))));
+                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     }
                 }
-
                 if (searchModel.getSearchInDocumentTags()) {
-                    whereExpressions.add("  nodes.[" + PROP_TAG + "] LIKE '%" + searchModel.getSearchText().trim() + "%' ");
+                    if (searchModel.getCaseSensitive()) {
+                        whereExpressions.add(String.format(" nodes.[raf:tags] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    } else {
+                        whereExpressions.add(String.format(" UPPER(nodes.[raf:tags]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(caseSensitiveSearchService.getSearchLocale()))));
+                    }
                 }
             }
 
@@ -349,11 +369,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     }
 
     public boolean isCaseSensitiveSearchOptionEnabled() {
-        return caseSensitiveSearchOptionEnabled;
-    }
-
-    public void setCaseSensitiveSearchOptionEnabled(boolean caseSensitiveSearchOptionEnabled) {
-        this.caseSensitiveSearchOptionEnabled = caseSensitiveSearchOptionEnabled;
+        return caseSensitiveSearchService.isCaseSensitiveSearchOptionEnabled();
     }
 
 }
