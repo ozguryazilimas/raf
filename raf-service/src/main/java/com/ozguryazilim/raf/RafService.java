@@ -365,14 +365,14 @@ public class RafService implements Serializable {
      * @throws RafException
      */
     public void saveProperties(RafObject data) throws RafException {
-        //FIXME: Yetki kontrolü + event
+        //FIXME: Yetki kontrolü
+        sendEventLog("DeleteObject", data);
         sendAuditLog(data.getId(), "SAVE_PROPERTIES", data.getPath());
         rafRepository.saveProperties(data);
     }
 
     public void deleteObject(RafObject data) throws RafException {
         //FIXME: Yetki kontrolü
-        sendAuditLog(data.getId(), "DELETE_OBJECT", data.getPath());
         deleteObject(data.getId());
     }
 
@@ -381,7 +381,7 @@ public class RafService implements Serializable {
             //FIXME: Yetki kontrolü
             RafObject obj = rafRepository.getRafObject(id);
             sendEventLog("DeleteObject", obj);
-            sendAuditLog(id, "DELETE_OBJECT", "");
+            sendAuditLog(id, "DELETE_OBJECT", obj.getPath());
         } catch (RafException ex){
             LOG.warn("[RAF-0044] Failed to create raf object. For this reason, event and audit logs will not be produced. item id: {}",id);
         }
@@ -470,7 +470,6 @@ public class RafService implements Serializable {
         if (identity == null || "SYSTEM".equals(identity.getLoginName())) {
             return;
         }
-        //FIXME: ıdentity
         EventLogCommand command = EventLogCommandBuilder.forRaf("RAF")
                 .eventType(eventType)
                 .forRafObject(object)

@@ -4,11 +4,14 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.telve.audit.AuditLogCommand;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.ldapSync.IdmLdapSyncEvent;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +30,12 @@ import java.util.stream.Collectors;
 /**
  * Raf üyeliklerini yönetmek için servis sınıfı.
  *
- * FIXME: auditLog eklenecek.
- *
- * FIXME: grup değişikliklerinde grup map'i boşaltılmalı
- *
  * @author Hakan Uygun
  */
 @ApplicationScoped
 public class RafMemberService implements Serializable {
+
+    public static final String RAF_ROLE_MANAGER = "MANAGER";
 
     private static final Logger LOG = LoggerFactory.getLogger(RafMemberService.class);
 
@@ -50,9 +51,19 @@ public class RafMemberService implements Serializable {
     @Inject
     private UserGroupRepository userGrouprepository;
 
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private CommandSender commandSender;
+
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
-        //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
-        return getMembersImpl(raf);
+        String role = getMemberRole(identity.getLoginName(), raf);
+        if (role.equals(RAF_ROLE_MANAGER)) {
+            return getMembersImpl(raf);
+        }
+        sendAuditLog(raf.getNodeId(), "UNAUTHORIZED_QUERY", String.format("Raf Name: %s, Member: %s", raf.getCode(), identity.getLoginName()));
+        throw new RafException("[RAF-0042] Permission Denied");
     }
 
     public void addMember(RafDefinition raf, String member, RafMemberType type, String role) throws RafException {
@@ -77,12 +88,7 @@ public class RafMemberService implements Serializable {
             //Cache'e de koyalım
             getMembersImpl(member.getRaf()).add(member);
         }
-    }
-
-    @Transactional
-    public void removeMember(RafDefinition raf, String username, RafMemberType memberType) throws RafException {
-        //FIXME: bu methoda ihtiyaç var mı?
-        //memberRepository.remove(entity);
+        sendAuditLog(member.getRaf().getNodeId(),"ADD_MEMBER",String.format("Raf Name: %s, Member: %s, Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
     }
 
     @Transactional
@@ -90,14 +96,13 @@ public class RafMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getRaf()).remove(member);
+        sendAuditLog(member.getRaf().getNodeId(),"REMOVE_MEMBER",String.format("Raf Name: %s, Member: %s, Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
     }
 
-    public void changeMemberRole(String rafCode, String username, String role) throws RafException {
-
-    }
-
-    public void changeMemberRole(RafDefinition raf, String username, String role) throws RafException {
-
+    @Transactional
+    public void changeMemberRole(RafMember member) throws RafException {
+        memberRepository.saveAndFlush(member);
+        sendAuditLog(member.getRaf().getNodeId(),"CHANGE_ROLE",String.format("Raf Name: %s, Member: %s, New Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
     }
 
     /**
@@ -289,6 +294,14 @@ public class RafMemberService implements Serializable {
     public void onIdmLdapSyncEvent(@Observes IdmLdapSyncEvent event) {
         if (event.getSyncType().equals(IdmLdapSyncEvent.GROUP)) {
             this.groupUsers.clear();
+        }
+    }
+
+    private void sendAuditLog(String id, String action, String message) {
+        if (identity != null && !"SYSTEM".equals(identity.getLoginName())) {
+            //create audit log
+            AuditLogCommand auditCommand = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), message);
+            commandSender.sendCommand(auditCommand);
         }
     }
 
