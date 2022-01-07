@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
@@ -52,10 +53,10 @@ public class RafMemberService implements Serializable {
     private UserGroupRepository userGrouprepository;
 
     @Inject
-    private Identity identity;
+    private CommandSender commandSender;
 
     @Inject
-    private CommandSender commandSender;
+    private Identity identity;
 
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
         String role = getMemberRole(identity.getLoginName(), raf);
@@ -87,8 +88,13 @@ public class RafMemberService implements Serializable {
             memberRepository.saveAndFlush(member);
             //Cache'e de koyalım
             getMembersImpl(member.getRaf()).add(member);
+
+            commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
+                    .eventType("RafMemberServiceAddMember")
+                    .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .user(identity.getLoginName())
+                    .build());
         }
-        sendAuditLog(member.getRaf().getNodeId(),"ADD_MEMBER",String.format("Raf Name: %s, Member: %s, Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
     }
 
     @Transactional
@@ -96,13 +102,17 @@ public class RafMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getRaf()).remove(member);
-        sendAuditLog(member.getRaf().getNodeId(),"REMOVE_MEMBER",String.format("Raf Name: %s, Member: %s, Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+        commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
+                .eventType("RafMemberServiceRemoveMember")
+                .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                .user(identity.getLoginName())
+                .build());
     }
 
     @Transactional
     public void changeMemberRole(RafMember member) throws RafException {
         memberRepository.saveAndFlush(member);
-        sendAuditLog(member.getRaf().getNodeId(),"CHANGE_ROLE",String.format("Raf Name: %s, Member: %s, New Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+        sendAuditLog(member.getRaf().getNodeId(), "CHANGE_ROLE", String.format("Raf Name: %s, Member: %s, New Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
     }
 
     /**
@@ -152,27 +162,37 @@ public class RafMemberService implements Serializable {
     }
 
     public boolean hasManagerRole(String username, RafDefinition raf) throws RafException {
-        if(username == null || raf == null) return false;
+        if (username == null || raf == null) {
+            return false;
+        }
         return hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasReadRole(String username, RafDefinition raf) throws RafException {
-        if(username == null || raf == null) return false;
+        if (username == null || raf == null) {
+            return false;
+        }
         return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasWriteRole(String username, RafDefinition raf) throws RafException {
-        if(username == null || raf == null) return false;
+        if (username == null || raf == null) {
+            return false;
+        }
         return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
-        if(username == null || raf == null) return false;
+        if (username == null || raf == null) {
+            return false;
+        }
         return hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     private boolean hasMemberRole(String username, String role, RafDefinition raf) throws RafException {
-        if(username == null || raf == null) return false;
+        if (username == null || raf == null) {
+            return false;
+        }
         //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
         if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
             return !"MANAGER".equals(role);
