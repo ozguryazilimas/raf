@@ -13,7 +13,6 @@
     <ui:define name="view">
         <style type="text/css">
             .favorite-dashlet-box {
-                padding: 20px;
                 border-radius: 3px;
                 background-color: #fff;
             }
@@ -67,12 +66,23 @@
                 overflow: hidden;
             }
 
+            /* Large devices (laptops/desktops, 992px and up) */
+            @media only screen and (min-width: 992px) {
+                .favorite-dashlet-box {
+                    padding: 20px;
+                }
+            }
+
             .favorite-dashlet-box .ui-paginator {
                 position: absolute;
-                width: 100%;
+                width: 95%;
                 display: flex;
                 justify-content: center;
                 bottom: 10px;
+            }
+
+            .favorite-dashlet-box .ui-g .ui-datalist .ui-datalist-content .ui-datalist-data {
+                padding-inline-start: 0px;
             }
 
         </style>
@@ -88,7 +98,7 @@
                     <p:dataList disabled="true" value="#{favoritesDashlet.lazyFavorites}" var="fav" lazy="true"
                                 type="unordered"
                                 itemType="none"
-                                style="width: 100%"
+                                style="width: 100%;"
                                 paginator="true" rows="#{favoritesDashlet.size}" rowsPerPageTemplate="4,8,12,16"
                                 pageLinks="5" paginatorPosition="bottom"
                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
