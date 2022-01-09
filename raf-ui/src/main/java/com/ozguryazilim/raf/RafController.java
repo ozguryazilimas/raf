@@ -211,6 +211,11 @@ public class RafController implements Serializable {
     public void init() {
         setPage(0);
 
+        //Eğer url parametrelerinde object id verilmemişse en son değer sabit kalıyordu, temizlendi.
+        Map rpMap = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        if (!Strings.isNullOrEmpty(objectId) && !rpMap.containsKey("o")) {
+            objectId = "";
+        }
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
         if (Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId)) {
             try {
