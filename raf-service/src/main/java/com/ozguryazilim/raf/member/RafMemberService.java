@@ -4,8 +4,8 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
-import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
+import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.enterprise.event.Observes;
 
 /**
  * Raf üyeliklerini yönetmek için servis sınıfı.
@@ -94,7 +94,7 @@ public class RafMemberService implements Serializable {
                     .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
                     .user(identity.getLoginName())
                     .build());
-        }
+        }        
     }
 
     @Transactional
@@ -102,6 +102,7 @@ public class RafMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getRaf()).remove(member);
+
         commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                 .eventType("RafMemberServiceRemoveMember")
                 .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
