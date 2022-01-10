@@ -8,9 +8,12 @@
     <ui:param name="title" value="#{messages['fileUploadDialog.caption']}"/>
     <ui:define name="form">
         <h:form id="fileUpload">
+            <input type="hidden" id="already-added-text" value="#{messages['file.already.added']}"/>
             <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"
                              onstart="window.parent.PF('statusDialog').show()"
                              oncomplete="window.parent.PF('statusDialog').hide()"/>
+            <p:remoteCommand name="isAlreadyUploaded" action="#{fileUploadAction.isAlreadyUploaded}"
+                             oncomplete="getAlreadyUploadedResult(xhr, status, args);"/>
             <ui:fragment rendered="#{fileUploadAction.rafCode eq 'CHECKIN'}">
                 <div class="row">
                     <p:outputLabel value="#{messages['fileUploadDialog.label.versionComment']}"/>
@@ -22,6 +25,7 @@
                 <h:outputScript library="webjars" name="/telve-uppy/0.30.4/uppy-bundle.js"/>
                 <script>
                     var uppyLocale;
+                    var ALREADY_ADDED_FILE_LIST = [];
                     if ('#{localeSelector.language}' === 'tr') {
                         uppyLocale = Uppy.Locale.turkish;
                     }
@@ -46,6 +50,9 @@
                             maxFileSize: #{rafFileUploadDialog.maxFileSize != null ? rafFileUploadDialog.maxFileSize : 'null'},
                             maxNumberOfFiles: #{rafFileUploadDialog.maxNumberOfFiles != null ? rafFileUploadDialog.maxNumberOfFiles : 'null'},
                             allowedFileTypes: #{rafFileUploadDialog.allowedFileTypes != null ? rafFileUploadDialog.allowedFileTypes : 'null'}
+                        },
+                        onBeforeFileAdded: (currentFile, files) => {
+                            isAlreadyUploaded([{'name': 'filename', 'value': currentFile.name}]);
                         }
                     })
                         .use(Uppy.Dashboard, {
@@ -60,12 +67,40 @@
                             chunkSize: #{rafFileUploadDialog.chunkSize}
                         });
 
-                    uppy.on('upload-success', function (file, response) {
-                        sendFileUploadEvent([
-                            {'name': 'uri', 'value': response.uploadURL},
-                            {'name': 'versionComment', 'value': $('#fileUpload\\:versionComment').val()}
-                        ]);
+                    uppy.on('complete', (result) => {
+                        window.parent.PF('statusDialog').show();
+                        setTimeout(function () {
+                            var uriArr = [];
+                            result.successful.forEach((file) => {
+                                if (ALREADY_ADDED_FILE_LIST.includes(file.name)) {
+                                    uppy.removeFile(file.id);
+                                } else {
+                                    uriArr.push(file.uploadURL);
+                                }
+                            });
+
+                            if (ALREADY_ADDED_FILE_LIST.length > 0) {
+                                uppy.info(ALREADY_ADDED_FILE_LIST.join(",") + ' ' + $("#already-added-text").val(), 'error', 3000);
+                                ALREADY_ADDED_FILE_LIST = [];
+                            }
+
+                            if (uriArr.length > 0) {
+                                sendFileUploadEvent([
+                                    {'name': 'uriArr', 'value': uriArr},
+                                    {'name': 'versionComment', 'value': $('#fileUpload\\:versionComment').val()}
+                                ]);
+                            } else {
+                                window.parent.PF('statusDialog').hide();
+                            }
+
+                        }, 1500)
                     });
+
+                    function getAlreadyUploadedResult(xhr, status, args) {
+                        if (args.isAlreadyUploaded) {
+                            ALREADY_ADDED_FILE_LIST.push(args.value)
+                        }
+                    }
                 </script>
             </div>
             <h:panelGroup styleClass="row actionButtons" layout="block">

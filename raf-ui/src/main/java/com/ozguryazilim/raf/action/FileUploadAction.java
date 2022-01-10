@@ -22,10 +22,12 @@ import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.primefaces.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
@@ -197,6 +199,19 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             return rafObject != null;
         } catch (RafException ex) {
             return false;
+        }
+    }
+
+    public void isAlreadyUploaded() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String filename = params.get("filename");
+        String absPath = getUploadPath() + "/" + filename;
+        if (checkFileExists(absPath)) {
+            LOG.debug("{} already uploaded.", absPath);
+            RequestContext.getCurrentInstance().addCallbackParam("isAlreadyUploaded", true);
+            RequestContext.getCurrentInstance().addCallbackParam("value", filename);
+        } else {
+            RequestContext.getCurrentInstance().addCallbackParam("isAlreadyUploaded", false);
         }
     }
 
