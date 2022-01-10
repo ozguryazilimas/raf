@@ -25,8 +25,4 @@ public class CaseSensitiveSearchService implements Serializable {
     public Locale getSearchLocale() {
         return searchLocale;
     }
-
-    public boolean caseSensitiveStringEqual(String s, String s1) {
-        return caseSensitiveSearchOptionEnabled ? s.equals(s1) : s.toUpperCase(searchLocale).equals(s1.toUpperCase(searchLocale));
-    }
 }

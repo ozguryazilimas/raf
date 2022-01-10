@@ -164,15 +164,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
     private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel) {
         String caseSensitiveSearchFilter = "(";
-        String fields = "[jcr:name]\n"
-                + "[jcr:title]\n"
-                + "[jcr:data]\n"
-                + "[jcr:content]\n"
-                + "[jcr:lastModified]\n"
-                + "[jcr:lastModifiedBy]\n"
-                + "[jcr:created]\n"
-                + "[jcr:createdBy]";
-        String[] fieldArray = fields.split("\n");
+        String[] fieldArray = new String[]{"[jcr:name]", "[jcr:title]", "[jcr:data]", "[jcr:content]", "[jcr:lastModified]", "[jcr:lastModifiedBy]", "[jcr:created]", "[jcr:createdBy]"};
         for (String field : fieldArray) {
             caseSensitiveSearchFilter += String.format(" nodes." + field + "  LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim()));
             if (!field.equals(fieldArray[fieldArray.length - 1])) {
@@ -366,10 +358,6 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             }
         }
         return new ArrayList();
-    }
-
-    public boolean isCaseSensitiveSearchOptionEnabled() {
-        return caseSensitiveSearchService.isCaseSensitiveSearchOptionEnabled();
     }
 
 }
