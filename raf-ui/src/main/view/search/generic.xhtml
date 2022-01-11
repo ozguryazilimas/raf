@@ -44,7 +44,7 @@
             <p:outputLabel value="#{messages['general.label.Search']}"/>
             <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
 
-            <c:if test="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
+            <c:if test="#{caseSensitiveSearchService.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
                 <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
             </c:if>
