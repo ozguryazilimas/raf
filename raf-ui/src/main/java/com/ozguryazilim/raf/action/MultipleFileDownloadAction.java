@@ -61,7 +61,7 @@ public class MultipleFileDownloadAction extends AbstractAction {
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission = "true".equals(ConfigResolver.getProjectStageAwarePropertyValue("raf.multiplefiledownload", "false"));
+            boolean permission = "true".equals(ConfigResolver.getProjectStageAwarePropertyValue("raf.multiplefiledownload", "true"));
             return permission && super.applicable(forCollection);
         } catch (Exception ex) {
             LOG.error("Error", ex);
