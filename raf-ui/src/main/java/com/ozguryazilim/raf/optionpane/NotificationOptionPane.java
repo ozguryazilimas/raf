@@ -12,7 +12,7 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-@OptionPane(optionPage = SettingsPages.NotificationOptionPane.class)
+@OptionPane(permission = "PUBLIC", optionPage = SettingsPages.NotificationOptionPane.class)
 public class NotificationOptionPane extends AbstractOptionPane {
 
     private static final String EMAIL_NOTIFICATION_TYPE_KEY = "email.notification.type";

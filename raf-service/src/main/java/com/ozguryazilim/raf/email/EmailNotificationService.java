@@ -67,7 +67,7 @@ public class EmailNotificationService implements Serializable {
         List<UserInfo> consumers = findConsumersWhoAddedFavorites(object.getPath());
         String name = Strings.capitalize(identity.getUserInfo().getFirstName());
         String surname = Strings.capitalize(identity.getUserInfo().getLastName());
-        String link = appLinkDomain + "raf.jsf" + "?o=" + object.getId();
+        String link = appLinkDomain + "raf.jsf" + "?id=" + "&o=" + object.getId();
         String objectName = object.getName();
         String objectType = object.getClass().getSimpleName();
         LOG.debug("Sending email to Consumers:{} for the ObjectName:{} ActionType:{} ", consumers, objectName, actionType);
