@@ -28,5 +28,8 @@ public interface SettingsPages extends Pages{
     
     @SecuredPage("userRole") @View 
     class UserRafListSubView implements Admin {};
+
+    @SecuredPage @View
+    class NotificationOptionPane implements Admin {};
            
 }

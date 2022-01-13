@@ -49,6 +49,10 @@ public class UserFavoriteService implements Serializable {
         return repository.findByUsername(username);
     }
 
+    public List<UserFavorite> getFavoritesByPath(String path){
+        return repository.findByPath(path);
+    }
+
     public boolean isAddedFavorites(String username, String path) {
         return repository.findByUsernameAndPath(username, path).size() > 0;
     }

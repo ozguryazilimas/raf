@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/optionPaneBase.xhtml">
+
+    <ui:param name="bean" value="#{notificationOptionPane}"/>
+    <ui:define name="content">
+        <div class="row">
+
+            <t:inputAny label="#{messages['NotificationOptionPane.email.picker.label']}">
+                <p>#{messages['NotificationOptionPane.email.explanation']}</p>
+                <p:selectOneMenu value="#{bean.emailNotificationType}">
+                    <f:selectItems value="#{bean.emailNotificationType.values()}" var="val"
+                                   itemLabel="#{messages['NotificationOptionPane.email.picker.value.'.concat(val)]}"
+                                   itemValue="#{val}"/>
+                </p:selectOneMenu>
+            </t:inputAny>
+        </div>
+    </ui:define>
+
+</ui:composition>
