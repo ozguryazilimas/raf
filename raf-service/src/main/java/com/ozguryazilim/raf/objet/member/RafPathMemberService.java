@@ -4,10 +4,13 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +53,12 @@ public class RafPathMemberService implements Serializable {
     @Inject
     private UserService userService;
 
+    @Inject
+    private CommandSender commandSender;
+
+    @Inject
+    private Identity identity;
+
     public List<RafPathMember> getMembers(String path) throws RafException {
         //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
         return getMembersImpl(path);
@@ -76,6 +85,13 @@ public class RafPathMemberService implements Serializable {
             memberRepository.saveAndFlush(member);
             //Cache'e de koyalım
             getMembersImpl(member.getPath()).add(member);
+
+            commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                    .eventType("RafMemberServiceAddMember$")
+                    .path(member.getPath())
+                    .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .user(identity.getLoginName())
+                    .build());
         }
     }
 
@@ -90,6 +106,13 @@ public class RafPathMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getPath()).remove(member);
+        
+        commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                    .eventType("RafMemberServiceRemoveMember$")
+                    .path(member.getPath())
+                    .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .user(identity.getLoginName())
+                    .build());
     }
 
     public void changeMemberRole(String path, String username, String role) throws RafException {

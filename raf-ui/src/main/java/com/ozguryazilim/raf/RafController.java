@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
+import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -83,6 +84,9 @@ public class RafController implements Serializable {
 
     @Inject
     private RafPathMemberService rafObjectMemberService;
+
+    @Inject
+    private UserFavoriteService favoriteService;
 
     @Inject
     private RafContext context;
@@ -207,6 +211,11 @@ public class RafController implements Serializable {
     public void init() {
         setPage(0);
 
+        //Eğer url parametrelerinde object id verilmemişse en son değer sabit kalıyordu, temizlendi.
+        Map rpMap = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        if (!Strings.isNullOrEmpty(objectId) && !rpMap.containsKey("o")) {
+            objectId = "";
+        }
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
         if (Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId)) {
             try {
@@ -238,6 +247,11 @@ public class RafController implements Serializable {
 
         try {
             rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafCode);
+            if(rafDefinition == null){
+                FacesMessages.warn("raf.definition.not.found");
+                viewNavigationHandler.navigateTo(Pages.Home.class);
+                return;
+            }
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
             LOG.error("Error", ex);
