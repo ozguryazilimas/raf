@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.rest;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Role;
 import com.ozguryazilim.telve.idm.role.RoleRepository;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiresPermissions("admin")
 @Path("/api/roles")
 @Produces(MediaType.APPLICATION_JSON)
 public class RafRoleRest {
@@ -37,9 +39,11 @@ public class RafRoleRest {
      */
     @GET
     public List<Role> getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
         //Infinite recursion probleminden dolayı permissions alanını boşalttım.
-        return roles.stream().peek(r -> r.setPermissions(null)).collect(Collectors.toList());
+        return roleRepository.findAll()
+                .stream()
+                .map(r -> {r.setPermissions(null); return r;})
+                .collect(Collectors.toList());
     }
 
     /**

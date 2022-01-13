@@ -269,6 +269,7 @@ public class RafMemberController implements Serializable {
                 FacesMessages.error("Son Yönetici Üye Silinemez.", "Yeni bir yönetici üye ekledikten sonra tekrar deneyiniz.");
             } else {
                 memberService.removeMember(member);
+                filteredMembers = null;
             }
         } catch (RafException ex) {
             //FIXME: i18n
@@ -307,7 +308,7 @@ public class RafMemberController implements Serializable {
         if (selectedMember != null) {
 
             try {
-                memberService.changeMemberRole(selectedMember.getRaf(), selectedMember.getMemberName(), selectedMember.getRole());
+                memberService.changeMemberRole(selectedMember);
             } catch (RafException ex) {
                 LOG.error("Role Cannot Change", ex);
             }

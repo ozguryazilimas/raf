@@ -12,13 +12,14 @@
             <ui:param name="forCollection" value="true" />
         </ui:include>
     </ui:fragment>
-
     <script type="text/javascript">
         function containerScroll(event) {
             var s = event.target;
             if (s.scrollTop === 0) {
                 return;
             }
+            $("#collectionForm\\:scrollTop").val(s.scrollTop);
+            setScroll();
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
             if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; $("#totalFileCount").text() > $("#showingFileCount").val()) {
                 nextPage();
@@ -35,10 +36,12 @@
         $(document).ready(function () {
             $(".raf-box-content").on('scroll', containerScroll);
             $(".raf-container").on('scroll', containerScroll);
+            $(".raf-box-content").scrollTop($("#collectionForm\\:scrollTop").val());
+            $(".raf-container").scrollTop($("#collectionForm\\:scrollTop").val());
         });
     </script>
 
-    <h:form>        
+    <h:form id="collectionForm">
         <div id="raf-container" class="raf-container" style="overflow-y: auto; overflow-x: auto;">
             <table class="table table-striped"  >
                 <tbody style="font-size: 12px;">
@@ -173,6 +176,8 @@
         </div>
 
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete="scrollToBottom()" />
+        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}" />
+        <h:inputHidden id="scrollTop" value="#{rafController.scrollTop}" />
     </h:form>        
 </ui:composition>
 

@@ -34,5 +34,13 @@ public enum ActionCapability {
     /**
      * Clipboard içinde veri olmalı
      */
-    NeedClipboard
+    NeedClipboard,
+
+    /**
+     * Aksiyon durumu ve buna ikon değişimi
+     * Değiştirilebilir Durumlar implementasyona N kadar tanımlanabilir
+     * Örn: Favorites -> Eğer dizin halihazırda favorilere eklenmiş ise silme işlemi yapacak, Aksi durumda Ekleme.
+     * Bu aksiyonun implementasyonunda durum değişimlerine göre yeni ikonları döndürecek.
+     */
+    ChangeableStateIcon
 }

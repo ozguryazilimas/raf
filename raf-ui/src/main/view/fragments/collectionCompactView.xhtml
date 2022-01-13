@@ -27,6 +27,8 @@
             if (s.scrollLeft === 0) {
                 return;
             }
+            $("#collectionForm\\:scrollLeft").val(s.scrollLeft);
+            setScroll();
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
             if ((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; $("#totalFileCount").text() > $("#showingFileCount").val()) {
                 nextPage();
@@ -42,9 +44,13 @@
             $(".raf-box-content").on('scroll', containerScroll);
             $(".raf-container").on('scroll', containerScroll);
             $(".content-view-port").on('scroll', containerScroll);
+            
+            $(".raf-box-content").scrollLeft($("#collectionForm\\:scrollLeft").val());
+            $(".raf-container").scrollLeft($("#collectionForm\\:scrollLeft").val());
+            $(".content-view-port").scrollLeft($("#collectionForm\\:scrollLeft").val());
         });
     </script>
-    <h:form>
+    <h:form id="collectionForm">
 
         <div id="raf-container" class="content-view-port">
             <div class="raf-container">
@@ -108,6 +114,8 @@
             </div>
         </div>        
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
+        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}" />
+        <h:inputHidden id="scrollLeft" value="#{rafController.scrollLeft}" />
     </h:form>
 
 </ui:composition>

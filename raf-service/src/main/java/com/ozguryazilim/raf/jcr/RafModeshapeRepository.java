@@ -1912,16 +1912,15 @@ public class RafModeshapeRepository implements Serializable {
                     if (SequencerPathExpression.compile(sequencerConfig.getExpression()).matcher(expPath).matches()) {
                         switch (sequencerConfig.getName()) {
                             case "ImagePreviewSequencer": {
+                                LOG.info("Image preview generating for {}",node.getPath());
                                 FilePreviewHelper.generateImagePreview(nodeContent.getProperty(PROP_DATA), node);
                                 break;
                             }
                             case "PdfPreviewSequencer":
                             case "OfficePreviewSequencer": {
+                                LOG.info("PDF preview generating for {}",node.getPath());
                                 FilePreviewHelper.generatePDFPreview(nodeContent.getProperty(PROP_DATA), node);
                                 break;
-                            }
-                            default:{
-                                LOG.warn("There is no preview generator for the {}.",expPath);
                             }
                         }
                         session.save();

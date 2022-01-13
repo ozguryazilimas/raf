@@ -3,15 +3,16 @@ package com.ozguryazilim.raf.ui.base;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.models.RafObject;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
 import org.primefaces.context.RequestContext;
+
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -303,5 +304,14 @@ public class AbstractAction implements Serializable {
         }
 
         return true;
+    }
+
+    public boolean hasChangeableStateIcon(){
+        return hasCapability(ActionCapability.ChangeableStateIcon);
+    }
+
+    public String getChangeableStateIcon() {
+        // Alt sınıflar tarafından implemente edilebilir.
+        return null;
     }
 }

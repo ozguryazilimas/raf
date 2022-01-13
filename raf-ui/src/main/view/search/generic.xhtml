@@ -46,7 +46,7 @@
                 <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
             </p:panelGrid>
 
-            <c:if test="#{genericSearchPanelController.caseSensitiveSearchOptionEnabled}">
+            <c:if test="#{caseSensitiveSearchService.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
                 <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                     <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>

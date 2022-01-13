@@ -2,9 +2,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui"                   
+                xmlns:p="http://primefaces.org/ui"
                 template="#{themeManager.layoutTemplate}">
 
     <ui:param name="dontShowContentHeader" value="true" />
@@ -113,13 +111,14 @@
                                             </ui:fragment>
 
                                             <ui:fragment rendered="#{not act.supportConfirmation}">
-                                                <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{messages[act.title]}"
+                                                <p:commandLink action="#{act.execute()}" process="@this"
+                                                               ajax="#{act.supportAjax}" update="raf-view-content"
+                                                               title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
-                                                    <i class="fa #{act.icon}" />
-                                                    <p:ajax event="dialogReturn" update="raf-view-content" />
+                                                    <i class="fa #{act.hasChangeableStateIcon() ? act.changeableStateIcon : act.icon}"/>
+                                                    <p:ajax event="dialogReturn" update="raf-view-content"/>
                                                 </p:commandLink>
                                             </ui:fragment>
-
 
                                         </ui:repeat>
                                     </div>
