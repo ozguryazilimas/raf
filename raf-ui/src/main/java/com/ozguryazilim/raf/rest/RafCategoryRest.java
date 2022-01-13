@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.rest;
 import com.ozguryazilim.raf.category.RafCategoryRepository;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.telve.utils.TreeUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiresPermissions("admin")
 @Path("/api/category")
 public class RafCategoryRest {
 

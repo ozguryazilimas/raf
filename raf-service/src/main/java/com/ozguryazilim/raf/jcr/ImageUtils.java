@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class ImageUtils {
 
-    public ImageUtils() {
+    private ImageUtils() {
         throw new IllegalStateException("Utility class");
     }
 

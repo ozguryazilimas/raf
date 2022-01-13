@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.rest;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiresPermissions("admin")
 @Path("/api/version")
 public class VersionRest {
 

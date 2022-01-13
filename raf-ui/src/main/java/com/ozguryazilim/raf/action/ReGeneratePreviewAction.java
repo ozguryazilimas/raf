@@ -3,7 +3,6 @@ package com.ozguryazilim.raf.action;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafFolder;
@@ -49,7 +48,7 @@ public class ReGeneratePreviewAction extends AbstractAction {
             if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
                 permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
-                permission = getContext().getSelectedRaf().getId() > 0 && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                permission = getContext().getSelectedRaf() != null && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
             }
             return permission && getContext().getSelectedObject() != null && super.applicable(forCollection);
         } catch (RafException ex) {

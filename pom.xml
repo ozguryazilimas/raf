@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.ozguryazilim.telve</groupId>
         <artifactId>telve-app-parent</artifactId>
-        <version>4.1.0-Beta.4</version>
+        <version>4.1.0-Final</version>
     </parent>
 
     <groupId>com.ozguryazilim.raf</groupId>
@@ -23,8 +23,8 @@
         <property name="hibernate.show_sql" value="false"/>
         
         <buildNumber>SNAPSHOT</buildNumber>
-        <minorNumber>0</minorNumber>
-        <revision>1.1.${minorNumber}</revision>
+        <minorNumber>1</minorNumber>
+        <revision>1.2.${minorNumber}</revision>
         <changelist>-${buildNumber}</changelist>
 
         <version.raf>${revision}${changelist}</version.raf>

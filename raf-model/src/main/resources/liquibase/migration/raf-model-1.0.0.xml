@@ -169,4 +169,20 @@
     <changeSet author="adilcan" id="201901091044">
         <addForeignKeyConstraint baseColumnNames="DEPARTMENT_ID" baseTableName="RAF_DEPARTMENT_MEMBER" constraintName="FK_RDM_DEPTID" deferrable="false" initiallyDeferred="false" referencedColumnNames="ID" referencedTableName="RAF_DEPARTMENT"/>
     </changeSet>
+    <changeSet author="srdrmtl" id="202201022202">
+        <createTable tableName="TLI_USER_FAVORITE">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="USER_FAVORITE_PK"/>
+            </column>
+            <column name="USERNAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FAVORITE_PATH" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

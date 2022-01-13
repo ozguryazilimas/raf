@@ -28,6 +28,14 @@ public class FilePreviewHelper {
     private static final String MIMETYPE_IMAGE = "image/png";
     private static final String MIMETYPE_PDF = "application/pdf";
 
+    private static final String IMAGE = "IMAGE";
+
+    private static final String PROP_DATA = "jcr:data";
+    private static final String PROP_MIMETYPE = "jcr:mimeType";
+
+    private static final String NODE_PREVIEW = "raf:preview";
+    private static final String NODE_THUMBNAIL = "raf:thumbnail";
+
     public static boolean generatePreview(Property inputProperty, Node outputNode, String mimeType) {
         switch (mimeType) {
             case MIMETYPE_PDF:
@@ -114,7 +122,7 @@ public class FilePreviewHelper {
             PDDocument document = PDDocument.load(binaryValue.getStream());
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             // PDF'in ilk sayfası image olarak preview node'unda saklansın mı?
-            if ("IMAGE".equals(ConfigResolver.getPropertyValue("raf.pdf.preview.type", "IMAGE"))) {
+            if (IMAGE.equals(ConfigResolver.getPropertyValue("raf.pdf.preview.type", IMAGE))) {
                 try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
                     BufferedImage img = ImageUtils.createPreviewImageFromPDF(pdfRenderer);
                     ImageIO.write(img, "png", os);
@@ -123,10 +131,12 @@ public class FilePreviewHelper {
             } else { // Yoksa verilen aralık kadar pdf şeklinde preview node'unda saklanacak.
                 try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
                     String range = ConfigResolver.getPropertyValue("raf.preview.office.range", "1-2");
-                    PDDocument pdfDocPartial = PdfUtils.createPdfDocPartial(document, range);
-                    pdfDocPartial.save(os);
-                    pdfDocPartial.close();
-                    createPreviewNode(os, outputNode, MIMETYPE_PDF);
+                    try (PDDocument pdfDocPartial = PdfUtils.createPdfDocPartial(document, range)) {
+                        pdfDocPartial.save(os);
+                        createPreviewNode(os, outputNode, MIMETYPE_PDF);
+                    } catch (IOException ex) {
+                        LOG.warn("Pdf preview cannot generated. NodeID: " + outputNode.getIdentifier() + " Path: " + outputNode.getPath(), ex);
+                    }
                 }
             }
 
@@ -169,7 +179,7 @@ public class FilePreviewHelper {
 
             PdfConverter.instance().convertPreview(binaryValue.getStream(), mimeType, os);
 
-            if ("IMAGE".equals(ConfigResolver.getPropertyValue("raf.pdf.preview.type", "IMAGE"))) {
+            if (IMAGE.equals(ConfigResolver.getPropertyValue("raf.pdf.preview.type", IMAGE))) {
                 ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 Binary preview = outputNode.getSession().getValueFactory().createBinary(is);
                 is.close();
@@ -199,7 +209,7 @@ public class FilePreviewHelper {
         if (storeThumbnailWhenDocumentUploaded()) {
 
             if (isPreviewTypePDF(outputNode)) {
-                InputStream is = outputNode.getNode("raf:preview").getProperty("jcr:data").getBinary().getStream();
+                InputStream is = outputNode.getNode(NODE_PREVIEW).getProperty(PROP_DATA).getBinary().getStream();
                 PDDocument document = PDDocument.load(is);
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -210,7 +220,7 @@ public class FilePreviewHelper {
                 document.close();
             } else if (isPreviewTypeImage(outputNode)) {
                 try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                    InputStream is = outputNode.getNode("raf:preview").getProperty("jcr:data").getBinary().getStream();
+                    InputStream is = outputNode.getNode(NODE_PREVIEW).getProperty(PROP_DATA).getBinary().getStream();
                     BufferedImage img = ImageUtils.createThumbnailImageFromInputStream(is);
                     ImageIO.write(img, "png", os);
                     is.close();
@@ -234,14 +244,14 @@ public class FilePreviewHelper {
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         Binary thumbnail = outputNode.getSession().getValueFactory().createBinary(is);
         is.close();
-        thumbnailNode.setProperty("jcr:mimeType", MIMETYPE_IMAGE);
-        thumbnailNode.setProperty("jcr:data", thumbnail);
+        thumbnailNode.setProperty(PROP_MIMETYPE, MIMETYPE_IMAGE);
+        thumbnailNode.setProperty(PROP_DATA, thumbnail);
     }
 
     private static void removeThumbnailNode(Node outputNode) {
         try {
-            if (outputNode.hasNode("raf:thumbnail")) {
-                outputNode.getNode("raf:thumbnail").remove();
+            if (outputNode.hasNode(NODE_THUMBNAIL)) {
+                outputNode.getNode(NODE_THUMBNAIL).remove();
             }
         } catch (Exception e) {
             try {
@@ -257,30 +267,30 @@ public class FilePreviewHelper {
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         Binary preview = outputNode.getSession().getValueFactory().createBinary(is);
         is.close();
-        previewNode.setProperty("jcr:mimeType", mimeType);
-        previewNode.setProperty("jcr:data", preview);
+        previewNode.setProperty(PROP_MIMETYPE, mimeType);
+        previewNode.setProperty(PROP_DATA, preview);
     }
 
     private static Node getThumbnailNode(Node outputNode) throws RepositoryException {
         if (outputNode.isNew()) {
-            outputNode.setPrimaryType("raf:thumbnail");
+            outputNode.setPrimaryType(NODE_THUMBNAIL);
             return outputNode;
-        } else if (outputNode.hasNode("raf:thumbnail")) {
-            return outputNode.getNode("raf:thumbnail");
+        } else if (outputNode.hasNode(NODE_THUMBNAIL)) {
+            return outputNode.getNode(NODE_THUMBNAIL);
         }
 
-        return outputNode.addNode("raf:thumbnail", "raf:thumbnail");
+        return outputNode.addNode(NODE_THUMBNAIL, NODE_THUMBNAIL);
     }
 
     private static Node getPreviewNode(Node outputNode) throws RepositoryException {
         if (outputNode.isNew()) {
-            outputNode.setPrimaryType("raf:preview");
+            outputNode.setPrimaryType(NODE_PREVIEW);
             return outputNode;
-        } else if (outputNode.hasNode("raf:preview")) {
-            return outputNode.getNode("raf:preview");
+        } else if (outputNode.hasNode(NODE_PREVIEW)) {
+            return outputNode.getNode(NODE_PREVIEW);
         }
 
-        return outputNode.addNode("raf:preview", "raf:preview");
+        return outputNode.addNode(NODE_PREVIEW, NODE_PREVIEW);
     }
 
     private static boolean storeThumbnailWhenDocumentUploaded() {
@@ -288,20 +298,20 @@ public class FilePreviewHelper {
     }
 
     private static boolean isPreviewTypePDF(Node n) throws RepositoryException {
-        if (n.hasNode("raf:preview")) {
-            Node pNode = n.getNode("raf:preview");
-            if (pNode.hasProperty("jcr:mimeType")) {
-                return pNode.getProperty("jcr:mimeType").getString().equals(MIMETYPE_PDF);
+        if (n.hasNode(NODE_PREVIEW)) {
+            Node pNode = n.getNode(NODE_PREVIEW);
+            if (pNode.hasProperty(PROP_MIMETYPE)) {
+                return pNode.getProperty(PROP_MIMETYPE).getString().equals(MIMETYPE_PDF);
             }
         }
         return false;
     }
 
     private static boolean isPreviewTypeImage(Node n) throws RepositoryException {
-        if (n.hasNode("raf:preview")) {
-            Node pNode = n.getNode("raf:preview");
-            if (pNode.hasProperty("jcr:mimeType")) {
-                return pNode.getProperty("jcr:mimeType").getString().equals(MIMETYPE_IMAGE);
+        if (n.hasNode(NODE_PREVIEW)) {
+            Node pNode = n.getNode(NODE_PREVIEW);
+            if (pNode.hasProperty(PROP_MIMETYPE)) {
+                return pNode.getProperty(PROP_MIMETYPE).getString().equals(MIMETYPE_IMAGE);
             }
         }
         return false;

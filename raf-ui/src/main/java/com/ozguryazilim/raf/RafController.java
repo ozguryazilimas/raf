@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
+import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -85,6 +86,9 @@ public class RafController implements Serializable {
     private RafPathMemberService rafObjectMemberService;
 
     @Inject
+    private UserFavoriteService favoriteService;
+
+    @Inject
     private RafContext context;
 
     @Inject
@@ -123,6 +127,9 @@ public class RafController implements Serializable {
     private Boolean descSort = Boolean.FALSE;
 
     private String lastRafObjectId;
+
+    private int scrollTop;
+    private int scrollLeft;
 
     public Boolean getDescSort() {
         return descSort;
@@ -204,6 +211,11 @@ public class RafController implements Serializable {
     public void init() {
         setPage(0);
 
+        //Eğer url parametrelerinde object id verilmemişse en son değer sabit kalıyordu, temizlendi.
+        Map rpMap = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        if (!Strings.isNullOrEmpty(objectId) && !rpMap.containsKey("o")) {
+            objectId = "";
+        }
         //FIXME: Bu fonksiyon parçalanıp düzenlenmeli.
         if (Strings.isNullOrEmpty(rafCode) && !Strings.isNullOrEmpty(objectId)) {
             try {
@@ -235,6 +247,11 @@ public class RafController implements Serializable {
 
         try {
             rafDefinition = rafDefinitionService.getRafDefinitionByCode(rafCode);
+            if(rafDefinition == null){
+                FacesMessages.warn("raf.definition.not.found");
+                viewNavigationHandler.navigateTo(Pages.Home.class);
+                return;
+            }
         } catch (RafException ex) {
             //FIXME: Burada ne yapmalı?
             LOG.error("Error", ex);
@@ -552,8 +569,6 @@ public class RafController implements Serializable {
     public void closeObjectPanel() {
         //FIXME: bundan pek emin değilim. SelectedObject'e null mu atamalı?
         context.setSelectedObject(null);
-        //ObjectPanel'e geçerken obje aynı zamanda seçiliyor kapatırken de silelim
-        context.getSeletedItems().clear();
         selectedContentPanel = getCollectionContentPanel();
     }
 
@@ -713,6 +728,8 @@ public class RafController implements Serializable {
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
         setPage(0);
+        setScrollTop(0);
+        setScrollLeft(0);
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
@@ -903,4 +920,23 @@ public class RafController implements Serializable {
         return selectedContentPanel;
     }
 
+    public int getScrollTop() {
+        return scrollTop;
+    }
+
+    public void setScrollTop(int scrollTop) {
+        this.scrollTop = scrollTop;
+    }
+
+    public int getScrollLeft() {
+        return scrollLeft;
+    }
+
+    public void setScrollLeft(int scrollLeft) {
+        this.scrollLeft = scrollLeft;
+    }
+
+    public void setScroll() {
+        //dummy action for scroll attributes
+    }
 }
