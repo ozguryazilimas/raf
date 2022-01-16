@@ -42,17 +42,24 @@ public class RafFileUploadDialog extends FileUploadDialog {
     @Override
     public void fileUploaded() {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        String uri = params.get("uri");
         if (super.handler != null && super.handler instanceof RafFileUploadHandler) {
-            //type casting
-            RafFileUploadHandler handler = (RafFileUploadHandler) super.handler;
-            if(handler.getRafCode().equals("CHECKIN")){
-                String versionComment = params.get("versionComment");
-                handler.handleFileUpload(uri, versionComment);
-            } else {
-                handler.handleFileUpload(uri,decompress);
+            String uriArrString = params.get("uriArr");
+            // There is no file for upload
+            if (uriArrString == null || uriArrString.equals("")) {
+                return;
             }
-
+            String[] uriArr = uriArrString.split(",");
+            // Type casting
+            RafFileUploadHandler handler = (RafFileUploadHandler) super.handler;
+            if (handler.getRafCode().equals("CHECKIN") && uriArr.length == 1) {
+                // If is version check-in have to single file
+                String versionComment = params.get("versionComment");
+                handler.handleFileUpload(uriArr[0], versionComment);
+            } else if (uriArr.length > 0) {
+                for (String uri : uriArr) {
+                    handler.handleFileUpload(uri, decompress);
+                }
+            }
         }
     }
 
