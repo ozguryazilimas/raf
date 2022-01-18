@@ -4,3 +4,4 @@ com.ozguryazilim.raf.ui.base.PreviewPanelExtention
 com.ozguryazilim.raf.ui.base.MetadataPanelExtention
 com.ozguryazilim.raf.ui.base.ActionExtention
 com.ozguryazilim.raf.ui.base.RafReaderExtension
+com.ozguryazilim.raf.ui.base.ContextMenuExtension

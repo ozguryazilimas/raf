@@ -12,7 +12,6 @@ import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.events.RafObjectDeleteEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
-import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -21,19 +20,25 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
+import com.ozguryazilim.raf.ui.base.AbstractContextMenuItem;
 import com.ozguryazilim.raf.ui.base.AbstractSidePanel;
 import com.ozguryazilim.raf.ui.base.ActionRegistery;
 import com.ozguryazilim.raf.ui.base.ContentPanelRegistery;
 import com.ozguryazilim.raf.ui.base.ContentViewPanel;
+import com.ozguryazilim.raf.ui.base.ContextMenuRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import com.ozguryazilim.telve.messages.Messages;
 import com.ozguryazilim.telve.view.Pages;
 import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.primefaces.model.menu.DefaultMenuItem;
+import org.primefaces.model.menu.DefaultMenuModel;
+import org.primefaces.model.menu.MenuModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,9 +89,6 @@ public class RafController implements Serializable {
 
     @Inject
     private RafPathMemberService rafObjectMemberService;
-
-    @Inject
-    private UserFavoriteService favoriteService;
 
     @Inject
     private RafContext context;
@@ -278,7 +280,6 @@ public class RafController implements Serializable {
             showManagerTools = Boolean.FALSE;
         }
 
-        //FIXME: burada aslında hala bir hata durumu var. parametre olarak alınan RAF'a erişim yetkisi olmayabilir. Ya da öyle bir raf gerçekten olmayabilir.
         context.setSelectedRaf(rafDefinition);
 
         if (!Strings.isNullOrEmpty(objectId)) {
@@ -672,6 +673,30 @@ public class RafController implements Serializable {
         return result;
     }
 
+    public MenuModel getContextMenu(RafObject object) {
+        MenuModel model = new DefaultMenuModel();
+        ContextMenuRegistery.getContextMenus().stream().filter(AbstractContextMenuItem::applicable)
+                .sorted(Comparator.comparing(AbstractContextMenuItem::getOrder))
+                .forEach(item -> {
+                    DefaultMenuItem menuItem = new DefaultMenuItem(Messages.getMessage(item.getLabel()));
+                    menuItem.setDisabled(item.disabled(object));
+                    if (item.supportUrl()) {
+                        menuItem.setUrl(item.getUrl(object));
+                        if (item.openNewTab()) {
+                            menuItem.setTarget("_blank");
+                        }
+                    } else {
+                        menuItem.setCommand(String.format("#{%s.execute(item)}", item.getName()));
+                        menuItem.setUpdate("raf-view-content");
+                        menuItem.setAjax(item.supportAjax());
+                        menuItem.setProcess("@this");
+                    }
+                    model.addElement(menuItem);
+                });
+        model.generateUniqueIds();
+        return model;
+    }
+
     /**
      * Nesne silinmesini dinler ve context'i düzenler.
      *
@@ -734,7 +759,11 @@ public class RafController implements Serializable {
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
             if (context.getSelectedObject() != null) {
-                populateFolderCollection(context.getSelectedObject().getId());
+                if(context.getSelectedObject() instanceof RafFolder){
+                    populateFolderCollection(context.getSelectedObject().getId());
+                } else if(context.getSelectedObject() instanceof RafDocument){
+                    populateFolderCollection(context.getSelectedObject().getParentId());
+                }
             } else {
                 populateFolderCollection(context.getCollection().getId());
             }
