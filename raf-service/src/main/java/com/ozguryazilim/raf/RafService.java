@@ -2,6 +2,8 @@ package com.ozguryazilim.raf;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
+import com.ozguryazilim.raf.enums.EmailNotificationActionType;
+import com.ozguryazilim.raf.email.EmailNotificationService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.enums.SortType;
@@ -57,6 +59,9 @@ public class RafService implements Serializable {
 
     @Inject
     private Identity identity;
+
+    @Inject
+    private EmailNotificationService emailNotificationService;
 
     private Boolean readLogEnabled;
 
@@ -167,7 +172,7 @@ public class RafService implements Serializable {
         //FIXME: yetki kontrolü
         //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
         RafFolder result = rafRepository.createFolder(folder);
-
+        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.ADD);
         sendEventLog("CreateFolder", result);
         sendAuditLog(result.getId(), "CREATE_FOLDER", result.getPath());
         return result;
@@ -206,9 +211,8 @@ public class RafService implements Serializable {
      */
     public RafFolder createFolder(String folderPath) throws RafException {
         //FIXME: yetki kontrolü
-        //TODO: klasör eklendiğine dair burada bir event fırlatmak lazım.
         RafFolder result = rafRepository.createFolder(folderPath);
-
+        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.ADD);
         sendEventLog("CreateFolder", result);
         sendAuditLog(result.getId(), "CREATE_FOLDER", result.getPath());
         return result;
@@ -227,7 +231,7 @@ public class RafService implements Serializable {
     public RafDocument checkin(String path) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = (RafDocument) rafRepository.checkin(path);
-
+        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.UPDATE);
         sendEventLog("CheckInDocument", result);
         sendAuditLog(result.getId(), "CHECKIN_DOCUMENT", result.getPath());
         return result;
@@ -237,7 +241,7 @@ public class RafService implements Serializable {
     public RafDocument checkin(String fileName, InputStream in, String versionComment) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = (RafDocument) rafRepository.checkin(fileName, in, versionComment);
-
+        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.UPDATE);
         sendEventLog("CheckInDocument", result);
         sendAuditLog(result.getId(), "CHECKIN_DOCUMENT", result.getPath());
         return result;
@@ -246,7 +250,7 @@ public class RafService implements Serializable {
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = rafRepository.uploadDocument(fileName, in);
-
+        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.ADD);
         sendEventLog("UploadDocument", result);
         sendAuditLog(result.getId(), "UPLOAD_DOCUMENT", result.getPath());
         return result;
@@ -380,6 +384,7 @@ public class RafService implements Serializable {
         try{
             //FIXME: Yetki kontrolü
             RafObject obj = rafRepository.getRafObject(id);
+            emailNotificationService.sendEmailToFavorites(obj, EmailNotificationActionType.REMOVE);
             sendEventLog("DeleteObject", obj);
             sendAuditLog(id, "DELETE_OBJECT", obj.getPath());
         } catch (RafException ex){

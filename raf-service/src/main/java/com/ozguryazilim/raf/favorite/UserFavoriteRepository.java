@@ -14,6 +14,8 @@ public abstract class UserFavoriteRepository extends RepositoryBase<UserFavorite
 
     public abstract List<UserFavorite> findByUsername(String username);
 
+    public abstract List<UserFavorite> findByPath(String path);
+
     public abstract List<UserFavorite> findByUsernameAndPath(String username, String path);
 
     public abstract void removeByUsernameAndPath(String username, String path);
