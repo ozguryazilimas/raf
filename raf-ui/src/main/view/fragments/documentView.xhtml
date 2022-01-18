@@ -170,7 +170,7 @@
                                     <ui:fragment rendered="#{vh.name ne 'jcr:rootVersion'}" >
                                         <li>
                                             <p:panelGrid columns="2" layout="grid" style="vertical-align: text-top;" columnClasses="ui-lg-1,ui-lg-11">
-                                                <p:commandLink action="#{viewBean.revertVersion(vh.name, vh.comment)}" update="raf-view">
+                                                <p:commandLink action="#{viewBean.revertVersion(vh.name, vh.comment)}" update="raf-view-content">
                                                     <i class="fa fa-history" title="#{messages['raf.label.BackToVersion']}" />
                                                     <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['raf.confirm.BackToVersion']}" icon="pi pi-exclamation-triangle"/>
                                                 </p:commandLink>

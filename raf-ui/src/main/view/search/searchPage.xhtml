@@ -14,6 +14,11 @@
     </ui:define>
 
     <ui:define name="body">
+
+        <f:metadata>
+            <f:viewParam name="folderSearch" value="#{folderSearch}"/>
+        </f:metadata>
+
         <style type="text/css">             
             .ui-outputlabel {
                 font-weight: bold;
@@ -31,10 +36,19 @@
                 clearFunc();
             }
 
+            jQuery(document).ready(function() {
+                var isFolderSearch = (#{folderSearch} + "" === 'true');
+                if(isFolderSearch){
+                    folderSearch();
+                }
+            });
+
         </script>
         <h:form id="searchForm">
+            <p:defaultCommand target="search"/>
             <p:remoteCommand name="setActiveTab" actionListener="#{detailedSearchController.setActiveTab}"/>
             <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
+            <p:remoteCommand name="folderSearch" actionListener="#{detailedSearchController.search()}" update="resultDataTable"/>
             <ui:include src="/layout/messages.xhtml" />
 
             <div class="box box-primary">

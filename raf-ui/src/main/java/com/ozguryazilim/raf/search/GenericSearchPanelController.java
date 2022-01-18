@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.primefaces.event.SelectEvent;
@@ -54,6 +56,12 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     @Inject
     CaseSensitiveSearchService caseSensitiveSearchService;
 
+    @Inject
+    private ViewNavigationHandler viewNavigationHandler;
+
+    @Inject
+    private NavigationParameterContext navigationParameterContext;
+
     private String saveSearchName;
     private Long savedSearch;
 
@@ -80,12 +88,8 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         if (searchText != null) {
             detailedSearchController.getSearchModel().setSearchText(searchText);
         }
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        try {
-            response.sendRedirect("/dolap/search/searchPage.jsf");
-        } catch (IOException ex) {
-            LOG.error("IOException", ex);
-        }
+        navigationParameterContext.addPageParameter("folderSearch", true);
+        viewNavigationHandler.navigateTo(SearchPages.SearchPage.class);
     }
 
     public void selectFolder(SelectEvent event) {

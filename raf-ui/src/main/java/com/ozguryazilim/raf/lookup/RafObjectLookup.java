@@ -7,13 +7,10 @@ import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.DialogPages;
-import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
-import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
@@ -29,11 +26,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author oyas
  */
 @Lookup(dialogPage = DialogPages.RafObjectLookup.class)
@@ -54,13 +49,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private ViewConfigResolver viewConfigResolver;
 
     @Inject
-    private Identity identity;
-
-    @Inject
     private RafService rafService;
-
-    @Inject
-    private RafDefinitionService rafDefinitionService;
 
     private String searchText;
     private String profile;
@@ -69,8 +58,6 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private RafObject selected;
 
-    private List<RafDefinition> rafs;
-    private RafDefinition selectedRaf;
     private int page = 0;
     private int pageSize = 50;
 
@@ -95,37 +82,10 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
     }
 
-    public void nextPage() {
-        if (getCollection() != null && getCollection().getItems() != null && !getCollection().getItems().isEmpty()) {
-            try {
-                setPage(getPage() + getPageSize());
-                clear();
-                setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
-            } catch (RafException ex) {
-                LOG.error("RafException", ex);
-            }
-        }
-    }
-
-    public void previousPage() {
-        int newPage = getPage() - getPageSize();
-        if (newPage < 0) {
-            newPage = 0;
-        }
-        setPage(newPage);
-        try {
-            clear();
-            setCollection(rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
-        } catch (RafException ex) {
-            LOG.error("RafException", ex);
-        }
-    }
-
     /**
      * Geriye açılacak olan popup için view adı döndürür.
      *
      * Bu view dialogBase sınıfından türetilmiş olmalıdır.
-     *
      *
      * @return
      */
@@ -177,9 +137,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      *
      * @param profile sorgu profili
      * @param listener sonuçlar nereye gidecek?
-     * @param value mevcut veri. Ağaç tipi sınıflarda seçim için
+     * @param subPath mevcut veri. Ağaç tipi sınıflarda seçim için
      */
-    public void openDialog(String profile, String listener, Object value) {
+    public void openDialog(String profile, String listener, String subPath) {
         page = 0;
         this.profile = profile;
         this.listener = listener;
@@ -190,8 +150,18 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         Map<String, Object> options = new HashMap<>();
         decorateDialog(options);
 
+        try {
+
+            if(subPath == null || subPath.equals("")){
+                selected = null;
+            } else {
+                selected = rafService.getRafObjectByPath(subPath);
+            }
+        } catch (RafException ex) {
+            LOG.error("Raf Sub Path Cannot Handle.", ex);
+        }
+
         clear();
-        selected = null;
 
         if (autoSearch()) {
             search();
@@ -374,7 +344,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollectionPaged(getSelectedRaf().getNodeId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
+            setCollection(rafService.getCollectionPaged(getSelected().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -457,37 +427,35 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         }
     }
 
-    public List<RafDefinition> getRafs() {
-        if (rafs == null) {
-            rafs = rafDefinitionService.getRafsForUser(identity.getLoginName(), true);
+    public void selectItem(String path) {
+        try {
+            RafObject object = rafService.getRafObjectByPath(path);
+            selectItem(object);
+        } catch (RafException ex) {
+            LOG.error("Raf Object seçilemedi", ex);
         }
-
-        return rafs;
-    }
-
-    public RafDefinition getSelectedRaf() {
-        if (selectedRaf == null) {
-            selectedRaf = getRafs().get(0);
-        }
-        return selectedRaf;
-    }
-
-    public void setSelectedRaf(RafDefinition selectedRaf) {
-        this.selectedRaf = selectedRaf;
-        populateData();
     }
 
     public RafObject getSelected() {
+        try {
+            if (this.selected == null) {
+                this.selected = rafService.getRafObjectByPath("/RAF/");
+            }
+        } catch (RafException ex) {
+            LOG.error("Cannot find node from given path", ex);
+        }
         return selected;
     }
 
     public void goUpFolder() {
-        //FIXME: Burada parent'ın null olması ihtimali, raf olması ihtimali kontrol edilecek.
-
+        if (getCollection().getParentId() == null || getCollection().getParentId().equals("/")) {
+            return;
+        }
         clear();
         try {
             page = 0;
             setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
+            selectItem(getCollection().getPath());
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }

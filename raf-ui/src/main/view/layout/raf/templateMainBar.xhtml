@@ -199,12 +199,14 @@
                         </ui:fragment>
 
                     </ul>
-                    <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 2px;" >
-                        <div class="form-group">
-                            <p:inputText id="searchText" styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
-                            <p:commandButton action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
-                            </p:commandButton>
-                        </div>
+                    <h:form class="navbar-form navbar-left visible-xs" role="search" style="padding: 10px;" >
+                        <h:panelGroup styleClass="input-group" layout="block">
+                            <p:inputText id="searchText" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}"/>
+                            <p:defaultCommand target="searchTextCommand" />
+                            <div class="input-group-btn">
+                                <p:commandButton id="searchTextCommand" icon="fa fa-search" action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" styleClass="ui-icon-only btn btn-default" />
+                            </div>
+                        </h:panelGroup>
                     </h:form>
                     <ul class="nav navbar-nav">
                         <ui:repeat value="#{nagivationController.navigationSections}" var="section" >
@@ -244,10 +246,10 @@
                             <div class="ui-inputgroup">
                                 <p:inputText id="searchText" styleClass="nav-bar-search" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" value="#{searchController.searchText}" placeholder="#{messages['general.label.Search']}" />
 
-                                <p:commandButton action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="display:none;" styleClass="btn btn-primary">
+                                <p:commandButton  icon="fa fa-search" action="#{genericSearchPanelController.searchFromFolder(rafContext, searchController.searchText)}" ajax="false" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;" styleClass="ui-icon-only btn btn-default">
                                 </p:commandButton>
 
-                            </div>                            
+                            </div>
                         </div>
                     </h:form>
 

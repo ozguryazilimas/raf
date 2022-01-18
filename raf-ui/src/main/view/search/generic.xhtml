@@ -42,18 +42,26 @@
             </p:panelGrid>           
 
             <p:outputLabel value="#{messages['general.label.Search']}"/>
-            <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
+            </p:panelGrid>
 
             <c:if test="#{caseSensitiveSearchService.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
-                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
+                <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                    <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
+                </p:panelGrid>
             </c:if>
 
             <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
+            </p:panelGrid>
 
             <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
-            <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
+            </p:panelGrid>
 
         </p:panelGrid>
     </div>
