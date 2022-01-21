@@ -59,7 +59,7 @@
                 <div class="raf-container-item-group-item">
                     <ui:repeat value="#{viewBean.collection.items}" var="item">
                         <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
-                        <div class="raf-container-item">
+                        <p:outputPanel id="raf-item" layout="block" styleClass="raf-container-item">
                             <div class="raf-container-item-item medium-icon">
                                 <span class="raf-container-item-item-img" >
                                     <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
@@ -108,7 +108,8 @@
 
                                 </span>
                             </div>
-                        </div>
+                        </p:outputPanel>
+                        <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
                     </ui:repeat>
                 </div>                            
             </div>

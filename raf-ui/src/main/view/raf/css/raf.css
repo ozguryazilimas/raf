@@ -357,3 +357,16 @@
     height: 600px !important;
     overflow: auto !important;
 }
+
+.context-menu-item {
+    background: white;
+    font-size: 12px;
+}
+
+.ui-menuitem > a {
+    color:black;
+}
+
+.ui-menuitem.ui-menuitem-active {
+    background: #e7f4f9;
+}

@@ -6,6 +6,7 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
+import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
@@ -13,10 +14,11 @@ import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 
 /**
  *
@@ -80,7 +82,11 @@ public class PasteAction extends AbstractAction {
         //TODO: aslında asıl komuta geri dönüp onu çalıştırmak daha mantıklı olacak. Böylece özelleşmiş paste komutları yazılabilir. ( link v.s. için mesela )
         if (getContext().getClipboardAction() instanceof CopyAction) {
             try {
-                rafService.copyObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                if (getContext().getSelectedObject() instanceof RafFolder) {
+                    rafService.copyObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                } else if (getContext().getSelectedObject() instanceof RafDocument) {
+                    rafService.copyObject(getContext().getClipboard(), (RafFolder) rafService.getRafObject(getContext().getSelectedObject().getParentId()));
+                }
                 //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n
@@ -89,7 +95,11 @@ public class PasteAction extends AbstractAction {
             }
         } else if (getContext().getClipboardAction() instanceof CutAction) {
             try {
-                rafService.moveObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                if(getContext().getSelectedObject() instanceof RafFolder){
+                    rafService.moveObject(getContext().getClipboard(), (RafFolder) getContext().getSelectedObject());
+                } else if(getContext().getSelectedObject() instanceof RafDocument) {
+                    rafService.moveObject(getContext().getClipboard(), (RafFolder) rafService.getRafObject(getContext().getSelectedObject().getParentId()));
+                }
                 //FIXME: Burada RafEventLog çalıştırılmalı
             } catch (RafException ex) {
                 //FIXME: i18n
