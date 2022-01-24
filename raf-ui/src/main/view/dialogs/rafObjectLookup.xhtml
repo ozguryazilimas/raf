@@ -34,7 +34,7 @@
                                        process="@this" update="raf-view"
                                        styleClass="btn btn-default pull-right"
                                        style="padding-top: 4px; padding-bottom: 4px; margin-bottom: 4px;"
-                                       disabled="#{rafObjectLookup.collection.parentId eq null || rafObjectLookup.collection.parentId eq '/'}">
+                                       disabled="#{!rafObjectLookup.hasParent()}">
                             <i class="fa fa-level-up" />
                         </p:commandLink>
                         <div class="raf-box-content" >

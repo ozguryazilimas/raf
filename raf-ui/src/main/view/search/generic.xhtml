@@ -5,7 +5,8 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"        
                 xmlns:p="http://primefaces.org/ui"    
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
 
     <div class="ui-fluid">
         <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
@@ -43,28 +44,53 @@
 
             <p:outputLabel value="#{messages['general.label.Search']}"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                <p:inputText value="#{detailedSearchController.searchModel.searchText}"/>
+                <p:inputText id="searchText" value="#{detailedSearchController.searchModel.searchText}" required="true">
+                    <f:validateLength minimum="2"/>
+                    <p:ajax update="msgSearchText" event="blur"/>
+                </p:inputText>
+                <p:message for="searchText" id="msgSearchText"/>
             </p:panelGrid>
 
             <c:if test="#{caseSensitiveSearchService.caseSensitiveSearchOptionEnabled}">
-                <p:outputLabel value="#{messages['general.label.CaseSensitive']}"/>
+                <p:outputLabel value="#{messages['general.label.CaseSensitive']}" style="margin-top: 6px"/>
                 <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                     <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.caseSensitive}"/>
                 </p:panelGrid>
             </c:if>
 
-            <p:outputLabel value="#{messages['general.label.SearchInName']}"/>
+            <p:outputLabel value="#{messages['general.label.SearchInName']}" style="margin-top: 6px"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
             </p:panelGrid>
 
-            <p:outputLabel value="#{messages['general.label.SearchInTags']}"/>
+            <p:outputLabel value="#{messages['general.label.SearchInTags']}" style="margin-top: 6px"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentTags}"/>
             </p:panelGrid>
 
+            <p:outputLabel value="#{messages['general.label.SearchInAllRafs']}" style="margin-top: 6px"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectBooleanCheckbox widgetVar="searchInAllRafsCheckbox" value="#{detailedSearchController.searchModel.searchInAllRafs}"/>
+            </p:panelGrid>
+
         </p:panelGrid>
     </div>
+
+    <p:dialog header="#{messages['generic.search.subpath.not.found.header']}" widgetVar="emptyRafPath" width="350">
+        <div class="row">
+            <div class="col-xs-12">
+                <h:outputText value="#{messages['generic.search.subpath.not.found.explanation']}"/>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 4px;">
+            <div class="col-xs-12">
+                <div class="pull-right">
+                    <p:commandButton value="Tamam" onclick="PF('emptyRafPath').hide();"
+                                     styleClass="btn btn-danger"/>
+                </div>
+            </div>
+        </div>
+    </p:dialog>
 
     <p:dialog header="#{messages['generic.search.save_search']}" widgetVar="saveSearch" modal="true" width="450" height="100">
         <div class="row">

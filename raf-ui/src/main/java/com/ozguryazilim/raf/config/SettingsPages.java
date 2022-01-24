@@ -31,5 +31,8 @@ public interface SettingsPages extends Pages{
 
     @SecuredPage @View
     class NotificationOptionPane implements Admin {};
+
+    @SecuredPage @View
+    class DefaultSearchOptionPane implements Admin {};
            
 }

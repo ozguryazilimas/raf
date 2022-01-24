@@ -559,7 +559,10 @@ public class RafModeshapeRepository implements Serializable {
                 query.setLimit(pageSize);
                 query.setOffset(page);
                 QueryResult queryResult = query.execute();
-
+                org.modeshape.jcr.api.query.QueryResult planResult = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+                String plan = planResult.getPlan();
+                LOG.debug("Query executed for  {}", expression);
+                LOG.debug("Query plan : {}", plan);
                 result = queryResult.getNodes();
 
             } catch (RepositoryException ex) {

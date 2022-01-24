@@ -32,6 +32,7 @@ public class DetailedSearchModel {
     private Boolean caseSensitive = Boolean.FALSE;
     private Boolean searchInDocumentName = Boolean.TRUE;
     private Boolean searchInDocumentTags = Boolean.FALSE;
+    private Boolean searchInAllRafs = Boolean.FALSE;
 
     private String sortBy;
     private String sortOrder = "ASC";
@@ -222,4 +223,13 @@ public class DetailedSearchModel {
     public void setSearchInDocumentTags(Boolean searchInDocumentTags) {
         this.searchInDocumentTags = searchInDocumentTags;
     }
+
+    public Boolean getSearchInAllRafs() {
+        return searchInAllRafs;
+    }
+
+    public void setSearchInAllRafs(Boolean searchInAllRafs) {
+        this.searchInAllRafs = searchInAllRafs;
+    }
+
 }

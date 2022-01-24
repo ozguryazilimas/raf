@@ -1,0 +1,21 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/optionPaneBase.xhtml">
+
+  <ui:param name="bean" value="#{defaultSearchOptionPane}"/>
+  <ui:define name="content">
+    <div class="row">
+
+      <t:inputAny label="#{messages['DefaultSearchOptionPane.defaultSubPath.picker.label']}">
+        <p>#{messages['DefaultSearchOptionPane.defaultSubPath.explanation']}</p>
+        <p:selectOneMenu value="#{bean.selectedPath}">
+          <f:selectItems value="#{bean.rafs}"/>
+        </p:selectOneMenu>
+      </t:inputAny>
+    </div>
+  </ui:define>
+
+</ui:composition>

@@ -7,10 +7,13 @@ import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.DialogPages;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
@@ -50,6 +53,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     @Inject
     private RafService rafService;
+
+    @Inject
+    private Identity identity;
 
     private String searchText;
     private String profile;
@@ -151,8 +157,10 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         decorateDialog(options);
 
         try {
-
-            if(subPath == null || subPath.equals("")){
+            RafEncoder encoder = RafEncoderFactory.getRafNameEncoder();
+            String encodedUserName = encoder.encode(identity.getLoginName());
+            if (subPath == null || subPath.equals("") ||
+                    (subPath.startsWith("/PRIVATE") && !subPath.equals("/PRIVATE/" + encodedUserName))) {
                 selected = null;
             } else {
                 selected = rafService.getRafObjectByPath(subPath);
@@ -448,7 +456,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     public void goUpFolder() {
-        if (getCollection().getParentId() == null || getCollection().getParentId().equals("/")) {
+        if (!hasParent()) {
             return;
         }
         clear();
@@ -459,6 +467,10 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         } catch (RafException ex) {
             LOG.error("Cannot find parent node", ex);
         }
+    }
+
+    public boolean hasParent() {
+        return getCollection().getPath().startsWith("/RAF/") && getCollection().getParentId() != null && !getCollection().getParentId().equals("/");
     }
 
 }

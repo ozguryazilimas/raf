@@ -1,18 +1,30 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafContext;
-import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.events.DefaultSearchSubPathChangeEvent;
+import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
-import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
@@ -20,14 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.inject.Named;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,9 +47,6 @@ public class DetailedSearchController implements Serializable {
     private RafDefinitionService rafDefinitionService;
 
     @Inject
-    private RafPathMemberService rafPathMemberService;
-
-    @Inject
     private Identity identity;
 
     @Inject
@@ -55,10 +56,14 @@ public class DetailedSearchController implements Serializable {
     private ElasticSearchService elasticSearchService;
 
     @Inject
-    private RafService rafService;
-    
-    @Inject
     private RafContext rafContext;
+
+    @Inject
+    private UserFavoriteService userFavoriteService;
+
+    @Inject
+    @UserAware
+    private Kahve kahve;
     
     private DetailedSearchModel searchModel;
     private SearchResultDataModel searchResult;
@@ -91,10 +96,19 @@ public class DetailedSearchController implements Serializable {
         rafList = rafDefinitionService.getRafsForUser(identity.getLoginName());
         searchModel = new DetailedSearchModel();
         searchResult = null;
+        searchModel.setSearchSubPath(loadDefaultSearchSubPath());
     }
 
     public void clearSearch() {
+        String oldSubPath = searchModel.getSearchSubPath();
         searchModel = new DetailedSearchModel();
+
+        if(oldSubPath != null && !oldSubPath.equals("")){
+            searchModel.setSearchSubPath(oldSubPath);
+        } else {
+            searchModel.setSearchSubPath(loadDefaultSearchSubPath());
+        }
+
         for (String searchPanel : SearchRegistery.getSearchPanels()) {
             SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
             spc.clearEvent();
@@ -218,6 +232,33 @@ public class DetailedSearchController implements Serializable {
         }
 
         return null;
+    }
+
+    private String loadDefaultSearchSubPath() {
+        // Kullanıcı varsayılan arama rafı ayarladıysa doğrudan onu dönelim.
+        String defaultSearchPath = kahve.get("default.search.path", "").getAsString();
+        if (!defaultSearchPath.equals("")) {
+            return defaultSearchPath;
+        }
+        // Ayarlamadıysa favorilere eklediği rafları inceleyelim ve onu varsayılan olarak ekleyerek dönelim.
+        List<String> favoriteRafs = userFavoriteService.getFavoriteRafPathsByUser(identity.getLoginName());
+        if (favoriteRafs != null && !favoriteRafs.isEmpty()) {
+            String path = favoriteRafs.get(0);
+            kahve.put("default.search.path", path);
+            return path;
+        }
+        // Favorilerinde de hiç raf yok ise üye oldugu raflardan ilkini seçip varsayılan olarak ekleyerek dönelim.
+        List<RafDefinition> defs = rafDefinitionService.getRafsForUser(identity.getLoginName());
+        if (defs != null && !defs.isEmpty()) {
+            String path = "/RAF/" + defs.get(0).getCode();
+            kahve.put("default.search.path", path);
+            return path;
+        }
+        return null;
+    }
+
+    public void listener(@Observes DefaultSearchSubPathChangeEvent event) {
+        searchModel.setSearchSubPath(loadDefaultSearchSubPath());
     }
 
 }
