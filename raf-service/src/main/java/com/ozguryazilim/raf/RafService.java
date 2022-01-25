@@ -2,10 +2,10 @@ package com.ozguryazilim.raf;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.category.RafCategoryService;
-import com.ozguryazilim.raf.enums.EmailNotificationActionType;
 import com.ozguryazilim.raf.email.EmailNotificationService;
 import com.ozguryazilim.raf.entities.RafCategory;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.enums.EmailNotificationActionType;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
@@ -407,7 +407,8 @@ public class RafService implements Serializable {
         rafRepository.copyObject(from, to);
     }
 
-    public void copyObject(List<RafObject> from, RafFolder to) throws RafException {
+    public void copyObject(List<RafObject> from, RafObject to) throws RafException {
+        to = checkRafObjectForPasteAction(to);
         //FIXME: yetki kontrolü
         for (RafObject o : from) {
             sendAuditLog(o.getId(), "COPY_OBJECT_FROM", o.getPath());
@@ -441,7 +442,8 @@ public class RafService implements Serializable {
         rafRepository.moveObject(from, to);
     }
 
-    public void moveObject(List<RafObject> from, RafFolder to) throws RafException {
+    public void moveObject(List<RafObject> from, RafObject to) throws RafException {
+        to = checkRafObjectForPasteAction(to);
         //FIXME: yetki kontrolü
         for (RafObject o : from) {
             sendAuditLog(o.getId(), "MOVE_OBJECT_FROM", o.getPath());
@@ -541,4 +543,31 @@ public class RafService implements Serializable {
     public InputStream getFullPdfDocument(String id) throws RafException {
         return rafRepository.getFullPdfDocumentContent(id);
     }
+
+    /**
+     * Kopyalama ya da Kesme işlemleri için "RafObject" kontrolü yapar. Eğer subclass'ı "RafDocument" ise parent'ını döner.
+     *
+     * @param to -> Kontrol için kullanılacak paste action hedef objesi.
+     * @return
+     * @throws RafException -> Obje tipi "RafNode", "RafFolder" ya da "RafDocument" değilse fırlatır.
+     */
+    private RafObject checkRafObjectForPasteAction(RafObject to) throws RafException {
+        // Eğer hedef olarak gelen obje bir raf, klasör ya da döküman değilse cut ya da paste action farketmeksizin
+        // methodun çalışmasına izin vermemeliyiz.
+        if (!(to instanceof RafNode) && !(to instanceof RafFolder) && !(to instanceof RafDocument)) {
+            throw new RafException(String.format("Target object cannot be : %s", to.getClass().getSimpleName()));
+        }
+        // Hedef olarak bir döküman geldiyse döküman node'ları altında yeni bir node yaratılmaması için parent'ını alıyoruz.
+        // Parent mutlaka bir raf ya da klasöre denk gelmeli. Yoksa methodun çalışmasına izin vermemeliyiz.
+        if (to instanceof RafDocument) {
+            RafObject parent = getRafObject(to.getParentId());
+            if (parent instanceof RafNode || parent instanceof RafFolder) {
+                return parent;
+            } else {
+                throw new RafException(String.format("Target parent object cannot be : %s", to.getClass().getSimpleName()));
+            }
+        }
+        return to;
+    }
+
 }

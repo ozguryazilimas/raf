@@ -2009,7 +2009,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void copyObject(RafObject from, RafFolder to) throws RafException {
+    public void copyObject(RafObject from, RafObject to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             if (session.hasPendingChanges()) {
@@ -2045,7 +2045,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void copyObject(List<RafObject> from, RafFolder to) throws RafException {
+    public void copyObject(List<RafObject> from, RafObject to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
@@ -2131,7 +2131,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void moveObject(List<RafObject> from, RafFolder to) throws RafException {
+    public void moveObject(List<RafObject> from, RafObject to) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
