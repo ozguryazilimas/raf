@@ -39,16 +39,25 @@
             jQuery(document).ready(function() {
                 var isFolderSearch = (#{folderSearch} + "" === 'true');
                 if(isFolderSearch){
-                    folderSearch();
+                    search();
                 }
             });
+
+            function checkSubPathSelection() {
+                var val=$("#searchForm\\:searchSubFolder").val();
+                if((val === "" || val === "/RAF") &amp;&amp; !PF("searchInAllRafsCheckbox").input.is(':checked')){
+                    PF("emptyRafPath").show();
+                } else {
+                    search();
+                }
+            }
 
         </script>
         <h:form id="searchForm">
             <p:defaultCommand target="search"/>
             <p:remoteCommand name="setActiveTab" actionListener="#{detailedSearchController.setActiveTab}"/>
             <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
-            <p:remoteCommand name="folderSearch" actionListener="#{detailedSearchController.search()}" update="resultDataTable"/>
+            <p:remoteCommand name="search" actionListener="#{detailedSearchController.search()}" update="searchForm resultDataTable"/>
             <ui:include src="/layout/messages.xhtml" />
 
             <div class="box box-primary">
@@ -95,7 +104,7 @@
                 
                 <p:toolbar>
                     <f:facet name="left">
-                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" update="resultDataTable" action="#{detailedSearchController.search()}" style="margin-right:20px;" styleClass="btn btn-primary" />
+                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" onclick="checkSubPathSelection()" style="margin-right:20px;" styleClass="btn btn-primary" />
                         <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="btn" />
                     </f:facet>
                 </p:toolbar>
@@ -110,6 +119,11 @@
 
                     <p:column headerText="Dosya Yolu" width="200">>
                         <h:outputText value="#{rafObject.path}" />
+                        <h:link outcome="/raf.xhtml" title="#{messages['collection.goto.file']}">
+                            <i class="fa fa-external-link"/>
+                            <f:param name="id" value="#{''}" />
+                            <f:param name="o" value="#{rafObject.id}" />
+                        </h:link>
                     </p:column>
 
                     <p:column headerText="#{messages['collection.table.File']}" width="200">
@@ -150,7 +164,6 @@
                             <f:convertDateTime type="date" pattern="dd.MM.yyyy HH:mm:ss"/>
                         </h:outputText>
                     </p:column>
-
 
                     <c:forEach items="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset">
                         <p:column headerText="#{messages[_entryset.value]}" width="150">

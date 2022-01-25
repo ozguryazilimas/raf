@@ -8,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class UserFavoriteService implements Serializable {
@@ -47,6 +49,18 @@ public class UserFavoriteService implements Serializable {
 
     public List<UserFavorite> getFavoritesByUser(String username) {
         return repository.findByUsername(username);
+    }
+
+    public List<String> getFavoriteRafPathsByUser(String username) {
+        List<UserFavorite> favorites = getFavoritesByUser(username);
+
+        if (favorites == null || favorites.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return favorites.stream()
+                .map(UserFavorite::getPath)
+                .filter(path -> path.split("/").length == 3)
+                .collect(Collectors.toList());
     }
 
     public List<UserFavorite> getFavoritesByPath(String path){

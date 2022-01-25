@@ -1,7 +1,7 @@
 package com.ozguryazilim.raf.search;
 
-import com.ozguryazilim.raf.CaseSensitiveSearchService;
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.CaseSensitiveSearchService;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.SavedSearch;
@@ -10,6 +10,17 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.saved_search.SavedSearchService;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
+import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.primefaces.event.SelectEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -19,18 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
-import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.api.scope.WindowScoped;
-import org.primefaces.event.SelectEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -140,7 +139,9 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
     public void removeSearch() {
         detailedSearchController.clearSearch();
-        savedSearchService.removeSearchById(savedSearch);
+        if(savedSearch != null){
+            savedSearchService.removeSearchById(savedSearch);
+        }
     }
 
     @PostConstruct
@@ -163,6 +164,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     public void clearEvent() {
         detailedSearchController.getSearchModel().setSearchInDocumentName(Boolean.TRUE);
         detailedSearchController.getSearchModel().setSearchInDocumentTags(Boolean.FALSE);
+        detailedSearchController.getSearchModel().setSearchInAllRafs(Boolean.FALSE);
         detailedSearchController.setExtendedColumnMap(new HashMap());
     }
 
@@ -196,9 +198,9 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInDocumentName()) {
                     if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(String.format(" (nodes.[jcr:name] LIKE '%%%1$s%%' OR  nodes.[jcr:title] LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim())));
+                        whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" (UPPER(nodes.[jcr:name]) LIKE '%%%1$s%%' OR  UPPER(nodes.[jcr:title]) LIKE '%%%1$s%%') ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(caseSensitiveSearchService.getSearchLocale()))));
+                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale()))));
                     }
                 } else {
                     if (searchModel.getCaseSensitive()) {
@@ -211,17 +213,17 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                     if (searchModel.getCaseSensitive()) {
                         whereExpressions.add(String.format(" nodes.[raf:tags] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" UPPER(nodes.[raf:tags]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toUpperCase(caseSensitiveSearchService.getSearchLocale()))));
+                        whereExpressions.add(String.format(" LOWER(nodes.[raf:tags]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale()))));
                     }
                 }
             }
 
-            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath())) {
-                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
+            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath()) && !searchModel.getSearchSubPath().equals("/RAF")) {
+                whereExpressions.add(" ISCHILDNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
             } else {
                 String rafWheres = " ( ";
                 for (RafDefinition raf : rafs) {
-                    rafWheres += " ISDESCENDANTNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+                    rafWheres += " ISCHILDNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
                 }
                 rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
                 rafWheres += " ) ";
