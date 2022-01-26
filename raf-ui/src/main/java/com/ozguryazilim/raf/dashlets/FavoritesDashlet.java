@@ -67,9 +67,7 @@ public class FavoritesDashlet extends AbstractDashlet {
     }
 
     private List<UserFavorite> getUserFavorites() {
-        List<UserFavorite> favorites = favoriteService.getFavoritesByUser(identity.getLoginName());
-
-        return favorites.stream()
+        return favoriteService.getFavoritesByUser(identity.getLoginName()).stream()
                 .map(f -> {
                     try {
                         f.setObject(rafService.getRafObjectByPath(f.getPath()));

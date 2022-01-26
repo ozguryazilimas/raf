@@ -14,6 +14,11 @@ import org.slf4j.LoggerFactory;
  * @author oyas
  */
 public class ContentPanelRegistery {
+
+    private ContentPanelRegistery() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(ContentPanelRegistery.class);
  
     private static final Map<String, ContentPanel> panels = new HashMap<>();

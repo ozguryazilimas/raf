@@ -5,7 +5,6 @@ import com.ozguryazilim.raf.config.SettingsPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
-import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.forms.SubView;
 import com.ozguryazilim.telve.forms.SubViewPageBase;
 import com.ozguryazilim.telve.idm.config.IdmPages;

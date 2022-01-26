@@ -68,7 +68,7 @@ public class UserFavoriteService implements Serializable {
     }
 
     public boolean isAddedFavorites(String username, String path) {
-        return repository.findByUsernameAndPath(username, path).size() > 0;
+        return !repository.findByUsernameAndPath(username, path).isEmpty();
     }
 
 }

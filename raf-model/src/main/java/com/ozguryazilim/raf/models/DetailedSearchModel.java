@@ -44,10 +44,7 @@ public class DetailedSearchModel {
     private String recordNo;
     private String info;
     private String recordDocumentType;
-
-    public DetailedSearchModel() {
-    }
-
+    
     public Map<String, Object> getMapWFAttValue() {
         return mapWFAttValue;
     }
