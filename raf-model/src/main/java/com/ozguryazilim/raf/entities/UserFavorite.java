@@ -1,6 +1,5 @@
 package com.ozguryazilim.raf.entities;
 
-import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.entities.EntityBase;
 

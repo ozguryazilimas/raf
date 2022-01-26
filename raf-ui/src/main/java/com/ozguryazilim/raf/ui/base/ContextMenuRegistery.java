@@ -12,6 +12,10 @@ import java.util.Map;
 
 public class ContextMenuRegistery {
 
+    private ContextMenuRegistery() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(ContextMenuRegistery.class);
 
     private static final Map<String, ContextMenu> contextMenus = new HashMap<>();
