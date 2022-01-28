@@ -1847,6 +1847,10 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
+    public void regeneratePreviews(String id) throws RafException {
+        regeneratePreviews(id, false);
+    }
+
     /**
      * Idsi verilen folder'ın altındaki bütün belgeler için preview oluşturur.
      *
@@ -1856,11 +1860,11 @@ public class RafModeshapeRepository implements Serializable {
      * @param id
      * @throws RafException
      */
-    public void regeneratePreviews(String id) throws RafException {
+    public void regeneratePreviews(String id, boolean regenerateOnlyMissingPreviews) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
-            regeneratePreviews(node);
+            regeneratePreviews(node, regenerateOnlyMissingPreviews);
             session.logout();
         } catch (RepositoryException ex) {
             LOG.error("RAfException", ex);
@@ -1874,15 +1878,22 @@ public class RafModeshapeRepository implements Serializable {
      * @param node
      * @throws RafException
      */
-    protected void regeneratePreviews(Node node) throws RafException {
+    protected void regeneratePreviews(Node node, boolean regenerateOnlyMissingPreviews) throws RafException {
 
         try {
             if (node.isNodeType(NODE_FOLDER)) {
                 for (NodeIterator iter = node.getNodes(); iter.hasNext();) {
                     Node child = iter.nextNode();
                     if (child.isNodeType(NODE_FOLDER)) {
-                        regeneratePreviews(child);
+                        regeneratePreviews(child, regenerateOnlyMissingPreviews);
                     } else if (child.isNodeType(NODE_FILE)) {
+                        if (regenerateOnlyMissingPreviews) {
+                            boolean hasContent = child.isNodeType(NODE_FILE) && child.hasNode(NODE_CONTENT);
+                            boolean hasPreview = !child.isNew() && child.hasNode(NODE_PREVIEW);
+                            if (hasContent && hasPreview) {
+                                continue;
+                            }
+                        }
                         //çünkü başka bir seesion açılsın istiyoruz.
                         regeneratePreview(child.getIdentifier());
                     }
