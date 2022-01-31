@@ -39,4 +39,9 @@ public interface RafCommandPages extends Pages {
     @View
     public class RegeneratePreviewCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class CleanupExpiredUploadsCommandEditor implements Admin {
+    };
 }
