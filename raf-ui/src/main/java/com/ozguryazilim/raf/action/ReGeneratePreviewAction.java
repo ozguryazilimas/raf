@@ -19,7 +19,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 @Action(icon = "fa-refresh",
-        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews},
+        capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.Confirmation},
         order = 1)
 public class ReGeneratePreviewAction extends AbstractAction {
 
