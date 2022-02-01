@@ -59,7 +59,7 @@ public class RegeneratePreviewCommandExecutor extends AbstractCommandExecuter<Re
         RafObject rafObjet;
         try {
             rafObjet = rafService.getRafObjectByPath(command.getRafPath());
-            rafService.regenerateObjectPreviews(rafObjet.getId(), command.getRegenerateOnlyMissingPreviews());
+            rafService.regenerateObjectPreviews(rafObjet.getId(), command.isRegenerateOnlyMissingPreviews());
         } catch (RafException ex) {
             LOG.error("Path not found : {}", command.getRafPath(), ex);
         }
