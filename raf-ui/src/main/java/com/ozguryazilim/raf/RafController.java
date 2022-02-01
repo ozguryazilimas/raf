@@ -968,4 +968,8 @@ public class RafController implements Serializable {
     public void setScroll() {
         //dummy action for scroll attributes
     }
+    
+     public boolean isBpmnSystemEnabled() {
+        return rafService.isBpmnSystemEnabled();
+    }
 }

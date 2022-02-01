@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
@@ -60,6 +61,9 @@ public class DetailedSearchController implements Serializable {
 
     @Inject
     private UserFavoriteService userFavoriteService;
+    
+    @Inject
+    private RafService rafService;
 
     @Inject
     @UserAware
@@ -158,7 +162,7 @@ public class DetailedSearchController implements Serializable {
         //FIXME: buraya daha düzgün bir çözüm lazım. Search panel tipleri felan tanımlanmalı. Process panellerini ayıklamak için daha düzgün bir yol olur.
         //Eğer süreç sistemi yoksa geriye sadece generic search panel dönsün aksi taktirde olası tüm paneller dönsün.
         
-        if( rafContext.getHasProcess() ){
+        if( rafService.isBpmnSystemEnabled() ){
         
             return SearchRegistery.getSearchPanels().stream().sorted(new Comparator<String>() {
                 @Override
