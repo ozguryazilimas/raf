@@ -336,7 +336,11 @@ public class RafService implements Serializable {
      * @throws RafException
      */
     public void regenerateObjectPreviews(String id) throws RafException {
-        rafRepository.regeneratePreviews(id);
+        rafRepository.regeneratePreviews(id, false);
+    }
+
+    public void regenerateObjectPreviews(String id, Boolean regenerateOnlyMissingPreviews) throws RafException {
+        rafRepository.regeneratePreviews(id, regenerateOnlyMissingPreviews);
     }
 
     public RafCollection getRafCollectionForAllNode() throws RafException {

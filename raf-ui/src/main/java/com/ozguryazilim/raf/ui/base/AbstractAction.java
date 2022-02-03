@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
+import static com.ozguryazilim.raf.models.RafMimeTypes.RAF_FOLDER;
 import com.ozguryazilim.raf.models.RafObject;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
@@ -193,7 +194,7 @@ public class AbstractAction implements Serializable {
         String em = getAnnotation().excludeMimeType();
 
         //Eğer Collection için isteniyor ise
-        if (forCollection && hasCapability(ActionCapability.CollectionViews)) {
+        if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
 
             String mm = getContext().getCollection().getMimeType();
 
@@ -224,7 +225,7 @@ public class AbstractAction implements Serializable {
                     return true;
                 }
             }
-        } else if (!forCollection && hasCapability(ActionCapability.DetailViews)) {
+        } else if (!forCollection && hasCapability(ActionCapability.DetailViews) && getContext().getSelectedObject() != null) {
             RafObject o = getContext().getSelectedObject();
 
             //Kontrol edilebilecek bir seçim yok!
