@@ -64,6 +64,8 @@ public class RafService implements Serializable {
     private EmailNotificationService emailNotificationService;
 
     private Boolean readLogEnabled;
+    
+    private boolean bpmnSystemEnabled;
 
     public boolean checkRafName(String name) {
         return !Strings.isNullOrEmpty(name)
@@ -572,6 +574,14 @@ public class RafService implements Serializable {
             }
         }
         return to;
+    }
+
+    public boolean isBpmnSystemEnabled() {
+        return bpmnSystemEnabled;
+    }
+
+    public void setBpmnSystemEnabled(boolean bpmnSystemEnabled) {
+        this.bpmnSystemEnabled = bpmnSystemEnabled;
     }
 
 }
