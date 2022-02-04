@@ -2,8 +2,8 @@ package com.ozguryazilim.raf.objet.member;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserService;
@@ -11,18 +11,20 @@ import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Raf nesne üyeliklerini yönetmek için servis sınıfı.
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 @ApplicationScoped
 public class RafPathMemberService implements Serializable {
+    private final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(RafPathMemberService.class);
 
@@ -86,10 +89,19 @@ public class RafPathMemberService implements Serializable {
             //Cache'e de koyalım
             getMembersImpl(member.getPath()).add(member);
 
+            StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+            String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+            String message = sj.add("event." + eventType)
+                    .add(member.getMemberName())
+                    .add(member.getPath().replace("/RAF/", ""))
+                    .add(member.getRole())
+                    .add(identity.getUserName())
+                    .toString();
+
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
-                    .eventType("RafMemberServiceAddMember$")
+                    .eventType(eventType)
                     .path(member.getPath())
-                    .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .message(message)
                     .user(identity.getLoginName())
                     .build());
         }
@@ -106,11 +118,20 @@ public class RafPathMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getPath()).remove(member);
-        
+
+        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+        String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+        String message = sj.add("event." + eventType)
+                        .add(member.getMemberName())
+                        .add(member.getPath().replace("/RAF/", ""))
+                        .add(member.getRole())
+                        .add(identity.getUserName())
+                        .toString();
+
         commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
-                    .eventType("RafMemberServiceRemoveMember$")
+                    .eventType(eventType)
                     .path(member.getPath())
-                    .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .message(message)
                     .user(identity.getLoginName())
                     .build());
     }

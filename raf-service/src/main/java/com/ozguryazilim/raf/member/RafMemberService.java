@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Observes;
 
@@ -35,6 +36,7 @@ import javax.enterprise.event.Observes;
  */
 @ApplicationScoped
 public class RafMemberService implements Serializable {
+    private final String eventLogTokenSeperator = "$%&";
 
     public static final String RAF_ROLE_MANAGER = "MANAGER";
 
@@ -89,9 +91,19 @@ public class RafMemberService implements Serializable {
             //Cache'e de koyalım
             getMembersImpl(member.getRaf()).add(member);
 
+            StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+            String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+            String message = sj.add("event." + eventType)
+                    .add(member.getMemberName())
+                    .add(member.getRaf().getCode())
+                    .add(member.getRole())
+                    .add(identity.getUserName())
+                    .toString();
+
             commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
-                    .eventType("RafMemberServiceAddMember")
-                    .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .eventType(eventType)
+                    .path("/RAF/" + member.getRaf().getCode() + "/")
+                    .message(message)
                     .user(identity.getLoginName())
                     .build());
         }        
@@ -103,9 +115,19 @@ public class RafMemberService implements Serializable {
         //Cache'den de çıkaralım
         getMembersImpl(member.getRaf()).remove(member);
 
+        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+        String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+        String message = sj.add("event." + eventType)
+                .add(member.getMemberName())
+                .add(member.getRaf().getCode())
+                .add(member.getRole())
+                .add(identity.getUserName())
+                .toString();
+
         commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
-                .eventType("RafMemberServiceRemoveMember")
-                .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getRaf().getCode() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                .eventType(eventType)
+                .path("/RAF/" + member.getRaf().getCode() + "/")
+                .message(message)
                 .user(identity.getLoginName())
                 .build());
     }
