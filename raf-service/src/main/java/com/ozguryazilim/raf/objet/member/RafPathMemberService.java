@@ -6,6 +6,7 @@ import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
@@ -62,6 +63,9 @@ public class RafPathMemberService implements Serializable {
     @Inject
     private Identity identity;
 
+    @Inject
+    private UserLookup userLookup;
+
     public List<RafPathMember> getMembers(String path) throws RafException {
         //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
         return getMembersImpl(path);
@@ -91,8 +95,9 @@ public class RafPathMemberService implements Serializable {
 
             StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+            String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
             String message = sj.add("event." + eventType)
-                    .add(member.getMemberName())
+                    .add(memberName)
                     .add(member.getPath().replace("/RAF/", ""))
                     .add(member.getRole())
                     .add(identity.getUserName())
@@ -121,8 +126,9 @@ public class RafPathMemberService implements Serializable {
 
         StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+        String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
         String message = sj.add("event." + eventType)
-                        .add(member.getMemberName())
+                        .add(memberName)
                         .add(member.getPath().replace("/RAF/", ""))
                         .add(member.getRole())
                         .add(identity.getUserName())

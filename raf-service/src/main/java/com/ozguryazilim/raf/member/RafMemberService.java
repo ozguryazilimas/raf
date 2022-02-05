@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
@@ -60,6 +61,9 @@ public class RafMemberService implements Serializable {
     @Inject
     private Identity identity;
 
+   @Inject
+    private UserLookup userLookup;
+
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
         String role = getMemberRole(identity.getLoginName(), raf);
         if (role.equals(RAF_ROLE_MANAGER)) {
@@ -93,8 +97,9 @@ public class RafMemberService implements Serializable {
 
             StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+            String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
             String message = sj.add("event." + eventType)
-                    .add(member.getMemberName())
+                    .add(memberName)
                     .add(member.getRaf().getCode())
                     .add(member.getRole())
                     .add(identity.getUserName())
@@ -117,8 +122,9 @@ public class RafMemberService implements Serializable {
 
         StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+        String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
         String message = sj.add("event." + eventType)
-                .add(member.getMemberName())
+                .add(memberName)
                 .add(member.getRaf().getCode())
                 .add(member.getRole())
                 .add(identity.getUserName())
