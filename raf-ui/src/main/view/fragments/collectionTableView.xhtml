@@ -21,7 +21,7 @@
             $("#collectionForm\\:scrollTop").val(s.scrollTop);
             setScroll();
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
-            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; $("#totalFileCount").text() > $("#showingFileCount").val()) {
+            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
                 nextPage();
             }
         }
