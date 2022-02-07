@@ -14,7 +14,6 @@ import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

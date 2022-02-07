@@ -4,6 +4,9 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.audit.AuditLogCommand;
+import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
@@ -22,6 +25,12 @@ public class RafShareService {
     @Inject
     private RafService rafService;
 
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private CommandSender commandSender;
+
     public RafObject getDocument(String token, String password) throws RafException {
 
         if (StringUtils.isBlank(token) || StringUtils.isBlank(password)) {
@@ -34,7 +43,16 @@ public class RafShareService {
             RafShare rafShare = results.get(0);
             if (rafShare.getNodeId() != null && (rafShare.getEndDate() == null || rafShare.getEndDate().after(new Date()))) {
                 incrementVisit(rafShare);
-                return rafService.getRafObject(rafShare.getNodeId());
+                RafObject rafObject = rafService.getRafObject(rafShare.getNodeId());
+                AuditLogCommand command = new AuditLogCommand("RAF",
+                        Long.MIN_VALUE,
+                        rafObject.getId(),
+                        "ANONYMOUS_DOWNLOAD",
+                        "RAF",
+                        identity.getLoginName(),
+                String.format("File: %s, Access Token: %s, Password: %s", rafObject.getName(), token, password));
+                commandSender.sendCommand(command);
+                return rafObject;
             }
             throw new RafException("document.share.time.expired");
         }
