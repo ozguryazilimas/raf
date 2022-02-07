@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
@@ -74,6 +75,11 @@ public class RafMemberController implements Serializable {
     private String filter = "";
     private List<RafMember> filteredMembers;
     private RafMember selectedMember;
+    
+    private boolean caseSensitiveSearch = "true".equals(ConfigResolver.getPropertyValue("caseSensitiveSearch", "false"));
+
+    private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
+
 
     public void init() {
 
@@ -126,6 +132,10 @@ public class RafMemberController implements Serializable {
     public void setRafDefinition(RafDefinition rafDefinition) {
         this.rafDefinition = rafDefinition;
     }
+    
+    private boolean isTextContains(String text, String search){
+        return caseSensitiveSearch ? text.contains(search) : text.toLowerCase(searchLocale).contains(search.toLowerCase(searchLocale));
+    }
 
     public List<RafMember> getMembers() {
 
@@ -134,8 +144,8 @@ public class RafMemberController implements Serializable {
                 filteredMembers = memberService.getMembers(rafDefinition).stream()
                         .filter(m
                                 -> m.getMemberType().equals(RafMemberType.USER)
-                        ? userLookup.getUserName(m.getMemberName()).contains(filter)
-                        : m.getMemberName().contains(filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> gm.contains(filter)).findAny().isPresent()
+                        ? isTextContains(userLookup.getUserName(m.getMemberName()), filter)
+                        : isTextContains(m.getMemberName(),filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> isTextContains(gm,filter)).findAny().isPresent()
                         )
                         .collect(Collectors.toList());
 
@@ -165,7 +175,7 @@ public class RafMemberController implements Serializable {
 
         //FIXME: daha önce seçilmiş olanları da filtreleyelim.
         List<UserInfo> result = users.stream()
-                .filter(u -> u.getUserName().toUpperCase(locale).contains(query.toUpperCase(locale)) || u.getLoginName().contains(query))
+                .filter(u ->  isTextContains(u.getUserName(),query))
                 .collect(Collectors.toList());
 
         return result;
