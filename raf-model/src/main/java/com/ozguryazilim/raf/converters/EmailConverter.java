@@ -5,7 +5,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
-// Gerek olmayabilir.
 @FacesConverter("emailConverter")
 public class EmailConverter implements Converter {
 

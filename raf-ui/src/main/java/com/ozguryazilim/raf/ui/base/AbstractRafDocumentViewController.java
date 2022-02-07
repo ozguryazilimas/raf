@@ -389,7 +389,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     public List<RafShare> getShareObjects() {
         return shareService.get(getObject().getId())
                 .stream()
-                .sorted(Comparator.comparing(RafShare::getStartDate))
+                .sorted(Comparator.comparing(RafShare::getStartDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -402,7 +402,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     public void removeSharing(RafShare rafShare) {
         if(rafShare != null){
-            shareService.clearWithToken(rafShare.getToken());
+            shareService.clear(rafShare.getToken());
         }
     }
 

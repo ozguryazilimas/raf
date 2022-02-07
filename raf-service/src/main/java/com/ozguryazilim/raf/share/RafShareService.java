@@ -35,8 +35,6 @@ public class RafShareService {
             if (rafShare.getNodeId() != null && (rafShare.getEndDate() == null || rafShare.getEndDate().after(new Date()))) {
                 incrementVisit(rafShare);
                 return rafService.getRafObject(rafShare.getNodeId());
-            } else if (rafShare.getNodeId() != null) {
-                clear(rafShare.getNodeId());
             }
             throw new RafException("document.share.time.expired");
         }
@@ -53,12 +51,7 @@ public class RafShareService {
     }
 
     @Transactional
-    public void clear(String nodeId) {
-        repository.deleteByNodeId(nodeId);
-    }
-
-    @Transactional
-    public void clearWithToken(String token) {
+    public void clear(String token) {
         repository.deleteByToken(token);
     }
 
@@ -68,7 +61,7 @@ public class RafShareService {
         if (CollectionUtils.isNotEmpty(all)) {
             all.stream()
                     .filter(rs -> (rs.getEndDate() != null && rs.getEndDate().before(new Date())))
-                    .forEach(rs -> clear(rs.getNodeId()));
+                    .forEach(rs -> clear(rs.getToken()));
         }
     }
 

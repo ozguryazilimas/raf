@@ -143,11 +143,10 @@
                                     <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['file.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
                                 </p:commandLink>
                             </f:facet>
-                            <t:outputText label="#{messages['file.sharing.started.user']}" value="#{obj.sharedBy}"
-                                          columnClass="col-xs-12"/>
                             <t:outputDateTime label="#{messages['file.sharing.started.date']}" value="#{obj.startDate}"
                                           columnClass="col-xs-12"/>
-                            <t:outputDateTime label="#{messages['file.sharing.end.date']}" value="#{obj.endDate}"
+                            <t:outputDateTime label="#{messages['file.sharing.end.date']}"
+                                              value="#{obj.endDate == null ? messages['share.time.SHARE_LIMITLESS'] : obj.endDate}"
                                           columnClass="col-xs-12"/>
                             <t:outputText label="#{messages['file.sharing.emails']}" value="#{obj.emails}"
                                           columnClass="col-xs-12"/>
