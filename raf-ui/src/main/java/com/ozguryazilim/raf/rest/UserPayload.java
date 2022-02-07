@@ -15,6 +15,7 @@ public class UserPayload implements Serializable {
     private String userType;
     private String passwordEncodedHash;
     private String mobile;
+    private Boolean autoCreated;
 
     public Long getId() {
         return id;
@@ -80,6 +81,14 @@ public class UserPayload implements Serializable {
         this.mobile = mobile;
     }
 
+    public void setAutoCreated(boolean autoCreated) {
+        this.autoCreated = autoCreated;
+    }
+
+    public boolean isAutoCreated() {
+        return this.autoCreated;
+    }
+
     @Override
     public String toString() {
         return "UserPayload{" +
@@ -91,6 +100,7 @@ public class UserPayload implements Serializable {
                 ", userType='" + userType + '\'' +
                 ", passwordEncodedHash='" + passwordEncodedHash + '\'' +
                 ", mobile='" + mobile + '\'' +
+                ", autoCreated='" + autoCreated + '\'' +
                 '}';
     }
 }
