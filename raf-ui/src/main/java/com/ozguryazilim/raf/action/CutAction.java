@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@Action(icon = "fa-cut",
+@Action(permission="CONSUMER",
+        icon = "fa-cut",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection},
         group = 10,
         order = 2)
