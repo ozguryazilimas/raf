@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.cleanupexpireduploadscommand;
+package com.ozguryazilim.raf.command.checkmissingcontentscommand;
 
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
@@ -10,16 +10,16 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 
-@CommandExecutor(command = CleanupExpiredUploadsCommand.class)
-public class CleanupExpiredUploadsCommandExecutor extends AbstractCommandExecuter<CleanupExpiredUploadsCommand> {
+@CommandExecutor(command = CheckMissingContentsCommand.class)
+public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter<CheckMissingContentsCommand> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CleanupExpiredUploadsCommandExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CheckMissingContentsCommandExecutor.class);
 
     @Inject
     private TusFileUploadService fileUploadService;
 
     @Override
-    public void execute(CleanupExpiredUploadsCommand command) {
+    public void execute(CheckMissingContentsCommand command) {
         try {
             fileUploadService.cleanup();
             LOG.info("Cleaned up expired uploads and locked stales.");
