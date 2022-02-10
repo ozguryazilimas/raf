@@ -185,6 +185,26 @@ public class RafModeshapeRepository implements Serializable {
         ModeShapeRepositoryFactory.shutdown();
     }
 
+    public NodeIterator getAllNodesWithNodeType(String nodeType) throws RafException {
+        NodeIterator result;
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+            String expression = String.format("SELECT * FROM [%s] as nodes", nodeType);
+
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            QueryResult queryResult = query.execute();
+            LOG.debug("Query executed for  {}", expression);
+            result = queryResult.getNodes();
+
+        }
+        catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        }
+        return result;
+    }
+
     public RafNode createRafNode(RafDefinition definition) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
