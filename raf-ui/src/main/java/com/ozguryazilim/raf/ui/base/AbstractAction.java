@@ -3,7 +3,6 @@ package com.ozguryazilim.raf.ui.base;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
@@ -18,7 +17,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -200,7 +198,7 @@ public class AbstractAction implements Serializable {
         String em = getAnnotation().excludeMimeType();
 
         //Eğer Collection için isteniyor ise
-        if (forCollection && hasCapability(ActionCapability.CollectionViews)) {
+        if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
 
             String mm = getContext().getCollection().getMimeType();
 
@@ -231,7 +229,7 @@ public class AbstractAction implements Serializable {
                     return true;
                 }
             }
-        } else if (!forCollection && hasCapability(ActionCapability.DetailViews)) {
+        } else if (!forCollection && hasCapability(ActionCapability.DetailViews) && getContext().getSelectedObject() != null) {
             RafObject o = getContext().getSelectedObject();
 
             //Kontrol edilebilecek bir seçim yok!

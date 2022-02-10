@@ -30,7 +30,7 @@
             $("#collectionForm\\:scrollLeft").val(s.scrollLeft);
             setScroll();
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
-            if ((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; $("#totalFileCount").text() > $("#showingFileCount").val()) {
+            if ((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
                 nextPage();
             }
         }

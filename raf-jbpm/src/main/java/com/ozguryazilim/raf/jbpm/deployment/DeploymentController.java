@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.jbpm.deployment;
 
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.auth.KJarResourceHandler;
 import com.ozguryazilim.raf.auth.RafAsset;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
@@ -25,9 +26,10 @@ import org.slf4j.LoggerFactory;
 /**
  * KJar Deployment işlemlerini yürütmek için arayüz.
  *
- * 
- * FIXME: Aslın undeploy değil inactive implementasyonu yapılmalı. Tarihçede bunlunan form v.s. silinemez!
- * 
+ *
+ * FIXME: Aslın undeploy değil inactive implementasyonu yapılmalı. Tarihçede
+ * bunlunan form v.s. silinemez!
+ *
  * @author Hakan Uygun
  */
 @WindowScoped
@@ -47,9 +49,12 @@ public class DeploymentController implements Serializable {
 
     @Inject
     private Instance<KJarResourceHandler> resourceHandlers;
-    
+
     @Inject
     private RafContext rafContext;
+
+    @Inject
+    private RafService rafService;
 
     private List<RafAsset> deployedAssets;
 
@@ -104,10 +109,10 @@ public class DeploymentController implements Serializable {
             });
 
             //Eğer hiç Process kalmadıysa bpmn system pasif diye işaretleyelim
-            if( getDeployedUnits().isEmpty() ){
-                rafContext.setHasProcess(Boolean.FALSE);
+            if (getDeployedUnits().isEmpty()) {
+                rafService.setBpmnSystemEnabled(Boolean.FALSE);
             }
-            
+
             AuditLogCommand command = new AuditLogCommand("KJAR_UNDEPLOY", identity.getLoginName(), id);
             command.setCategory("KJAR");
             command.setDomain(id);
@@ -123,11 +128,11 @@ public class DeploymentController implements Serializable {
     public void deactivate() {
         deploymentService.deactivate(selectedUnit.getDeploymentUnit().getIdentifier());
     }
-    
+
     public void activate() {
         deploymentService.activate(selectedUnit.getDeploymentUnit().getIdentifier());
     }
-    
+
     public void deploy() {
         String[] gav = kjarId.split(":");
         if (gav.length < 3) {
@@ -141,8 +146,8 @@ public class DeploymentController implements Serializable {
             clear();
 
             //Process var bpmn system aktif diye işaretleyelim
-            rafContext.setHasProcess(Boolean.TRUE);
-            
+            rafService.setBpmnSystemEnabled(Boolean.TRUE);
+
             AuditLogCommand command = new AuditLogCommand("KJAR_DEPLOY", identity.getLoginName(), kjarId);
             command.setCategory("KJAR");
             command.setDomain(kjarId);
