@@ -10,12 +10,14 @@ import com.ozguryazilim.telve.query.QueryDefinition;
 import com.ozguryazilim.telve.query.filters.Filter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.enterprise.context.Dependent;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.data.api.Repository;
 import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 
@@ -30,6 +32,10 @@ public abstract class RafDefinitionRepository extends RepositoryBase<RafDefiniti
     
     public abstract RafDefinition findAnyByCode( String code );
     
+    private boolean caseSensitiveSearch = "true".equals(ConfigResolver.getPropertyValue("caseSensitiveSearch", "false"));
+
+    private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
+
     @Override
     public List<RafDefinition> browseQuery(QueryDefinition queryDefinition) {
         List<Filter<RafDefinition, ?, ?>> filters = queryDefinition.getFilters();
@@ -71,9 +77,15 @@ public abstract class RafDefinitionRepository extends RepositoryBase<RafDefiniti
      */
     private void buildSearchTextControl(String searchText, CriteriaBuilder criteriaBuilder, List<Predicate> predicates, Root<RafDefinition> from) {
         if (!Strings.isNullOrEmpty(searchText)) {
-            predicates.add(criteriaBuilder.or(criteriaBuilder.like(from.get(RafDefinition_.code), "%" + searchText + "%"),
+            if (caseSensitiveSearch) {
+                predicates.add(criteriaBuilder.or(criteriaBuilder.like(from.get(RafDefinition_.code), "%" + searchText + "%"),
                     criteriaBuilder.like(from.get(RafDefinition_.name), "%" + searchText + "%"),
                     criteriaBuilder.like(from.get(RafDefinition_.info), "%" + searchText + "%")));
+            }else{
+                predicates.add(criteriaBuilder.or(criteriaBuilder.like(criteriaBuilder.lower(from.get(RafDefinition_.code)), "%" + searchText.toLowerCase(searchLocale) + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(from.get(RafDefinition_.name)), "%" + searchText.toLowerCase(searchLocale) + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(from.get(RafDefinition_.info)), "%" + searchText.toLowerCase(searchLocale) + "%")));
+            }
         }
     }
 }
