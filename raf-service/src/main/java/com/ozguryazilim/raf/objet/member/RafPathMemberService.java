@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 @ApplicationScoped
 public class RafPathMemberService implements Serializable {
-    private final String eventLogTokenSeperator = "$%&";
+    private static final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(RafPathMemberService.class);
 
@@ -86,6 +86,18 @@ public class RafPathMemberService implements Serializable {
         }
     }
 
+    private String generateEventLogMessage(RafPathMember member, String eventType) {
+        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+        String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
+        return sj.add("event." + eventType)
+                .add(memberName)
+                .add(member.getPath().replace("/RAF/", ""))
+                .add(member.getRole())
+                .add(identity.getUserName())
+                .toString();
+
+    }
+
     @Transactional
     public void addMember(RafPathMember member) throws RafException {
         if (!isMemberOf(member.getMemberName(), member.getPath(), false)) {
@@ -93,20 +105,12 @@ public class RafPathMemberService implements Serializable {
             //Cache'e de koyalım
             getMembersImpl(member.getPath()).add(member);
 
-            StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
-            String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
-            String message = sj.add("event." + eventType)
-                    .add(memberName)
-                    .add(member.getPath().replace("/RAF/", ""))
-                    .add(member.getRole())
-                    .add(identity.getUserName())
-                    .toString();
 
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
                     .path(member.getPath())
-                    .message(message)
+                    .message(generateEventLogMessage(member, eventType))
                     .user(identity.getLoginName())
                     .build());
         }
@@ -124,20 +128,12 @@ public class RafPathMemberService implements Serializable {
         //Cache'den de çıkaralım
         getMembersImpl(member.getPath()).remove(member);
 
-        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
-        String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
-        String message = sj.add("event." + eventType)
-                        .add(memberName)
-                        .add(member.getPath().replace("/RAF/", ""))
-                        .add(member.getRole())
-                        .add(identity.getUserName())
-                        .toString();
 
         commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
                     .path(member.getPath())
-                    .message(message)
+                    .message(generateEventLogMessage(member, eventType))
                     .user(identity.getLoginName())
                     .build());
     }
