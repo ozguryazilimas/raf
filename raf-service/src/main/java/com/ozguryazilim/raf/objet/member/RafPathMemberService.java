@@ -191,7 +191,18 @@ public class RafPathMemberService implements Serializable {
 
     public boolean hasMemberAnyRole(String username, Set<String> roles, String path) throws RafException {
         if (isMemberOf(username, path)) {
-            return hasMemberAnyRole_(username, roles, path);
+            boolean hasUserRole = getMembersImpl(path).stream()
+                    .anyMatch(m -> m.getMemberName().equals(username) && roles.contains(m.getRole()));
+
+            if (!hasUserRole) {
+                //Dahil olduğu gruptan (varsa) ilgili rolü alıp almadığını kontrol edelim
+                return getMembersImpl(path).stream()
+                        .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
+                        .filter(m -> getGroupUsers(m.getMemberName()).stream().anyMatch(username::equals))
+                        .anyMatch(m -> roles.contains(m.getRole()));
+            }
+
+            return hasUserRole;
         } else {
             String parentPath = path.substring(0, path.lastIndexOf("/"));
             if (Strings.isNullOrEmpty(parentPath)) {
@@ -246,24 +257,6 @@ public class RafPathMemberService implements Serializable {
         return b;
     }
 
-    private boolean hasMemberAnyRole_(String username, Set<String> roles, String path) throws RafException {
-        boolean b = getMembersImpl(path).stream()
-                .anyMatch(m -> m.getMemberName().equals(username) && roles.contains(m.getRole()));
-
-        if (!b) {
-            //Önce kullanıcının dahil olduğu grubu bulalım
-            List<RafPathMember> grps = getMembersImpl(path).stream()
-                    .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
-                    .collect(Collectors.toList());
-
-            //Şimdi her grup içine bakalım kullanıcı var mı?
-            return grps.stream()
-                    .filter(m -> getGroupUsers(m.getMemberName()).stream().anyMatch(username::equals))
-                    .anyMatch(m -> roles.contains(m.getRole()));
-        }
-
-        return b;
-    }
 
     /**
      * Asıl implementasyon. Cache'e bakar. Yoksa veri tabanından toparlar.
