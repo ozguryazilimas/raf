@@ -1,16 +1,19 @@
 package com.ozguryazilim.raf.email;
 
 import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.entities.UserFavorite;
 import com.ozguryazilim.raf.enums.EmailNotificationActionType;
 import com.ozguryazilim.raf.enums.EmailNotificationType;
 import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.channel.email.EmailChannel;
 import com.ozguryazilim.telve.messages.Messages;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.omnifaces.el.functions.Strings;
 import org.slf4j.Logger;
@@ -72,6 +75,24 @@ public class EmailNotificationService implements Serializable {
         String objectType = object.getClass().getSimpleName();
         LOG.debug("Sending email to Consumers:{} for the ObjectName:{} ActionType:{} ", consumers, objectName, actionType);
         sendMessage(consumers, name, surname, link, objectName, objectType, actionType);
+    }
+
+    public void sendEmailToSharedContacts(RafShare rafShare, String filename) {
+        if (CollectionUtils.isNotEmpty(rafShare.getEmails())) {
+            Map<String, Object> headers = new HashMap();
+            headers.put("messageClass", "SHARE");
+            headers.put("filename", filename);
+            headers.put("sharedBy", rafShare.getSharedBy());
+            headers.put("link", UrlUtils.getDocumentShareURL(rafShare.getToken()));
+            headers.put("password", rafShare.getPassword());
+
+            for (String consumerEmail : rafShare.getEmails()) {
+                String subject = ConfigResolver.getPropertyValue("app.title")
+                        + " - "
+                        + Messages.getMessage("Sizinle Bir Dosya Paylaşıldı.");
+                emailChannel.sendMessage(consumerEmail, subject, "", headers);
+            }
+        }
     }
 
     /**

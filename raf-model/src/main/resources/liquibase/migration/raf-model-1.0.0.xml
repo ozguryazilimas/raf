@@ -185,4 +185,31 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet author="srdrmtl" id="202202031436">
+        <createTable tableName="RAF_SHARE">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="RAF_SHARE_PK"/>
+            </column>
+            <column name="NODE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SHARED_BY" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_DATE" type="DATETIME"/>
+            <column name="EMAILS" type="VARCHAR(1000)"/>
+            <column name="VISIT" type="BIGINT"/>
+            <column name="INFO" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
