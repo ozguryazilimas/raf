@@ -44,7 +44,7 @@ import java.util.StringJoiner;
  * @author Hakan Uygun
  */
 public class AbstractRafDocumentViewController extends AbstractRafObjectViewController<RafDocument> {
-    private final String eventLogTokenSeperator = "$%&";
+    private static final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRafDocumentViewController.class);
 
