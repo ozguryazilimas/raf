@@ -10,9 +10,14 @@ import com.ozguryazilim.telve.auth.Identity;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 import javax.jcr.Credentials;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.web.util.WebUtils;
 import org.modeshape.jcr.ExecutionContext;
+import org.modeshape.jcr.api.ServletCredentials;
 import org.modeshape.jcr.security.AuthenticationProvider;
 import org.modeshape.jcr.security.AuthorizationProvider;
 import org.modeshape.jcr.security.SecurityContext;
@@ -31,6 +36,9 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
     private String CREATE = "add_node";
     private String DELETE = "remove";
     private String DELETE_CHILD = "remove_child_nodes";
+
+    @Inject
+    private ServletCredentials servletCredentials;
 
     @Override
     public ExecutionContext authenticate(Credentials credentials, String repositoryName, String workspaceName, ExecutionContext repositoryContext, Map<String, Object> sessionAttributes) {
@@ -90,6 +98,10 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     @Override
     public boolean hasPermission(ExecutionContext context, String repositoryName, String repositorySourceName, String workspaceName, Path absPath, String... actions) {
+        // public document share
+        if(getHttpServletRequest().getServletPath().startsWith("/public")){
+            return true;
+        }
         //FIXME: Bunun detaylarına bir bakmak lazım.
         boolean permission = false;
         if (absPath != null) {
@@ -163,5 +175,9 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     protected RafPathMemberService getRafPathMemberService() {
         return BeanProvider.getContextualReference(RafPathMemberService.class, true);
+    }
+
+    protected HttpServletRequest getHttpServletRequest(){
+        return BeanProvider.getContextualReference(HttpServletRequest.class, true);
     }
 }

@@ -650,14 +650,14 @@ public class RafController implements Serializable {
      *
      * @return
      */
-    public List<List<AbstractAction>> getActions() {
-        //FIXME: Yetki kontrolü
-
+    public List<List<AbstractAction>> getActions() throws RafException {
+        String loginName = identity.getLoginName();
         List<List<AbstractAction>> result = new ArrayList<>();
 
         List<AbstractAction> acts = ActionRegistery.getActions();
         Map< Integer, List<AbstractAction>> actGroups = acts.stream()
                 .filter(a -> a.applicable(selectedContentPanel.getSupportCollection()))
+                .filter(a -> a.permitted(loginName))
                 .sorted(new Comparator<AbstractAction>() {
                     @Override
                     public int compare(AbstractAction a1, AbstractAction a2) {
@@ -967,5 +967,9 @@ public class RafController implements Serializable {
 
     public void setScroll() {
         //dummy action for scroll attributes
+    }
+    
+     public boolean isBpmnSystemEnabled() {
+        return rafService.isBpmnSystemEnabled();
     }
 }

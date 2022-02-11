@@ -1,0 +1,66 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:param name="title" value="dialog.title.ShareDocument"/>
+
+    <ui:define name="form">
+        <style>
+            .ui-inputfield:not(.ui-selectonemenu-label),
+            .ui-autocomplete,
+            .ui-spinner,
+            .ui-autocomplete-input,
+            .ui-selectonemenu,
+            .ui-spinner,
+            .ui-picklist-list {
+                height: auto;
+            }
+        </style>
+        <h:form id="ff">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p:messages style="margin: 0px;">
+                        <p:autoUpdate/>
+                    </p:messages>
+                </div>
+            </div>
+
+            <div class="row">
+                <t:inputAny label="shareDocument.emails.label">
+                    <p:autoComplete id="emails" multiple="true" value="#{shareAction.rafShare.emails}"
+                                    style="height: auto"
+                                    completeMethod="#{shareAction.suggestIsEmail}"
+                                    var="email" itemLabel="#{email}" itemValue="#{email}" forceSelection="true"
+                                    converter="emailConverter">
+                        <p:column>
+                            #{email}
+                        </p:column>
+                    </p:autoComplete>
+                </t:inputAny>
+            </div>
+            <div class="row">
+                <t:inputAny label="shareDocument.shareTime.label">
+                    <p:selectOneMenu value="#{shareAction.shareTime}">
+                        <f:selectItems value="#{shareAction.shareTime.values()}" var="val"
+                                       itemLabel="#{messages['share.time.'.concat(val.name())]}"
+                                       itemValue="#{val.name()}"/>
+                    </p:selectOneMenu>
+                </t:inputAny>
+            </div>
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block"
+                              style="/*position: fixed; bottom: 0; display: block;*/">
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check"
+                                     action="#{shareAction.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close"
+                                     action="#{shareAction.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

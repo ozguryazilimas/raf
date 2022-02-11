@@ -132,7 +132,34 @@
                     </ui:include>
                 </c:forEach>
             </div>
-
+            <ui:fragment rendered="#{viewBean.hasShare}">
+                <p:repeat value="#{viewBean.shareObjects}" var="obj">
+                    <div class="row">
+                        <t:accordion label="#{formatedMessage.getFormatedMessage('file.sharing.started.by', obj.sharedBy)}" columnClass="col-xs-12">
+                            <f:facet name="toolbar" rendered="#{viewBean.hasRafWritePermission or viewBean.getHasRemoveSharing(obj)}">
+                                <p:commandLink action="#{viewBean.removeSharing(obj)}" process="@this" update="raf-view-content"
+                                               styleClass="btn btn-box-tool">
+                                    <i class="fa fa-remove"/> #{messages['file.sharing.clear.label']}
+                                    <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['file.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </f:facet>
+                            <t:outputDateTime label="#{messages['file.sharing.started.date']}" value="#{obj.startDate}"
+                                          columnClass="col-xs-12"/>
+                            <t:outputDateTime label="#{messages['file.sharing.end.date']}"
+                                              value="#{obj.endDate == null ? messages['share.time.SHARE_LIMITLESS'] : obj.endDate}"
+                                          columnClass="col-xs-12"/>
+                            <t:outputText label="#{messages['file.sharing.emails']}" value="#{obj.emails}"
+                                          columnClass="col-xs-12"/>
+                            <t:outputText label="#{messages['file.sharing.link']}" value="#{viewBean.getSharingUrl(obj)}"
+                                          columnClass="col-xs-12"/>
+                            <t:outputText label="#{messages['file.sharing.password']}" value="#{obj.password}"
+                                          columnClass="col-xs-12"/>
+                            <t:outputText label="#{messages['file.sharing.total.downloads']}" value="#{obj.visit}"
+                                          columnClass="col-xs-12"/>
+                        </t:accordion>
+                    </div>
+                </p:repeat>
+            </ui:fragment>
             <ui:fragment rendered="#{viewBean.rafCheckStatus}">
                 <h:form id="checkinform">
                     <div class="row">

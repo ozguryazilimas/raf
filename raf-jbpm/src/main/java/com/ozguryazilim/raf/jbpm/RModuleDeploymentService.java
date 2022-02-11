@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.jbpm;
 
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.auth.KJarResourceHandler;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,21 +30,25 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
 
     @Inject
     private Instance<KJarResourceHandler> resourceHandlers;
-    
+
+    @Inject
+    private RafService rafService;
+
     @Override
     protected void processResources(InternalKieModule module, Collection<String> files, KieContainer kieContainer, DeploymentUnit unit, DeployedUnitImpl deployedUnit, ReleaseId releaseId, Map<String, ProcessDescriptor> processes) {
-        super.processResources(module, files, kieContainer, unit, deployedUnit, releaseId, processes); 
-        
+        super.processResources(module, files, kieContainer, unit, deployedUnit, releaseId, processes);
+
         for (String fileName : files) {
-            
-            resourceHandlers.forEach( h -> {
-                if( h.canHandle(fileName)){
+
+            resourceHandlers.forEach(h -> {
+                if (h.canHandle(fileName)) {
                     LOG.debug("File {} process by handler {}, {}", fileName, h, releaseId);
                     InputStream is = new ByteArrayInputStream(module.getBytes(fileName));
-                    h.handle( releaseId.toString(), is);
+                    h.handle(releaseId.toString(), is);
+                    rafService.setBpmnSystemEnabled(Boolean.TRUE);
                 }
             });
-            
+
             /*
             if (fileName.matches(".+frm.xml$")) {
                 LOG.info("Form File {} found", fileName);
@@ -55,11 +60,9 @@ public class RModuleDeploymentService extends DeploymentServiceCDIImpl {
                 //FIXME: buraya injection ile kjar resource processor almak gerek.
                 //formManager.deployForms(is);
             }
-            */
+             */
         }
-        
+
     }
-    
-    
-    
+
 }
