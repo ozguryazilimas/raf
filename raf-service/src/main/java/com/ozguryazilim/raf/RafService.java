@@ -499,7 +499,24 @@ public class RafService implements Serializable {
             return;
         }
 
-        AuditLogCommand command = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), path);
+        String logPath = path;
+
+        //255 den daha uzun olan path lerde veritabanında ilgili sütuna yazılabilmesi için ortasını kesiyoruz.
+        String longPathDivider = "...";
+        int pathCharCountLimit = 255;
+        int longPathPrefixOffset = 100;
+        int longPathSuffixOffset = pathCharCountLimit - longPathPrefixOffset - longPathDivider.length();
+
+        if (path.length() > pathCharCountLimit) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(path, 0, longPathPrefixOffset)
+                    .append(longPathDivider)
+                    .append(path, path.length() - longPathSuffixOffset, path.length());
+
+            logPath = sb.toString();
+        }
+
+        AuditLogCommand command = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), logPath);
         commandSender.sendCommand(command);
     }
 

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -188,6 +189,30 @@ public class RafPathMemberService implements Serializable {
         }
     }
 
+    public boolean hasMemberAnyRole(String username, Set<String> roles, String path) throws RafException {
+        if (isMemberOf(username, path)) {
+            boolean hasUserRole = getMembersImpl(path).stream()
+                    .anyMatch(m -> m.getMemberName().equals(username) && roles.contains(m.getRole()));
+
+            if (!hasUserRole) {
+                //Dahil olduğu gruptan (varsa) ilgili rolü alıp almadığını kontrol edelim
+                return getMembersImpl(path).stream()
+                        .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
+                        .filter(m -> getGroupUsers(m.getMemberName()).stream().anyMatch(username::equals))
+                        .anyMatch(m -> roles.contains(m.getRole()));
+            }
+
+            return hasUserRole;
+        } else {
+            String parentPath = path.substring(0, path.lastIndexOf("/"));
+            if (Strings.isNullOrEmpty(parentPath)) {
+                return false;
+            } else {
+                return hasMemberAnyRole(username, roles, parentPath);
+            }
+        }
+    }
+
     public boolean hasMemberInPath(String username, String path) {
         try {
             if (isMemberOf(username, path)) {
@@ -232,9 +257,6 @@ public class RafPathMemberService implements Serializable {
         return b;
     }
 
-    public String getMemberRole(String username, String path) throws RafException {
-        return "";
-    }
 
     /**
      * Asıl implementasyon. Cache'e bakar. Yoksa veri tabanından toparlar.
