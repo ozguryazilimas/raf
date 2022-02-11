@@ -2,8 +2,11 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
-import static com.ozguryazilim.raf.models.RafMimeTypes.RAF_FOLDER;
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
@@ -13,7 +16,9 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -26,6 +31,12 @@ public class AbstractAction implements Serializable {
 
     @Inject
     private RafContext context;
+
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
+    @Inject
+    private RafMemberService rafMemberService;
 
     /**
      * Varsayılan hali ile sınıf adını döner.
@@ -78,20 +89,13 @@ public class AbstractAction implements Serializable {
     }
 
     /**
-     * Annotation'a bakar eğer orada tanılı olan bir şey yoksa "SınıfAdı"
-     * şeklinde permission domain tanımı döner.
+     * Annotation'a bakar ve tanılı olan rolleri döner.
+     * Eğer tanılı olan rol yoksa Action ın herhangi bir yetkiden erişilebilir olduğu çıkarılır.
      *
      * @return
      */
-    public String getPermission() {
-
-        Action a = getAnnotation();
-
-        if (!Strings.isNullOrEmpty(a.permission())) {
-            return a.permission();
-        }
-
-        return getClass().getSimpleName();
+    public Set<String> getPermissions() {
+        return new HashSet<>(Arrays.asList(getAnnotation().permissions()));
     }
 
     protected Action getAnnotation() {
@@ -265,6 +269,22 @@ public class AbstractAction implements Serializable {
         }
 
         return false;
+    }
+
+    public boolean permitted(String loginName) {
+        if (StringUtils.isBlank(loginName)) {
+            return false;
+        }
+
+        try {
+            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
+                return rafPathMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedObject().getPath());
+            } else {
+                return getContext().getSelectedRaf() != null && getPermissions().contains(rafMemberService.getMemberRole(loginName, getContext().getSelectedRaf()));
+            }
+        } catch (RafException e) {
+            return false;
+        }
     }
 
     public boolean isSupportAjax() {
