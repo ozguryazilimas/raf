@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.rest;
 
+import com.ozguryazilim.telve.rest.ext.Logged;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 
@@ -10,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
+@Logged
 @RequiresPermissions("admin")
 @Path("/api/version")
 public class VersionRest {

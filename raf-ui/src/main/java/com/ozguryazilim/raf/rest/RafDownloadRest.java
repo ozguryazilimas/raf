@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.rest;
 import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.rest.ext.Logged;
 import org.apache.commons.io.IOUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class RafDownloadRest implements Serializable {
             responseDownload.setFileName(ro.getName());
             responseDownload.setBytes(bytes);
         } catch (Exception ioEx) {
-            ioEx.printStackTrace();
+            LOG.error("Error while downloading file", ioEx);
         }
         Gson gson = new Gson();
         String json = gson.toJson(responseDownload);

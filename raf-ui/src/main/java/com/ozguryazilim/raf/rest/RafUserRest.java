@@ -7,6 +7,7 @@ import com.ozguryazilim.telve.idm.entities.UserRole;
 import com.ozguryazilim.telve.idm.role.RoleRepository;
 import com.ozguryazilim.telve.idm.user.UserRepository;
 import com.ozguryazilim.telve.idm.user.UserRoleRepository;
+import com.ozguryazilim.telve.rest.ext.Logged;
 import org.apache.camel.Body;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author oyas
  */
+@Logged
 @RequiresPermissions("admin")
 @Path("/api/users")
 @Produces(MediaType.APPLICATION_JSON)

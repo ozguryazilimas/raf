@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.rest.ext.Logged;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
@@ -31,6 +32,7 @@ import java.net.URLDecoder;
  *
  * @author oyas
  */
+@Logged
 @RequiresPermissions("admin")
 @Path("/upload")
 public class RafUploadRest implements Serializable{
