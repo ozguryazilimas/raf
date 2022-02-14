@@ -58,7 +58,7 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
             LOG.error("Error while checking contents", ex);
         }
         if (!nodePathsWithMissingContents.isEmpty()) {
-            sendEmailWithMissingContentsInformation(nodePathsWithMissingContents);
+            sendEmailWithMissingContentsInformation(nodePathsWithMissingContents, command.getEmail());
         }
 
         LOG.warn("Check Missing Contents Job end! Took {}s", DurationFormatUtils.formatDuration(System.currentTimeMillis() - startMs, "ss.SSS"));
@@ -78,7 +78,7 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
         }
     }
 
-    private void sendEmailWithMissingContentsInformation(List<String> nodes) {
+    private void sendEmailWithMissingContentsInformation(List<String> nodes, String email) {
         Map<String, Object> params = new HashMap<>();
 
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -88,7 +88,7 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
         params.put("nodes", nodes);
 
         String subject = ConfigResolver.getPropertyValue("app.title") + " " + date + " " + Messages.getMessage("email.subject.CheckMissingContentsCommand.suffix");
-        emailChannel.sendMessage("to@example.com", subject, "", params);
+        emailChannel.sendMessage(email, subject, "", params);
     }
 
 }

@@ -2,7 +2,6 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <p:scrollPanel mode="native" style="width:490px; height:400px">
-        <p:outputLabel value="Dosyaların Alınacağı Yerel Klasör"/>
-    </p:scrollPanel>
+    <p:outputLabel value="#{messages['general.label.Email']}"/>
+    <p:inputText value="#{checkMissingContentsCommandEditor.command.email}" required="true"/>
 </ui:composition>
