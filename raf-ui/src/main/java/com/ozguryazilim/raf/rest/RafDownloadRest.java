@@ -3,7 +3,7 @@ package com.ozguryazilim.raf.rest;
 import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.contextmenu.Download;
+import com.ozguryazilim.raf.models.DownloadResponse;
 import com.ozguryazilim.raf.models.RafObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -16,7 +16,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -40,26 +39,24 @@ public class RafDownloadRest implements Serializable {
     @Inject
     private RafService rafService;
 
+    @POST
+    @Path("/content")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response downloadFileByPath(@FormParam("raf") String raf, @FormParam("path") String path) {
+        try {
+            RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
+            InputStream is = rafService.getDocumentContent(ro.getId());
 
-    private class DownloadResponse {
-        private String fileName = "";
-        private byte[] bytes;
+            LOG.info(String.format("%s is downloaded.", ro.getPath()));
+            return Response.status(Response.Status.OK)
+                    .entity(new DownloadResponse(ro.getName(), IOUtils.toByteArray(is)))
+                    .build();
 
-        public DownloadResponse(String fileName, byte[] bytes) {
-            this.fileName = fileName;
-            this.bytes = bytes;
+        } catch (RafException | IOException ex) {
+            String errMsg = "Error while downloading file";
+            LOG.error(errMsg, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errMsg).build();
         }
-
-        public DownloadResponse() {}
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public void setBytes(byte[] bytes) {
-            this.bytes = bytes;
-        }
-
     }
 
     @POST
@@ -80,32 +77,6 @@ public class RafDownloadRest implements Serializable {
         Gson gson = new Gson();
         String json = gson.toJson(responseDownload);
         return Response.ok().type(MediaType.APPLICATION_JSON).entity(json).build();
-    }
-
-    @POST
-    @Path("/file")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response downloadFileByPath(@FormParam("raf") String raf, @FormParam("path") String path) {
-        String errMsg;
-        try {
-            RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
-            InputStream is = rafService.getDocumentContent(ro.getId());
-
-            LOG.warn(String.format("%s is downloaded.", ro.getPath()));
-            return Response.status(Response.Status.OK)
-                    .entity(new DownloadResponse(ro.getName(), IOUtils.toByteArray(is)))
-                    .build();
-
-        } catch (RafException ex) {
-            errMsg = "Error while accessing file";
-            LOG.error(errMsg, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errMsg).build();
-        } catch (IOException ex) {
-            errMsg = "Error while downloading file";
-            LOG.error(errMsg, ex);
-        }
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errMsg).build();
     }
 
 }
