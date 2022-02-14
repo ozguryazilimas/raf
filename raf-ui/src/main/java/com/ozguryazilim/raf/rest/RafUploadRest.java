@@ -32,7 +32,6 @@ import java.net.URLDecoder;
  *
  * @author oyas
  */
-@Logged
 @RequiresPermissions("admin")
 @Path("/upload")
 public class RafUploadRest implements Serializable{
