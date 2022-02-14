@@ -18,6 +18,10 @@ public interface ActionPages extends Pages {
     }
 
     @SecuredPage
+    class ShareDocumentDialog implements Pages {
+    }
+
+    @SecuredPage
     class RafObjectMembers implements Pages {
     };
 

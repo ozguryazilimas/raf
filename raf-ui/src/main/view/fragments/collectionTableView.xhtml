@@ -52,11 +52,31 @@
                             <p:commandLink action="#{controllerBean.setSortByAndType('NAME', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Title']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'NAME'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-alpha-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-alpha-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
+
                         </th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('MIMETYPE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.File']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'MIMETYPE'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-alpha-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-alpha-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
+
                         </th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
@@ -67,11 +87,31 @@
                             <p:commandLink action="#{controllerBean.setSortByAndType('SIZE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Size']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'SIZE'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
+
                         </th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('DATE_ASC', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Date']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'DATE_ASC'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
+
                         </th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('USER', !controllerBean.descSort)}" process="@this" update="raf-view-content">
@@ -82,12 +122,31 @@
                             <p:commandLink action="#{controllerBean.setSortByAndType('MODIFY_DATE_ASC', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.UpdateDate']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'MODIFY_DATE_ASC'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
+
                         </th>
                         <th>#{messages['collection.table.Info']}</th>
                         <th>
                             <p:commandLink action="#{controllerBean.setSortByAndType('CATEGORY', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Category']}
                             </p:commandLink>
+
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'CATEGORY'}">
+                                <ui:fragment rendered="#{controllerBean.descSort}">
+                                    <i class="fa fa-sort-desc"></i>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{!controllerBean.descSort}">
+                                    <i class="fa fa-sort-asc"></i>
+                                </ui:fragment>
+                            </ui:fragment>
                         </th>
                         <th></th>
                     </tr>

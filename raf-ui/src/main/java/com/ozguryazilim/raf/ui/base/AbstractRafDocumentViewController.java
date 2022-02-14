@@ -6,6 +6,7 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
@@ -14,9 +15,13 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.raf.share.RafShareService;
+import com.ozguryazilim.raf.utils.IdentityUtils;
+import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
@@ -34,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RafDocument view controlü için taban sınıf.
@@ -69,6 +75,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     @Inject
     private RafDefinitionService rafDefinitionService;
+
+    @Inject
+    private RafShareService shareService;
 
     private List<RafVersion> versions = null;
 
@@ -372,4 +381,36 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             LOG.error("Cannot regenerate preview", e);
         }
     }
+
+    public boolean getHasShare(){
+        return CollectionUtils.isNotEmpty(shareService.get(getObject().getId()));
+    }
+
+    public List<RafShare> getShareObjects() {
+        return shareService.get(getObject().getId())
+                .stream()
+                .sorted(Comparator.comparing(RafShare::getStartDate).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public boolean getHasRemoveSharing(RafShare rafShare) {
+        if(rafShare != null){
+            return rafShare.getSharedBy().equals(IdentityUtils.getPrettyNameSurname(identity));
+        }
+        return false;
+    }
+
+    public void removeSharing(RafShare rafShare) {
+        if(rafShare != null){
+            shareService.clear(rafShare.getToken());
+        }
+    }
+
+    public String getSharingUrl(RafShare rafShare) {
+        if (rafShare != null) {
+            return UrlUtils.getDocumentShareURL(rafShare.getToken());
+        }
+        return "";
+    }
+
 }

@@ -71,6 +71,7 @@ public class RafUserRest {
         user.setMobile(uvm.getMobile());
         user.setPasswordEncodedHash(uvm.getPasswordEncodedHash());
         user.setUserType(uvm.getUserType());
+        user.setAutoCreated(uvm.isAutoCreated());
         
         userRepository.saveAndFlush(user);
         idmEvent.fire(new IdmEvent(IdmEvent.FROM_USER, IdmEvent.CREATE, uvm.getLoginName()));
