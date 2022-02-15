@@ -46,7 +46,6 @@ public class RafDownloadRest implements Serializable {
 
     @POST
     @Path("/file")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response downloadFile(@FormParam("docid") String docID) {
         DownloadResponse responseDownload = new DownloadResponse();
