@@ -1,26 +1,34 @@
 package com.ozguryazilim.raf.rest;
 
-import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
-import com.ozguryazilim.raf.models.DownloadResponse;
+import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
-import org.apache.commons.io.IOUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * REST üzerinden dosya yüklemek için yazılmıştır.
@@ -40,44 +48,66 @@ public class RafDownloadRest implements Serializable {
     private RafService rafService;
 
     @POST
-    @Path("/content")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/file")
     public Response downloadFileByPath(@FormParam("raf") String raf, @FormParam("path") String path) {
         try {
             RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
-            InputStream is = rafService.getDocumentContent(ro.getId());
-
             LOG.info(String.format("%s is downloaded.", ro.getPath()));
-            return Response.status(Response.Status.OK)
-                    .entity(new DownloadResponse(ro.getName(), IOUtils.toByteArray(is)))
-                    .build();
-
+            return getRafFileResponse(ro);
         } catch (RafException | IOException ex) {
-            String errMsg = "Error while downloading file";
-            LOG.error(errMsg, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errMsg).build();
+            LOG.error("Error while downloading file", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
         }
     }
 
-    @POST
-    @Path("/file")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response downloadFile(@FormParam("docid") String docID) {
-        DownloadResponse responseDownload = new DownloadResponse();
+    @GET
+    @Path("/file/{id}")
+    public Response downloadFile(@PathParam("id") String docID) {
         try {
             RafObject ro = rafService.getRafObject(docID);
-            InputStream is = rafService.getDocumentContent(docID);
-            byte[] bytes = IOUtils.toByteArray(is);
-            responseDownload.setFileName(ro.getName());
-            responseDownload.setBytes(bytes);
-        } catch (Exception ioEx) {
-            ioEx.printStackTrace();
+            LOG.info(String.format("%s is downloaded.", ro.getPath()));
+            return getRafFileResponse(ro);
+        } catch (RafException | IOException ex) {
+            LOG.error("Error while downloading file", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
         }
-        Gson gson = new Gson();
-        String json = gson.toJson(responseDownload);
-        return Response.ok().type(MediaType.APPLICATION_JSON).entity(json).build();
     }
 
+    private Response getRafFileResponse(RafObject ro) throws IOException, RafException {
+        if (ro instanceof RafFolder) {
+            //Check max file limit
+            long maxFolderSize = Long.parseLong(ConfigResolver.getPropertyValue("raf.multiplefiledownloadlimit", String.valueOf(104857600)));
+            try {
+                rafService.getFolderSize(ro.getPath(), maxFolderSize);
+            } catch (RafException e) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity(e.getMessage())
+                        .build();
+            }
+
+            StreamingOutput streamingOutput = output -> {
+                try {
+                    ZipOutputStream zipOut = new ZipOutputStream(output);
+                    rafService.zipFile(ro, ro.getName(), zipOut);
+                    zipOut.close();
+                    output.close();
+                } catch (RafException e) {
+                    LOG.error("Error while zipping content",e);
+                }
+            };
+
+            return Response.ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM_TYPE)
+                    .header("Content-Disposition", "attachment; filename=\"" + ro.getName() + ".zip" + "\"")
+                    .build();
+
+        } else {
+            InputStream is = rafService.getDocumentContent(ro.getId());
+            return Response.ok(is, MediaType.APPLICATION_OCTET_STREAM_TYPE)
+                    .header("Content-Disposition", "attachment; filename=\"" + ro.getName() + "\"")
+                    .header("Content-Length", ro.getLength())
+                    .build();
+
+        }
+    }
 }
 

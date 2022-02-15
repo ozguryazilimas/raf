@@ -21,6 +21,7 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -35,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Raf hizmetleri için temel Service sınıfı.
@@ -593,6 +599,43 @@ public class RafService implements Serializable {
         return to;
     }
 
+    public void zipFile(RafObject fileToZip, String fileName, ZipOutputStream zipOut) throws IOException, RafException {
+        if (fileToZip instanceof RafFolder) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            List<RafObject> children = getCollection(fileToZip.getId()).getItems();
+            for (RafObject childFile : children) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        if (fileToZip instanceof RafRecord) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            List<RafDocument> children = ((RafRecord) fileToZip).getDocuments();
+            for (RafObject childFile : children) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+
+        InputStream fis = getDocumentContent(fileToZip.getId());
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        IOUtils.copy(fis, zipOut);
+        zipOut.flush();
+        fis.close();
+    }
     public boolean isBpmnSystemEnabled() {
         return bpmnSystemEnabled;
     }
