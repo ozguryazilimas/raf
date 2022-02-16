@@ -120,44 +120,6 @@ public class MultipleFileDownloadAction extends AbstractAction {
 
     }
 
-    private void zipFile(RafObject fileToZip, String fileName, ZipOutputStream zipOut) throws IOException, RafException {
-        if (fileToZip instanceof RafFolder) {
-            if (fileName.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(fileName));
-                zipOut.closeEntry();
-            } else {
-                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
-                zipOut.closeEntry();
-            }
-            List<RafObject> children = rafService.getCollection(fileToZip.getId()).getItems();
-            for (RafObject childFile : children) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
-            }
-            return;
-        }
-        if (fileToZip instanceof RafRecord) {
-            if (fileName.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(fileName));
-                zipOut.closeEntry();
-            } else {
-                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
-                zipOut.closeEntry();
-            }
-            List<RafDocument> children = ((RafRecord) fileToZip).getDocuments();
-            for (RafObject childFile : children) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
-            }
-            return;
-        }
-
-        InputStream fis = rafService.getDocumentContent(fileToZip.getId());
-        ZipEntry zipEntry = new ZipEntry(fileName);
-        zipOut.putNextEntry(zipEntry);
-        IOUtils.copy(fis, zipOut);
-        zipOut.flush();
-        fis.close();
-    }
-
     void downloadZipFile() throws IOException, RafException {
         HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
         response.setContentType("application/zip");
@@ -166,7 +128,7 @@ public class MultipleFileDownloadAction extends AbstractAction {
         OutputStream out = response.getOutputStream();
         zipOS = new ZipOutputStream(out);
         for (RafObject file : getContext().getSeletedItems()) {
-            zipFile(file, file.getName(), zipOS);
+            rafService.zipFile(file, file.getName(), zipOS);
         }
         zipOS.close();
         out.close();
