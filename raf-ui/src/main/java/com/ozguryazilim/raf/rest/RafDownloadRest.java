@@ -54,9 +54,11 @@ public class RafDownloadRest implements Serializable {
             RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
             LOG.info(String.format("%s is downloaded.", ro.getPath()));
             return getRafFileResponse(ro);
-        } catch (RafException | IOException ex) {
+        } catch (IOException ex) {
             LOG.error("Error while downloading file", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
+        } catch (RafException ex) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Content not found").build();
         }
     }
 
@@ -67,9 +69,11 @@ public class RafDownloadRest implements Serializable {
             RafObject ro = rafService.getRafObject(docID);
             LOG.info(String.format("%s is downloaded.", ro.getPath()));
             return getRafFileResponse(ro);
-        } catch (RafException | IOException ex) {
+        } catch (IOException ex) {
             LOG.error("Error while downloading file", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
+        } catch (RafException ex) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Content not found").build();
         }
     }
 
