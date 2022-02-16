@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.folderdivcommand;
+package com.ozguryazilim.raf.command.folderdivcommand;
 
 import com.ozguryazilim.raf.imports.*;
 import com.ozguryazilim.telve.messagebus.command.ui.CommandEditor;

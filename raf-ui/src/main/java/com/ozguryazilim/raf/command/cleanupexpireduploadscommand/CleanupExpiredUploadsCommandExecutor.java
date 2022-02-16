@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.cleanupexpireduploadscommand;
+package com.ozguryazilim.raf.command.cleanupexpireduploadscommand;
 
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;

@@ -7,11 +7,14 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.jcr.Credentials;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -98,10 +101,14 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     @Override
     public boolean hasPermission(ExecutionContext context, String repositoryName, String repositorySourceName, String workspaceName, Path absPath, String... actions) {
-        // public document share
-        if(getHttpServletRequest().getServletPath().startsWith("/public")){
-            return true;
-        }
+        //Bu alan metodun çağırıldığı scope a ait context in HttpRequestContext e ait olmaması durumunda geçici çözüm sağlanması için try-catch içerisine alındı.
+        //WELD-000710: Cannot inject HttpServletRequest outside of a Servlet request
+        try {
+            // public document share
+            if (getHttpServletRequest().getServletPath().startsWith("/public")) {
+                return true;
+            }
+        } catch (Exception ex) { }
         //FIXME: Bunun detaylarına bir bakmak lazım.
         boolean permission = false;
         if (absPath != null) {

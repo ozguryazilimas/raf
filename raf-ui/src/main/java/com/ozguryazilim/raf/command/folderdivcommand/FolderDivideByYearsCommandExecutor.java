@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.folderdivcommand;
+package com.ozguryazilim.raf.command.folderdivcommand;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
