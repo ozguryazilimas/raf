@@ -80,7 +80,7 @@ public class RafDownloadRest implements Serializable {
             try {
                 rafService.getFolderSize(ro.getPath(), maxFolderSize);
             } catch (RafException e) {
-                return Response.status(Response.Status.FORBIDDEN)
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                         .entity(e.getMessage())
                         .build();
             }
