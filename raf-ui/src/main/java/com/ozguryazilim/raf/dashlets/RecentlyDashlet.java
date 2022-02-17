@@ -16,13 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Sistem olaylarını sunar.
- * 
- * FIXME: Veri servisi implement edildiğinde düzeltilecek.
- * 
- * @author Hakan Uygun
- */
 @Dashlet(capability = {DashletCapability.canHide, DashletCapability.canMinimize, DashletCapability.canRefresh}, permission = "public")
 public class RecentlyDashlet extends AbstractDashlet{
    

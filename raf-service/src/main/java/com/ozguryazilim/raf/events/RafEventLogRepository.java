@@ -3,14 +3,16 @@ package com.ozguryazilim.raf.events;
 import com.ozguryazilim.raf.entities.RafEventLog;
 import com.ozguryazilim.raf.entities.RafEventLog_;
 import com.ozguryazilim.telve.data.RepositoryBase;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
-import javax.enterprise.context.Dependent;
+import org.apache.deltaspike.data.api.Query;
 import org.apache.deltaspike.data.api.Repository;
 import org.apache.deltaspike.data.api.criteria.Criteria;
 import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
+
+import javax.enterprise.context.Dependent;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RafEventLog Repository
@@ -20,20 +22,26 @@ import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 @Dependent
 public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, RafEventLog> implements CriteriaSupport<RafEventLog>{
 
-    private List<String> recentlyEventTypes = Arrays.asList("SelectDocument", "DownloadDocument", "UploadDocument");
+    public List<RafEventLog> findRecentlyEventsByUsername(String username) {
+        Criteria<RafEventLog,RafEventLog> crit = criteria()
+                .like(RafEventLog_.username, username)
+                .or(
+                        criteria().eq(RafEventLog_.type, "DownloadDocument"),
+                        criteria().eq(RafEventLog_.type, "UploadDocument")
+                );
 
-    public List<RafEventLog> findByUsername(String username) {
-        Criteria<RafEventLog,RafEventLog> crit = criteria().like(RafEventLog_.username, username);
-        List<Criteria<RafEventLog,RafEventLog>> partCrits = new ArrayList<>();
-        recentlyEventTypes.forEach((p) -> {
-            partCrits.add( criteria().like(RafEventLog_.type, p));
-        });
-
-        crit.or(partCrits);
         crit.orderDesc(RafEventLog_.logTime);
+        List<RafEventLog> recentDownloadAndUpload = crit.createQuery().setMaxResults(10).getResultList();
+        List<RafEventLog> recentSelectDocument = findDistinctEventByUsername(username, "SelectDocument", 10);
 
-        return crit.createQuery().setMaxResults(10).getResultList();
+        List<RafEventLog> recentEvents = new ArrayList<>();
+        recentEvents.addAll(recentDownloadAndUpload);
+        recentEvents.addAll(recentSelectDocument);
 
+        return recentEvents.stream()
+                .sorted(Comparator.comparing(RafEventLog::getLogTime).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
     }
 
 
@@ -57,5 +65,8 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
 
         return crit.createQuery().setMaxResults(10).getResultList();
     }
-    
+
+    @Query(value = "SELECT * FROM raf_events WHERE id IN (SELECT MAX(id) FROM raf_events GROUP BY message) AND username = ?1 AND type= ?2 ORDER BY log_time ASC limit ?3", isNative = true)
+    public abstract List<RafEventLog> findDistinctEventByUsername(String username, String eventType, int limit);
+
 }

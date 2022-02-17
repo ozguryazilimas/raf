@@ -45,7 +45,7 @@ public class RafEventLogService {
 
     public List<RafEventLog> getRecentlyEventsByUser(String username){
         //Repository'den şu anda max 10 adet dönüyor
-        return logRepository.findByUsername(username);
+        return logRepository.findRecentlyEventsByUsername(username);
     }
 
 
