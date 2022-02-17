@@ -4,7 +4,9 @@ import com.ozguryazilim.raf.entities.RafEventLog;
 import com.ozguryazilim.raf.entities.RafEventLog_;
 import com.ozguryazilim.telve.data.RepositoryBase;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import javax.enterprise.context.Dependent;
 import org.apache.deltaspike.data.api.Repository;
 import org.apache.deltaspike.data.api.criteria.Criteria;
@@ -17,9 +19,23 @@ import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 @Repository
 @Dependent
 public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, RafEventLog> implements CriteriaSupport<RafEventLog>{
- 
-    public abstract List<RafEventLog> findByUsername( String username);
-    
+
+    private List<String> recentlyEventTypes = Arrays.asList("SelectDocument", "DownloadDocument", "UploadDocument");
+
+    public List<RafEventLog> findByUsername(String username) {
+        Criteria<RafEventLog,RafEventLog> crit = criteria().like(RafEventLog_.username, username);
+        List<Criteria<RafEventLog,RafEventLog>> partCrits = new ArrayList<>();
+        recentlyEventTypes.forEach((p) -> {
+            partCrits.add( criteria().like(RafEventLog_.type, p));
+        });
+
+        crit.or(partCrits);
+        crit.orderDesc(RafEventLog_.logTime);
+
+        return crit.createQuery().setMaxResults(10).getResultList();
+
+    }
+
 
     /**
      * FIXME: Şu anda kafadan 10 ile sınırlandırıldı. Daha sonrası için düzenlenmesi gerek.
@@ -37,7 +53,8 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
         
         crit.or(partCrits);
         crit.orderDesc(RafEventLog_.logTime);
-        
+        crit.notLike(RafEventLog_.type, "SelectDocument");
+
         return crit.createQuery().setMaxResults(10).getResultList();
     }
     

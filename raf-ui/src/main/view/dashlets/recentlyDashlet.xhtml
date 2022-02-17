@@ -1,0 +1,45 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"   
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                template="/layout/dashletBase.xhtml">
+
+    <ui:param name="name" value="recentlyDashlet" />
+    <ui:param name="bean" value="#{recentlyDashlet}" />
+
+    <ui:define name="view">
+        <p:outputPanel deferred="true">
+            <div class="box-body no-padding">
+                <style>
+                    .product-info{
+                        margin-left: 36px ! important;
+                    }
+                </style>
+
+                <ul class="products-list product-list-in-box">
+                    <p:repeat value="#{recentlyDashlet.events}" var="event" >
+                        <li class="item">
+                            <div class="product-img">
+                                <i class="fa #{messages['event.icon.'.concat(event.type)]} fa-2x text-muted" />
+                            </div>
+                            <div class="product-info" style="margin-left: 36px;">
+                                <span>
+                                    <h:outputText value="#{formatedMessage.getMessageFromData('recently.'.concat(event.message))}" escape="false" />
+                                    <h:link outcome="/raf.xhtml" rendered="#{event.refId ne null}">
+                                        <i class="fa fa-external-link"/>
+                                        <f:param name="id" value="#{''}" />
+                                        <f:param name="o" value="#{event.refId}" />
+                                    </h:link>
+                                </span>
+                                <div class="text-muted text-sm">#{formatedMessage.getMessageFromData(event.info)}</div>
+                                <div class="text-muted text-sm"><t:cellOutputDateTime value="#{event.logTime}" /></div>
+                            </div>
+                        </li>
+                    </p:repeat>
+                </ul>
+            </div>
+        </p:outputPanel>
+    </ui:define>
+</ui:composition>
