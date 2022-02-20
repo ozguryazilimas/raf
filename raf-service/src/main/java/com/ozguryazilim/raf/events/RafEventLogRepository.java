@@ -32,7 +32,7 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
 
         crit.orderDesc(RafEventLog_.logTime);
         List<RafEventLog> recentDownloadAndUpload = crit.createQuery().setMaxResults(10).getResultList();
-        List<RafEventLog> recentSelectDocument = findDistinctEventByUsername(username, "SelectDocument", 10);
+        List<RafEventLog> recentSelectDocument = findDistinctEventsByUsernameAndEventType(username, "SelectDocument", 10);
 
         List<RafEventLog> recentEvents = new ArrayList<>();
         recentEvents.addAll(recentDownloadAndUpload);
@@ -67,6 +67,6 @@ public abstract class RafEventLogRepository extends RepositoryBase<RafEventLog, 
     }
 
     @Query(value = "SELECT * FROM raf_events WHERE id IN (SELECT MAX(id) FROM raf_events GROUP BY message) AND username = ?1 AND type= ?2 ORDER BY log_time ASC limit ?3", isNative = true)
-    public abstract List<RafEventLog> findDistinctEventByUsername(String username, String eventType, int limit);
+    public abstract List<RafEventLog> findDistinctEventsByUsernameAndEventType(String username, String eventType, int limit);
 
 }
