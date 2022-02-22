@@ -35,7 +35,7 @@ public class RafFileUploadDialog extends FileUploadDialog {
         Map<String, Object> options = new HashMap();
         options.put("modal", true);
         options.put("resizable", false);
-        options.put("contentHeight", 480);
+        options.put("contentHeight", 495);
         PrimeFaces.current().dialog().openDynamic("/dialogs/rafFileUploadDialog", options, null);
     }
 

@@ -104,6 +104,9 @@
                 </script>
             </div>
             <h:panelGroup styleClass="row actionButtons" layout="block">
+                <h:panelGrid columns="1" style="margin-right:10px" cellpadding="5">
+                    <p:outputLabel styleClass="text-muted" value="#{messages['fileUploadDialog.label.path'].concat(' ').concat(fileUploadAction.getUserFriendlyRafPath())}"></p:outputLabel>
+                </h:panelGrid>
                 <c:if test="#{fileUploadAction.rafCode ne 'CHECKIN'}">
                     <h:panelGrid columns="1" style="margin-right:10px" cellpadding="5">
                         <p:selectBooleanCheckbox value="#{rafFileUploadDialog.decompress}"

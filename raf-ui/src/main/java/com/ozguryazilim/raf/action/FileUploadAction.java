@@ -18,6 +18,7 @@ import com.ozguryazilim.raf.uploader.RafFileUploadDialog;
 import com.ozguryazilim.raf.uploader.RafFileUploadHandler;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import com.ozguryazilim.telve.messages.Messages;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
@@ -111,7 +112,7 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
 
     @Override
     protected void initDialogOptions(Map<String, Object> options) {
-        options.put("contentHeight", 480);
+        options.put("contentHeight", 495);
         options.put("contentWidth", 640);
     }
 
@@ -262,6 +263,25 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
         } finally {
             finalizeAction();
         }
+    }
+
+    public String getUserFriendlyRafPath() {
+        String sharedPrefix = "/SHARED";
+        String privatePrefix = "/PRIVATE/" + identity.getLoginName();
+        String rafPrefix = "/RAF/";
+
+        String rafPath;
+
+        if (uploadPath.startsWith(sharedPrefix)) {
+            String localizedRafText = Messages.getMessage("raf.label.Shared");
+            rafPath = uploadPath.replaceFirst(sharedPrefix, localizedRafText);
+        } else if (uploadPath.startsWith(privatePrefix)) {
+            String localizedRafText = Messages.getMessage("raf.label.Private");
+            rafPath = uploadPath.replaceFirst(privatePrefix, localizedRafText);
+        } else {
+            rafPath = uploadPath.replaceFirst(rafPrefix, "");
+        }
+        return !rafPath.contains("/") ? rafPath + ":/" : rafPath.replaceFirst("/", ":/");
     }
 
 }
