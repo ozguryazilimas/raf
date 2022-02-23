@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
@@ -266,8 +268,9 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
     }
 
     public String getUserFriendlyRafPath() {
+        RafEncoder rafEncoder = RafEncoderFactory.getRafNameEncoder();
         String sharedPrefix = "/SHARED";
-        String privatePrefix = "/PRIVATE/" + identity.getLoginName();
+        String privatePrefix = "/PRIVATE/" + rafEncoder.encode(identity.getLoginName());
         String rafPrefix = "/RAF/";
 
         String rafPath;
