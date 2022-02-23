@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 @Action(icon = "fa-copy",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection},
+        permissions = {"CONSUMER", "CONTRIBUTER", "EDITOR", "MANAGER"},
         group = 10,
         order = 1
 )

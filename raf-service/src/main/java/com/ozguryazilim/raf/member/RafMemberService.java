@@ -204,14 +204,14 @@ public class RafMemberService implements Serializable {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
+        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf) || hasMemberRole(username, "ORGANIZER", raf);
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf) || hasMemberRole(username, "ORGANIZER", raf);
+        return hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     private boolean hasMemberRole(String username, String role, RafDefinition raf) throws RafException {
