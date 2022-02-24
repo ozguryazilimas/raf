@@ -1,8 +1,18 @@
 package com.ozguryazilim.raf.rest;
 
+import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.channel.email.EmailChannel;
 import com.ozguryazilim.telve.channel.notify.NotifyChannel;
+import com.ozguryazilim.telve.idm.entities.Group;
+import com.ozguryazilim.telve.idm.entities.User;
+import com.ozguryazilim.telve.idm.entities.UserGroup;
+import com.ozguryazilim.telve.idm.group.GroupRepository;
+import com.ozguryazilim.telve.idm.user.UserGroupRepository;
+import com.ozguryazilim.telve.idm.user.UserRepository;
+import com.ozguryazilim.telve.idm.user.UserRoleRepository;
+import com.ozguryazilim.telve.messages.Messages;
 import org.apache.camel.Body;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +21,13 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,6 +46,18 @@ public class NotificationRest {
     @Inject
     private EmailChannel emailChannel;
 
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private UserGroupRepository userGroupRepository;
+
     public static class NotifyResponse implements Serializable {
         private List<String> users;
         private String subject;
@@ -45,10 +67,11 @@ public class NotificationRest {
         private String icon = "fa fa-bell-o";
         private String severity = "info";
         private String link = "";
+        private Long duration = -1L;
 
         //Additional Parameters
-        private long expirationMin;
         private boolean groupReceivers = Boolean.FALSE;
+        private boolean sendMail = Boolean.FALSE;
 
         public NotifyResponse() {
         }
@@ -59,13 +82,14 @@ public class NotificationRest {
             this.message = message;
         }
 
-        public NotifyResponse(List<String> users, String subject, String message, String icon, String severity, String link) {
+        public NotifyResponse(List<String> users, String subject, String message, String icon, String severity, String link, Long duration) {
             this.users = users;
             this.subject = subject;
             this.message = message;
             this.icon = icon;
             this.severity = severity;
             this.link = link;
+            this.duration = duration;
         }
 
         public List<String> getUsers() {
@@ -116,14 +140,6 @@ public class NotificationRest {
             this.link = link;
         }
 
-        public long getExpirationMin() {
-            return expirationMin;
-        }
-
-        public void setExpirationMin(long expirationMin) {
-            this.expirationMin = expirationMin;
-        }
-
         public boolean isGroupReceivers() {
             return groupReceivers;
         }
@@ -131,30 +147,75 @@ public class NotificationRest {
         public void setGroupReceivers(boolean groupReceivers) {
             this.groupReceivers = groupReceivers;
         }
+
+        public Long getDuration() {
+            return duration;
+        }
+
+        public void setDuration(Long duration) {
+            this.duration = duration;
+        }
+
+        public boolean isSendMail() {
+            return sendMail;
+        }
+
+        public void setSendMail(boolean sendMail) {
+            this.sendMail = sendMail;
+        }
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notification(@Body NotifyResponse notifyRequest) {
-        sendNotifyMessage(notifyRequest);
+        sendNotifyMessages(notifyRequest);
         return Response.ok().build();
     }
 
-    private void sendNotifyMessage(NotifyResponse notify) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("messageClass", "notifyRest");
+    private void sendNotifyMessages(NotifyResponse notify) {
+        Map<String, Object> notifyParams = new HashMap<>();
+        Map<String, Object> emailParams = new HashMap<>();
+        emailParams.put("messageClass", "NOTIFICATION_API");
+        emailParams.put("message", notify.getMessage());
+        String emailSubject = ConfigResolver.getPropertyValue("app.title") + " - " + notify.getSubject();
+
+        notifyParams.put("messageClass", "NOTIFICATION_API");
 
         if (notify.getIcon() != null)
-            params.put("icon", notify.getIcon());
+            notifyParams.put("icon", notify.getIcon());
 
         if (notify.getSeverity() != null)
-            params.put("severity", notify.getSeverity());
+            notifyParams.put("severity", notify.getSeverity());
 
         if (notify.getLink() != null)
-            params.put("link", notify.getLink());
+            notifyParams.put("link", notify.getLink());
 
-
-        notifyChannel.sendMessage(notify.getUsers().get(0), notify.getSubject(), notify.getMessage(), params);
+        //Notify gönder
+        getNotifyReceivers(notify).forEach(user -> {
+            notifyChannel.sendMessage(user, notify.getSubject(), notify.getMessage(), notifyParams);
+            if (notify.isSendMail() && userService.getUserInfo(user).getEmail() != null) {
+                emailChannel.sendMessage(userService.getUserInfo(user).getEmail(), emailSubject, "", emailParams);
+            }
+        });
     }
 
+    private List<User> getUsersByGroup(String groupCode) {
+        Group group = groupRepository.findByCode(groupCode).get(0);
+        List<UserGroup> userGroups = userGroupRepository.findByGroup(group);
+        return userGroups.stream().map(UserGroup::getUser).collect(Collectors.toList());
+
+    }
+
+    private List<String> getNotifyReceivers(NotifyResponse notify) {
+        //Eğer kişi listesi boşsa herkese gönder
+        if (!notify.isGroupReceivers()) {
+            if (notify.getUsers().isEmpty()) {
+                return userRepository.findAll().stream().map(User::getLoginName).collect(Collectors.toList());
+            } else {
+                return notify.getUsers();
+            }
+        } else {
+            return notify.getUsers().stream().flatMap(u -> getUsersByGroup(u).stream().map(User::getLoginName)).collect(Collectors.toList());
+        }
+    }
 }
