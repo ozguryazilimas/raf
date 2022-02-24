@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
  * @author Hakan Uygun
  */
 public class AbstractRafDocumentViewController extends AbstractRafObjectViewController<RafDocument> {
+    private static final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRafDocumentViewController.class);
 
@@ -314,10 +316,17 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
             InputStream is = rafService.getDocumentVersionContent(getObject().getId(), version);
             rafService.checkin(getObject().getPath(), is, versionComment);
 
+            StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+            String eventMessage = sj.add("event.RevertVersion")
+            .add(identity.getUserName())
+            .add(getObject().getTitle())
+            .add(version)
+            .toString();
+
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType("RevertVersion")
                     .forRafObject(getObject())
-                    .message("event.RevertVersion$%&" + identity.getUserName() + "$%&" + getObject().getTitle())
+                    .message(eventMessage)
                     .user(identity.getLoginName())
                     .build());
 

@@ -62,6 +62,5 @@ public class EventLogCommandBuilder {
     public EventLogCommand build(){
         return command;
     }
-            
-    
+
 }

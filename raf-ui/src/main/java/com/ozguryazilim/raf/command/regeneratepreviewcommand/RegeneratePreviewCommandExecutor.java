@@ -1,25 +1,13 @@
-package com.ozguryazilim.raf.regeneratepreviewcommand;
+package com.ozguryazilim.raf.command.regeneratepreviewcommand;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
-import com.ozguryazilim.raf.encoder.RafEncoder;
-import com.ozguryazilim.raf.encoder.RafEncoderFactory;
-import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.models.RafCollection;
-import com.ozguryazilim.raf.models.RafDocument;
-import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

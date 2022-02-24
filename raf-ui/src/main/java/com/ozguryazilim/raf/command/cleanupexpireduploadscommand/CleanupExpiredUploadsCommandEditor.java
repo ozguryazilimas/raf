@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.cleanupexpireduploadscommand;
+package com.ozguryazilim.raf.command.cleanupexpireduploadscommand;
 
 import com.ozguryazilim.raf.imports.RafCommandPages;
 import com.ozguryazilim.telve.messagebus.command.ui.CommandEditor;
