@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.action.FileUploadAction;
@@ -76,10 +77,16 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private RafPathMemberService rafPathMemberService;
 
     @Inject
+    private RafMemberService rafMemberService;
+
+    @Inject
     private RafDefinitionService rafDefinitionService;
 
     @Inject
     private RafShareService shareService;
+
+    @Inject
+    private RafContext context;
 
     private List<RafVersion> versions = null;
 
@@ -198,8 +205,14 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         }
     }
 
-    public Boolean getCanRafCheckIn() {
-        return (identity.isPermitted("admin") || identity.getUserName().equals(getRafCheckerUser()));
+    private boolean hasManagerRoleOnObjectsDirectory() throws RafException {
+        String path = getObject().getPath().substring(0, getObject().getPath().length() - getObject().getName().length());
+        boolean hasMemberInPath = rafPathMemberService.hasMemberInPath(identity.getLoginName(), path);
+        return (hasMemberInPath ? rafPathMemberService.hasManagerRole(identity.getLoginName(), path) : rafMemberService.hasManagerRole(identity.getLoginName(), context.getSelectedRaf()));
+    }
+
+    public Boolean getCanRafCheckIn() throws RafException {
+        return (identity.isPermitted("admin") || identity.getUserName().equals(getRafCheckerUser()) || hasManagerRoleOnObjectsDirectory());
     }
 
     public void lockFile() {
