@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Observes;
@@ -246,6 +247,14 @@ public class RafMemberService implements Serializable {
         }
 
         return b;
+    }
+
+    public boolean hasMemberAnyRole(String username, Set<String> roles, RafDefinition raf) throws RafException {
+        //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
+        if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
+            return roles.stream().anyMatch(role -> !role.equals("MANAGER"));
+        }
+        return roles.contains(getMemberRole(username, raf));
     }
 
     public String getMemberRole(String username, String rafCode) throws RafException {
