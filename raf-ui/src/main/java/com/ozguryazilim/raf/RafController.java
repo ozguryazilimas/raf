@@ -5,7 +5,10 @@ import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
+import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.enums.SortType;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafChangedEvent;
 import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderChangeEvent;
@@ -29,6 +32,8 @@ import com.ozguryazilim.raf.ui.base.ContextMenuRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.auth.UserLookup;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.messages.Messages;
 import com.ozguryazilim.telve.view.Pages;
@@ -36,6 +41,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.MenuModel;
@@ -55,6 +61,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -65,6 +72,7 @@ import java.util.stream.Collectors;
 @WindowScoped
 @Named
 public class RafController implements Serializable {
+    private static final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(RafController.class);
 
@@ -101,6 +109,9 @@ public class RafController implements Serializable {
 
     @Inject
     private Event<RafFolderChangeEvent> folderChangedEvent;
+
+    @Inject
+    private CommandSender commandSender;
 
     private AbstractSidePanel selectedSidePanel;
 
@@ -542,12 +553,32 @@ public class RafController implements Serializable {
 
     }
 
+    @Transactional
+    public void sendSelectDocumentEvent(RafDocument item) {
+        String eventType = "SelectDocument";
+
+        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+        String eventMessage = sj.add("event." + eventType)
+                .add(item.getName())
+                .toString();
+
+        commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                .forRafObject(item)
+                .eventType(eventType)
+                .path(item.getPath())
+                .message(eventMessage)
+                .user(identity.getLoginName())
+                .build());
+    }
+
     public void selectDocument(RafDocument item) {
         context.setSelectedObject(item);
         context.getSeletedItems().clear();
         context.getSeletedItems().add(item);
         //FIXME: Burayı nasıl düzenlesek acaba? İçerik sunumu için aslında doğru paneli nasıl şeçeceğiz?
         selectedContentPanel = getObjectContentPanel();
+
+        sendSelectDocumentEvent(item);
     }
 
     public void selectRecord(RafRecord item) {
