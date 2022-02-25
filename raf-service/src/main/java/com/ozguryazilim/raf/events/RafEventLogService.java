@@ -39,5 +39,7 @@ public class RafEventLogService {
         //Repository'den şu anda max 10 adet dönüyor
         return logRepository.findByPaths(username, paths);
     }
-    
+
+    public List<RafEventLog> getSharedFilesEventLogs(String userName)
+
 }
