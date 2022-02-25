@@ -5,7 +5,6 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.share.RafShareService;
-import com.ozguryazilim.raf.utils.IdentityUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.dashboard.AbstractDashlet;
 import com.ozguryazilim.telve.dashboard.Dashlet;
@@ -38,7 +37,7 @@ public class SharedFilesDashlet extends AbstractDashlet {
 
     @Override
     public void load() {
-        this.shareLogs = rafShareService.findByLoginName(IdentityUtils.getPrettyNameSurname(identity));
+        this.shareLogs = rafShareService.findByLoginName(identity.getLoginName());
     }
 
     public List<RafShare> getShareLogs() {

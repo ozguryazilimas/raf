@@ -82,7 +82,7 @@ public class EmailNotificationService implements Serializable {
             Map<String, Object> headers = new HashMap();
             headers.put("messageClass", "SHARE");
             headers.put("filename", filename);
-            headers.put("sharedBy", rafShare.getSharedBy());
+            headers.put("sharedBy", userService.getUserName(rafShare.getSharedBy()));
             headers.put("link", UrlUtils.getDocumentShareURL(rafShare.getToken()));
             headers.put("password", rafShare.getPassword());
 

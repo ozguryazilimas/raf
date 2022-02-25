@@ -1,7 +1,5 @@
 package com.ozguryazilim.raf.share;
 
-import com.ozguryazilim.raf.entities.RafEventLog;
-import com.ozguryazilim.raf.entities.RafEventLog_;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.entities.RafShare_;
 import com.ozguryazilim.telve.data.RepositoryBase;
@@ -10,7 +8,6 @@ import org.apache.deltaspike.data.api.criteria.Criteria;
 import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 
 import javax.enterprise.context.Dependent;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +28,7 @@ public abstract class RafShareRepository extends RepositoryBase<RafShare, RafSha
     public List<RafShare> findActiveSharesBySharedBy(String sharedBy) {
         Criteria<RafShare, RafShare> crit = criteria();
 
+        crit.eq(RafShare_.sharedBy, sharedBy);
         crit.or(
             criteria().gtOrEq(RafShare_.endDate, new Date()),
             criteria().eq(RafShare_.endDate, null)

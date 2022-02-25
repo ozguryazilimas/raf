@@ -135,7 +135,7 @@
             <ui:fragment rendered="#{viewBean.hasShare}">
                 <p:repeat value="#{viewBean.shareObjects}" var="obj">
                     <div class="row">
-                        <t:accordion label="#{formatedMessage.getFormatedMessage('file.sharing.started.by', obj.sharedBy)}" columnClass="col-xs-12">
+                        <t:accordion label="#{formatedMessage.getFormatedMessage('file.sharing.started.by', userService.getUserName(obj.sharedBy))}" columnClass="col-xs-12">
                             <f:facet name="toolbar" rendered="#{viewBean.hasRafWritePermission or viewBean.getHasRemoveSharing(obj)}">
                                 <p:commandLink action="#{viewBean.removeSharing(obj)}" process="@this" update="raf-view-content"
                                                styleClass="btn btn-box-tool">

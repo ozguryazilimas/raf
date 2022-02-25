@@ -404,7 +404,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
 
     public boolean getHasRemoveSharing(RafShare rafShare) {
         if(rafShare != null){
-            return rafShare.getSharedBy().equals(IdentityUtils.getPrettyNameSurname(identity));
+            return rafShare.getSharedBy().equals(identity.getLoginName());
         }
         return false;
     }
