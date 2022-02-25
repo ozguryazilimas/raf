@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Observes;
@@ -197,14 +198,14 @@ public class RafMemberService implements Serializable {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
+        return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "SUPPORTER", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasWriteRole(String username, RafDefinition raf) throws RafException {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
+        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf) || hasMemberRole(username, "SUPPORTER", raf);
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
@@ -246,6 +247,14 @@ public class RafMemberService implements Serializable {
         }
 
         return b;
+    }
+
+    public boolean hasMemberAnyRole(String username, Set<String> roles, RafDefinition raf) throws RafException {
+        //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
+        if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
+            return roles.stream().anyMatch(role -> !role.equals("MANAGER"));
+        }
+        return roles.contains(getMemberRole(username, raf));
     }
 
     public String getMemberRole(String username, String rafCode) throws RafException {
