@@ -198,14 +198,14 @@ public class RafMemberService implements Serializable {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
+        return hasMemberRole(username, "CONSUMER", raf) || hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "SUPPORTER", raf) || hasMemberRole(username, "MANAGER", raf);
     }
 
     public boolean hasWriteRole(String username, RafDefinition raf) throws RafException {
         if (username == null || raf == null) {
             return false;
         }
-        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
+        return hasMemberRole(username, "CONTRIBUTER", raf) || hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf) || hasMemberRole(username, "SUPPORTER", raf);
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
