@@ -275,6 +275,7 @@ public class RafController implements Serializable {
         try {
             //Uye değilse hemen HomePage'e geri gönderelim.
             if (!memberService.isMemberOf(identity.getLoginName(), rafDefinition)) {
+                FacesMessages.warn("raf.definition.access.not.allowed");
                 viewNavigationHandler.navigateTo(Pages.Home.class);
                 return;
             }
