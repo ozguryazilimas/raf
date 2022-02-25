@@ -25,7 +25,6 @@ import javax.inject.Inject;
  */
 @Action(icon = "fa-paste",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.NeedClipboard},
-        permissions = {"CONSUMER", "CONTRIBUTER", "EDITOR", "MANAGER"},
         includedMimeType = "raf/folder",
         group = 10,
         order = 3)
