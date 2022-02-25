@@ -57,12 +57,6 @@ public class FileDownloadView {
 
             facesContext.responseComplete();
 
-            commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
-                    .eventType("ShareDocument.download")
-                    .forRafObject(rafService.getRafObject(doc.getId()))
-                    .message("event.ShareDocument.download$%&" + doc.getName())
-                    .build());
-
         } catch (RafException | IOException ex) {
             LOG.error("file.cannot.be.downloaded", ex);
             FacesMessages.error("file.cannot.be.downloaded", ex.getMessage());

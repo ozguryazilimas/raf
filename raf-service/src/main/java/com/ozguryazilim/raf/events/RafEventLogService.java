@@ -40,6 +40,4 @@ public class RafEventLogService {
         return logRepository.findByPaths(username, paths);
     }
 
-    public List<RafEventLog> getSharedFilesEventLogs(String userName)
-
 }

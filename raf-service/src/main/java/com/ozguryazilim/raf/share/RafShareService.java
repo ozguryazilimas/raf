@@ -68,6 +68,10 @@ public class RafShareService {
         return repository.findAll();
     }
 
+    public List<RafShare> findByLoginName(String loginName) {
+        return repository.findActiveSharesBySharedBy(loginName);
+    }
+
     @Transactional
     public void clear(String token) {
         repository.deleteByToken(token);
