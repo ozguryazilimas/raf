@@ -33,7 +33,7 @@
                     <span class="text-muted text-sm">
                         #{userLookup.getUserName(viewBean.object.createBy)} | 
                         <t:cellOutputDateTime value="#{viewBean.object.createDate}" />
-                        | <a href="/dolap/raf.jsf?id=#{rafContext.selectedRaf.code}&amp;o=#{viewBean.object.id}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
+                        | <a href="#{rafController.getFilePermalink(rafContext.selectedRaf.code, viewBean.object.id)}" class="text-sm"><i class="fa fa-link" title="permalink"/></a>
                     </span>
 
 

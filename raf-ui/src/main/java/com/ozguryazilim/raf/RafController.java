@@ -981,6 +981,10 @@ public class RafController implements Serializable {
         return selectedContentPanel;
     }
 
+    public static String getFilePermalink(String rafCode, String rafId) {
+        return "/dolap/raf.jsf?id=" + rafCode + "&o=" + rafId;
+    }
+
     public int getScrollTop() {
         return scrollTop;
     }
