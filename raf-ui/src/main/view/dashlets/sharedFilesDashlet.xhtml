@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"     
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                template="/layout/dashletBase.xhtml">
+
+    <ui:param name="name" value="sharedFilesDashlet" />
+    <ui:param name="bean" value="#{sharedFilesDashlet}" />
+
+    <ui:define name="view">
+
+        <h:outputStylesheet library="icons" name="icons.css" />
+
+        <p:outputPanel deferred="true">
+            <div class="box-body no-padding">
+                <style>
+                    .product-info{
+                        margin-left: 36px ! important;
+                    }
+                    .shared-file-download-icon::before {
+                        vertical-align: middle;
+                    }
+                </style>
+
+                <ul class="products-list product-list-in-box">
+                    <p:repeat value="#{sharedFilesDashlet.shareLogs}" var="shareObj" >
+                        <li class="item">
+                            <div class="product-img">
+                                <svg class="icon" style="height: 28px; width: 28px; vertical-align: text-top;">
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{sharedFilesDashlet.getSharedFileMimeIcons(shareObj)}" />
+                                </svg>
+                            </div>
+                            <div class="product-info" style="margin-left: 36px;">
+                                <span>
+                                    <b><h:outputText value="#{sharedFilesDashlet.getSharedFileName(shareObj)}" escape="false" /></b>
+                                    <h:link outcome="/raf.xhtml" rendered="#{shareObj.nodeId ne null}">
+                                        <i class="fa fa-external-link"/>
+                                        <f:param name="id" value="#{''}" />
+                                        <f:param name="o" value="#{shareObj.nodeId}" />
+                                    </h:link>
+                                </span>
+
+                                <div>
+                                    <i class="fa fa-calendar text-muted"></i>
+                                    <span class="text-muted text-sm text-muted" style="padding: 0 5px;">#{sharedFilesDashlet.getSharedFileStartEndDatesText(shareObj)}</span>
+
+                                    <i class="fa fa-download shared-file-download-icon text-muted" style="padding: 0 5px;"></i>
+                                    <span class="text-muted text-sm text-muted">#{shareObj.visit}</span>
+                                </div>
+
+                            </div>
+                        </li>
+                    </p:repeat>
+                </ul>
+            </div>
+        </p:outputPanel>
+    </ui:define>
+</ui:composition>

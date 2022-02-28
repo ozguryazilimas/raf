@@ -68,7 +68,7 @@ public class ShareAction extends AbstractAction {
     protected void initActionModel() {
         rafShare = new RafShare();
         rafShare.setNodeId(getContext().getSelectedObject().getId());
-        rafShare.setSharedBy(IdentityUtils.getPrettyNameSurname(identity));
+        rafShare.setSharedBy(identity.getLoginName());
     }
 
     @Override

@@ -3,13 +3,11 @@ package com.ozguryazilim.raf.events;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafEventLog;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -47,6 +45,4 @@ public class RafEventLogService {
         //Repository'den şu anda max 10 adet dönüyor
         return logRepository.findRecentlyEventsByUsername(username);
     }
-
-
 }
