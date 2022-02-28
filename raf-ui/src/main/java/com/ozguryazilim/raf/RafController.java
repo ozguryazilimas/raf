@@ -275,6 +275,7 @@ public class RafController implements Serializable {
         try {
             //Uye değilse hemen HomePage'e geri gönderelim.
             if (!memberService.isMemberOf(identity.getLoginName(), rafDefinition)) {
+                FacesMessages.warn("raf.definition.access.not.allowed");
                 viewNavigationHandler.navigateTo(Pages.Home.class);
                 return;
             }
@@ -978,6 +979,10 @@ public class RafController implements Serializable {
         context.setSelectedObject(rafService.getRafObject(id));
         selectedContentPanel = getObjectContentPanel();
         return selectedContentPanel;
+    }
+
+    public static String getFilePermalink(String rafCode, String rafId) {
+        return "/dolap/raf.jsf?id=" + rafCode + "&o=" + rafId;
     }
 
     public int getScrollTop() {
