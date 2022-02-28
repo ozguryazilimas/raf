@@ -370,3 +370,9 @@
 .ui-menuitem.ui-menuitem-active {
     background: #e7f4f9;
 }
+
+.comment-date-tooltip {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
