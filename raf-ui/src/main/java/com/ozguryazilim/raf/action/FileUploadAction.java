@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafUploadEvent;
 import com.ozguryazilim.raf.member.RafMemberService;
@@ -18,6 +20,7 @@ import com.ozguryazilim.raf.uploader.RafFileUploadDialog;
 import com.ozguryazilim.raf.uploader.RafFileUploadHandler;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import com.ozguryazilim.telve.messages.Messages;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
@@ -111,7 +114,7 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
 
     @Override
     protected void initDialogOptions(Map<String, Object> options) {
-        options.put("contentHeight", 480);
+        options.put("contentHeight", 495);
         options.put("contentWidth", 640);
     }
 
@@ -262,6 +265,26 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
         } finally {
             finalizeAction();
         }
+    }
+
+    public String getUserFriendlyRafPath() {
+        RafEncoder rafEncoder = RafEncoderFactory.getRafNameEncoder();
+        String sharedPrefix = "/SHARED";
+        String privatePrefix = "/PRIVATE/" + rafEncoder.encode(identity.getLoginName());
+        String rafPrefix = "/RAF/";
+
+        String rafPath;
+
+        if (uploadPath.startsWith(sharedPrefix)) {
+            String localizedRafText = Messages.getMessage("raf.label.Shared");
+            rafPath = uploadPath.replaceFirst(sharedPrefix, localizedRafText);
+        } else if (uploadPath.startsWith(privatePrefix)) {
+            String localizedRafText = Messages.getMessage("raf.label.Private");
+            rafPath = uploadPath.replaceFirst(privatePrefix, localizedRafText);
+        } else {
+            rafPath = uploadPath.replaceFirst(rafPrefix, "");
+        }
+        return !rafPath.contains("/") ? rafPath + ":/" : rafPath.replaceFirst("/", ":/");
     }
 
 }

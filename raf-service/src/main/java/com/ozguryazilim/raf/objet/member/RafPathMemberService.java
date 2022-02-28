@@ -2,29 +2,33 @@ package com.ozguryazilim.raf.objet.member;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
+import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Raf nesne üyeliklerini yönetmek için servis sınıfı.
@@ -37,6 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 @ApplicationScoped
 public class RafPathMemberService implements Serializable {
+    private static final String eventLogTokenSeperator = "$%&";
 
     private static final Logger LOG = LoggerFactory.getLogger(RafPathMemberService.class);
 
@@ -61,6 +66,9 @@ public class RafPathMemberService implements Serializable {
     @Inject
     private Identity identity;
 
+    @Inject
+    private UserLookup userLookup;
+
     public List<RafPathMember> getMembers(String path) throws RafException {
         //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
         return getMembersImpl(path);
@@ -81,6 +89,18 @@ public class RafPathMemberService implements Serializable {
         }
     }
 
+    private String generateEventLogMessage(RafPathMember member, String eventType) {
+        StringJoiner sj = new StringJoiner(eventLogTokenSeperator);
+        String memberName = (RafMemberType.USER.equals(member.getMemberType()) ? userLookup.getUserName(member.getMemberName()) : member.getMemberName());
+        return sj.add("event." + eventType)
+                .add(memberName)
+                .add(member.getPath().replace("/RAF/", ""))
+                .add(member.getRole())
+                .add(identity.getUserName())
+                .toString();
+
+    }
+
     @Transactional
     public void addMember(RafPathMember member) throws RafException {
         if (!isMemberOf(member.getMemberName(), member.getPath(), false)) {
@@ -88,10 +108,12 @@ public class RafPathMemberService implements Serializable {
             //Cache'e de koyalım
             getMembersImpl(member.getPath()).add(member);
 
+            String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
-                    .eventType("RafMemberServiceAddMember$")
+                    .eventType(eventType)
                     .path(member.getPath())
-                    .message("event.RafMemberServiceAddMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .message(generateEventLogMessage(member, eventType))
                     .user(identity.getLoginName())
                     .build());
         }
@@ -108,11 +130,13 @@ public class RafPathMemberService implements Serializable {
         memberRepository.remove(member);
         //Cache'den de çıkaralım
         getMembersImpl(member.getPath()).remove(member);
-        
+
+        String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
+
         commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
-                    .eventType("RafMemberServiceRemoveMember$")
+                    .eventType(eventType)
                     .path(member.getPath())
-                    .message("event.RafMemberServiceRemoveMember$%&" + member.getMemberName() + "$%&" + member.getPath() + "$%&" + member.getRole() + "$%&" + identity.getUserName())
+                    .message(generateEventLogMessage(member, eventType))
                     .user(identity.getLoginName())
                     .build());
     }
@@ -190,6 +214,30 @@ public class RafPathMemberService implements Serializable {
         }
     }
 
+    public boolean hasMemberAnyRole(String username, Set<String> roles, String path) throws RafException {
+        if (isMemberOf(username, path)) {
+            boolean hasUserRole = getMembersImpl(path).stream()
+                    .anyMatch(m -> m.getMemberName().equals(username) && roles.contains(m.getRole()));
+
+            if (!hasUserRole) {
+                //Dahil olduğu gruptan (varsa) ilgili rolü alıp almadığını kontrol edelim
+                return getMembersImpl(path).stream()
+                        .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
+                        .filter(m -> getGroupUsers(m.getMemberName()).stream().anyMatch(username::equals))
+                        .anyMatch(m -> roles.contains(m.getRole()));
+            }
+
+            return hasUserRole;
+        } else {
+            String parentPath = path.substring(0, path.lastIndexOf("/"));
+            if (Strings.isNullOrEmpty(parentPath)) {
+                return false;
+            } else {
+                return hasMemberAnyRole(username, roles, parentPath);
+            }
+        }
+    }
+
     public boolean hasMemberInPath(String username, String path) {
         try {
             if (isMemberOf(username, path)) {
@@ -234,9 +282,6 @@ public class RafPathMemberService implements Serializable {
         return b;
     }
 
-    public String getMemberRole(String username, String path) throws RafException {
-        return "";
-    }
 
     /**
      * Asıl implementasyon. Cache'e bakar. Yoksa veri tabanından toparlar.

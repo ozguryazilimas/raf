@@ -8,8 +8,12 @@
         <p:commandButton style="width: 50px; height: 30px;" 
                          action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', regeneratePreviewCommandEditor.command.rafPath )}" 
                          partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
-            <p:ajax event="dialogReturn" listener="#{regeneratePreviewCommandEditor.selectFolder}"  update="rafPath" partialSubmit="true" process="@this" />   
+            <p:ajax event="dialogReturn" listener="#{regeneratePreviewCommandEditor.selectFolder}"  update="rafPath" partialSubmit="true" process="@this" />
         </p:commandButton>
     </p:panelGrid>
+
+    <p:selectBooleanCheckbox value="#{regeneratePreviewCommandEditor.command.regenerateOnlyMissingPreviews}"
+            itemLabel="#{messages['regeneratePreviewCommand.label.regenerateOnlyMissingPreviews']}"
+    />
 
 </ui:composition>

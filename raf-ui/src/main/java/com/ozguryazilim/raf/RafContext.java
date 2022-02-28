@@ -5,25 +5,23 @@ import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
-import com.ozguryazilim.telve.api.module.TelveModuleRegistery;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
  * Kullanıcı arayüzü içerisinde seçili olan temel bileşenleri tutar.
- * 
+ *
  * Çalışma sürecinde alt bileşenler tarafından kullanılır.
- * 
+ *
  * @author Hakan Uygun
  */
 @WindowScoped
 @Named
-public class RafContext implements Serializable{
-    
+public class RafContext implements Serializable {
+
     private RafDefinition selectedRaf;
     private String path;
     private RafCollection collection;
@@ -32,8 +30,6 @@ public class RafContext implements Serializable{
     private List<RafObject> seletedItems = new ArrayList<>();
     private List<RafObject> clipboard = new ArrayList<>();
     private AbstractAction clipboardAction;
-    private Boolean hasProcess = Boolean.FALSE;
-            
 
     public RafDefinition getSelectedRaf() {
         return selectedRaf;
@@ -99,17 +95,4 @@ public class RafContext implements Serializable{
         this.clipboardAction = clipboardAction;
     }
 
-    public Boolean getHasProcess() {
-        return hasProcess;
-    }
-
-    public void setHasProcess(Boolean hasProcess) {
-        this.hasProcess = hasProcess;
-    }
-
-    
-    
-    public boolean bpmnSystemEnabled(){
-        return getHasProcess();
-    }
 }

@@ -36,10 +36,17 @@
         <nav class="navbar navbar-static-top">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <h:link outcome="/home.xhtml" styleClass="navbar-brand">
+                    <h:link outcome="/home.xhtml" styleClass="navbar-brand" style="display: inline-flex">
                         <ui:fragment rendered="#{telveConfigResolver.getProperty('brand.company.navigationLogo') eq null}">
-                            <i class="#{telveConfigResolver.getProperty('app.title.icon')}"/>
-                            #{telveConfigResolver.getProperty('app.title')}
+                            <ui:fragment rendered="#{telveConfigResolver.getProperty('app.title.brandLogo') eq null}">
+                                <i class="#{telveConfigResolver.getProperty('app.title.icon')}" style="margin-right: 5px;"/>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{telveConfigResolver.getProperty('app.title.brandLogo') ne null}">
+                                <img style="width: 30px; height: 30px; display: inline-block; margin-right: 5px; align-self: center"
+                                     src="#{request.contextPath}/javax.faces.resource/img/#{telveConfigResolver.getProperty('app.title.brandLogo')}.jsf?ln=brand"
+                                     class="nav-logo"/>
+                            </ui:fragment>
+                        #{telveConfigResolver.getProperty('app.title')}
                         </ui:fragment>
                         <ui:fragment rendered="#{telveConfigResolver.getProperty('brand.company.navigationLogo') ne null}">
                             <img style="margin-top: -10px; width: 120px; height: 41px;"
@@ -160,7 +167,7 @@
 
                         </li>
 
-                        <ui:fragment rendered="#{rafContext.bpmnSystemEnabled()}">
+                        <ui:fragment rendered="#{rafController.bpmnSystemEnabled}">
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-server"></i>

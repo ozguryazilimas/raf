@@ -1,4 +1,4 @@
-package com.ozguryazilim.raf.regeneratepreviewcommand;
+package com.ozguryazilim.raf.command.regeneratepreviewcommand;
 
 import com.ozguryazilim.raf.imports.*;
 import com.ozguryazilim.raf.models.RafFolder;

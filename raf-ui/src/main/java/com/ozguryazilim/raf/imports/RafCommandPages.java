@@ -44,4 +44,14 @@ public interface RafCommandPages extends Pages {
     @View
     public class CleanupExpiredUploadsCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class CleanupOutdatedSharingsCommandEditor implements Admin {
+    };
+
+    @SecuredPage
+    @View
+    public class CheckMissingContentsCommandEditor implements Admin {
+    };
 }

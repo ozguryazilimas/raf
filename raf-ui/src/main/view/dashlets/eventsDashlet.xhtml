@@ -27,7 +27,7 @@
                             <div class="product-info" style="margin-left: 36px;">
                                 <span>
                                     <h:outputText value="#{formatedMessage.getMessageFromData(event.message)}" escape="false" />
-                                    <h:link outcome="/raf.xhtml">
+                                    <h:link outcome="/raf.xhtml" rendered="#{event.refId ne null}">
                                         <i class="fa fa-external-link"/>
                                         <f:param name="id" value="#{''}" />
                                         <f:param name="o" value="#{event.refId}" />
