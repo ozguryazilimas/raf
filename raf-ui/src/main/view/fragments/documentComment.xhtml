@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui">
+
+    <t:accordion id="document-comments" icon="fa fa-comments" label="general.label.Comments" columnClass="col-xs-12">
+
+        <h:form id="newComment" style="padding: 0 15px;">
+            <div class="row">
+                <div class="col-xs-12 pull-right" style="margin-top: 2px;">
+                    <div>
+                        <b><span>#{messages['document.comment.newComment.title']}</span></b>
+                    </div>
+                    <p:inputTextarea value="#{rafDocumentCommentView.currentComment.comment}" rows="3" maxlength="500" required="true"
+                                     counter="comment-char-counter" counterTemplate="#{messages['document.comment.textarea.charCounter']}"></p:inputTextarea>
+                    <div align="left" class="col-xs-6" style="padding: 0;">
+                        <h:outputText id="comment-char-counter" styleClass="text-muted"></h:outputText>
+                    </div>
+                    <div align="right" class="col-xs-6" style="padding: 0;">
+                        <p:commandButton partialSubmit="true" process="@form" update=":document-comments" validateClient="true" action="#{rafDocumentCommentView.saveComment()}" value="#{messages['document.comment.newComment.submit']}" />
+                    </div>
+                </div>
+            </div>
+        </h:form>
+
+        <p:dialog id="editDialog" widgetVar="edit-dialog" width="640" height="150" header="#{messages['document.comment.editComment.title']}" modal="true" resizable="false">
+            <h:form id="edit-dialog-form">
+                <div class="row">
+                    <div class="col-xs-12 pull-right" style="margin-top: 2px;">
+                        <p:inputTextarea value="#{rafDocumentCommentView.editedDocComment.comment}" id="edit-text" rows="4" maxlength="500" required="true"
+                                         counter="comment-char-counter" counterTemplate="#{messages['document.comment.textarea.charCounter']}">
+                        </p:inputTextarea>
+                        <div align="left" class="col-xs-6" style="padding: 0;">
+                            <h:outputText id="comment-char-counter" styleClass="text-muted"></h:outputText>
+                        </div>
+                        <div align="right" class="col-xs-6" style="padding: 0;">
+                            <p:commandButton partialSubmit="true" process="@form" update=":document-comments"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed){ PF('edit-dialog').hide();}"
+                                             validateClient="true"
+                                             action="#{rafDocumentCommentView.updateComment()}" value="#{messages['document.comment.editComment.submit']}" />
+                        </div>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <ui:repeat value="#{rafDocumentCommentView.objectComments}" var="comment">
+            <div class="col-xs-12" style="margin: 10px 0;">
+                <div>
+                    <b><h:outputText style="margin: 0 5px 0 0;" value="#{userService.getUserName(comment.commentOwner)}"></h:outputText></b>
+                    <h:outputText styleClass="text-muted" style="margin: 0 5px;" value="#{'@'.concat(comment.commentOwner)}"></h:outputText>
+                    <span class="text-muted">
+                                    <h:outputText id="commentDate" style="margin: 0 5px;" styleClass="text-muted" value="#{rafDocumentCommentView.getCommentHour(comment)}"></h:outputText>
+                                    <p:tooltip for="commentDate" styleClass="comment-date-tooltip" value="#{rafDocumentCommentView.getCommentDate(comment)}" position="top"/>
+                                </span>
+
+                    <ui:fragment rendered="#{rafDocumentCommentView.canEditComment(comment)}">
+                        <p:commandLink action="#{rafDocumentCommentView.setEditedDocComment(comment)}" oncomplete="PF('edit-dialog').show();"
+                                       update=":document-comments:editDialog"
+                                       ajax="true" partialSubmit="true" process="@this" styleClass="fa fa-edit" style="margin: 0 5px;" />
+
+                        <p:commandLink action="#{rafDocumentCommentView.deleteComment(comment)}" update=":document-comments" styleClass="fa fa-trash" style="margin: 0 5px;">
+                            <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['document.comment.deleteComment.confirmModal.message']}" icon="pi pi-exclamation-triangle"/>
+                        </p:commandLink>
+                    </ui:fragment>
+
+                </div>
+                <div style="margin-top: 2px;">
+                    <h:outputText value="#{comment.comment}"></h:outputText>
+                </div>
+            </div>
+        </ui:repeat>
+
+        <span class="col-xs-12" style="margin: 5px"></span>
+    </t:accordion>
+
+</ui:composition>
