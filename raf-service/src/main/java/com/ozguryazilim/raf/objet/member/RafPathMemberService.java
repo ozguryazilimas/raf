@@ -8,6 +8,7 @@ import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.auth.UserService;
+import com.ozguryazilim.telve.idm.IdmEvent;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,8 +26,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -329,5 +331,16 @@ public class RafPathMemberService implements Serializable {
         }
 
         return result;
+    }
+
+    /**
+     * Grup üzerinde değişklik olduğunda ilgili grubun veritabanından güncellenmesi için grubu cache den temizliyoruz.
+     *
+     * @param event
+     */
+    public void onIdmEvent(@Observes IdmEvent event) {
+        if (IdmEvent.FROM_GROUP.equals(event.getFrom()) && IdmEvent.UPDATE.equals(event.getAction())) {
+            groupUsers.put(event.getSubject(), null);
+        }
     }
 }
