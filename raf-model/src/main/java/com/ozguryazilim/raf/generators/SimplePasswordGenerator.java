@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.generators;
 
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.hibernate.Session;
 import org.hibernate.tuple.ValueGenerator;
 
@@ -15,7 +16,8 @@ public class SimplePasswordGenerator implements ValueGenerator<String> {
     private final Random rnd;
 
     public SimplePasswordGenerator() throws NoSuchAlgorithmException {
-        rnd = SecureRandom.getInstanceStrong();
+        String algorithm = ConfigResolver.getPropertyValue("simplePasswordGenerator.algorithm", "NativePRNGNonBlocking");
+        rnd = SecureRandom.getInstance(algorithm);
     }
 
     @Override
