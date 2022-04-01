@@ -41,7 +41,7 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
     public void execute(CheckMissingContentsCommand command) {
         List<String> nodePathsWithMissingContents = new ArrayList<>();
 
-        LOG.warn("Check Missing Contents Job started!");
+        LOG.info("Check Missing Contents Job started!");
         long startMs = System.currentTimeMillis();
 
         try {
@@ -59,9 +59,10 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
         }
         if (!nodePathsWithMissingContents.isEmpty()) {
             sendEmailWithMissingContentsInformation(nodePathsWithMissingContents, command.getEmail());
+            LOG.info("\nMissing contents:\n" + String.join("\n", nodePathsWithMissingContents));
         }
 
-        LOG.warn("Check Missing Contents Job end! Took {}s", DurationFormatUtils.formatDuration(System.currentTimeMillis() - startMs, "ss.SSS"));
+        LOG.info("Check Missing Contents Job end! Took {}s", DurationFormatUtils.formatDuration(System.currentTimeMillis() - startMs, "ss.SSS"));
     }
 
     public boolean isNodeContainsContent(Node node) {
