@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.email;
 
 import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.entities.UserFavorite;
 import com.ozguryazilim.raf.enums.EmailNotificationActionType;
@@ -14,6 +16,7 @@ import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.channel.email.EmailChannel;
 import com.ozguryazilim.telve.messages.Messages;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.omnifaces.el.functions.Strings;
 import org.slf4j.Logger;
@@ -49,6 +52,8 @@ public class EmailNotificationService implements Serializable {
 
     // Raf ana dizini
     private static final String RAF_ROOT_PATH = "/RAF";
+    private static final String RAF_SHARED_ROOT_PATH = "/SHARED";
+    private static final String RAF_PRIVATE_ROOF_PATH_PREFIX = "/PRIVATE/";
 
     // DB'den kullanıcı bildirim ayarlarını çekeceğimiz suffix
     private static final String KAHVE_NOTIFICATION_TYPE_SUFFIX = "::email.notification.type";
@@ -105,8 +110,16 @@ public class EmailNotificationService implements Serializable {
         if (path == null || path.isEmpty()) {
             return new ArrayList<>();
         }
+
+        //Private raf path
+        RafEncoder rafEncoder = RafEncoderFactory.getRafNameEncoder();
+        String privateRootPath = "";
+        if (identity.getLoginName() != null)  {
+            privateRootPath = RAF_PRIVATE_ROOF_PATH_PREFIX + rafEncoder.encode(identity.getLoginName());
+        }
+
         List<UserInfo> users = new ArrayList<>();
-        while (!path.equals(RAF_ROOT_PATH)) {
+        while (!(path.equals(RAF_ROOT_PATH) || path.equals(RAF_SHARED_ROOT_PATH) || path.equals(privateRootPath) || StringUtils.isEmpty(path))) {
             List<UserFavorite> userFavoriteList = favoriteService.getFavoritesByPath(path);
             for (UserFavorite u : userFavoriteList) {
                 // Kullanıcı bazlı bildirim ayarını kontrol ediyoruz.
