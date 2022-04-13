@@ -115,7 +115,7 @@
             </div>
         </div>
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
-        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}" />
+        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}" update="scrollLeft" async="true"/>
         <h:inputHidden id="scrollLeft" value="#{rafController.scrollLeft}" />
     </h:form>
 </ui:composition>
