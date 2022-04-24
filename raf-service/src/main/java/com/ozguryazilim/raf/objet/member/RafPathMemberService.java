@@ -194,11 +194,15 @@ public class RafPathMemberService implements Serializable {
     }
 
     public boolean hasWriteRole(String username, String path) throws RafException {
-        return hasMemberRole(username, "CONTRIBUTER", path) || hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path);
+        return hasMemberRole(username, "CONTRIBUTER", path) || hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path) || hasMemberRole(username, "SUPPORTER", path);
     }
 
     public boolean hasDeleteRole(String username, String path) throws RafException {
         return hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path);
+    }
+
+    public boolean hasCheckoutRole(String username, String path) throws RafException {
+        return hasMemberRole(username, "CONTRIBUTER", path) || hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path);
     }
 
     private boolean hasMemberRole(String username, String role, String path) throws RafException {
