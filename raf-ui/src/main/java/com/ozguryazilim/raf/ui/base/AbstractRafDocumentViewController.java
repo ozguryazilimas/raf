@@ -124,6 +124,25 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         return false;
     }
 
+    public Boolean getHasRafCheckoutPermission() {
+        if (getObject() != null) {
+            try {
+                boolean permission = false;
+                if (getObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
+                    permission = rafPathMemberService.hasCheckoutRole(identity.getLoginName(), getObject().getPath());
+                } else {
+                    permission = getRafFromObject() != null && memberService.hasCheckoutRole(identity.getLoginName(), getRafFromObject());
+                }
+                return permission;
+            } catch (RafException ex) {
+                LOG.error("RafException", ex);
+                return false;
+            }
+        }
+        return false;
+
+    }
+
     @PostConstruct
     public void init() {
         versionManagementEnabled = "true".equals(ConfigResolver.getPropertyValue("raf.version.enabled", "false"));
