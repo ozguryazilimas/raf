@@ -45,33 +45,34 @@
             </h:form>
         </p:dialog>
 
-        <ui:repeat value="#{rafDocumentCommentView.objectComments}" var="comment">
-            <div class="col-xs-12" style="margin: 10px 0;">
-                <div>
-                    <b><h:outputText style="margin: 0 5px 0 0;" value="#{userService.getUserName(comment.commentOwner)}"></h:outputText></b>
-                    <h:outputText styleClass="text-muted" style="margin: 0 5px;" value="#{'@'.concat(comment.commentOwner)}"></h:outputText>
-                    <span class="text-muted">
-                                    <h:outputText id="commentDate" style="margin: 0 5px;" styleClass="text-muted" value="#{rafDocumentCommentView.getCommentHour(comment)}"></h:outputText>
-                                    <p:tooltip for="commentDate" styleClass="comment-date-tooltip" value="#{rafDocumentCommentView.getCommentDate(comment)}" position="top"/>
-                                </span>
+        <ui:fragment rendered="#{rafDocumentCommentView.objectComments ne null}" >
+            <ui:repeat value="#{rafDocumentCommentView.objectComments}" var="comment">
+                <div class="col-xs-12" style="margin: 10px 0;">
+                    <div>
+                        <b><h:outputText style="margin: 0 5px 0 0;" value="#{userService.getUserName(comment.commentOwner)}"></h:outputText></b>
+                        <h:outputText styleClass="text-muted" style="margin: 0 5px;" value="#{'@'.concat(comment.commentOwner)}"></h:outputText>
+                        <span class="text-muted">
+                            <h:outputText id="commentDate" style="margin: 0 5px;" styleClass="text-muted" value="#{rafDocumentCommentView.getCommentHour(comment)}"></h:outputText>
+                            <p:tooltip for="commentDate" styleClass="comment-date-tooltip" value="#{rafDocumentCommentView.getCommentDate(comment)}" position="top"/>
+                        </span>
 
-                    <ui:fragment rendered="#{rafDocumentCommentView.canEditComment(comment)}">
-                        <p:commandLink action="#{rafDocumentCommentView.setEditedDocComment(comment)}" oncomplete="PF('edit-dialog').show();"
-                                       update=":document-comments:editDialog"
-                                       ajax="true" partialSubmit="true" process="@this" styleClass="fa fa-edit" style="margin: 0 5px;" />
+                        <ui:fragment rendered="#{rafDocumentCommentView.canEditComment(comment)}">
+                            <p:commandLink action="#{rafDocumentCommentView.setEditedDocComment(comment)}" oncomplete="PF('edit-dialog').show();"
+                                           update=":document-comments:editDialog"
+                                           ajax="true" partialSubmit="true" process="@this" styleClass="fa fa-edit" style="margin: 0 5px;" />
 
-                        <p:commandLink action="#{rafDocumentCommentView.deleteComment(comment)}" update=":document-comments" styleClass="fa fa-trash" style="margin: 0 5px;">
-                            <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['document.comment.deleteComment.confirmModal.message']}" icon="pi pi-exclamation-triangle"/>
-                        </p:commandLink>
-                    </ui:fragment>
+                            <p:commandLink action="#{rafDocumentCommentView.deleteComment(comment)}" update=":document-comments" styleClass="fa fa-trash" style="margin: 0 5px;">
+                                <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['document.comment.deleteComment.confirmModal.message']}" icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </ui:fragment>
 
+                    </div>
+                    <div style="margin-top: 2px;">
+                        <h:outputText value="#{comment.comment}"></h:outputText>
+                    </div>
                 </div>
-                <div style="margin-top: 2px;">
-                    <h:outputText value="#{comment.comment}"></h:outputText>
-                </div>
-            </div>
-        </ui:repeat>
-
+            </ui:repeat>
+        </ui:fragment>
         <span class="col-xs-12" style="margin: 5px"></span>
     </t:accordion>
 

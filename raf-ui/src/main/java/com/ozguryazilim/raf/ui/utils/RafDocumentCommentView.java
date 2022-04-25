@@ -42,7 +42,11 @@ public class RafDocumentCommentView implements Serializable {
     }
 
     public List<RafDocumentComment> getObjectComments() {
-        return rafDocumentCommentService.getComments().get(rafContext.getSelectedObject().getId());
+        if (rafContext != null && rafContext.getSelectedObject() != null && rafContext.getSelectedObject().getId() != null) {
+            return rafDocumentCommentService.getComments().get(rafContext.getSelectedObject().getId());
+        } else {
+            return null;
+        }
     }
 
     @Transactional
@@ -56,6 +60,7 @@ public class RafDocumentCommentView implements Serializable {
 
         this.docComment = new RafDocumentComment();
     }
+
     @Transactional
     public void updateComment() {
         rafDocumentCommentService.saveComment(this.editedDocComment);
