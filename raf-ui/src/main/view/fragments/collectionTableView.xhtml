@@ -19,10 +19,9 @@
                 return;
             }
             $("#collectionForm\\:scrollTop").val(s.scrollTop);
-            setScroll();
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
             if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
-                nextPage();
+                nextPage();                
             }
         }
 
@@ -162,7 +161,7 @@
                             </td>
                             <td>
                                 <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
-                                    <span class="text-sm">#{item.title}</span> 
+                                    <span class="text-sm">#{item.title}</span>
                                 </p:commandLink>
                             </td>
                             <td>
@@ -231,7 +230,6 @@
         </div>
 
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete="scrollToBottom()" />
-        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}" update="scrollTop" async="true"/>
         <h:inputHidden id="scrollTop" value="#{rafController.scrollTop}" />
     </h:form>        
 </ui:composition>
