@@ -2,6 +2,10 @@ package com.ozguryazilim.raf.webdav;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.Objects;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
@@ -12,7 +16,12 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
+
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
+import com.ozguryazilim.raf.encoder.RafNameEncoder;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.webdav.IWebdavStore;
 import org.modeshape.webdav.WebdavServlet;
@@ -106,9 +115,10 @@ public class RafWebdavServlet extends WebdavServlet{
     @Override
     protected void service( HttpServletRequest req,
                             HttpServletResponse resp ) throws ServletException, IOException {
-        RafWebdavStore.setRequest(req);
+        HttpServletRequestWrapper webdavRequest = getWrappedWebdavServletRequest(req);
+        RafWebdavStore.setRequest(webdavRequest);
         try {
-            super.service(req, resp);
+            super.service(webdavRequest, resp);
         } finally {
             RafWebdavStore.setRequest(null);
         }
@@ -135,5 +145,26 @@ public class RafWebdavServlet extends WebdavServlet{
         } else {
             return new WebdavException(t.getMessage(), t);
         }
+    }
+
+    HttpServletRequestWrapper getWrappedWebdavServletRequest(HttpServletRequest req) {
+        return new HttpServletRequestWrapper(req) {
+            @Override
+            public String getPathInfo() {
+                final String originalPathInfo = req.getPathInfo();
+                try {
+                    if (req.getPathInfo() != null) {
+                        String path = new URI(req.getPathInfo()).getPath();
+                        return RafEncoderFactory.getDirNameEncoder().encode(path);
+                    }
+                    else {
+                        return null;
+                    }
+                } catch (URISyntaxException e) {
+                    return originalPathInfo;
+                }
+            }
+        };
+
     }
 }
