@@ -29,7 +29,22 @@
             }
             $("#collectionForm\\:scrollLeft").val(s.scrollLeft);
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
-            if ((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
+            console.log((s.clientWidth + 5) - (s.scrollWidth - s.scrollLeft));
+            console.log((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft));
+
+            let anyUnloadedFilesLeft = () => {
+                let collectionTotalFileCountEl = $("#lookupTotalFileCount");
+                let collectionShowingFileCountEl = $("#lookupShowingFileCount");
+
+                let totalFileCount = collectionTotalFileCountEl.length ? parseInt(collectionTotalFileCountEl.text()) : parseInt($("#totalFileCount").text());
+                let showingFileCount = collectionShowingFileCountEl.length ? parseInt(collectionShowingFileCountEl.text()) : parseInt($("#showingFileCount").text());
+
+                console.log(totalFileCount);
+                console.log(showingFileCount);
+
+                return totalFileCount > showingFileCount;
+            }
+            if ((s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; anyUnloadedFilesLeft()) {
                 nextPage();
             }
         }
@@ -113,7 +128,12 @@
                 </div>
             </div>
         </div>
+<<<<<<< Updated upstream
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>        
+=======
+        <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
+        <p:remoteCommand name="setScroll" action="#{rafController.setScroll}"/>
+>>>>>>> Stashed changes
         <h:inputHidden id="scrollLeft" value="#{rafController.scrollLeft}" />
     </h:form>
 

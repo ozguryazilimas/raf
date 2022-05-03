@@ -473,4 +473,8 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         return getCollection().getPath().startsWith("/RAF/") && getCollection().getParentId() != null && !getCollection().getParentId().equals("/");
     }
 
+    public Long getTotalFileCount() throws RafException {
+        return rafService.getChildCount(getCollection().getPath());
+    }
+
 }

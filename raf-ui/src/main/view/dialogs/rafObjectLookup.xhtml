@@ -24,6 +24,9 @@
 
                 <div class="col-xs-12">
                     <h:panelGroup id="raf-view-content" style="display: grid" layout="block">
+                        <span hidden="hidden" id="lookupTotalFileCount" value="#{rafObjectLookup.totalFileCount}" />
+                        <span hidden="hidden" id="lookupShowingFileCount" value="#{rafObjectLookup.collection.items.size()}" />
+
                         <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
 
                         <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
