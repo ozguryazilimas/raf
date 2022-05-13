@@ -14,6 +14,7 @@ import com.ozguryazilim.telve.idm.group.GroupRepository;
 import com.ozguryazilim.telve.idm.ldapSync.IdmLdapSyncEvent;
 import com.ozguryazilim.telve.idm.user.UserGroupRepository;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,9 @@ public class RafMemberService implements Serializable {
 
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
-            sendAuditLog(member.getRaf().getNodeId(), "ADD_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+            if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.addMember", "false"))) {
+                sendAuditLog(member.getRaf().getNodeId(), "ADD_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+            }
             commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                     .eventType(eventType)
                     .path("/RAF/" + member.getRaf().getCode() + "/")
@@ -128,7 +131,9 @@ public class RafMemberService implements Serializable {
 
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
-        sendAuditLog(member.getRaf().getNodeId(), "REMOVE_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+        if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.removeMember", "false"))) {
+            sendAuditLog(member.getRaf().getNodeId(), "REMOVE_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+        }
         commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                 .eventType(eventType)
                 .path("/RAF/" + member.getRaf().getCode() + "/")
