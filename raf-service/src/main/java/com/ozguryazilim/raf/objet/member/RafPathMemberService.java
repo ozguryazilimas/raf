@@ -5,6 +5,8 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
+import com.ozguryazilim.raf.utils.UrlUtils;
+import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.auth.UserService;
@@ -75,6 +77,7 @@ public class RafPathMemberService implements Serializable {
     }
 
     public void addMember(String path, String member, RafMemberType type, String role) throws RafException {
+        sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(path), member, role));
         RafPathMember m = new RafPathMember();
         m.setMemberName(member);
         m.setMemberType(type);
@@ -110,6 +113,7 @@ public class RafPathMemberService implements Serializable {
 
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
+            sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(member.getPath()), member.getMemberName(), member.getRole()));
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
                     .path(member.getPath())
@@ -133,6 +137,7 @@ public class RafPathMemberService implements Serializable {
 
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
+        sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(member.getPath()), member.getMemberName(), member.getRole()));
         commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
                     .path(member.getPath())
@@ -345,6 +350,14 @@ public class RafPathMemberService implements Serializable {
     public void onIdmEvent(@Observes IdmEvent event) {
         if (IdmEvent.FROM_GROUP.equals(event.getFrom()) && IdmEvent.UPDATE.equals(event.getAction())) {
             groupUsers.put(event.getSubject(), null);
+        }
+    }
+
+    private void sendAuditLog(String id, String action, String message) {
+        if (identity != null && !"SYSTEM".equals(identity.getLoginName())) {
+            //create audit log
+            AuditLogCommand auditCommand = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), message);
+            commandSender.sendCommand(auditCommand);
         }
     }
 }

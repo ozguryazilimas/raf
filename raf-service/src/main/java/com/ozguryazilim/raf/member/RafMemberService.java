@@ -110,6 +110,7 @@ public class RafMemberService implements Serializable {
 
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
+            sendAuditLog(member.getRaf().getNodeId(), "ADD_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
             commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                     .eventType(eventType)
                     .path("/RAF/" + member.getRaf().getCode() + "/")
@@ -127,6 +128,7 @@ public class RafMemberService implements Serializable {
 
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
+        sendAuditLog(member.getRaf().getNodeId(), "REMOVE_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
         commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                 .eventType(eventType)
                 .path("/RAF/" + member.getRaf().getCode() + "/")
