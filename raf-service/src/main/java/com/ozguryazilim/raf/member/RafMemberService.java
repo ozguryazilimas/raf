@@ -112,7 +112,7 @@ public class RafMemberService implements Serializable {
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
             if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.addMember", "false"))) {
-                sendAuditLog(member.getRaf().getNodeId(), "ADD_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+                sendAuditLog(member.getRaf().getNodeId(), "ADD_MEMBER", String.format("Raf Name: %s, Member: %s, Member Type: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getMemberType(), member.getRole()));
             }
             commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                     .eventType(eventType)
@@ -132,7 +132,7 @@ public class RafMemberService implements Serializable {
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
         if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.removeMember", "false"))) {
-            sendAuditLog(member.getRaf().getNodeId(), "REMOVE_MEMBER", String.format("Raf Name: %s, Member: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getRole()));
+            sendAuditLog(member.getRaf().getNodeId(), "REMOVE_MEMBER", String.format("Raf Name: %s, Member: %s, Member Type: %s, Member Role: %s", member.getRaf().getCode(), member.getMemberName(), member.getMemberType(), member.getRole()));
         }
         commandSender.sendCommand(EventLogCommandBuilder.forRaf(member.getRaf().getCode())
                 .eventType(eventType)

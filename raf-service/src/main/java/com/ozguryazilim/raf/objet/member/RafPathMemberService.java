@@ -78,9 +78,10 @@ public class RafPathMemberService implements Serializable {
     }
 
     public void addMember(String path, String member, RafMemberType type, String role) throws RafException {
-        if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.removeMember", "false"))) {
-            sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(path), member, role));
+        if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.addMember", "false"))) {
+            sendMemberAuditLog("ADD_MEMBER", path, member, type.name(), role);
         }
+
         RafPathMember m = new RafPathMember();
         m.setMemberName(member);
         m.setMemberType(type);
@@ -116,8 +117,8 @@ public class RafPathMemberService implements Serializable {
 
             String eventType = "RafMemberServiceAddMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
-            if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.removeMember", "false"))) {
-                sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(member.getPath()), member.getMemberName(), member.getRole()));
+            if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.addMember", "false"))) {
+                sendMemberAuditLog("ADD_MEMBER", member.getPath(), member.getMemberName(), member.getMemberName(), member.getRole());
             }
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
@@ -143,7 +144,7 @@ public class RafPathMemberService implements Serializable {
         String eventType = "RafMemberServiceRemoveMember" + (RafMemberType.GROUP.equals(member.getMemberType()) ? ".group" : ".user");
 
         if (Boolean.parseBoolean(ConfigResolver.getPropertyValue("auditLog.raf.removeMember", "false"))) {
-            sendAuditLog("", "REMOVE_MEMBER", String.format("Path Name: %s, Member: %s, Member Role: %s", UrlUtils.trimRafPaths(member.getPath()), member.getMemberName(), member.getRole()));
+            sendMemberAuditLog("REMOVE_MEMBER", member.getPath(), member.getMemberName(), member.getMemberName(), member.getRole());
         }
         commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                     .eventType(eventType)
@@ -366,5 +367,12 @@ public class RafPathMemberService implements Serializable {
             AuditLogCommand auditCommand = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), message);
             commandSender.sendCommand(auditCommand);
         }
+    }
+
+    private void sendMemberAuditLog(String action, String path, String memberName, String memberType, String memberRole) {
+        String memberLogText = String.format("Member: %s, Member Type: %s, Member Role: %s", memberName, memberType, memberRole);
+        String pathNameLogTextTemplate = "Path Name: %s";
+        int pathTextSize = 255 - (memberLogText.length() + pathNameLogTextTemplate.length()) - 5;
+        sendAuditLog("", action, String.format(pathNameLogTextTemplate + memberLogText, UrlUtils.trimRafPaths(path, pathTextSize, pathTextSize / 2)));
     }
 }

@@ -13,12 +13,16 @@ public class UrlUtils {
     }
 
     public static String trimRafPaths(String path) {
+        return trimRafPaths(path, 255, 100);
+    }
+
+    public static String trimRafPaths(String path, int limit, int prefixOffset) {
         String logPath = path;
 
         //255 den daha uzun olan path lerde veritabanında ilgili sütuna yazılabilmesi için ortasını kesiyoruz.
         String longPathDivider = "...";
-        int pathCharCountLimit = 255;
-        int longPathPrefixOffset = 100;
+        int pathCharCountLimit = limit;
+        int longPathPrefixOffset = prefixOffset;
         int longPathSuffixOffset = pathCharCountLimit - longPathPrefixOffset - longPathDivider.length();
 
         if (path.length() > pathCharCountLimit) {
