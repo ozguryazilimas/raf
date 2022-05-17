@@ -24,6 +24,7 @@ import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,7 +292,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
                     versions.sort(new Comparator<RafVersion>() {
                         @Override
                         public int compare(RafVersion t, RafVersion t1) {
-                            return t.getName().compareTo(t1.getName()) * -1;
+                            int versionNum1 = NumberUtils.toInt(t.getName().replaceAll("\\.", ""), 0);
+                            int versionNum2 = NumberUtils.toInt(t1.getName().replaceAll("\\.", ""), 0);
+                            return versionNum2 - versionNum1;
                         }
                     });
                 } catch (RafException ex) {
