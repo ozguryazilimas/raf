@@ -1288,7 +1288,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public List<RafVersion> getVersionHistory(RafDocument object) throws RafException {
+    public List<RafVersion> getVersionHistory(RafObject object) throws RafException {
         try {
 
             List<RafVersion> result = new ArrayList<>();

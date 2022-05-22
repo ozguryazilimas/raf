@@ -2,6 +2,8 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -10,6 +12,7 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.utils.RafCollectionGrouper;
 import com.ozguryazilim.raf.ui.utils.RafCollectionSorter;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -72,6 +75,16 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         this.collection = collection;
         if (foldersFirst) {
             RafCollectionSorter.sort(rafController.getSortBy(), rafController.getDescSort(), foldersFirst, getCollection());
+        }
+    }
+
+    public void checkInListener(@Observes RafCheckInEvent event) {
+        if (collection != null && !collection.getItems().isEmpty() && event.getCheckedInObject() != null && event.getNewVersion() != null) {
+            int index = collection.getItems().indexOf(event.getCheckedInObject());
+
+            collection.getItems().get(index).setUpdateBy(event.getNewVersion().getCreatedBy());
+            collection.getItems().get(index).setUpdateDate(event.getNewVersion().getCreated());
+            collection.getItems().get(index).setVersion(event.getNewVersion().getName());
         }
     }
 

@@ -12,6 +12,7 @@ import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
+import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
@@ -125,7 +126,12 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             //FIXME: doğru eventi fırlatalım.
             rafUploadEvent.fire(new RafUploadEvent());
         } else {
-            rafCheckInEvent.fire(new RafCheckInEvent());
+            try {
+                RafVersion newVersion = rafService.getLatestVersion(rafContext.getSelectedObject());
+                rafCheckInEvent.fire(new RafCheckInEvent(rafContext.getSelectedObject(), newVersion));
+            } catch (RafException e) {
+                rafCheckInEvent.fire(new RafCheckInEvent());
+            }
         }
 
         return super.finalizeAction();
