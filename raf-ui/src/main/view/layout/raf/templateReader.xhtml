@@ -19,6 +19,25 @@
         <ui:insert name="extraHead" />
         <ui:include src="/branding/applicationExtentions.xhtml" />
         <style>
+            .viewer-close-bar {
+              position: fixed;
+              top: 120px;
+              right: 1em;
+              -webkit-transform: translateY(-50%);
+              -ms-transform: translateY(-50%);
+              transform: translateY(-50%);
+            }
+
+            .viewer-close-bar a {
+              display: block;
+              text-align: center;
+              padding: 10px;
+              font-size: 12px;
+              line-height: 16px;
+              transition: all 0.3s ease;
+              color: white;
+            }
+
             .icon-bar {
                 z-index: 110000;
                 position: fixed;
@@ -40,6 +59,10 @@
 
             .icon-bar a:hover {
                 background-color: #000;
+            }
+
+            .viewer-close-bar a:hover {
+              background-color: #4e4e4e;
             }
 
             .detail {
@@ -78,6 +101,11 @@
                             </c:forEach>
                         </div>
                     </p:sidebar>
+                    <div class="viewer-close-bar">
+                        <a class="detail" href="#{rafController.getFilePermalink(rafContext.selectedRaf.code, viewBean.object.id)}">
+                            <i class="fa fa-close fa-2x"></i>
+                        </a>
+                    </div>
                 </section>
             </div>
         </div>
