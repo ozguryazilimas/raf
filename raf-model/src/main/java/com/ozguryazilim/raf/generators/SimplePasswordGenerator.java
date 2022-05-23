@@ -15,7 +15,7 @@ public class SimplePasswordGenerator implements ValueGenerator<String> {
     private final Random rnd;
 
     public SimplePasswordGenerator() throws NoSuchAlgorithmException {
-        rnd = SecureRandom.getInstance("NativePRNGNonBlocking");
+        rnd = SecureRandom.getInstance("NativePRNG");
     }
 
     @Override
