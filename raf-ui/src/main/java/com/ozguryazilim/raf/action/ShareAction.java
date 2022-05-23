@@ -9,7 +9,6 @@ import com.ozguryazilim.raf.share.RafShareService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
-import com.ozguryazilim.raf.utils.IdentityUtils;
 import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +72,7 @@ public class ShareAction extends AbstractAction {
     }
 
     @Override
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     protected boolean finalizeAction() {
         try {
             Date current = new Date();
