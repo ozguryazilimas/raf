@@ -22,6 +22,7 @@ import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -293,6 +295,21 @@ public class RafService implements Serializable {
      */
     public List<RafVersion> getVersionHistory(RafDocument object) throws RafException {
         return rafRepository.getVersionHistory(object);
+    }
+
+    public RafVersion getLatestVersion(RafObject object) throws RafException {
+        List<RafVersion> versions = rafRepository.getVersionHistory(object);
+        versions.sort(new Comparator<RafVersion>() {
+            @Override
+            public int compare(RafVersion t, RafVersion t1) {
+                int versionNum1 = NumberUtils.toInt(t.getName().replaceAll("\\.", ""), 0);
+                int versionNum2 = NumberUtils.toInt(t1.getName().replaceAll("\\.", ""), 0);
+                return versionNum2 - versionNum1;
+            }
+        });
+        return versions.stream()
+                .findFirst()
+                .orElse(null);
     }
 
     public InputStream getDocumentContent(String id) throws RafException {
