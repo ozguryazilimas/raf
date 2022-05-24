@@ -155,7 +155,7 @@ public class RafWebdavServlet extends WebdavServlet{
                 try {
                     if (req.getPathInfo() != null) {
                         String path = new URI(req.getPathInfo()).getPath();
-                        return RafEncoderFactory.getDirNameEncoder().encode(path);
+                        return RafEncoderFactory.getFileNameEncoder().encode(path);
                     }
                     else {
                         return null;
