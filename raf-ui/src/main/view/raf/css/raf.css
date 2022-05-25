@@ -341,7 +341,7 @@
 
 }
 
-.content-view-port{
+.content-view-port, .table-view-content-view-port{
     overflow: auto;
     width: 100%;
 }
