@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 @Action(dialog = ActionPages.ShareDocumentDialog.class,
         icon = "fa-share-alt",
+        title = "action.title.ShareAction",
         capabilities = {ActionCapability.Ajax, ActionCapability.DetailViews},
         excludeMimeType = "raf/folder")
 public class ShareAction extends AbstractAction {
