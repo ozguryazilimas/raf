@@ -133,7 +133,7 @@ public class RafController implements Serializable {
     private Boolean showRafObjectManagerTools = Boolean.TRUE;
 
     private Integer page = 0;
-    private Integer pageSize = 200;
+    private Integer pageSize = 350;
     private Integer pageCount = 0;
 
     private SortType sortBy = SortType.DATE_DESC;

@@ -343,6 +343,7 @@
 
 .content-view-port{
     overflow: auto;
+    width: 100%;
 }
 
 .raf-file{
