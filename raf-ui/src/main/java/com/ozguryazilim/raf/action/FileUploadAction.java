@@ -127,8 +127,10 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             rafUploadEvent.fire(new RafUploadEvent());
         } else {
             try {
-                RafVersion newVersion = rafService.getLatestVersion(rafContext.getSelectedObject());
-                rafCheckInEvent.fire(new RafCheckInEvent(rafContext.getSelectedObject(), newVersion));
+                if (rafContext.getSelectedObject() != null) {
+                    RafVersion newVersion = rafService.getLatestVersion(rafContext.getSelectedObject());
+                    rafCheckInEvent.fire(new RafCheckInEvent(rafContext.getSelectedObject(), newVersion));
+                }
             } catch (RafException e) {
                 rafCheckInEvent.fire(new RafCheckInEvent());
             }
