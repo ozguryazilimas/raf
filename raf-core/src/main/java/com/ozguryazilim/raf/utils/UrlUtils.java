@@ -9,7 +9,15 @@ public class UrlUtils {
     }
 
     public static String getDocumentShareURL(String code) {
-        return ConfigResolver.getPropertyValue("app.linkDomain") + "public/download.jsf?code=" + code;
+        StringBuilder sb = new StringBuilder();
+        String linkDomain = ConfigResolver.getPropertyValue("app.linkDomain");
+        String rafShareUrlSuffix = "public/download.jsf?code=" + code;
+
+        sb.append(linkDomain)
+            .append(linkDomain.endsWith("/") ? "" : '/')
+            .append(rafShareUrlSuffix);
+
+        return sb.toString();
     }
 
     public static String trimRafPaths(String path) {
