@@ -18,6 +18,7 @@ import com.ozguryazilim.raf.models.RafNode;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
+import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -522,23 +523,7 @@ public class RafService implements Serializable {
             return;
         }
 
-        String logPath = path;
-
-        //255 den daha uzun olan path lerde veritabanında ilgili sütuna yazılabilmesi için ortasını kesiyoruz.
-        String longPathDivider = "...";
-        int pathCharCountLimit = 255;
-        int longPathPrefixOffset = 100;
-        int longPathSuffixOffset = pathCharCountLimit - longPathPrefixOffset - longPathDivider.length();
-
-        if (path.length() > pathCharCountLimit) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(path, 0, longPathPrefixOffset)
-                    .append(longPathDivider)
-                    .append(path, path.length() - longPathSuffixOffset, path.length());
-
-            logPath = sb.toString();
-        }
-
+        String logPath = UrlUtils.trimRafPaths(path);
         AuditLogCommand command = new AuditLogCommand("RAF", Long.MIN_VALUE, id, action, "RAF", identity.getLoginName(), logPath);
         commandSender.sendCommand(command);
     }
