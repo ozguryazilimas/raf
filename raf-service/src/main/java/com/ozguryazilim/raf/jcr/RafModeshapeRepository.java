@@ -66,6 +66,8 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -436,6 +438,7 @@ public class RafModeshapeRepository implements Serializable {
                 }
             }
             session.logout();
+            folderList.sort(Comparator.comparing(RafObject::getName));
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0004] Raf Folders not found", ex);
         }
