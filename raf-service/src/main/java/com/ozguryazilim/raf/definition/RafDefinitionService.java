@@ -85,7 +85,7 @@ public class RafDefinitionService implements Serializable {
 
         if ("PRIVATE".equals(code)) {
             return getPrivateRaf(identity.getLoginName());
-        } else if ("SHARED".equals(code)) {
+        } else if ("SHARED".equals(code) && Boolean.TRUE.equals(identity.hasPermission("sharedRaf", "select"))) {
             return getSharedRaf();
         } else {
             //FIXME: burada yetki kontrolü de yapılması gerekiyor.
@@ -168,7 +168,9 @@ public class RafDefinitionService implements Serializable {
         if (addCommonRafs) {
             try {
                 result.add(getPrivateRaf(username));
-                result.add(getSharedRaf());
+                if (memberService.isMemberOf(username, getSharedRaf())) {
+                    result.add(getSharedRaf());
+                }
             } catch (RafException ex) {
                 //Hata bildirsek mi?
             }
