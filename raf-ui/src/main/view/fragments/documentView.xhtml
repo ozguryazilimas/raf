@@ -4,7 +4,8 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <ui:remove>
         <!-- File View -->
@@ -128,6 +129,36 @@
                                     <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['file.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
                                 </p:commandLink>
                             </f:facet>
+
+                            <ui:param name="shareGroup" value="#{viewBean.getShareGroup(obj)}"></ui:param>
+                            <ui:fragment rendered="#{!shareGroup.isEmpty()}">
+                                <div class="disprop col-xs-12">
+                                    <p:commandLink action="#{viewBean.removeGroupSharing(shareGroup)}" process="@this" update="raf-view-content"
+                                                   styleClass="btn btn-box-tool"
+                                                   style="padding: 0; float: right; margin-top: 8px;">
+                                        <i class="fa fa-remove"/> #{messages['file.multiple.sharing.clear.label']}
+                                        <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['file.multiple.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
+                                    </p:commandLink>
+                                    <p:outputLabel value="#{messages['file.multiple.sharing.group.label']} :" styleClass="name" />
+                                    <span class="value">
+                                        <ui:repeat value="#{shareGroup}" var="sharedDoc">
+                                            <div>
+                                                <span class="product-img">
+                                                    <svg class="icon" style="height: 22px; width: 22px; vertical-align: bottom;">
+                                                        <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(sharedDoc.mimeType)}" />
+                                                    </svg>
+                                                </span>
+                                                <h:link outcome="/raf.xhtml">
+                                                    <h:outputText value="#{sharedDoc.name}"></h:outputText>
+                                                    <f:param name="id" value="#{''}" />
+                                                    <f:param name="o" value="#{sharedDoc.id}" />
+                                                </h:link>
+                                            </div>
+                                        </ui:repeat>
+                                    </span>
+                                </div>
+                            </ui:fragment>
+
                             <t:outputDateTime label="#{messages['file.sharing.started.date']}" value="#{obj.startDate}"
                                           columnClass="col-xs-12"/>
                             <t:outputDateTime label="#{messages['file.sharing.end.date']}"

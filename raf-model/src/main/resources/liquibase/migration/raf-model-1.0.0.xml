@@ -212,6 +212,11 @@
             <column name="INFO" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet author="emrygun" id="1655136588220">
+        <addColumn tableName="RAF_SHARE">
+            <column name="SHARE_GROUP" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
 
     <changeSet author="emrygun" id="1646043990692">
         <createTable tableName="RAF_DOCUMENT_COMMENT">

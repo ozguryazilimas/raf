@@ -55,7 +55,6 @@ public class RafShare extends EntityBase {
     /**
      * Erişim için otomatik üretilen 6 haneli basit parola
      */
-    @GeneratorType(type = SimplePasswordGenerator.class, when = GenerationTime.INSERT)
     @Column(name = "password", length = 6)
     private String password;
 
@@ -95,6 +94,9 @@ public class RafShare extends EntityBase {
      */
     @Column(name = "INFO")
     private String info;
+
+    @Column(name = "SHARE_GROUP")
+    private String shareGroup;
 
     @Override
     public Long getId() {
@@ -175,5 +177,13 @@ public class RafShare extends EntityBase {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public String getShareGroup() {
+        return shareGroup;
+    }
+
+    public void setShareGroup(String shareGroup) {
+        this.shareGroup = shareGroup;
     }
 }

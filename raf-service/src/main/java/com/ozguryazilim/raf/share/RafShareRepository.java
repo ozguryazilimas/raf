@@ -17,6 +17,10 @@ public abstract class RafShareRepository extends RepositoryBase<RafShare, RafSha
 
     public abstract List<RafShare> findByNodeId(String nodeId);
 
+    public abstract List<RafShare> findByShareGroup(String shareGroup);
+
+    public abstract void deleteByShareGroup(String shareGroup);
+
     public abstract void deleteByNodeId(String nodeId);
 
     public abstract void deleteByToken(String token);

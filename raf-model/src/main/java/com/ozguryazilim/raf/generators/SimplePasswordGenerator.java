@@ -23,4 +23,9 @@ public class SimplePasswordGenerator implements ValueGenerator<String> {
         int number = rnd.nextInt(999999);
         return String.format("%06d", number);
     }
+
+    public String generatePassword() {
+        int number = rnd.nextInt(999999);
+        return String.format("%06d", number);
+    }
 }

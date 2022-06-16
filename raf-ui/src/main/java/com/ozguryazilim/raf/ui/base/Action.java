@@ -52,6 +52,18 @@ public @interface Action {
      */
     String excludeMimeType() default "";
 
+    /**
+     * Action' ının desteklemediği element seçim mimeTypeler.
+     * @return
+     */
+    String excludedSelectionMimeType() default "";
+
+    /**
+     * Action' ının desteklediği element seçim mimeTypeler.
+     * @return
+     */
+    String includedSelectionMimeType() default "";
+
     ActionCapability[] capabilities();
     
     /**
