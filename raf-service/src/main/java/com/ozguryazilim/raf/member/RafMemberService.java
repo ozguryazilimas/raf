@@ -172,7 +172,7 @@ public class RafMemberService implements Serializable {
     public boolean isMemberOf(String memberName, RafDefinition raf, boolean groupsIncluded) throws RafException {
 
         //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
-        if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
+        if (raf.getCode().equals("PRIVATE") || (raf.getCode().equals("SHARED") && identity.hasPermission("sharedRaf", "select"))) {
             //PRIVATE için aslında kullanıcı kontrolü yapılabilir ama anlamlı değil çünkü PATH her zaman kullanıcı adı içerir.
             return true;
         }
