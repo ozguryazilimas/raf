@@ -327,18 +327,18 @@ public class AbstractAction implements Serializable {
                 return false;
             }
 
-            String ism = getAnnotation().includedSelectionMimeType();
-            String esm = getAnnotation().excludedSelectionMimeType();
-            List<String> simm = getContext().getSeletedItems().stream().map(RafObject::getMimeType).collect(Collectors.toList());
+            String includedSelectionMimeType = getAnnotation().includedSelectionMimeType();
+            String excludedSelectionMimeType = getAnnotation().excludedSelectionMimeType();
+            List<String> selectedItemsMimeTypes = getContext().getSeletedItems().stream().map(RafObject::getMimeType).collect(Collectors.toList());
 
-            if (!simm.isEmpty()) {
-                if (!Strings.isNullOrEmpty(esm)) {
-                    if (simm.stream().anyMatch(mime -> mime.startsWith(esm))) {
+            if (!selectedItemsMimeTypes.isEmpty()) {
+                if (!Strings.isNullOrEmpty(excludedSelectionMimeType)) {
+                    if (selectedItemsMimeTypes.stream().anyMatch(mime -> mime.startsWith(excludedSelectionMimeType))) {
                         return false;
                     }
                 }
-                if (!Strings.isNullOrEmpty(ism)) {
-                    if (!simm.stream().anyMatch(mime -> mime.startsWith(ism))) {
+                if (!Strings.isNullOrEmpty(includedSelectionMimeType)) {
+                    if (!selectedItemsMimeTypes.stream().anyMatch(mime -> mime.startsWith(includedSelectionMimeType))) {
                         return false;
                     }
                 }

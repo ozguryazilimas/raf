@@ -20,8 +20,7 @@ public class SimplePasswordGenerator implements ValueGenerator<String> {
 
     @Override
     public String generateValue(Session session, Object o) {
-        int number = rnd.nextInt(999999);
-        return String.format("%06d", number);
+        return generatePassword();
     }
 
     public String generatePassword() {

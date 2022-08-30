@@ -109,8 +109,7 @@ public class EmailNotificationService implements Serializable {
             List<String> links = rafShares.stream().map(item -> UrlUtils.getDocumentShareURL(item.getToken())).collect(Collectors.toList());
 
             List<String> shareList = IntStream.range(0, filenames.size())
-                    .boxed()
-                    .collect(Collectors.toMap(filenames::get, links::get))
+                    .collect(HashMap::new, (m, i) -> m.put(filenames.get(i), links.get(i)), Map::putAll)
                     .entrySet().stream()
                     .map(entry -> String.format("\"%s\": %s", entry.getKey(), entry.getValue()))
                     .collect(Collectors.toList());
@@ -122,9 +121,7 @@ public class EmailNotificationService implements Serializable {
             headers.put("password", password);
 
             for (String consumerEmail : rafShares.get(0).getEmails()) {
-                String subject = ConfigResolver.getPropertyValue("app.title")
-                        + " - "
-                        + String.format("Sizinle %d Dosya Paylaşıldı.", rafShares.size());
+                String subject = String.format("%s - Sizinle %d Dosya Paylaşıldı.", ConfigResolver.getPropertyValue("app.title"), rafShares.size());
                 emailChannel.sendMessage(consumerEmail, subject, "", headers);
             }
         }

@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -128,21 +129,19 @@ public class MultipleShareAction extends AbstractAction {
                 emailNotificationService.sendEmailToSharedContacts(results.get(0), filenames.get(0));
             }
 
-            Map<String, String> shareMap = IntStream.range(0, filenames.size())
-                    .boxed()
-                    .collect(Collectors.toMap(filenames::get, links::get));
+            IntStream.range(0, filenames.size())
+                .collect(HashMap::new, (m, i) -> m.put(filenames.get(i), links.get(i)), Map::putAll)
+                .forEach((filename, url) -> {
+                    LOG.info("Document {} has been successfully shared. Link: {}, Password: {}", filename, url, password);
 
-            shareMap.forEach((String filename, String url) -> {
-                LOG.info("Document {} has been successfully shared." +
-                        "Link: {}, Password: {}", filename, url, password);
-
-                commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
+                    commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                         .eventType("ShareDocument")
                         .forRafObject(getContext().getSelectedObject())
                         .message("event.ShareDocument$%&" + identity.getUserName() + "$%&" + filename)
                         .user(identity.getLoginName())
                         .build());
-            });
+                    }
+                );
 
 
             rafShareList.clear();

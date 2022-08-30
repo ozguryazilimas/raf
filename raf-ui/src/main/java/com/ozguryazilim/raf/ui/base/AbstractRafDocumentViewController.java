@@ -442,12 +442,11 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         if (!Strings.isNullOrEmpty(rafShare.getShareGroup())) {
             return shareService.getShareGroup(rafShare.getShareGroup())
                     .stream().sorted(Comparator.comparing(RafShare::getNodeId))
-                    .map(rshare -> {
+                    .map((RafShare rshare) -> {
                         try {
                             return rafService.getRafObject(rshare.getNodeId());
                         } catch (RafException e) {
-                            LOG.error(String.format("Error while finding shared object with id %s", rshare.getId()));
-                            e.printStackTrace();
+                            LOG.error("Error while finding shared object with id {}", rshare.getId(), e);
                             return null;
                         }
                     })
