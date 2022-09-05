@@ -24,11 +24,13 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
 import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
 import org.slf4j.Logger;
@@ -73,7 +75,9 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -1380,6 +1384,10 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
+        return uploadDocument(fileName, in, true);
+    }
+
+    public RafDocument uploadDocument(String fileName, InputStream in, boolean generatePreview) throws RafException {
         if (Strings.isNullOrEmpty(fileName)) {
             throw new RafException("[RAF-00016] Filename cannot be null");
         }
@@ -1424,8 +1432,10 @@ public class RafModeshapeRepository implements Serializable {
 
             session.save();
 
-            // Sequencer'lar çalışıyor, bu arada preview node oluşana kadar bekleyelim.(Eğer preview sequencer tanımlı ise)
-            n = findPreviewAndWait(session, n);
+            if (generatePreview) {
+                // Sequencer'lar çalışıyor, bu arada preview node oluşana kadar bekleyelim.(Eğer preview sequencer tanımlı ise)
+                n = findPreviewAndWait(session, n);
+            }
 
             result = nodeToRafDocument(n);
 
@@ -1928,6 +1938,21 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
         }
 
+    }
+
+    boolean isPreviewGenerateable(RafObject rafObject) {
+        String expPath = rafObject.getPath() + "/" + NODE_CONTENT + "/@" + PROP_DATA;
+
+        return SequencerRegistery.getSequencers().stream()
+                .map((SequencerConfig sequencerConfig) -> {
+                    try {
+                        return SequencerPathExpression.compile(sequencerConfig.getExpression()).matcher(expPath);
+                    } catch (InvalidSequencerPathExpression e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .anyMatch(SequencerPathExpression.Matcher::matches);
     }
 
     /**
@@ -3026,16 +3051,32 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void extractZipFile(RafObject zipFile) throws RafException {
-        try {
+    public void extractZipFile(RafObject zipFile, boolean generatePreview) throws RafException { try {
             RafObject destDir = getRafObject(zipFile.getParentId());
             InputStream fileIS = getDocumentContent(zipFile.getId());
             ZipInputStream zis = new ZipInputStream(fileIS);
             ZipEntry zipEntry = zis.getNextEntry();
+
+            int generatedPreviewCounter = 0;
+            boolean generateDecompressedFilePreview;
+            Integer zipExtractGeneratePreviewFileLimit = -1;
+
+            if (generatePreview) {
+                 zipExtractGeneratePreviewFileLimit = ConfigResolver.resolve("zip.extract.preview.generation.file.limit")
+                        .as(Integer.class)
+                        .withDefault(-1)
+                        .getValue();
+            }
+
             while (zipEntry != null) {
                 try {
                     if (zipEntry.getSize() != 0) {
-                        newFile(destDir, zipEntry, zis);
+                        generateDecompressedFilePreview = (zipExtractGeneratePreviewFileLimit == -1) || (zipExtractGeneratePreviewFileLimit > 1 && generatedPreviewCounter < zipExtractGeneratePreviewFileLimit);
+                        RafObject destFile = newFile(destDir, zipEntry, zis, generateDecompressedFilePreview);
+
+                        if (generateDecompressedFilePreview && isPreviewGenerateable(destFile)) {
+                            generatedPreviewCounter++;
+                        }
                     } else {
                         createFolder(destDir.getPath().concat("/").concat(zipEntry.getName()));
                     }
@@ -3052,6 +3093,10 @@ public class RafModeshapeRepository implements Serializable {
             LOG.error("RafException", ex);
             throw new RafException("[RAF-0028] Failed to extract zip object", ex);
         }
+    }
+
+    public void extractZipFile(RafObject zipFile) throws RafException {
+        extractZipFile(zipFile, true);
     }
 
     /**
@@ -3134,12 +3179,16 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    private void newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis) throws IOException, RafException {
+    private RafObject newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis) throws IOException, RafException {
+        return newFile(destinationDir, zipEntry, zis, true);
+    }
+
+    private RafObject newFile(RafObject destinationDir, ZipEntry zipEntry, ZipInputStream zis, boolean generatePreview) throws IOException, RafException {
         String newFilePath = destinationDir.getPath().concat("/").concat(zipEntry.getName());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         org.apache.poi.util.IOUtils.copy(zis, bos);
         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-        RafObject destFile = uploadDocument(newFilePath, bis);
+        RafObject destFile = uploadDocument(newFilePath, bis, generatePreview);
         bos.close();
         bis.close();
         String destDirPath = destinationDir.getPath();
@@ -3147,6 +3196,8 @@ public class RafModeshapeRepository implements Serializable {
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
             throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
         }
+
+        return destFile;
     }
 
     public long getChildCount(String absPath) throws RafException {

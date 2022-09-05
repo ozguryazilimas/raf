@@ -56,8 +56,21 @@ public class RafFileUploadDialog extends FileUploadDialog {
                 String versionComment = params.get("versionComment");
                 handler.handleFileUpload(uriArr[0], versionComment);
             } else if (uriArr.length > 0) {
+                Integer batchUploadGeneratePreviewFileLimit = ConfigResolver.resolve("batch.upload.preview.generation.file.limit")
+                        .as(Integer.class)
+                        .withDefault(-1)
+                        .getValue();
+
+                int generatedPreviewCounter = 0;
+                boolean generatePreview;
+
                 for (String uri : uriArr) {
-                    handler.handleFileUpload(uri, decompress);
+                    generatePreview = (batchUploadGeneratePreviewFileLimit == -1) || (batchUploadGeneratePreviewFileLimit > 1 && generatedPreviewCounter < batchUploadGeneratePreviewFileLimit);
+                    handler.handleFileUpload(uri, decompress, generatePreview);
+
+                    if (generatePreview) {
+                        generatedPreviewCounter++;
+                    }
                 }
             }
         }
