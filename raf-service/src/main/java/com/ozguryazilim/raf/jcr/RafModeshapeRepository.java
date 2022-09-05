@@ -3059,12 +3059,12 @@ public class RafModeshapeRepository implements Serializable {
 
             int generatedPreviewCounter = 0;
             boolean generateDecompressedFilePreview;
-            Integer zipExtractGeneratePreviewFileLimit = -1;
+            Long zipExtractGeneratePreviewFileLimit = (long) -1;
 
             if (generatePreview) {
                  zipExtractGeneratePreviewFileLimit = ConfigResolver.resolve("zip.extract.preview.generation.file.limit")
-                        .as(Integer.class)
-                        .withDefault(-1)
+                        .as(Long.class)
+                        .withDefault((long) -1)
                         .getValue();
             }
 
