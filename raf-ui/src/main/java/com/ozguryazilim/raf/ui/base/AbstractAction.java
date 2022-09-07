@@ -17,8 +17,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -44,7 +46,7 @@ public class AbstractAction implements Serializable {
      * @return
      */
     public String getName() {
-        return getClass().getSimpleName();
+        return ProxyUtils.getUnproxiedClass(getClass()).getSimpleName();
     }
 
     /**
@@ -60,7 +62,7 @@ public class AbstractAction implements Serializable {
             return a.icon();
         }
 
-        return "action.icon." + getClass().getSimpleName();
+        return "action.icon." + ProxyUtils.getUnproxiedClass(getClass()).getSimpleName();
     }
 
     /**
@@ -76,7 +78,7 @@ public class AbstractAction implements Serializable {
             return a.title();
         }
 
-        return "action.title." + getClass().getSimpleName();
+        return "action.title." + ProxyUtils.getUnproxiedClass(getClass()).getSimpleName();
     }
 
     public String getDailogId() {
@@ -199,7 +201,6 @@ public class AbstractAction implements Serializable {
 
         //Eğer Collection için isteniyor ise
         if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
-
             String mm = getContext().getCollection().getMimeType();
 
             //Exclude var mı?
@@ -320,8 +321,28 @@ public class AbstractAction implements Serializable {
             return false;
         }
 
-        if (hasCapability(ActionCapability.NeedSelection) && getContext().getSeletedItems().isEmpty()) {
-            return false;
+        if (hasCapability(ActionCapability.NeedSelection)) {
+
+            if (getContext().getSeletedItems().isEmpty()) {
+                return false;
+            }
+
+            String includedSelectionMimeType = getAnnotation().includedSelectionMimeType();
+            String excludedSelectionMimeType = getAnnotation().excludedSelectionMimeType();
+            List<String> selectedItemsMimeTypes = getContext().getSeletedItems().stream().map(RafObject::getMimeType).collect(Collectors.toList());
+
+            if (!selectedItemsMimeTypes.isEmpty()) {
+                if (!Strings.isNullOrEmpty(excludedSelectionMimeType)) {
+                    if (selectedItemsMimeTypes.stream().anyMatch(mime -> mime.startsWith(excludedSelectionMimeType))) {
+                        return false;
+                    }
+                }
+                if (!Strings.isNullOrEmpty(includedSelectionMimeType)) {
+                    if (!selectedItemsMimeTypes.stream().anyMatch(mime -> mime.startsWith(includedSelectionMimeType))) {
+                        return false;
+                    }
+                }
+            }
         }
 
         return true;

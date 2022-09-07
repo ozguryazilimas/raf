@@ -22,6 +22,10 @@ public interface ActionPages extends Pages {
     }
 
     @SecuredPage
+    class ShareMultipleDocumentDialog implements Pages {
+    }
+
+    @SecuredPage
     class RafObjectMembers implements Pages {
     };
 

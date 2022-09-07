@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @ApplicationScoped
 public class EmailNotificationService implements Serializable {
@@ -95,6 +97,31 @@ public class EmailNotificationService implements Serializable {
                 String subject = ConfigResolver.getPropertyValue("app.title")
                         + " - "
                         + Messages.getMessage("Sizinle Bir Dosya Paylaşıldı.");
+                emailChannel.sendMessage(consumerEmail, subject, "", headers);
+            }
+        }
+    }
+
+    public void sendEmailToSharedContacts(List<RafShare> rafShares, List<String> filenames) {
+        if (!rafShares.isEmpty() && CollectionUtils.isNotEmpty(rafShares.get(0).getEmails())) {
+            String sharedBy = rafShares.get(0).getSharedBy();
+            String password = rafShares.get(0).getPassword();
+            List<String> links = rafShares.stream().map(item -> UrlUtils.getDocumentShareURL(item.getToken())).collect(Collectors.toList());
+
+            List<String> shareList = IntStream.range(0, filenames.size())
+                    .collect(HashMap::new, (m, i) -> m.put(filenames.get(i), links.get(i)), Map::putAll)
+                    .entrySet().stream()
+                    .map(entry -> String.format("\"%s\": %s", entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> headers = new HashMap();
+            headers.put("messageClass", "MULTIPLE_SHARE");
+            headers.put("shareList", shareList);
+            headers.put("sharedBy", userService.getUserName(sharedBy));
+            headers.put("password", password);
+
+            for (String consumerEmail : rafShares.get(0).getEmails()) {
+                String subject = String.format("%s - Sizinle %d Dosya Paylaşıldı.", ConfigResolver.getPropertyValue("app.title"), rafShares.size());
                 emailChannel.sendMessage(consumerEmail, subject, "", headers);
             }
         }
