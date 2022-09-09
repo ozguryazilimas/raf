@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.definition;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.action.CreateFolderAction;
 import com.ozguryazilim.raf.config.RafPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
@@ -20,6 +21,8 @@ import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.primefaces.context.RequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Yeni bir Raf tanımlamak için Dialog Controller sınıfı.
@@ -29,6 +32,8 @@ import org.primefaces.context.RequestContext;
 @SessionScoped
 @Named
 public class RafDefinitionDialogController implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RafDefinitionDialogController.class);
 
     @Inject
     private RafDefinitionService service;
@@ -77,6 +82,7 @@ public class RafDefinitionDialogController implements Serializable {
         } catch (RafException ex) {
             //TODO: i18n
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
+            LOG.error("Raf Tanımlaması Yapılamadı", ex);
         }
 
     }
