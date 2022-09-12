@@ -2373,9 +2373,9 @@ public class RafModeshapeRepository implements Serializable {
         result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
 
         if (node.hasProperty(PROP_CREATED_DATE)) {
-            result.setCreateDate(new GregorianCalendar().getTime());
-        } else {
             result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
+        } else {
+            result.setCreateDate(new GregorianCalendar().getTime());
         }
 
         if (node.isNodeType(MIXIN_TITLE)) {
