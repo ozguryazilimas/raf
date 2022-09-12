@@ -611,7 +611,7 @@ public class RafModeshapeRepository implements Serializable {
             Node node = session.getNodeByIdentifier(id);
 
             if (node == null) {
-                throw new RafException("[RAF-0005] Raf node not found");
+                throw new RafException(String.format("[RAF-0005] Raf node not found, id: %s", id));
             }
 
             result.setId(node.getIdentifier());
@@ -2396,7 +2396,12 @@ public class RafModeshapeRepository implements Serializable {
         result.setParentId(node.getParent().getIdentifier());
 
         result.setCreateBy(node.getProperty(PROP_CREATED_BY).getString());
-        result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
+
+        if (node.hasProperty(PROP_CREATED_DATE)) {
+            result.setCreateDate(node.getProperty(PROP_CREATED_DATE).getDate().getTime());
+        } else {
+            result.setCreateDate(new GregorianCalendar().getTime());
+        }
 
         if (node.isNodeType(MIXIN_TITLE)) {
             result.setTitle(getPropertyAsString(node, PROP_TITLE));

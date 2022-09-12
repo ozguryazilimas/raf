@@ -93,6 +93,7 @@ public class CreateFolderAction extends AbstractAction {
         } catch (RafException ex) {
             //TODO: i18n
             FacesMessages.error("Raf Tanımlaması Yapılamadı", ex.getMessage());
+            LOG.error("Raf Tanımlaması Yapılamadı", ex);
             return false;
         }
 
