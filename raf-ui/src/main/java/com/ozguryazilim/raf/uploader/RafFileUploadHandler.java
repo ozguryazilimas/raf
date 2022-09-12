@@ -12,7 +12,7 @@ public interface RafFileUploadHandler extends FileUploadHandler {
      * @param uri
      * @param decompress
      */
-    void handleFileUpload(String uri, boolean decompress);
+    void handleFileUpload(String uri, boolean decompress, boolean generatePreview);
 
     /**
      * Upload new version of file with version comment

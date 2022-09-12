@@ -231,7 +231,7 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
     }
 
     @Override
-    public void handleFileUpload(String uri, boolean decompress) {
+    public void handleFileUpload(String uri, boolean decompress, boolean generatePreview) {
         LOG.debug("File Upload complete : {}", uri);
 
         try {
@@ -243,7 +243,7 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
             if (versionManagementEnabled && checkFileExists(absPath)) {
                 throw new RafException("File is exists");
             }
-            RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri));
+            RafDocument uploadedDocument = rafService.uploadDocument(absPath, fileUploadService.getUploadedBytes(uri), generatePreview);
 
             if (decompress && "application/zip".equals(uploadedDocument.getMimeType())) {
                 rafService.extractZipFile(uploadedDocument);
