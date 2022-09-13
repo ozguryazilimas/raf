@@ -7,4 +7,4 @@ Link: ${headers.link}
 Parola: ${headers.password}
 
 --
-provided by telve email channel
+${headers.footerAppName} tarafından gönderilmiştir. ${headers.footerAppLink}
