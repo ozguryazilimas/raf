@@ -9,4 +9,4 @@ Parola: ${headers.password}
 </#list>
 
 --
-provided by telve email channel
+${headers.footerAppName} tarafından gönderilmiştir. ${headers.footerAppLink}

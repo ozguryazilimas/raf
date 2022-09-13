@@ -92,6 +92,8 @@ public class EmailNotificationService implements Serializable {
             headers.put("sharedBy", userService.getUserName(rafShare.getSharedBy()));
             headers.put("link", UrlUtils.getDocumentShareURL(rafShare.getToken()));
             headers.put("password", rafShare.getPassword());
+            headers.put("footerAppName", ConfigResolver.getPropertyValue("email.footer.app.name", "RAF"));
+            headers.put("footerAppLink", ConfigResolver.getPropertyValue("app.link", ""));
 
             for (String consumerEmail : rafShare.getEmails()) {
                 String subject = ConfigResolver.getPropertyValue("app.title")
@@ -119,6 +121,8 @@ public class EmailNotificationService implements Serializable {
             headers.put("shareList", shareList);
             headers.put("sharedBy", userService.getUserName(sharedBy));
             headers.put("password", password);
+            headers.put("footerAppName", ConfigResolver.getPropertyValue("email.footer.app.name", "RAF"));
+            headers.put("footerAppLink", ConfigResolver.getPropertyValue("app.link", ""));
 
             for (String consumerEmail : rafShares.get(0).getEmails()) {
                 String subject = String.format("%s - Sizinle %d Dosya Paylaşıldı.", ConfigResolver.getPropertyValue("app.title"), rafShares.size());
