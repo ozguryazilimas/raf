@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -218,16 +219,28 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                 }
             }
 
-            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath()) && !searchModel.getSearchSubPath().equals("/RAF")) {
-                whereExpressions.add(" ISCHILDNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
+            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath()) && !searchModel.getSearchSubPath().equals("/RAF") && !searchModel.getSearchInAllRafs()) {
+                whereExpressions.add(" ISDESCENDANTNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
             } else {
-                String rafWheres = " ( ";
-                for (RafDefinition raf : rafs) {
-                    rafWheres += " ISCHILDNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+                StringBuilder sb = new StringBuilder();
+                sb.append(" ( ");
+
+                Iterator<RafDefinition> definitionIterator = rafs.iterator();
+
+                //Create where clauses for each raf definition and join them with OR
+                while (definitionIterator.hasNext()) {
+                    RafDefinition raf = definitionIterator.next();
+
+                    sb.append(" ISDESCENDANTNODE(nodes,'/RAF/")
+                            .append(raf.getCode())
+                            .append("')");
+
+                    if (definitionIterator.hasNext()) {
+                        sb.append(" OR ");
+                    }
                 }
-                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
-                rafWheres += " ) ";
-                whereExpressions.add(rafWheres);
+                sb.append(" ) ");
+                whereExpressions.add(sb.toString());
             }
 
             return whereExpressions;
