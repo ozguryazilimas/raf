@@ -4,20 +4,26 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
+import com.ozguryazilim.raf.ApplicationContstants;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.DialogPages;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.enums.SortType;
+import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.utils.ELUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
@@ -28,8 +34,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author oyas
@@ -57,6 +66,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     @Inject
     private Identity identity;
 
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
+    @Inject
+    private RafDefinitionService rafDefinitionService;
+
     private String searchText;
     private String profile;
     private String listener;
@@ -66,6 +81,8 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private int page = 0;
     private int pageSize = 50;
+    private boolean showPrivateAndSharedRafs = Boolean.FALSE;
+    private boolean getAvailableDirectoriesByIdentity = Boolean.FALSE;
 
     public int getPage() {
         return page;
@@ -145,10 +162,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      * @param listener sonuçlar nereye gidecek?
      * @param subPath mevcut veri. Ağaç tipi sınıflarda seçim için
      */
-    public void openDialog(String profile, String listener, String subPath) {
+    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity) {
         page = 0;
         this.profile = profile;
         this.listener = listener;
+        this.showPrivateAndSharedRafs = showPrivateAndShared;
+        this.getAvailableDirectoriesByIdentity = getAvailableDirectoriesByIdentity;
 
         parseProfile();
         initProfile();
@@ -159,8 +178,8 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             RafEncoder encoder = RafEncoderFactory.getRafNameEncoder();
             String encodedUserName = encoder.encode(identity.getLoginName());
-            if (subPath == null || subPath.equals("") ||
-                    (subPath.startsWith("/PRIVATE") && !subPath.equals("/PRIVATE/" + encodedUserName))) {
+            if (!showPrivateAndShared && (subPath == null || subPath.equals("") ||
+                    (subPath.startsWith("/PRIVATE") && !subPath.equals("/PRIVATE/" + encodedUserName)))) {
                 selected = null;
             } else {
                 selected = rafService.getRafObjectByPath(subPath);
@@ -456,21 +475,123 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     public void goUpFolder() {
-        if (!hasParent()) {
+        if (showPrivateAndSharedRafs && !isRafSelectionPath(getCollection().getPath()) && isRootPath(getCollection().getPath())) {
+            RafCollection rafSelectionCollection = getRafSelectionCollection();
+            if (rafSelectionCollection == null) {
+                return;
+            }
+            clear();
+
+            setCollection(rafSelectionCollection);
+            this.selected = getRafSelectionObject();
+        }
+
+        else if (!hasParent()) {
             return;
         }
-        clear();
-        try {
-            page = 0;
-            setCollection(rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
-            selectItem(getCollection().getPath());
-        } catch (RafException ex) {
-            LOG.error("Cannot find parent node", ex);
+        else {
+            clear();
+            try {
+                page = 0;
+                RafCollection rafCollection = rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
+
+                if (this.getAvailableDirectoriesByIdentity) {
+                    rafCollection.setItems(getFilteredAvailableItems(getCollection().getItems()));
+                }
+
+                setCollection(rafCollection);
+                selectItem(getCollection().getPath());
+            } catch (RafException ex) {
+                LOG.error("Cannot find parent node", ex);
+            }
         }
     }
 
     public boolean hasParent() {
-        return getCollection().getPath().startsWith("/RAF/") && getCollection().getParentId() != null && !getCollection().getParentId().equals("/");
+        return getCollection().getParentId() != null
+                && (showPrivateAndSharedRafs || !isRootPath(getCollection().getPath()))
+                && !isRafSelectionPath(getCollection().getPath());
+    }
+
+    private boolean isRootPath(String path) {
+        RafEncoder rafEncoder = RafEncoderFactory.getRafNameEncoder();
+        return path.equals("/RAF") || path.equals(ApplicationContstants.SHARED_RAF_ROOT) || path.equals(rafEncoder.encode(ApplicationContstants.PRIVATE_RAF_ROOT + identity.getLoginName()));
+    }
+
+    private boolean isRafSelectionPath(String path) {
+        return getCollection().getPath().equals("");
+    }
+
+    private RafCollection getRafSelectionCollection() {
+        RafEncoder rafEncoder = RafEncoderFactory.getRafNameEncoder();
+
+        RafCollection rafSelectionCollection = new RafCollection();
+        rafSelectionCollection.setPath("");
+        rafSelectionCollection.setName("Raf Selection");
+        rafSelectionCollection.setMimeType("");
+        rafSelectionCollection.setTitle("Raf Selection");
+        rafSelectionCollection.setParentId(null);
+
+        try {
+            List<RafObject> rafSelectionItems = new ArrayList<>();
+            if (Boolean.TRUE.equals(identity.hasPermission("sharedRaf", "select")) && "true".equals(ConfigResolver.getPropertyValue("raf.shared.enabled", "true"))) {
+                rafSelectionItems.add(rafService.getRafObjectByPath(ApplicationContstants.SHARED_RAF_ROOT));
+            }
+            if ("true".equals(ConfigResolver.getPropertyValue("raf.personal.enabled", "true"))) {
+                rafSelectionItems.add(rafService.getRafObjectByPath(rafEncoder.encode(ApplicationContstants.PRIVATE_RAF_ROOT + identity.getLoginName())));
+            }
+            rafSelectionItems.add(rafService.getRafObjectByPath(ApplicationContstants.RAF_ROOT));
+
+            rafSelectionCollection.setItems(rafSelectionItems);
+
+            return rafSelectionCollection;
+        } catch (RafException e) {
+            LOG.error("Could not create rafSelectionCollection", e);
+            return null;
+        }
+    }
+
+    private RafObject getRafSelectionObject() {
+        RafObject rafSelectionObject = new RafFolder();
+        rafSelectionObject.setName("Raf Selection");
+        rafSelectionObject.setPath("/");
+        rafSelectionObject.setId(null);
+        rafSelectionObject.setParentId(null);
+
+        return rafSelectionObject;
+    }
+
+    private List<RafObject> getFilteredAvailableItems(List<RafObject> rafObjects) {
+        List<RafDefinition> rafDefinitions = rafDefinitionService.getRafsForUser(identity.getLoginName());
+        List<RafObject> filteredList = new ArrayList<>();
+
+        rafObjects.forEach((RafObject rafObject) -> {
+            boolean isRafPath = rafObject.getPath().startsWith(ApplicationContstants.RAF_ROOT);
+            boolean isRaf = isRafPath && rafObject.getPath().startsWith(ApplicationContstants.RAF_ROOT) && rafObject.getPath().split("/").length == 3;
+            boolean isPrivateRaf = rafObject.getPath().startsWith(ApplicationContstants.PRIVATE_RAF_ROOT);
+            boolean isSharedRaf = rafObject.getPath().startsWith(ApplicationContstants.SHARED_RAF_ROOT);
+
+            if (isPrivateRaf || isSharedRaf) {
+                filteredList.add(rafObject);
+            }
+            else if (isRaf) {
+                String rafCode = rafObject.getPath().split("/")[2];
+                boolean definition = rafDefinitions.stream()
+                        .anyMatch(rafDefinition -> Objects.equals(rafDefinition.getCode(), rafCode));
+
+                if (definition) {
+                    filteredList.add(rafObject);
+                }
+            }
+            else if (isRafPath) {
+                if (rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafObject.getPath())) {
+                    filteredList.add(rafObject);
+                }
+            }
+
+        });
+
+        return filteredList;
     }
 
 }
