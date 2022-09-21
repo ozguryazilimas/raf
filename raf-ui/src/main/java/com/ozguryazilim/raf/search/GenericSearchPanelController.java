@@ -1,15 +1,20 @@
 package com.ozguryazilim.raf.search;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.ApplicationContstants;
 import com.ozguryazilim.raf.CaseSensitiveSearchService;
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.encoder.RafEncoder;
+import com.ozguryazilim.raf.encoder.RafEncoderFactory;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.SavedSearch;
 import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.saved_search.SavedSearchService;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -28,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -60,6 +67,9 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
     @Inject
     private NavigationParameterContext navigationParameterContext;
+
+    @Inject
+    private Identity identity;
 
     private String saveSearchName;
     private Long savedSearch;
@@ -218,17 +228,25 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                 }
             }
 
-            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath()) && !searchModel.getSearchSubPath().equals("/RAF")) {
-                whereExpressions.add(" ISCHILDNODE(nodes,'".concat(searchModel.getSearchSubPath()) + "') ");
+            List<String> searchSubPaths = new ArrayList<>();
+            RafEncoder rafNameEncoder = RafEncoderFactory.getRafNameEncoder();
+
+            if (!Strings.isNullOrEmpty(searchModel.getSearchSubPath()) && !searchModel.getSearchSubPath().equals("/RAF") && !searchModel.getSearchInAllRafs()) {
+                searchSubPaths.add(searchModel.getSearchSubPath());
             } else {
-                String rafWheres = " ( ";
-                for (RafDefinition raf : rafs) {
-                    rafWheres += " ISCHILDNODE(nodes,'/RAF/" + raf.getCode() + "') OR ";
+                //Create where clauses for each raf definition and join them with OR
+                rafs.forEach((RafDefinition raf) -> searchSubPaths.add(ApplicationContstants.RAF_ROOT + raf.getCode()));
+
+                // Append private and shared rafs
+                if (Boolean.TRUE.equals(identity.hasPermission("sharedRaf", "select")) && "true".equals(ConfigResolver.getPropertyValue("raf.shared.enabled", "true"))) {
+                    searchSubPaths.add(rafNameEncoder.encode(ApplicationContstants.SHARED_RAF_ROOT));
                 }
-                rafWheres = rafWheres.substring(0, rafWheres.length() - 3);
-                rafWheres += " ) ";
-                whereExpressions.add(rafWheres);
+                if ("true".equals(ConfigResolver.getPropertyValue("raf.personal.enabled", "true"))) {
+                    searchSubPaths.add(rafNameEncoder.encode(ApplicationContstants.PRIVATE_RAF_ROOT + identity.getLoginName()));
+                }
             }
+
+            whereExpressions.add(getSubPathSearchExpression(searchSubPaths));
 
             return whereExpressions;
         } else if ("elasticSearch".equals(queryLanguage)) {
@@ -366,4 +384,12 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         return new ArrayList();
     }
 
+    private String getSubPathSearchExpression(List<String> subPaths) {
+        String expression = subPaths.stream()
+                .distinct()
+                .map(path -> String.format("ISDESCENDANTNODE(nodes, '%s')", path))
+                .collect(Collectors.joining(" OR "));
+
+        return String.format("( %s )", expression);
+    }
 }

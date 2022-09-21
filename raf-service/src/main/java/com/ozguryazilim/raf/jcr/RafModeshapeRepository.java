@@ -981,17 +981,16 @@ public class RafModeshapeRepository implements Serializable {
 
             List<String> whereExpressions = new ArrayList();
 
+            whereExpressions.add(" nodes.[jcr:primaryType] != 'raf:preview' ");
             whereExpressions.addAll(extendedQuery);
 
             String lastWhereExpression = "";
 
-            if (!whereExpressions.isEmpty()) {
-                lastWhereExpression += " WHERE ";
-                for (String whereExpression : whereExpressions) {
-                    lastWhereExpression += whereExpression.concat(" AND ");
-                }
-                lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
+            lastWhereExpression += " WHERE ";
+            for (String whereExpression : whereExpressions) {
+                lastWhereExpression += whereExpression.concat(" AND ");
             }
+            lastWhereExpression = lastWhereExpression.substring(0, lastWhereExpression.length() - 4).trim();
 
             if (extendedSortQuery != null && !extendedSortQuery.isEmpty()) {
                 lastWhereExpression = lastWhereExpression.concat(" ORDER BY ");

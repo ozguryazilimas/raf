@@ -24,7 +24,7 @@
             <div class="input-group">
                 <p:inputText id="#{field.id}_inp" value="#{field.value.title}" readonly="true" required="#{field.required}"/>
                 <div class="input-group-btn">
-                    <p:commandButton action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', field.value )}" 
+                    <p:commandButton action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', field.value, false, false )}"
                                      partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="#{field.readonly}">
                         <p:ajax event="dialogReturn"  listener="#{field.onSelect}" update="#{field.id}_inp" partialSubmit="true" process="@this" />   
                     </p:commandButton>

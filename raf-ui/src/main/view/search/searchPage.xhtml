@@ -45,7 +45,7 @@
 
             function checkSubPathSelection() {
                 var val=$("#searchForm\\:searchSubFolder").val();
-                if((val === "" || val === "/RAF") &amp;&amp; !PF("searchInAllRafsCheckbox").input.is(':checked')){
+                if((val === "" || val === "/RAF" || val === "/") &amp;&amp; !PF("searchInAllRafsCheckbox").input.is(':checked')){
                     PF("emptyRafPath").show();
                 } else {
                     search();

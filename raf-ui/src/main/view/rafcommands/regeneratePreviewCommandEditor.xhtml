@@ -6,7 +6,7 @@
     <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
         <p:inputText id="rafPath" value="#{regeneratePreviewCommandEditor.command.rafPath}" required="true"/>
         <p:commandButton style="width: 50px; height: 30px;" 
-                         action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', regeneratePreviewCommandEditor.command.rafPath )}" 
+                         action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', regeneratePreviewCommandEditor.command.rafPath, false, false )}"
                          partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="false">
             <p:ajax event="dialogReturn" listener="#{regeneratePreviewCommandEditor.selectFolder}"  update="rafPath" partialSubmit="true" process="@this" />
         </p:commandButton>
