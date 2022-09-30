@@ -26,6 +26,7 @@ import javax.inject.Inject;
 @Action(icon = "fa-paste",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.NeedClipboard},
         includedMimeType = "raf/folder",
+        actionPermission = "insert",
         group = 10,
         order = 3)
 public class PasteAction extends AbstractAction {

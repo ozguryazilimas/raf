@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 @Action(icon = "fa-copy",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection},
         group = 10,
+        actionPermission = "insert",
         order = 1
 )
 public class CopyAction extends AbstractAction {

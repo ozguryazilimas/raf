@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 @Action(icon = "fa-trash", capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.DetailViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection, ActionCapability.Confirmation},
         group = 11,
+        actionPermission = "delete",
         order = 0)
 public class DeleteAction extends AbstractAction {
 

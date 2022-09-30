@@ -8,7 +8,6 @@
         <permission target="sharedRaf">
             <action name="select"/>
             <action name="insert"/>
-            <action name="update"/>
             <action name="delete"/>
         </permission>
     </permissionGroup>
