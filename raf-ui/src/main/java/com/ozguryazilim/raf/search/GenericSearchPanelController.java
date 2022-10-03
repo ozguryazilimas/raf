@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -178,11 +179,11 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
         detailedSearchController.setExtendedColumnMap(new HashMap());
     }
 
-    private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel) {
+    private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel, boolean isCaseSensetive) {
         String caseSensitiveSearchFilter = "(";
-        String[] fieldArray = new String[]{"[jcr:name]", "[jcr:title]", "[jcr:data]", "[jcr:content]", "[jcr:lastModified]", "[jcr:lastModifiedBy]", "[jcr:created]", "[jcr:createdBy]"};
+        String[] fieldArray = new String[]{"[jcr:name]", "[jcr:title]", "[jcr:data]", "[jcr:lastModified]", "[jcr:lastModifiedBy]", "[jcr:created]", "[jcr:createdBy]"};
         for (String field : fieldArray) {
-            caseSensitiveSearchFilter += String.format(" nodes." + field + "  LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim()));
+            caseSensitiveSearchFilter += String.format(" nodes." + (isCaseSensetive ? field : field.toLowerCase(caseSensitiveSearchService.getSearchLocale())) + "  LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim()));
             if (!field.equals(fieldArray[fieldArray.length - 1])) {
                 caseSensitiveSearchFilter += " OR ";
             }
@@ -210,11 +211,13 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                     if (searchModel.getCaseSensitive()) {
                         whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                     } else {
-                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale()))));
+                        whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.US))));
                     }
+
+                    whereExpressions.add(" nodes.[jcr:primaryType] != 'pdf:page' ");
                 } else {
                     if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel));
+                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, true));
                     } else {
                         whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
                     }
