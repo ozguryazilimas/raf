@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
         icon = "fa-plus",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
+        actionPermission = "insert",
         order = 1)
 public class CreateFolderAction extends AbstractAction {
 

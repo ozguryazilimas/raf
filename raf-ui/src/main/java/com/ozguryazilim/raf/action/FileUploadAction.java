@@ -43,6 +43,7 @@ import java.util.Map;
 @Action(icon = "fa-upload",
         capabilities = {ActionCapability.Ajax, ActionCapability.CollectionViews},
         includedMimeType = "raf/folder",
+        actionPermission = "insert",
         order = 0)
 public class FileUploadAction extends AbstractAction implements RafFileUploadHandler {
 

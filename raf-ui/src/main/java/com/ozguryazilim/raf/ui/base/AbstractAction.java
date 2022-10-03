@@ -1,12 +1,15 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.ApplicationContstants;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.telve.auth.Identity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
@@ -39,6 +42,9 @@ public class AbstractAction implements Serializable {
 
     @Inject
     private RafMemberService rafMemberService;
+
+    @Inject
+    private Identity identity;
 
     /**
      * Varsayılan hali ile sınıf adını döner.
@@ -199,6 +205,20 @@ public class AbstractAction implements Serializable {
         String im = getAnnotation().includedMimeType();
         String em = getAnnotation().excludeMimeType();
 
+        boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
+                .as(Boolean.class)
+                .withDefault(Boolean.TRUE)
+                .getValue();
+
+        if (sharedRafActionPermissionsEnabled) {
+            String actionPermission = getAnnotation().actionPermission();
+            boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
+
+            if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
+                return false;
+            }
+        }
+
         //Eğer Collection için isteniyor ise
         if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
             String mm = getContext().getCollection().getMimeType();
@@ -277,8 +297,24 @@ public class AbstractAction implements Serializable {
             return false;
         }
 
+        boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
+                .as(Boolean.class)
+                .withDefault(Boolean.TRUE)
+                .getValue();
+
+        if (sharedRafActionPermissionsEnabled) {
+            String actionPermission = getAnnotation().actionPermission();
+            boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
+
+            if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
+                return false;
+            }
+        }
+
         try {
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
+            if (getContext().getSelectedRaf() != null && ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf())) {
+                return true;
+            } else if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
                 return rafPathMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedObject().getPath());
             } else {
                 return getContext().getSelectedRaf() != null && rafMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedRaf());

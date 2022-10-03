@@ -33,6 +33,9 @@ public @interface Action {
     Class<? extends ViewConfig> dialog() default ViewConfig.class;
     
     String[] permissions() default {"MANAGER", "EDITOR", "CONTRIBUTER", "SUPPORTER", "CONSUMER", "UNAUTHORIZED"};
+
+    String actionPermission() default "";
+
     /**
      * Action'ın desteklediği mimeType'lar için test patterni
      * 
