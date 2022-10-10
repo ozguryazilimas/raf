@@ -11,7 +11,11 @@ import java.io.Serializable;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.modeshape.jcr.value.IoException;
 import org.primefaces.model.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +23,8 @@ import org.primefaces.model.SortOrder;
  */
 @ApplicationScoped
 public class SearchService implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 
     @Inject
     private RafModeshapeRepository modeshapeRepository;
@@ -53,9 +59,13 @@ public class SearchService implements Serializable {
         return 1000;//modeshapeRepository.getDetailedSearchCount(searchModel, rafs, rafPathMemberService, identity.getLoginName());
     }
 
-    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException {
+    public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException, FileBinaryNotFoundException {
         //FIXME: yetki kontrolleri yapılmalı.
-        return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery);
+        try {
+            return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery);
+        } catch (IoException ex) {
+            throw new FileBinaryNotFoundException("[RAF-0048] Could not found one or more nodes binary data.", ex);
+        }
     }
 
 }

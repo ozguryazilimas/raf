@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.search;
 
+import com.ozguryazilim.raf.FileBinaryNotFoundException;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.SearchService;
 import com.ozguryazilim.raf.elasticsearch.search.ElasticSearchService;
@@ -9,6 +10,8 @@ import com.ozguryazilim.raf.models.RafObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.ozguryazilim.telve.messages.FacesMessages;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.modeshape.jcr.JcrRepository.QueryLanguage;
@@ -61,16 +64,25 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             List<String> searchPanels = SearchRegistery.getSearchPanels();
             List extendedQuery = new ArrayList();
             List extendedSortQuery = new ArrayList();
-            for (String searchPanel : searchPanels) {
-                SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
-                extendedQuery.addAll(spc.getSearchQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
-                extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
-            }
+            fillSortQueries(searchPanels, extendedQuery, extendedSortQuery);
 
             if (!elasticSearch) {
-                //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.               
-                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
-                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.   
+                //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
+                try {
+                    datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
+                    this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+                } catch (FileBinaryNotFoundException ex) {
+                    LOG.error("One or more files binary data could not found while searching. Retrying without data search.", ex);
+
+                    searchModel.setSearchInFileDataAvailable(false);
+                    fillSortQueries(searchPanels, extendedQuery, extendedSortQuery);
+
+                    datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
+                    this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+
+                    searchModel.setSearchInFileDataAvailable(true);
+                    FacesMessages.warn("raf.search.result.data.binary.not.found");
+                }
             } else {
                 datasource = elasticSearchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
                 this.setRowCount((int) elasticSearchService.detailedSearchCount(searchModel, rafs, extendedQuery));
@@ -80,6 +92,16 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             this.setRowCount(0);
         }
         return datasource;
+    }
+
+    private void fillSortQueries(List<String> searchPanels, List extendedQuery, List extendedSortQuery) {
+
+        for (String searchPanel : searchPanels) {
+            SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+            extendedQuery.addAll(spc.getSearchQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+            extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+        }
+
     }
 
 }

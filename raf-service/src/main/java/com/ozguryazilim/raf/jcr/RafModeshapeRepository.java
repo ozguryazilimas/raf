@@ -33,6 +33,8 @@ import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
+import org.modeshape.jcr.value.IoException;
+import org.modeshape.jcr.value.binary.BinaryStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,6 +8,7 @@ import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import com.ozguryazilim.telve.messages.Messages;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.modeshape.jcr.value.binary.BinaryStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CommandExecutor(command = CheckMissingContentsCommand.class)
 public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter<CheckMissingContentsCommand> {
@@ -50,13 +52,18 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
             while (it.hasNext()) {
                 Node currentNode = it.nextNode();
                 if (!isNodeContainsContent(currentNode)) {
-                    nodePathsWithMissingContents.add(currentNode.getPath());
+                    nodePathsWithMissingContents.add(currentNode.getPath() + ":" + currentNode.getIdentifier());
                 }
             }
 
         } catch (RafException | RepositoryException ex) {
             LOG.error("Error while checking contents", ex);
         }
+
+        nodePathsWithMissingContents = nodePathsWithMissingContents.stream()
+                .filter(nodePath -> !nodePath.startsWith("/PROCESS"))
+                .collect(Collectors.toList());
+
         if (!nodePathsWithMissingContents.isEmpty()) {
             sendEmailWithMissingContentsInformation(nodePathsWithMissingContents, command.getEmail());
             LOG.info("\nMissing contents:\n" + String.join("\n", nodePathsWithMissingContents));
@@ -69,8 +76,14 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
         try {
             boolean hasContentNode = node.hasNode(CONTENT_NODE_NAME);
             if (hasContentNode) {
-                Property property = node.getNode(CONTENT_NODE_NAME).getProperty(DATA_PROP_NAME);
-                return property.getBinary() != null;
+                Node contentNode = node.getNode(CONTENT_NODE_NAME);
+                if (contentNode.hasProperty(DATA_PROP_NAME)) {
+                    try {
+                        contentNode.getProperty(DATA_PROP_NAME).getBinary().getStream();
+                    } catch (BinaryStoreException ex) {
+                        return false;
+                    }
+                }
             }
             return false;
         } catch (RepositoryException e) {
