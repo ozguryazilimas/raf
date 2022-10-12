@@ -74,6 +74,7 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
                     LOG.error("One or more files binary data could not found while searching. Retrying without data search.", ex);
 
                     searchModel.setSearchInFileDataAvailable(false);
+                    fillSortQueries(searchPanels, extendedQuery, extendedSortQuery);
                     fillSearchModelForModeshapeStrategy(pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery);
                     searchModel.setSearchInFileDataAvailable(true);
 
