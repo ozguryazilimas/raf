@@ -69,18 +69,14 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             if (!elasticSearch) {
                 //default search provider elasticsearch değil veya fulltext search yapılıyor ise arama işini modeshape e yönlendir.
                 try {
-                    datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
-                    this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+                    fillSearchModelForModeshapeStrategy(pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery);
                 } catch (FileBinaryNotFoundException ex) {
                     LOG.error("One or more files binary data could not found while searching. Retrying without data search.", ex);
 
                     searchModel.setSearchInFileDataAvailable(false);
-                    fillSortQueries(searchPanels, extendedQuery, extendedSortQuery);
-
-                    datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
-                    this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
-
+                    fillSearchModelForModeshapeStrategy(pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery);
                     searchModel.setSearchInFileDataAvailable(true);
+
                     FacesMessages.warn("raf.search.result.data.binary.not.found");
                 }
             } else {
@@ -102,6 +98,11 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
             extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
         }
 
+    }
+
+    private void fillSearchModelForModeshapeStrategy(int pageSize, int first, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException {
+        datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
+        this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
     }
 
 }

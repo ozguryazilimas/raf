@@ -197,8 +197,6 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
         String searchText = isCaseSensetive ? escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale())) : escapeQueryParam(searchModel.getSearchText().trim());
 
-        Iterator<String> fieldIterator = fieldArray.iterator();
-
         String indexString = fieldArray.stream()
                 .map(fieldText -> String.format(queryPattern, fieldText, searchText))
                 .collect(Collectors.joining(" OR "));
@@ -233,11 +231,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
                     whereExpressions.add(" nodes.[jcr:primaryType] != 'pdf:page' ");
                 } else {
-                    if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, true));
-                    } else {
-                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, false));
-                    }
+                    whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, searchModel.getCaseSensitive()));
                 }
                 if (searchModel.getSearchInDocumentTags()) {
                     if (searchModel.getCaseSensitive()) {

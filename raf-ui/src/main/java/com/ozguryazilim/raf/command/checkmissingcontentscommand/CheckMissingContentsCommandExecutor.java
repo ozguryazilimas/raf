@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -51,7 +50,7 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
 
             while (it.hasNext()) {
                 Node currentNode = it.nextNode();
-                if (!isNodeContainsContent(currentNode)) {
+                if (!isNodeContainsContent(currentNode) && !currentNode.getPath().startsWith("/PROCESS")) {
                     nodePathsWithMissingContents.add(currentNode.getPath() + ":" + currentNode.getIdentifier());
                 }
             }
@@ -59,10 +58,6 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
         } catch (RafException | RepositoryException ex) {
             LOG.error("Error while checking contents", ex);
         }
-
-        nodePathsWithMissingContents = nodePathsWithMissingContents.stream()
-                .filter(nodePath -> !nodePath.startsWith("/PROCESS"))
-                .collect(Collectors.toList());
 
         if (!nodePathsWithMissingContents.isEmpty()) {
             sendEmailWithMissingContentsInformation(nodePathsWithMissingContents, command.getEmail());
@@ -75,16 +70,12 @@ public class CheckMissingContentsCommandExecutor extends AbstractCommandExecuter
     public boolean isNodeContainsContent(Node node) {
         try {
             boolean hasContentNode = node.hasNode(CONTENT_NODE_NAME);
-            if (hasContentNode) {
-                Node contentNode = node.getNode(CONTENT_NODE_NAME);
-                if (contentNode.hasProperty(DATA_PROP_NAME)) {
-                    try {
-                        contentNode.getProperty(DATA_PROP_NAME).getBinary().getStream();
-                    } catch (BinaryStoreException ex) {
-                        return false;
-                    }
-                }
+            if (hasContentNode && node.getNode(CONTENT_NODE_NAME).hasProperty(DATA_PROP_NAME)) {
+                node.getNode(CONTENT_NODE_NAME).getProperty(DATA_PROP_NAME).getBinary().getStream();
+                return true;
             }
+            return false;
+        } catch (BinaryStoreException ex) {
             return false;
         } catch (RepositoryException e) {
             LOG.error(e.getMessage());
