@@ -180,16 +180,31 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     }
 
     private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel, boolean isCaseSensetive) {
-        String caseSensitiveSearchFilter = "(";
-        String[] fieldArray = new String[]{"[jcr:name]", "[jcr:title]", "[jcr:data]", "[jcr:lastModified]", "[jcr:lastModifiedBy]", "[jcr:created]", "[jcr:createdBy]"};
-        for (String field : fieldArray) {
-            caseSensitiveSearchFilter += String.format(" nodes." + (isCaseSensetive ? field : field.toLowerCase(caseSensitiveSearchService.getSearchLocale())) + "  LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim()));
-            if (!field.equals(fieldArray[fieldArray.length - 1])) {
-                caseSensitiveSearchFilter += " OR ";
-            }
+        StringBuilder caseSensitiveSearchFilterStringBuilder = new StringBuilder("(");
+        List<String> fieldArray = new ArrayList<>();
+        String queryPattern = " nodes.%s LIKE '%%%s%%' ";
+
+        fieldArray.add("[jcr:name]");
+        fieldArray.add("[jcr:title]");
+        fieldArray.add("[jcr:lastModified]");
+        fieldArray.add("[jcr:lastModifiedBy]");
+        fieldArray.add("[jcr:created]");
+        fieldArray.add("[jcr:createdBy]");
+
+        if (searchModel.getSearchInFileDataAvailable()) {
+            fieldArray.add("[jcr:data]");
         }
-        caseSensitiveSearchFilter += ")";
-        return caseSensitiveSearchFilter;
+
+        String searchText = isCaseSensetive ? escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale())) : escapeQueryParam(searchModel.getSearchText().trim());
+
+        String indexString = fieldArray.stream()
+                .map(fieldText -> String.format(queryPattern, fieldText, searchText))
+                .collect(Collectors.joining(" OR "));
+
+        caseSensitiveSearchFilterStringBuilder.append(indexString);
+
+        caseSensitiveSearchFilterStringBuilder.append(")");
+        return caseSensitiveSearchFilterStringBuilder.toString();
     }
 
     @Override
@@ -216,11 +231,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
                     whereExpressions.add(" nodes.[jcr:primaryType] != 'pdf:page' ");
                 } else {
-                    if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, true));
-                    } else {
-                        whereExpressions.add(String.format(" CONTAINS(nodes.*, '%s') ", escapeQueryParam(searchModel.getSearchText().trim())));
-                    }
+                    whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, searchModel.getCaseSensitive()));
                 }
                 if (searchModel.getSearchInDocumentTags()) {
                     if (searchModel.getCaseSensitive()) {
@@ -390,7 +401,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     private String getSubPathSearchExpression(List<String> subPaths) {
         String expression = subPaths.stream()
                 .distinct()
-                .map(path -> String.format("ISDESCENDANTNODE(nodes, '%s')", path))
+                .map(path -> String.format("(nodes.[jcr:path] LIKE '%s%%')", path))
                 .collect(Collectors.joining(" OR "));
 
         return String.format("( %s )", expression);

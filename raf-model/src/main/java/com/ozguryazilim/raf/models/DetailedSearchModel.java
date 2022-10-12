@@ -33,6 +33,7 @@ public class DetailedSearchModel {
     private Boolean searchInDocumentName = Boolean.TRUE;
     private Boolean searchInDocumentTags = Boolean.FALSE;
     private Boolean searchInAllRafs = Boolean.FALSE;
+    private Boolean searchInFileDataAvailable = Boolean.TRUE;
 
     private String sortBy;
     private String sortOrder = "ASC";
@@ -229,4 +230,11 @@ public class DetailedSearchModel {
         this.searchInAllRafs = searchInAllRafs;
     }
 
+    public Boolean getSearchInFileDataAvailable() {
+        return searchInFileDataAvailable;
+    }
+
+    public void setSearchInFileDataAvailable(Boolean searchInFileDataAvailable) {
+        this.searchInFileDataAvailable = searchInFileDataAvailable;
+    }
 }
