@@ -28,7 +28,9 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
+import org.modeshape.jcr.RepositoryIndexes;
 import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.api.index.IndexDefinition;
 import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
@@ -67,11 +69,13 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -959,7 +963,7 @@ public class RafModeshapeRepository implements Serializable {
 
     public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
             List<RafDefinition> rafs,
-            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery, List extendedSortQuery) throws RafException {
+            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery, List extendedSortQuery, Locale searchLocale) throws RafException {
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -971,7 +975,7 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
 
-            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            org.modeshape.jcr.api.query.QueryManager queryManager = (org.modeshape.jcr.api.query.QueryManager) session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
             String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
@@ -1001,12 +1005,12 @@ public class RafModeshapeRepository implements Serializable {
 
             expression = expression.concat(lastWhereExpression).concat(String.format(" LIMIT %d OFFSET %d ", limit, offset));
             LOG.debug("JCR-SQL2 Query will be executed  {}", expression);
-            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2, searchLocale);
             QueryResult queryResult = query.execute();
             org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
             String plan = resultt.getPlan();
 
-            LOG.debug("Query plan : {}", plan);
+            LOG.info("Query plan : {}", plan);
 
             NodeIterator it = queryResult.getNodes();
             while (it.hasNext()) {

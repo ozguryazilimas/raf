@@ -33,7 +33,8 @@ public class DetailedSearchModel {
     private Boolean searchInDocumentName = Boolean.TRUE;
     private Boolean searchInDocumentTags = Boolean.FALSE;
     private Boolean searchInAllRafs = Boolean.FALSE;
-    private Boolean searchInFileDataAvailable = Boolean.TRUE;
+    private Boolean searchInFileDataAvailable = Boolean.FALSE;
+    private Boolean searchInCreatedAndModifiedData = Boolean.FALSE;
 
     private String sortBy;
     private String sortOrder = "ASC";
@@ -237,4 +238,13 @@ public class DetailedSearchModel {
     public void setSearchInFileDataAvailable(Boolean searchInFileDataAvailable) {
         this.searchInFileDataAvailable = searchInFileDataAvailable;
     }
+
+    public Boolean getSearchInCreatedAndModifiedData() {
+        return searchInCreatedAndModifiedData;
+    }
+
+    public void setSearchInCreatedAndModifiedData(Boolean searchInCreatedAndModifiedData) {
+        this.searchInCreatedAndModifiedData = searchInCreatedAndModifiedData;
+    }
+
 }

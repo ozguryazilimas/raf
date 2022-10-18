@@ -79,8 +79,9 @@
             <artifactId>shiro-jaxrs</artifactId>
             <version>1.8.0</version>
         </dependency>
+
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
