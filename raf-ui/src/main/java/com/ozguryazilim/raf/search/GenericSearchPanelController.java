@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -182,26 +181,32 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     private String getCaseSensitiveFilterForGenericSearch(DetailedSearchModel searchModel, boolean isCaseSensetive) {
         StringBuilder caseSensitiveSearchFilterStringBuilder = new StringBuilder("(");
         List<String> fieldArray = new ArrayList<>();
-        String queryPattern = " nodes.%s LIKE '%%%s%%' ";
+        String caseSensetivequeryPattern = " nodes.%s LIKE '%%%s%%' ";
+        String nonCaseSensetiveQueryPattern = " LOWER(nodes.%s) LIKE '%%%s%%' ";
 
         fieldArray.add("[jcr:name]");
         fieldArray.add("[jcr:title]");
-        fieldArray.add("[jcr:lastModified]");
-        fieldArray.add("[jcr:lastModifiedBy]");
-        fieldArray.add("[jcr:created]");
-        fieldArray.add("[jcr:createdBy]");
 
-        if (searchModel.getSearchInFileDataAvailable()) {
-            fieldArray.add("[jcr:data]");
+        if (searchModel.getSearchInCreatedAndModifiedData()) {
+            fieldArray.add("[jcr:lastModified]");
+            fieldArray.add("[jcr:lastModifiedBy]");
+            fieldArray.add("[jcr:created]");
+            fieldArray.add("[jcr:createdBy]");
         }
 
-        String searchText = isCaseSensetive ? escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale())) : escapeQueryParam(searchModel.getSearchText().trim());
+        String searchText = isCaseSensetive ? escapeQueryParam(searchModel.getSearchText().trim()) : escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale())) ;
+        String queryPattern = isCaseSensetive ? caseSensetivequeryPattern : nonCaseSensetiveQueryPattern;
 
         String indexString = fieldArray.stream()
                 .map(fieldText -> String.format(queryPattern, fieldText, searchText))
                 .collect(Collectors.joining(" OR "));
 
         caseSensitiveSearchFilterStringBuilder.append(indexString);
+
+        if (searchModel.getSearchInFileDataAvailable()) {
+            caseSensitiveSearchFilterStringBuilder.append(String.format(" OR  nodes.[jcr:data] LIKE '%%%s%%' ", searchText));
+            fieldArray.add("");
+        }
 
         caseSensitiveSearchFilterStringBuilder.append(")");
         return caseSensitiveSearchFilterStringBuilder.toString();
