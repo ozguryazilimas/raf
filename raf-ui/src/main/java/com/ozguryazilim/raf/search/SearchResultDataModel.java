@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.models.DetailedSearchModel;
 import com.ozguryazilim.raf.models.RafObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.ozguryazilim.telve.messages.FacesMessages;
