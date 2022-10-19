@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.index.manager;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
@@ -23,11 +24,13 @@ public class IndexRemoverCommandExecutor extends AbstractCommandExecuter<IndexRe
     public void execute(IndexRemoverCommand command) {
         this.command = command;
         if (!Strings.isNullOrEmpty(this.command.getWillRemoveIndexes())) {
-            Arrays.asList(this.command.getWillRemoveIndexes().split(",")).forEach((i) -> {
-                LOG.info("{} index is unregistering...");
-                rafService.unregisterIndexes(i);
-                LOG.info("{} index is unregistered...");
-            });
+            String[] indexNames = this.command.getWillRemoveIndexes().split(",");
+            LOG.info("%s indexes are unregistering...", Arrays.toString(indexNames));
+            try {
+                rafService.unregisterIndexes(indexNames);
+            } catch (RafException ex) {
+                LOG.error(String.format("Error while unregistering indexes %s", Arrays.toString(indexNames)), ex);
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.enums.EmailNotificationActionType;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
+import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -25,18 +26,21 @@ import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.modeshape.jcr.api.index.IndexDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -548,8 +552,12 @@ public class RafService implements Serializable {
         return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
     }
 
-    public void unregisterIndexes(String... indexNames) {
+    public void unregisterIndexes(String... indexNames) throws RafException {
         rafRepository.unregisterIndexes(indexNames);
+    }
+
+    public Map<String, IndexDefinition> getIndexDefinitions() throws RafException {
+        return rafRepository.getIndexDefinitions();
     }
 
     public long getFolderSize(String absPath, Long maxSumSize) throws RafException {

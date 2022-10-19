@@ -28,7 +28,9 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
+import org.modeshape.jcr.RepositoryIndexes;
 import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.api.index.IndexDefinition;
 import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
@@ -67,11 +69,13 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -2976,18 +2980,31 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public void unregisterIndexes(String... indexNames) {
+    public void unregisterIndexes(String... indexNames) throws RafException {
         try {
-            try {
-                Session session = ModeShapeRepositoryFactory.getSession();
-                ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).getIndexManager().unregisterIndexes(indexNames);
-                session.logout();
-            } catch (RepositoryException ex) {
-                throw new RafException("[RAF-0007] Raf Query Error", ex);
-            }
+            Session session = ModeShapeRepositoryFactory.getSession();
+            ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).getIndexManager().unregisterIndexes(indexNames);
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
         } catch (Exception e) {
-            LOG.error("Exception", e);
+            LOG.error("Error while unregistering indexes", e);
         }
+    }
+
+    public Map<String, IndexDefinition> getIndexDefinitions() throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Map<String, IndexDefinition> indexDefinitionMap = ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).getIndexManager().getIndexDefinitions();
+            session.logout();
+
+            return indexDefinitionMap;
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
+        } catch (Exception e) {
+            LOG.error("Error while getting indexes", e);
+        }
+        return Collections.emptyMap();
     }
 
     public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
