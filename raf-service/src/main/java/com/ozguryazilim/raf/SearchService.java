@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -38,6 +39,9 @@ public class SearchService implements Serializable {
     @Inject
     private Identity identity;
 
+    @Inject
+    CaseSensitiveSearchService caseSensitiveSearchService;
+
     public RafCollection search(String searchText, RafDefinition raf) throws RafException {
         //FIXME: yetki kontrolleri yapılmalı.
         if (rafMemberService.hasReadRole(identity.getLoginName(), raf)) {
@@ -61,8 +65,12 @@ public class SearchService implements Serializable {
 
     public RafCollection detailedSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, int limit, int offset, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException, FileBinaryNotFoundException {
         //FIXME: yetki kontrolleri yapılmalı.
+        Locale searchLocale = Locale.US;
+        if (!searchModel.getSearchInDocumentName()) {
+            searchLocale = caseSensitiveSearchService.getSearchLocale();
+        }
         try {
-            return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery);
+            return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery, searchLocale);
         } catch (IoException ex) {
             throw new FileBinaryNotFoundException("[RAF-0048] Could not found one or more nodes binary data.", ex);
         }

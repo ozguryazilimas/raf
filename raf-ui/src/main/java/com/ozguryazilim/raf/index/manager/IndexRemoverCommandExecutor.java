@@ -5,10 +5,11 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
-import java.util.Arrays;
-import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.Arrays;
 
 @CommandExecutor(command = IndexRemoverCommand.class)
 public class IndexRemoverCommandExecutor extends AbstractCommandExecuter<IndexRemoverCommand> {

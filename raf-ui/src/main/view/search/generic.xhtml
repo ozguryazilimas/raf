@@ -58,6 +58,16 @@
                 </p:panelGrid>
             </c:if>
 
+            <p:outputLabel value="#{messages['general.label.SearchInFileData']}" style="margin-top: 6px"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInFileDataAvailable}"/>
+            </p:panelGrid>
+
+            <p:outputLabel value="#{messages['general.label.SearchInCreatedAndModifiedData']}" style="margin-top: 6px"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInCreatedAndModifiedData}"/>
+            </p:panelGrid>
+
             <p:outputLabel value="#{messages['general.label.SearchInName']}" style="margin-top: 6px"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:selectBooleanCheckbox value="#{detailedSearchController.searchModel.searchInDocumentName}"/>
