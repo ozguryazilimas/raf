@@ -552,8 +552,12 @@ public class RafService implements Serializable {
         return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
     }
 
-    public void unregisterIndexes(String... indexNames) {
+    public void unregisterIndexes(String... indexNames) throws RafException {
         rafRepository.unregisterIndexes(indexNames);
+    }
+
+    public Map<String, IndexDefinition> getIndexDefinitions() throws RafException {
+        return rafRepository.getIndexDefinitions();
     }
 
     public long getFolderSize(String absPath, Long maxSumSize) throws RafException {
