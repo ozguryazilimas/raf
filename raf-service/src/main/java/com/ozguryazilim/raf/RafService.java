@@ -548,6 +548,10 @@ public class RafService implements Serializable {
         rafRepository.reindex();
     }
 
+    public void reindex(String path, Boolean isAsync) throws RafException {
+        rafRepository.reindex(path, isAsync);
+    }
+
     public RafCollection getLastCreatedOrModifiedFilesCollection(Date fromDate, List<RafDefinition> rafs, boolean created) throws RafException {
         return rafRepository.getLastCreatedOrModifiedFilesCollection(fromDate, rafs, created);
     }

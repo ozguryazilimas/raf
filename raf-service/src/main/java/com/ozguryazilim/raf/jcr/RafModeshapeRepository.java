@@ -28,6 +28,7 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.util.StringUtils;
 import org.modeshape.jcr.RepositoryIndexes;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.api.index.IndexDefinition;
@@ -2891,6 +2892,30 @@ public class RafModeshapeRepository implements Serializable {
             } catch (RepositoryException ex) {
                 throw new RafException("[RAF-0007] Raf Query Error", ex);
             }
+        } catch (Exception e) {
+            LOG.error("Exception", e);
+        }
+    }
+
+    public void reindex(String path, boolean isAsync) throws RafException {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            if (StringUtils.isBlank(path)) {
+                if (isAsync) {
+                    ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindexAsync();
+                } else {
+                    ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindex();
+                }
+            } else {
+                if (isAsync) {
+                    ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindexAsync(path);
+                } else {
+                    ((org.modeshape.jcr.api.Workspace) session.getWorkspace()).reindex(path);
+                }
+            }
+            session.logout();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
         } catch (Exception e) {
             LOG.error("Exception", e);
         }
