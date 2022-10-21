@@ -224,24 +224,22 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInFileDataAvailable()) {
                     whereExpressions.add(String.format(" nodes.[jcr:data] LIKE '%%%s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
-                } else {
+                } else if (searchModel.getSearchInDocumentTags()) {
+                    if (searchModel.getCaseSensitive()) {
+                        whereExpressions.add(String.format(" nodes.[raf:tags] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    } else {
+                        whereExpressions.add(String.format(" LOWER(nodes.[raf:tags]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale()))));
+                    }
+                }
+                else {
                     if (searchModel.getSearchInDocumentName()) {
                         if (searchModel.getCaseSensitive()) {
                             whereExpressions.add(String.format(" nodes.[jcr:name] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
                         } else {
                             whereExpressions.add(String.format(" LOWER(nodes.[jcr:name]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(Locale.US))));
                         }
-
-                        whereExpressions.add(" nodes.[jcr:primaryType] != 'pdf:page' ");
                     } else {
                         whereExpressions.add(getCaseSensitiveFilterForGenericSearch(searchModel, searchModel.getCaseSensitive()));
-                    }
-                }
-                if (searchModel.getSearchInDocumentTags()) {
-                    if (searchModel.getCaseSensitive()) {
-                        whereExpressions.add(String.format(" nodes.[raf:tags] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
-                    } else {
-                        whereExpressions.add(String.format(" LOWER(nodes.[raf:tags]) LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim().toLowerCase(caseSensitiveSearchService.getSearchLocale()))));
                     }
                 }
             }
