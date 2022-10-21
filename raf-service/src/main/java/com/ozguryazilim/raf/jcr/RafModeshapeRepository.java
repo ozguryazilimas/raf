@@ -984,6 +984,7 @@ public class RafModeshapeRepository implements Serializable {
             List<String> whereExpressions = new ArrayList();
 
             whereExpressions.add(" nodes.[jcr:primaryType] != 'raf:preview' ");
+            whereExpressions.add(" nodes.[jcr:primaryType] != 'pdf:page' ");
             whereExpressions.addAll(extendedQuery);
 
             String lastWhereExpression = "";
