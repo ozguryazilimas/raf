@@ -37,6 +37,8 @@ public class ModeShapeRepositoryFactory {
 
     private static BinaryStore binaryStore;
 
+    private static RepositoryConfiguration repositoryConfiguration;
+
     public static ModeShapeEngine getEngine() {
         if (engine == null) {
             engine = new ModeShapeEngine();
@@ -49,6 +51,10 @@ public class ModeShapeRepositoryFactory {
 
     public static BinaryStore getBinaryStore() {
         return binaryStore;
+    }
+
+    public static RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
     }
 
     /**
@@ -119,6 +125,7 @@ public class ModeShapeRepositoryFactory {
 
             // Deploy the repository ...
             repository = getEngine().deploy(config);
+            repositoryConfiguration = config;
             try {
                 binaryStore = config.getBinaryStorage().getBinaryStore();
             } catch (Exception ex) {

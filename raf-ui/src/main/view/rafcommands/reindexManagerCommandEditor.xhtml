@@ -16,11 +16,13 @@
                 <tr>
                     <th>#{messages['ReindexManagerCommand.indexName']}</th>
                     <th>#{messages['ReindexManagerCommand.indexStatus']}</th>
+                    <th>#{messages['ReindexManagerCommand.dataCount']}</th>
                 </tr>
-                <p:repeat value="#{reindexManagerCommandEditor.getIndexStatus().entrySet().toArray()}" var="index" >
+                <p:repeat value="#{reindexManagerCommandEditor.getIndexStatus()}" var="index" >
                     <tr>
-                        <td>#{index.key}</td>
-                        <td>#{index.value}</td>
+                        <td>#{index.name}</td>
+                        <td>#{index.enabled}</td>
+                        <td>#{index.count}</td>
                     </tr>
                 </p:repeat>
             </table>
