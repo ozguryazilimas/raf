@@ -1,0 +1,30 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:scrollPanel mode="native" style="height:400px">
+        <p:panel>
+
+            <p:outputLabel value="#{messages['ReindexManagerCommand.path']}"/>
+            <p:inputText value="#{reindexManagerCommandEditor.command.path}"/>
+
+            <p:selectBooleanCheckbox value="#{reindexManagerCommandEditor.command.async}"
+                                     itemLabel="#{messages['ReindexManagerCommand.indexAsync']}"
+            />
+
+            <table class="table" style="width: 350px; margin-top: 10px;">
+                <tr>
+                    <th>#{messages['ReindexManagerCommand.indexName']}</th>
+                    <th>#{messages['ReindexManagerCommand.indexStatus']}</th>
+                </tr>
+                <p:repeat value="#{reindexManagerCommandEditor.getIndexStatus().entrySet().toArray()}" var="index" >
+                    <tr>
+                        <td>#{index.key}</td>
+                        <td>#{index.value}</td>
+                    </tr>
+                </p:repeat>
+            </table>
+
+        </p:panel>
+    </p:scrollPanel>
+</ui:composition>

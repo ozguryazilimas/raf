@@ -54,4 +54,9 @@ public interface RafCommandPages extends Pages {
     @View
     public class CheckMissingContentsCommandEditor implements Admin {
     };
+
+    @SecuredPage
+    @View
+    public class ReindexManagerCommandEditor implements Admin {
+    };
 }

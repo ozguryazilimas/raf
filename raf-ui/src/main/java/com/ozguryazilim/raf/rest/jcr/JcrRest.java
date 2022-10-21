@@ -11,15 +11,17 @@ import com.ozguryazilim.raf.rest.jcr.model.RestQueryResult;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.codehaus.jettison.json.JSONException;
 import org.modeshape.jcr.api.index.IndexDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,7 +31,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,6 +38,8 @@ import java.util.stream.Collectors;
 @RequiresPermissions("admin")
 @Path("/api/jcr")
 public class JcrRest implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JcrRest.class);
 
     @Inject
     private RafService rafService;
@@ -96,6 +99,21 @@ public class JcrRest implements Serializable {
             }
         } catch (RafException ex) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).entity(ex.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Path("/indexes/reindex")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response reindexAsync(
+            @FormParam("path") String path,
+            @DefaultValue("true") @FormParam("isAsync") Boolean isAsync ) {
+        try {
+            rafService.reindex(path, isAsync);
+            return Response.ok().build();
+        } catch (RafException ex) {
+            LOG.error("Error while async reindexing", ex);
+            return Response.serverError().entity(ex.getMessage()).build();
         }
     }
 
