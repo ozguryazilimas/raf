@@ -979,7 +979,7 @@ public class RafModeshapeRepository implements Serializable {
             org.modeshape.jcr.api.query.QueryManager queryManager = (org.modeshape.jcr.api.query.QueryManager) session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [" + NODE_SEARCH + "] as nodes ";
+            String expression = "SELECT DISTINCT nodes.[" + PROP_PATH + "] FROM [nt:file] as nodes ";
 
             List<String> whereExpressions = new ArrayList();
 
