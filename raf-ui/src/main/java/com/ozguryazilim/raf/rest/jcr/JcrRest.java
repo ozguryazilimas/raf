@@ -102,17 +102,19 @@ public class JcrRest implements Serializable {
         }
     }
 
-    @GET
+    @POST
     @Path("/indexes/reindex")
     @Produces(MediaType.APPLICATION_JSON)
     public Response reindexAsync(
             @FormParam("path") String path,
-            @DefaultValue("true") @FormParam("isAsync") Boolean isAsync ) {
+            @FormParam("isAsync") Boolean isAsync ) {
         try {
-            rafService.reindex(path, isAsync);
+            boolean async = Boolean.TRUE.equals(isAsync);
+            rafService.reindex(path, async);
+            LOG.info("Reindex started: Path: {} IsAsync: {}", path, async);
             return Response.ok().build();
         } catch (RafException ex) {
-            LOG.error("Error while async reindexing", ex);
+            LOG.error("Error while reindexing", ex);
             return Response.serverError().entity(ex.getMessage()).build();
         }
     }
