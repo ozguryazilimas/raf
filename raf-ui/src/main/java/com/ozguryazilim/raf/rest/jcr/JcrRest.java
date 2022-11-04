@@ -64,7 +64,7 @@ public class JcrRest implements Serializable {
                 return Response
                         .status(Response.Status.NOT_FOUND)
                         .entity(String.format("Could not found index named \"%s\"", indexName))
-    .build();
+                        .build();
             } else {
                 return Response.ok(indexDefinitionPayloadMap.get(indexName)).build();
             }
@@ -109,7 +109,9 @@ public class JcrRest implements Serializable {
             @FormParam("path") String path,
             @FormParam("isAsync") Boolean isAsync ) {
         try {
-            rafService.reindex(path, Boolean.TRUE.equals(isAsync));
+            boolean async = Boolean.TRUE.equals(isAsync);
+            rafService.reindex(path, async);
+            LOG.info("Reindex started: Path: {} IsAsync: {}", path, async);
             return Response.ok().build();
         } catch (RafException ex) {
             LOG.error("Error while reindexing", ex);
