@@ -23,7 +23,7 @@
         <property name="hibernate.show_sql" value="false"/>
         
         <buildNumber>SNAPSHOT</buildNumber>
-        <minorNumber>5</minorNumber>
+        <minorNumber>6</minorNumber>
         <revision>1.2.${minorNumber}</revision>
         <changelist>-${buildNumber}</changelist>
 
