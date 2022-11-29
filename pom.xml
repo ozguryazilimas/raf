@@ -29,7 +29,7 @@
 
         <version.raf>${revision}${changelist}</version.raf>
 
-        <modeshape.version>5.4.1.Final</modeshape.version>
+        <modeshape.version>5.4.1.Final-OY-1</modeshape.version>
         <drools.version>7.13.0.Final</drools.version>
         <jbpm.version>7.13.0.Final</jbpm.version>
         <jackson.version>2.13.0</jackson.version>
