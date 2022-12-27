@@ -1,15 +1,18 @@
 package com.ozguryazilim.raf.rest;
 
+import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.http.HttpStatus;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -74,6 +77,27 @@ public class RafDownloadRest implements Serializable {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
         } catch (RafException ex) {
             return Response.status(Response.Status.NOT_FOUND).entity("Content not found").build();
+        }
+    }
+
+    @POST
+    @Path("/getRafObject")
+    @Consumes({"*/*"})
+    @Produces({"application/json"})
+    public Response getDocument(@FormParam("filePath") String filePath) {
+        LOG.debug("Gelen Değer : {}", filePath);
+        RafObject ro = null;
+
+        try {
+            ro = rafService.getRafObjectByPath(filePath);
+            LOG.debug("Okunan Raf Object : {}", ro.getId());
+
+            Gson gson = new Gson();
+            String json = gson.toJson(ro.getId());
+            return Response.ok().type("application/json").entity(json).build();
+        } catch (RafException ex) {
+            LOG.error("Could not found raf object with path.", ex);
+            return Response.status(HttpStatus.SC_NOT_FOUND).build();
         }
     }
 
