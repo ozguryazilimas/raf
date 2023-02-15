@@ -108,7 +108,8 @@
                         <div class="row">
                             <t:inputLookupDialog value="#{rafMemberController.userGroup}" label="general.label.Group"  
                                                  lookupBean="#{groupLookup}" lookupListener="rafMemberController.userGroup" 
-                                                 leafSelect="false" 
+                                                 leafSelect="false"
+                                                 minQueryLength="2"
                                                  columnClass="col-md-6 col-xs-12"/>
                             <t:inputCombobox label="general.label.Role" value="#{rafMemberController.role}" required="true" columnClass="col-xs-12">
                                 <f:selectItem itemLabel="Okuyucu" itemValue="CONSUMER" />
