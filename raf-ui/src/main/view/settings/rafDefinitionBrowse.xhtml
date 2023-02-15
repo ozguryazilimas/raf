@@ -101,6 +101,7 @@
                            disabled="#{rafDefinitionBrowse.selectedItem eq null }" styleClass="#{rafDefinitionBrowse.selectedItem ne null ? '' : 'disabled'}">
                 <i class="fa fa-trash"/>
                 <span>#{messages['general.button.Delete']}</span>
+                <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['general.message.confirm.Delete']}" icon="ui-icon-alert" />
             </p:commandLink>
         </li>
 
