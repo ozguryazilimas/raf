@@ -12,10 +12,9 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.raf.utils.RafObjectUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import java.util.ArrayList;
-import java.util.List;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -78,10 +77,10 @@ public class DeleteAction extends AbstractAction {
     @Override
     protected boolean finalizeAction() {
 
-        List<RafObject> items = new ArrayList<>(getContext().getSeletedItems());
-        for (RafObject o : items) {
-            deleteObject(o);
-        }
+        getContext().getSeletedItems().stream()
+                .filter(RafObjectUtils.distinctRafObject())
+                .forEach(this::deleteObject);
+
         //FIXME: Burada RafEventLog çalıştırılmalı
         getContext().getSeletedItems().clear();
 
