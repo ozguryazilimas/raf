@@ -57,6 +57,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -602,6 +603,7 @@ public class RafController implements Serializable {
     public void closeObjectPanel() {
         //FIXME: bundan pek emin değilim. SelectedObject'e null mu atamalı?
         context.setSelectedObject(null);
+        context.setSeletedItems(new ArrayList<>());
         selectedContentPanel = getCollectionContentPanel();
     }
 
