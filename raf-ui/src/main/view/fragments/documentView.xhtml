@@ -166,8 +166,14 @@
                                           columnClass="col-xs-12"/>
                             <t:outputText label="#{messages['file.sharing.emails']}" value="#{obj.emails}"
                                           columnClass="col-xs-12"/>
-                            <t:outputText label="#{messages['file.sharing.link']}" value="#{viewBean.getSharingUrl(obj)}"
-                                          columnClass="col-xs-12"/>
+                            <div class="disprop col-xs-12">
+                                <p:outputLabel value="#{messages['file.sharing.link']} :" styleClass="name" />
+                                <span class="value">
+                                    <h:outputLink value="#{viewBean.getSharingUrl(obj)}" target="_blank" >
+                                        #{viewBean.getSharingUrl(obj)}
+                                    </h:outputLink>
+                                </span>
+                            </div>
                             <t:outputText label="#{messages['file.sharing.password']}" value="#{obj.password}"
                                           columnClass="col-xs-12"/>
                             <t:outputText label="#{messages['file.sharing.total.downloads']}" value="#{obj.visit}"
