@@ -80,7 +80,7 @@
                     </div>
                 </div>     
                 <div class="ui-fluid">
-                    <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                    <p:panelGrid columns="2" id="sortPanel" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                         <p:outputLabel value="#{messages['view.action.SortBy']}"/>
                         <p:selectOneMenu id="searchSortBy" value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
                             <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
@@ -92,11 +92,20 @@
                             <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="lastModified" />
                             <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}">
                             </f:selectItems>
+                            <p:ajax update="sortDirection" event="change"/>
                         </p:selectOneMenu>
                         <p:outputLabel value="#{messages['view.action.SortType']}"/>
-                        <p:selectOneMenu value="#{detailedSearchController.searchModel.sortOrder}" required="false">
-                            <f:selectItem itemLabel="A-Z" itemValue="ASC" />
-                            <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                        <p:selectOneMenu id="sortDirection" value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                            <c:choose>
+                                <c:when test="#{ detailedSearchController.searchModel.sortBy eq 'created' or detailedSearchController.searchModel.sortBy eq 'lastModified' }" >
+                                    <f:selectItem itemLabel="#{messages['collection.table.DateAscending']}" itemValue="ASC" />
+                                    <f:selectItem itemLabel="#{messages['collection.table.DateDescending']}" itemValue="DESC" />
+                                </c:when>
+                                <c:otherwise>
+                                    <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                                    <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                                </c:otherwise>
+                            </c:choose>
                         </p:selectOneMenu>
                     </p:panelGrid>
                 </div>
