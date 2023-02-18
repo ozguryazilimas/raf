@@ -408,7 +408,6 @@ public class RafService implements Serializable {
      */
     public void saveProperties(RafObject data) throws RafException {
         //FIXME: Yetki kontrolü
-        sendEventLog("DeleteObject", data);
         sendAuditLog(data.getId(), "SAVE_PROPERTIES", data.getPath());
         rafRepository.saveProperties(data);
     }
