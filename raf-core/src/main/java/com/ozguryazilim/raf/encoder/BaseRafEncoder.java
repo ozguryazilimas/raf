@@ -1,10 +1,13 @@
 package com.ozguryazilim.raf.encoder;
 
+import org.apache.commons.lang3.StringUtils;
+
 public abstract class BaseRafEncoder implements RafEncoder {
 
     public String encode(String text) {
         StringBuilder sb = new StringBuilder();
-        char[] source = text.toCharArray();
+        String strippedTest = StringUtils.stripAccents(text);
+        char[] source = strippedTest.toCharArray();
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case 'ğ':
