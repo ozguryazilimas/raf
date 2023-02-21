@@ -3,6 +3,7 @@ package com.ozguryazilim.raf;
 import com.google.common.base.Strings;
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
+import com.ozguryazilim.raf.action.CopyAction;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMemberType;
@@ -784,9 +785,11 @@ public class RafController implements Serializable {
     }
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
-        setPage(0);
-        setScrollTop(0);
-        setScrollLeft(0);
+        if (event.getAction() != null) {
+            setPage(0);
+            setScrollTop(0);
+            setScrollLeft(0);
+        }
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
@@ -795,6 +798,8 @@ public class RafController implements Serializable {
                     populateFolderCollection(context.getSelectedObject().getId());
                 } else if(context.getSelectedObject() instanceof RafDocument){
                     populateFolderCollection(context.getSelectedObject().getParentId());
+                } else if (event.getAction() instanceof CopyAction) {
+                    populateFolderCollection(context.getCollection().getId());
                 }
             } else {
                 populateFolderCollection(context.getCollection().getId());
