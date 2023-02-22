@@ -11,7 +11,7 @@
     <div class="ui-fluid">
         <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
             <p:outputLabel value="#{messages['generic.search.saved.search']}"/>
-            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+            <p:panelGrid id="savedSearch" columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:selectOneMenu value="#{genericSearchPanelController.savedSearch}" required="false" filter="true" filterMatchMode="startsWith">
                     <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
                     <p:ajax listener="#{genericSearchPanelController.onSavedSearchChanged}" update="searchForm" />
@@ -102,7 +102,7 @@
         </div>
     </p:dialog>
 
-    <p:dialog header="#{messages['generic.search.save_search']}" widgetVar="saveSearch" modal="true" width="450" height="100">
+    <p:dialog header="#{messages['generic.search.save_search']}" id="saveSearch" widgetVar="saveSearch" modal="true" width="450" height="100">
         <div class="row">
             <t:inputText label="#{messages['create.folder.input.description']}" value="#{genericSearchPanelController.saveSearchName}" 
                          required="false"
@@ -111,7 +111,7 @@
         <div class="row" style="margin-top: 4px;">
             <div class="col-xs-12">
                 <div class="pull-right">
-                    <p:commandButton value="#{messages['generic.search.save_search']}" action="#{genericSearchPanelController.saveSearch()}" process="@form" update="searchForm" styleClass="btn btn-primary" oncomplete="PF('saveSearch').hide();"/>
+                    <p:commandButton value="#{messages['generic.search.save_search']}" action="#{genericSearchPanelController.saveSearch()}" process="saveSearch" update="savedSearch" styleClass="btn btn-primary" oncomplete="PF('saveSearch').hide();"/>
                     <p:commandButton value="#{messages['general.label.cancel']}" onclick="PF('saveSearch').hide();" styleClass="btn btn-default"/>
                 </div>
             </div>
