@@ -6,8 +6,8 @@ public abstract class BaseRafEncoder implements RafEncoder {
 
     public String encode(String text) {
         StringBuilder sb = new StringBuilder();
-        String strippedTest = StringUtils.stripAccents(text);
-        char[] source = strippedTest.toCharArray();
+        String stripedText = StringUtils.stripAccents(text);
+        char[] source = stripedText.toCharArray();
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case 'ğ':
