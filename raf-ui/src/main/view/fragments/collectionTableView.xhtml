@@ -160,7 +160,7 @@
                                 </svg>
                             </td>
                             <td>
-                                <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="text-sm">
                                     <span class="text-sm">#{item.title}</span>
                                 </p:commandLink>
                             </td>
@@ -197,7 +197,7 @@
                                         <i class="fa fa-download" />
                                     </p:commandLink>
                                     <!--</h:form>-->
-                                    <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@this" styleClass="btn btn-box-tool">
+                                    <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@form" styleClass="btn btn-box-tool">
                                         <i class="fa fa-edit" />
                                     </p:commandLink>
                                     <p:commandLink rendered="#{hasDeleteRole}" action="#{deleteAction.deleteObject(item)}" process="@this" ajax="true" update="raf-view" title="#{messages[deleteAction.title]}" styleClass="btn btn-box-tool">
