@@ -68,13 +68,13 @@ public class PasteAction extends AbstractAction {
     }
 
     @Override
-    protected boolean finalizeAction() {
+    protected void initActionModel() {
 
         if (getContext().getClipboardAction() == null) {
-            return false;
+            return;
         }
         if (getContext().getClipboard().isEmpty()) {
-            return false;
+            return;
         }
 
         LOG.info("Paste {} : {}", getContext().getClipboardAction().getName(), getContext().getClipboard());
@@ -100,16 +100,19 @@ public class PasteAction extends AbstractAction {
             }
         }
 
-        folderChangeEvent.fire(new RafFolderChangeEvent());
+        folderChangeEvent.fire(new RafFolderChangeEvent(getContext().getClipboardAction()));
 
         if (getContext().getClipboard().stream().anyMatch(o -> o instanceof RafFolder)) {
             folderDataChangeEvent.fire(new RafFolderDataChangeEvent());
         }
+    }
+
+    @Override
+    protected boolean finalizeAction() {
 
         getContext().setClipboardAction(null);
         getContext().getClipboard().clear();
 
-        return super.finalizeAction(); //To change body of generated methods, choose Tools | Templates.
+        return super.finalizeAction();
     }
-
 }
