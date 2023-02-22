@@ -98,8 +98,8 @@
                         <p:selectOneMenu id="sortDirection" value="#{detailedSearchController.searchModel.sortOrder}" required="false">
                             <c:choose>
                                 <c:when test="#{ detailedSearchController.searchModel.sortBy eq 'created' or detailedSearchController.searchModel.sortBy eq 'lastModified' }" >
-                                    <f:selectItem itemLabel="#{messages['collection.table.DateAscending']}" itemValue="ASC" />
                                     <f:selectItem itemLabel="#{messages['collection.table.DateDescending']}" itemValue="DESC" />
+                                    <f:selectItem itemLabel="#{messages['collection.table.DateAscending']}" itemValue="ASC" />
                                 </c:when>
                                 <c:otherwise>
                                     <f:selectItem itemLabel="A-Z" itemValue="ASC" />
