@@ -222,70 +222,49 @@ public class AbstractAction implements Serializable {
         //Eğer Collection için isteniyor ise
         if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
             String mm = getContext().getCollection().getMimeType();
+            return isApplicableMimeType(mm);
 
-            //Exclude var mı?
-            if (!Strings.isNullOrEmpty(em)) {
-                //Exclude'a uyuyor o zaman hemen false ile çıkalım.
-                if (mm.startsWith(em)) {
-                    return false;
-                }
-            }
-
-            if (!Strings.isNullOrEmpty(im)) {
-                //Herşeye OK miş
-                if ("*".equals(im)) {
-                    return true;
-                } else if (im.contains(",")) {
-                    //mimeType virgül içeriyor, demekki birden fazla tip isteniyor.
-                    String[] mimeTypes = im.split(",");
-                    boolean result = false;
-                    int i = 0;
-                    while (!result && i < mimeTypes.length) {
-                        result = mm.startsWith(mimeTypes[i]);
-                        i++;
-                    }
-                    return result;
-                } else if (mm.startsWith(im)) {
-                    //Evet kabul edilebilir mimeType
-                    return true;
-                }
-            }
         } else if (!forCollection && hasCapability(ActionCapability.DetailViews) && getContext().getSelectedObject() != null) {
-            RafObject o = getContext().getSelectedObject();
-
-            //Kontrol edilebilecek bir seçim yok!
-            if (o == null) {
+            RafObject object = getContext().getSelectedObject();
+            if (object == null) {
                 return false;
             }
 
-            String mm = getContext().getSelectedObject().getMimeType();
+            return isApplicableMimeType(object.getMimeType());
+        }
 
-            //Exclude var mı?
-            if (!Strings.isNullOrEmpty(em)) {
-                //Exclude'a uyuyor o zaman hemen false ile çıkalım.
-                if (mm.startsWith(em)) {
-                    return false;
-                }
+        return false;
+    }
+
+    public boolean isApplicableMimeType(String mimeType) {
+        String im = getAnnotation().includedMimeType();
+        String em = getAnnotation().excludeMimeType();
+
+        //Exclude var mı?
+        if (!Strings.isNullOrEmpty(em)) {
+            //Exclude'a uyuyor o zaman hemen false ile çıkalım.
+            if (mimeType.startsWith(em)) {
+                return false;
             }
+        }
 
-            if (!Strings.isNullOrEmpty(im)) {
-                //Herşeye OK miş
-                if ("*".equals(im)) {
-                    return true;
-                } else if (im.contains(",")) {
-                    //mimeType virgül içeriyor, demekki birden fazla tip isteniyor.
-                    String[] mimeTypes = im.split(",");
-                    boolean result = false;
-                    int i = 0;
-                    while (!result && i < mimeTypes.length) {
-                        result = mm.startsWith(mimeTypes[i]);
-                        i++;
-                    }
-                    return result;
-                } else if (mm.startsWith(im)) {
-                    //Evet kabul edilebilir mimeType
-                    return true;
+        if (!Strings.isNullOrEmpty(im)) {
+            //Herşeye OK miş
+            if ("*".equals(im)) {
+                return true;
+            } else if (im.contains(",")) {
+                //mimeType virgül içeriyor, demekki birden fazla tip isteniyor.
+                String[] mimeTypes = im.split(",");
+                boolean result = false;
+                int i = 0;
+                while (!result && i < mimeTypes.length) {
+                    result = mimeType.startsWith(mimeTypes[i]);
+                    i++;
                 }
+                return result;
+            } else if (mimeType.startsWith(im)) {
+                //Evet kabul edilebilir mimeType
+                return true;
             }
         }
 
