@@ -36,10 +36,14 @@
             </p:panelGrid>
 
             <p:outputLabel value="#{messages['collection.table.Date']}"/>
-            <p:panelGrid columns="3">
-                <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true"/>
+            <p:panelGrid id="search-date-selection" columns="3">
+                <p:calendar value="#{detailedSearchController.searchModel.dateFrom}" maxdate="#{detailedSearchController.searchModel.dateTo}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true">
+                    <p:ajax event="dateSelect" update="search-date-selection"/>
+                </p:calendar>
                 <p:outputLabel value=":"/>
-                <p:calendar value="#{detailedSearchController.searchModel.dateTo}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true" />
+                <p:calendar value="#{detailedSearchController.searchModel.dateTo}" mindate="#{detailedSearchController.searchModel.dateFrom}" locale="tr" lang="tr" pattern="dd.MM.yyyy" navigator="true">
+                    <p:ajax event="dateSelect" update="search-date-selection"/>
+                </p:calendar>
             </p:panelGrid>           
 
             <p:outputLabel value="#{messages['general.label.Search']}"/>
