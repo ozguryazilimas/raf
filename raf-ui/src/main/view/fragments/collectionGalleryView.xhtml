@@ -13,6 +13,8 @@
         </ui:include>
     </ui:fragment>
 
+    <ui:param name="contextMenuAvailable" value="#{showCollectionContextMenu ne null ? showCollectionContextMenu : true}" />
+
     <ui:remove>
         <p:toolbar>
             <f:facet name="left">
@@ -111,7 +113,9 @@
                                     </span>
                                 </div>
                             </p:outputPanel>
-                            <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                            <ui:fragment rendered="#{contextMenuAvailable}">
+                                <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                            </ui:fragment>
                         </ui:repeat>
                     </div>
                 </div>

@@ -23,6 +23,8 @@
         </p:toolbar>
     </ui:remove>
 
+    <ui:param name="contextMenuAvailable" value="#{showCollectionContextMenu ne null ? showCollectionContextMenu : true}" />
+
     <script type="text/javascript">
         function containerScroll(event) {
             var s = event.target;
@@ -108,7 +110,9 @@
                                 </span>
                             </div>
                         </p:outputPanel>
-                        <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                        <ui:fragment rendered="#{contextMenuAvailable}">
+                            <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                        </ui:fragment>
                     </ui:repeat>
                 </div>                            
             </div>
