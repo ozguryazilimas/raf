@@ -102,21 +102,39 @@
         </div>
     </p:dialog>
 
-    <p:dialog header="#{messages['generic.search.save_search']}" id="saveSearch" widgetVar="saveSearch" modal="true" width="450" height="100">
+    <p:dialog header="#{messages['generic.search.save_search']}" styleClass="save-search-dialog" id="saveSearch" widgetVar="saveSearch" modal="true" width="450" height="100">
         <div class="row">
-            <t:inputText label="#{messages['create.folder.input.description']}" value="#{genericSearchPanelController.saveSearchName}" 
-                         required="false"
+            <t:inputText id="save-search-input"
+                         label="#{messages['create.folder.input.description']}"
+                         value="#{genericSearchPanelController.saveSearchName}"
+                         required="true"
                          columnClass="col-xs-12"/>
         </div>
         <div class="row" style="margin-top: 4px;">
             <div class="col-xs-12">
                 <div class="pull-right">
-                    <p:commandButton value="#{messages['generic.search.save_search']}" action="#{genericSearchPanelController.saveSearch()}" process="saveSearch" update="savedSearch" styleClass="btn btn-primary" oncomplete="PF('saveSearch').hide();"/>
+                    <p:commandButton value="#{messages['generic.search.save_search']}"
+                                     action="#{genericSearchPanelController.saveSearch()}"
+                                     id="submit-save-search"
+                                     process="saveSearch"
+                                     update="savedSearch save-search-input dialog-submit-handler"
+                                     styleClass="btn btn-primary js-submit-save-search"
+                                     oncomplete="if (args &amp;&amp; !args.validationFailed) PF('saveSearch').hide()"/>
                     <p:commandButton value="#{messages['general.label.cancel']}" onclick="PF('saveSearch').hide();" styleClass="btn btn-default"/>
                 </div>
             </div>
         </div>
-    </p:dialog>   
-
+        <p:panel id="dialog-submit-handler" style="display: none;">
+            <script>
+                $('.save-search-dialog').find('input').on('submit keypress keyup keydown input', (event) => {
+                    if (event.keyCode === 13) {
+                        $('.js-submit-save-search').click();
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                })
+            </script>
+        </p:panel>
+    </p:dialog>
 
 </ui:composition>
