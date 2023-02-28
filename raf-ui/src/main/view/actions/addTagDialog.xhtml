@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/dialogBase.xhtml">
+
+    <ui:param name="title" value="dialog.title.AddTag"/>
+
+    <ui:define name="form">
+        <style>
+          .ui-inputfield:not(.ui-selectonemenu-label),
+          .ui-autocomplete,
+          .ui-spinner,
+          .ui-autocomplete-input,
+          .ui-selectonemenu,
+          .ui-spinner,
+          .ui-picklist-list {
+            height: auto;
+          }
+        </style>
+        <h:form id="ff">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p:messages style="margin: 0px;">
+                        <p:autoUpdate/>
+                    </p:messages>
+                </div>
+            </div>
+            <div class="row">
+                <t:inputTag label="general.label.Tags" value="#{addTagAction.tags}" key="#{rafContext.selectedRaf.code}" />
+            </div>
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block"
+                              style="/*position: fixed; bottom: 0; display: block;*/">
+                    <p:commandButton id="save" value="#{messages['general.button.Ok']}" icon="fa fa-check"
+                                     action="#{addTagAction.closeDialog()}" styleClass="btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close"
+                                     action="#{shareAction.cancelDialog()}" process="@this"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

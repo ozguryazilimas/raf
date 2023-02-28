@@ -26,6 +26,10 @@ public interface ActionPages extends Pages {
     }
 
     @SecuredPage
+    class AddTagDialog implements Pages {
+    }
+
+    @SecuredPage
     class RafObjectMembers implements Pages {
     };
 
