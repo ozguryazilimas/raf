@@ -992,6 +992,10 @@ public class RafController implements Serializable {
         return "/dolap/raf.jsf?id=" + rafCode + "&o=" + rafId;
     }
 
+    public static String getFilePermalinkWithoutContextPath(String rafCode, String rafId) {
+        return "/raf.jsf?id=" + rafCode + "&o=" + rafId;
+    }
+
     public int getScrollTop() {
         return scrollTop;
     }

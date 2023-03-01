@@ -12,33 +12,6 @@
             <ui:param name="forCollection" value="true" />
         </ui:include>
     </ui:fragment>
-    <script type="text/javascript">
-        function containerScroll(event) {
-            var s = event.target;
-            if (s.scrollTop === 0) {
-                return;
-            }
-            $("#collectionForm\\:scrollTop").val(s.scrollTop);
-            //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
-            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
-                nextPage();                
-            }
-        }
-
-        function scrollToBottom() {
-            var ctr = $("#raf-container")[0];
-            var sh = ctr.scrollHeight - ctr.clientHeight;
-            var newst = sh / 1.1;
-            $("#raf-container").scrollTop(newst);
-        }
-
-        $(document).ready(function () {
-            $(".raf-box-content").on('scroll', containerScroll);
-            $(".raf-container").on('scroll', containerScroll);
-            $(".raf-box-content").scrollTop($("#collectionForm\\:scrollTop").val());
-            $(".raf-container").scrollTop($("#collectionForm\\:scrollTop").val());
-        });
-    </script>
 
     <h:form id="collectionForm">
         <div id="raf-container" class="raf-container table-view-content-view-port" style="overflow-y: auto; overflow-x: auto;">
@@ -145,7 +118,7 @@
                         </th>
                         <th></th>
                     </tr>
-                    <p:repeat value="#{viewBean.collection.items}" var="item">
+                    <p:repeat value="#{viewBean.collection.items}" var="item" varStatus="status">
                         <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                         <ui:param name="hasDeleteRole" value="#{rafController.hasDeleteRole(item)}" />
                         <tr>
@@ -160,9 +133,10 @@
                                 </svg>
                             </td>
                             <td>
-                                <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="text-sm">
+                                <p:remoteCommand name="#{'partialSelect_'.concat(status.index)}" actionListener="#{rafController.selectItem(item)}" update="raf-view-content" process="@form"/>
+                                <p:link href="#{rafController.getFilePermalinkWithoutContextPath(rafContext.selectedRaf.code, item.id)}" update="raf-view-content" ajax="true" process="@form" class="text-sm select-item-partial">
                                     <span class="text-sm">#{item.title}</span>
-                                </p:commandLink>
+                                </p:link>
                             </td>
                             <td>
                                 #{item.name}
@@ -230,6 +204,43 @@
 
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete="scrollToBottom()" />
         <h:inputHidden id="scrollTop" value="#{rafController.scrollTop}" />
-    </h:form>        
+    </h:form>
+
+    <script type="text/javascript">
+        function containerScroll(event) {
+            var s = event.target;
+            if (s.scrollTop === 0) {
+                return;
+            }
+            $("#collectionForm\\:scrollTop").val(s.scrollTop);
+            //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
+            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
+                nextPage();
+            }
+        }
+
+        function scrollToBottom() {
+            var ctr = $("#raf-container")[0];
+            var sh = ctr.scrollHeight - ctr.clientHeight;
+            var newst = sh / 1.1;
+            $("#raf-container").scrollTop(newst);
+        }
+
+        $(document).ready(function () {
+            $(".raf-box-content").on('scroll', containerScroll);
+            $(".raf-container").on('scroll', containerScroll);
+            $(".raf-box-content").scrollTop($("#collectionForm\\:scrollTop").val());
+            $(".raf-container").scrollTop($("#collectionForm\\:scrollTop").val());
+
+
+            $('.select-item-partial').on('click', (event) => {
+                event.preventDefault();
+
+                const partialRenderLink = $(event.target).hasClass('select-item-partial') ? $(event.target) : $(event.target).parents('.select-item-partial').get(0);
+                const order = $('.select-item-partial').index(partialRenderLink);
+                window['partialSelect_'.concat(order)]();
+            });
+        });
+    </script>
 </ui:composition>
 
