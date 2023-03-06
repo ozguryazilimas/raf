@@ -123,7 +123,7 @@
                         <ui:param name="hasDeleteRole" value="#{rafController.hasDeleteRole(item)}" />
                         <tr>
                             <td style="width: 16px; text-align: center; ">
-                                <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="btn btn-box-tool" style="margin-right: 4px;">
+                                <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="btn btn-box-tool" style="margin-right: 4px;">
                                     <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
                                 </p:commandLink>
                             </td>
