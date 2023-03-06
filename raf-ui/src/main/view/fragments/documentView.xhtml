@@ -60,7 +60,9 @@
                 </div>
 
                 <ui:remove> <!-- Comments View --> </ui:remove>
-                <ui:include src="/fragments/documentComment.xhtml" />
+                <ui:include src="/fragments/documentComment.xhtml">
+                    <ui:param name="rafObject" value="#{viewBean.object}" />
+                </ui:include>
 
             </div>
         </div>

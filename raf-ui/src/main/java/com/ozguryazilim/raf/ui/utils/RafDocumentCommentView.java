@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.ui.utils;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.document.comment.RafDocumentCommentService;
 import com.ozguryazilim.raf.entities.RafDocumentComment;
+import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.telve.auth.Identity;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 
@@ -50,30 +51,30 @@ public class RafDocumentCommentView implements Serializable {
     }
 
     @Transactional
-    public void saveComment() {
+    public void saveComment(RafObject obj) {
         this.docComment.setDate(new Date());
         this.docComment.setCommentOwner(identity.getLoginName());
-        this.docComment.setNodeId(rafContext.getSelectedObject().getId());
+        this.docComment.setNodeId(obj.getId());
 
         rafDocumentCommentService.saveComment(this.docComment);
-        rafDocumentCommentService.updateDocumentComments(rafContext.getSelectedObject().getId());
+        rafDocumentCommentService.updateDocumentComments(obj.getId());
 
         this.docComment = new RafDocumentComment();
     }
 
     @Transactional
-    public void updateComment() {
+    public void updateComment(RafObject obj) {
         rafDocumentCommentService.saveComment(this.editedDocComment);
-        rafDocumentCommentService.updateDocumentComments(rafContext.getSelectedObject().getId());
+        rafDocumentCommentService.updateDocumentComments(obj.getId());
 
         this.docComment = new RafDocumentComment();
     }
 
     @Transactional
-    public void deleteComment(RafDocumentComment comment) {
+    public void deleteComment(RafDocumentComment comment, RafObject obj) {
         rafDocumentCommentService.deleteComment(comment);
 
-        rafDocumentCommentService.updateDocumentComments(rafContext.getSelectedObject().getId());
+        rafDocumentCommentService.updateDocumentComments(obj.getId());
         this.docComment = new RafDocumentComment();
     }
 

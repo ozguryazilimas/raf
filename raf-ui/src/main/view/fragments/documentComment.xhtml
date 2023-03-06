@@ -18,7 +18,7 @@
                         <h:outputText id="comment-char-counter" styleClass="text-muted"></h:outputText>
                     </div>
                     <div align="right" class="col-xs-6" style="padding: 0;">
-                        <p:commandButton partialSubmit="true" process="@form" update=":document-comments" validateClient="true" action="#{rafDocumentCommentView.saveComment()}" value="#{messages['document.comment.newComment.submit']}" />
+                        <p:commandButton partialSubmit="true" process="@form" update=":document-comments" validateClient="true" action="#{rafDocumentCommentView.saveComment(rafObject)}" value="#{messages['document.comment.newComment.submit']}" />
                     </div>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                             <p:commandButton partialSubmit="true" process="@form" update=":document-comments"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed){ PF('edit-dialog').hide();}"
                                              validateClient="true"
-                                             action="#{rafDocumentCommentView.updateComment()}" value="#{messages['document.comment.editComment.submit']}" />
+                                             action="#{rafDocumentCommentView.updateComment(rafObject)}" value="#{messages['document.comment.editComment.submit']}" />
                         </div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                                            update=":document-comments:editDialog"
                                            ajax="true" partialSubmit="true" process="@this" styleClass="fa fa-edit" style="margin: 0 5px;" />
 
-                            <p:commandLink action="#{rafDocumentCommentView.deleteComment(comment)}" update=":document-comments" styleClass="fa fa-trash" style="margin: 0 5px;">
+                            <p:commandLink action="#{rafDocumentCommentView.deleteComment(comment, rafObject)}" update=":document-comments" styleClass="fa fa-trash" style="margin: 0 5px;">
                                 <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['document.comment.deleteComment.confirmModal.message']}" icon="pi pi-exclamation-triangle"/>
                             </p:commandLink>
                         </ui:fragment>
