@@ -118,6 +118,11 @@ public class ExternalSearchPanelController implements SearchPanelController, Ser
     }
 
     @Override
+    public String getExternalFragments() {
+        return null;
+    }
+
+    @Override
     public void changeEvent() {
         if (detailedSearchController.getSearchModel().getDocumentType() != null && !detailedSearchController.getSearchModel().getDocumentType().isEmpty()) {
             onDocumentTypeChange();

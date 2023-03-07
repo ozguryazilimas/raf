@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
+
+
+  <p:dialog header="#{messages['generic.search.subpath.not.found.header']}" widgetVar="emptyRafPath" width="350">
+    <div class="row">
+      <div class="col-xs-12">
+        <h:outputText value="#{messages['generic.search.subpath.not.found.explanation']}"/>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 4px;">
+      <div class="col-xs-12">
+        <div class="pull-right">
+          <p:commandButton value="Tamam" onclick="PF('emptyRafPath').hide();"
+                           styleClass="btn btn-danger"/>
+        </div>
+      </div>
+    </div>
+  </p:dialog>
+
+  <p:dialog header="#{messages['generic.search.save_search']}" styleClass="save-search-dialog" id="saveSearch" widgetVar="saveSearch" modal="true" width="450" height="100">
+    <h:form>
+      <div class="row">
+        <t:inputText id="save-search-input"
+                     label="#{messages['create.folder.input.description']}"
+                     value="#{genericSearchPanelController.saveSearchName}"
+                     required="true"
+                     columnClass="col-xs-12"/>
+      </div>
+      <div class="row" style="margin-top: 4px;">
+        <div class="col-xs-12">
+          <div class="pull-right">
+            <p:commandButton value="#{messages['generic.search.save_search']}"
+                             action="#{genericSearchPanelController.saveSearch()}"
+                             id="submit-save-search"
+                             process="saveSearch"
+                             update=":searchForm:savedSearch save-search-input"
+                             styleClass="btn btn-primary js-submit-save-search"
+                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('saveSearch').hide()"/>
+            <p:commandButton value="#{messages['general.label.cancel']}" onclick="PF('saveSearch').hide();" styleClass="btn btn-default"/>
+          </div>
+        </div>
+      </div>
+      <p:defaultCommand target="submit-save-search" />
+    </h:form>
+  </p:dialog>
+
+</ui:composition>
