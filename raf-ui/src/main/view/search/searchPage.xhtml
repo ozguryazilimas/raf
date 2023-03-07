@@ -184,8 +184,10 @@
         </h:form>
 
         <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
-            <ui:include src="#{detailedSearchController.getSearchTabExternalComponents(sp)}">
-            </ui:include>
+            <c:if test="#{detailedSearchController.getSearchTabExternalComponents(sp) ne null}">
+                <ui:include src="#{detailedSearchController.getSearchTabExternalComponents(sp)}">
+                </ui:include>
+            </c:if>
         </c:forEach>
     </ui:define>
 
