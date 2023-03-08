@@ -12,6 +12,8 @@ public interface SearchPanelController {
 
     String getTabFragment();
 
+    String getExternalFragments();
+
     void changeEvent();
 
     void clearEvent();

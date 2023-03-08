@@ -166,6 +166,11 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
     }
 
     @Override
+    public String getExternalFragments() {
+        return "/search/genericExternal.xhtml";
+    }
+
+    @Override
     public void changeEvent() {
         // do nothing yet
     }

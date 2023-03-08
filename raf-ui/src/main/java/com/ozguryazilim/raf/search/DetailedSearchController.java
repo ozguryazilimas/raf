@@ -157,6 +157,14 @@ public class DetailedSearchController implements Serializable {
         return spc.getTabFragment();
     }
 
+    public String getSearchTabExternalComponents(String tabName) {
+        if (Strings.isNullOrEmpty(tabName)) {
+            tabName = DEFAULT_TAB_NAME;
+        }
+        SearchPanelController spc = (SearchPanelController) BeanProvider.getContextualReference(tabName, false);
+        return spc.getExternalFragments();
+    }
+
     public Object[] getSearchPanels() {
         
         //FIXME: buraya daha düzgün bir çözüm lazım. Search panel tipleri felan tanımlanmalı. Process panellerini ayıklamak için daha düzgün bir yol olur.

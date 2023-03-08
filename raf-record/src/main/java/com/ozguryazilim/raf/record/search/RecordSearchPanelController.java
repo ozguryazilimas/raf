@@ -124,6 +124,11 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
     }
 
     @Override
+    public String getExternalFragments() {
+        return null;
+    }
+
+    @Override
     public void changeEvent() {
 
         if (detailedSearchController.getSearchModel().getRecordType() != null && !detailedSearchController.getSearchModel().getRecordType().isEmpty()) {

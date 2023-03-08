@@ -68,7 +68,7 @@
                             <li class="#{detailedSearchController.activeSearchPanelController.equals(searchPanel) ? 'active' : ''}">
                                 <a href="##{searchPanel}" data-toggle="tab" onclick="setActiveTab([{name: 'activeSearchPanelController', value: '#{searchPanel}'}])">#{messages['search.tab.'.concat(searchPanel)]}</a>
                             </li>    
-                        </c:forEach>                        
+                        </c:forEach>
                     </ul>
                     <div class="tab-content">
                         <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
@@ -182,6 +182,13 @@
                 </p:dataTable>
             </div>         
         </h:form>
+
+        <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
+            <c:if test="#{detailedSearchController.getSearchTabExternalComponents(sp) ne null}">
+                <ui:include src="#{detailedSearchController.getSearchTabExternalComponents(sp)}">
+                </ui:include>
+            </c:if>
+        </c:forEach>
     </ui:define>
 
 </ui:composition>
