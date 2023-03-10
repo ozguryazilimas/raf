@@ -63,7 +63,7 @@
                                 <div class="raf-container-item-item thumbnail-icon">
                                     <span class="raf-container-item-item-img" >
                                         <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
-                                            <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@this" styleClass="text-sm">
+                                            <p:commandLink action="#{rafSelectionController.toggle(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="text-sm">
                                                 <ui:fragment rendered="#{not viewBean.hasPreview(item)}">
                                                     <svg class="raf-container-item-item-gallery-thumbnail">
                                                         <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />

@@ -65,7 +65,7 @@
                                 <span class="raf-container-item-item-img" >
                                     <div class="raf-container-item-item-chk #{rafSelectionController.isSelected(item) ? 'raf-item-selected' : ''}">
                                         <p:commandLink action="#{rafSelectionController.toggle(item)}" 
-                                                       update="raf-view-content" ajax="true" process="@this" >
+                                                       update="raf-view-content" ajax="true" process="@form" >
                                             <svg class="icon icon-2x" >
                                                 <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
                                             </svg>
