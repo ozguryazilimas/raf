@@ -63,7 +63,7 @@
                                 <span class="raf-container-item-item-img" >
                                     <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
                                         <p:commandLink action="#{selectionBean.toggle(item)}"
-                                                       update="raf-view-content" ajax="true" process="@this" >
+                                                       update="raf-view-content" ajax="true" process="@form" >
                                             <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
                                                 <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
                                             </svg>
