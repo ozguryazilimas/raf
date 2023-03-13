@@ -166,8 +166,16 @@
                             <t:outputDateTime label="#{messages['file.sharing.end.date']}"
                                               value="#{obj.endDate == null ? messages['share.time.SHARE_LIMITLESS'] : obj.endDate}"
                                           columnClass="col-xs-12"/>
-                            <t:outputText label="#{messages['file.sharing.emails']}" value="#{obj.emails}"
-                                          columnClass="col-xs-12"/>
+
+                            <h:panelGroup layout="block" styleClass="disprop col-xs-12">
+                                <p:outputLabel value="#{messages['file.sharing.emails']} :" styleClass="name" />
+                                <div class="value">
+                                    <p:repeat value="#{obj.emails}" var="item">
+                                        <h:outputText style="display: list-item; list-style: inside;" value="#{item}" />
+                                    </p:repeat>
+                                </div>
+                            </h:panelGroup>
+
                             <div class="disprop col-xs-12">
                                 <p:outputLabel value="#{messages['file.sharing.link']} :" styleClass="name" />
                                 <span class="value">
