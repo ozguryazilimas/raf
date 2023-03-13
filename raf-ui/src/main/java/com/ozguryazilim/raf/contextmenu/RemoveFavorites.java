@@ -6,8 +6,11 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractContextMenuItem;
 import com.ozguryazilim.raf.ui.base.ContextMenu;
 import com.ozguryazilim.telve.auth.Identity;
+import org.apache.shiro.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
 
 @ContextMenu(order = 8)
 public class RemoveFavorites extends AbstractContextMenuItem {
@@ -23,7 +26,12 @@ public class RemoveFavorites extends AbstractContextMenuItem {
 
     @Override
     public boolean disabled(RafObject object) {
-        return object == null || !service.isAddedFavorites(identity.getLoginName(), object.getPath());
+        if (object != null && context.getSeletedItems().contains(object)) {
+            return context.getSeletedItems().stream()
+                    .noneMatch(selectedObject -> service.isAddedFavorites(identity.getLoginName(), selectedObject.getPath()));
+        } else {
+            return object == null || !service.isAddedFavorites(identity.getLoginName(), object.getPath());
+        }
     }
 
     @Override
@@ -33,9 +41,14 @@ public class RemoveFavorites extends AbstractContextMenuItem {
 
     @Override
     public void execute(RafObject object) {
-        RafObject current = context.getSelectedObject();
-        context.setSelectedObject(object);
-        action.execute();
-        context.setSelectedObject(current);
+        if (context.getSeletedItems().contains(object)) {
+            action.execute();
+        } else {
+            List<RafObject> oldSelectedItems = context.getSeletedItems();
+
+            context.setSeletedItems(Collections.singletonList(object));
+            action.execute();
+            context.setSeletedItems(oldSelectedItems);
+        }
     }
 }
