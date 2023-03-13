@@ -1,13 +1,17 @@
 package com.ozguryazilim.raf.action;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.config.ActionPages;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.raf.utils.RafObjectUtils;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -34,8 +38,33 @@ public class AddTagAction extends AbstractAction {
     @Inject
     private RafService rafService;
 
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private RafMemberService memberService;
+
+    @Inject
+    private RafPathMemberService rafPathMemberService;
+
     private List<String> tags;
     private List<RafObject> objects;
+
+    @Override
+    public boolean applicable(boolean forCollection) {
+        try {
+            boolean permission;
+            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+            } else {
+                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            }
+            return permission;
+        } catch (RafException ex) {
+            LOG.error("Error", ex);
+            return false;
+        }
+    }
 
     @Override
     protected void initActionModel() {
