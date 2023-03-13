@@ -12,8 +12,8 @@
     </ui:remove>
 
     <t:accordion id="bmd" label="#{basicMetadataPanel.title}" columnClass="col-xs-12">
-        <c:if test="#{showEditIcon ne 'false' }">
-            <f:facet name="toolbar" rendered="#{basicMetadataPanel.canEdit()}">
+        <c:if test="#{showEditIcon ne 'false' and basicMetadataPanel.canEdit() eq true}">
+            <f:facet name="toolbar">
                 <p:commandLink action="#{basicMetadataPanel.edit()}" process="@this" styleClass="btn btn-box-tool">
                     <i class="fa fa-edit" />
                     <p:ajax event="dialogReturn" update="bmd" />

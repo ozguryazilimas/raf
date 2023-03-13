@@ -1,15 +1,24 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.action.CreateFolderAction;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafMetadata;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.telve.auth.Identity;
 import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
 import org.primefaces.context.RequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Metadata sunum katmanı için taban sınıf.
@@ -17,9 +26,14 @@ import org.primefaces.context.RequestContext;
  * @author Hakan Uygun
  */
 public abstract class AbstractMetadataPanel implements Serializable{
-    
+
+    private static final Logger LOG = LoggerFactory.getLogger(CreateFolderAction.class);
+
     @Inject
     private ViewConfigResolver viewConfigResolver;
+
+    @Inject
+    private RafContext context;
 
     private RafMetadata metadata;
 
@@ -52,6 +66,10 @@ public abstract class AbstractMetadataPanel implements Serializable{
         }
         
         return "panel.icon." + getClass().getSimpleName();
+    }
+
+    public RafContext getContext() {
+        return this.context;
     }
     
     /**

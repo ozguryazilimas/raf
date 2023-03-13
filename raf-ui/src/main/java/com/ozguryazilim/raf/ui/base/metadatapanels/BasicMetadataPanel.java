@@ -1,14 +1,18 @@
 package com.ozguryazilim.raf.ui.base.metadatapanels;
 
+import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.config.MetadataPanelPages;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
+import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
 
 import javax.faces.context.FacesContext;
@@ -36,10 +40,16 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     private RafService rafService;
 
     @Inject
-    private RafContext context;
+    private RafCategoryService categoryService;
 
     @Inject
-    private RafCategoryService categoryService;
+    private Identity identity;
+
+    @Inject
+    private RafMemberService memberService;
+
+    @Inject
+    private RafPathMemberService rafPathMemberService;
 
     private RafCategory category;
 
@@ -95,6 +105,22 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
         } else {
             save();
             RequestContext.getCurrentInstance().closeDialog(null);
+        }
+    }
+
+    @Override
+    public boolean canEdit() {
+        try {
+            boolean permission;
+            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+            } else {
+                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            }
+            return permission;
+        } catch (RafException ex) {
+            LOG.error("Error", ex);
+            return false;
         }
     }
 
