@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,7 +55,8 @@ public class AddTagAction extends AbstractAction {
     public boolean applicable(boolean forCollection) {
         try {
             boolean permission;
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+            Optional<String> selectedObjectPath = Optional.ofNullable(getContext().getSelectedObject()).map(RafObject::getPath);
+            if (selectedObjectPath.isPresent() && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
                 permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
                 permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
