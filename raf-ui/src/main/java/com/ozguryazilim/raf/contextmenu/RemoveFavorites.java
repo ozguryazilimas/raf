@@ -5,12 +5,10 @@ import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractContextMenuItem;
 import com.ozguryazilim.raf.ui.base.ContextMenu;
+import com.ozguryazilim.raf.util.RafContextUtils;
 import com.ozguryazilim.telve.auth.Identity;
-import org.apache.shiro.util.CollectionUtils;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
 
 @ContextMenu(order = 8)
 public class RemoveFavorites extends AbstractContextMenuItem {
@@ -26,9 +24,8 @@ public class RemoveFavorites extends AbstractContextMenuItem {
 
     @Override
     public boolean disabled(RafObject object) {
-        if (object != null && context.getSeletedItems().contains(object)) {
-            return context.getSeletedItems().stream()
-                    .noneMatch(selectedObject -> service.isAddedFavorites(identity.getLoginName(), selectedObject.getPath()));
+        if (RafContextUtils.isSelected(object, context)) {
+            return isAllSelectedItemsNotFavorited();
         } else {
             return object == null || !service.isAddedFavorites(identity.getLoginName(), object.getPath());
         }
@@ -41,14 +38,11 @@ public class RemoveFavorites extends AbstractContextMenuItem {
 
     @Override
     public void execute(RafObject object) {
-        if (context.getSeletedItems().contains(object)) {
-            action.execute();
-        } else {
-            List<RafObject> oldSelectedItems = context.getSeletedItems();
+        RafContextUtils.executeActionWithTempSelectedItemsIfNotSelected(object, context, action);
+    }
 
-            context.setSeletedItems(Collections.singletonList(object));
-            action.execute();
-            context.setSeletedItems(oldSelectedItems);
-        }
+    private boolean isAllSelectedItemsNotFavorited() {
+        return context.getSeletedItems().stream()
+                .noneMatch(selectedObject -> service.isAddedFavorites(identity.getLoginName(), selectedObject.getPath()));
     }
 }
