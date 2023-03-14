@@ -25,6 +25,8 @@ import java.util.List;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.mail.MessagingException;
+
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,13 +118,13 @@ public class RafEMailImporter implements Serializable {
         return null;
     }
 
-    public RafDocument uploadEmail(EMailMessage message, String filePath) {
+    public RafDocument uploadEmail(EMailMessage message, String filePath, boolean sendFavoriteEmail) {
         LOG.debug("Email is importing to raf : ".concat(message.getMessageId()));
         filePath = encodeFilePath(filePath);
         InputStream targetStream = new ByteArrayInputStream(message.getContent().getBytes(Charsets.UTF_8));
         RafDocument doc = null;
         try {
-            doc = rafService.uploadDocument(filePath, targetStream);
+            doc = rafService.uploadDocument(filePath, targetStream, sendFavoriteEmail);
             targetStream.close();
         } catch (RafException | IOException ex) {
             debug("Error", ex);
@@ -199,6 +201,10 @@ public class RafEMailImporter implements Serializable {
     }
 
     public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName, String tags) {
+        return uploadEmailRecord(message, temporaryFolderPath, rafEmailFolder, fileName, tags, false);
+    }
+
+    public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName, String tags, boolean sendFavoriteEmail) {
         RafRecord record = null;
         try {
             temporaryFolderPath = encodeFilePath(temporaryFolderPath);
@@ -210,7 +216,7 @@ public class RafEMailImporter implements Serializable {
             if (!checkRafFolder(emailRecordPath)) {
                 rafService.createFolder(emailRecordPath);
             }
-            RafDocument emailDoc = uploadEmail(message, emailFilePath);
+            RafDocument emailDoc = uploadEmail(message, emailFilePath, sendFavoriteEmail);
             if (emailDoc != null) {
                 record = moveToRecord(message, emailDoc, emailRecordPath);
                 if (record != null) {
@@ -234,5 +240,4 @@ public class RafEMailImporter implements Serializable {
         }
         return record;
     }
-
 }
