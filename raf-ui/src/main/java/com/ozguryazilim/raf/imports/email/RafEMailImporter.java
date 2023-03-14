@@ -130,11 +130,11 @@ public class RafEMailImporter implements Serializable {
         return doc;
     }
 
-    public RafRecord moveToRecord(RafDocument doc, String recordFolderPath) {
+    public RafRecord moveToRecord(EMailMessage eMailMessage, RafDocument doc, String recordFolderPath) {
         recordFolderPath = encodeFilePath(recordFolderPath);
         RafRecord record = new RafRecord();
         record.setName(doc.getName());
-        record.setTitle(doc.getName());
+        record.setTitle(eMailMessage.getSubject());
         record.setInfo("İçeri aktarılan E-Posta.");
         record.setPath(recordFolderPath);
         record.setMainDocument(doc.getName());
@@ -212,7 +212,7 @@ public class RafEMailImporter implements Serializable {
             }
             RafDocument emailDoc = uploadEmail(message, emailFilePath);
             if (emailDoc != null) {
-                record = moveToRecord(emailDoc, emailRecordPath);
+                record = moveToRecord(message, emailDoc, emailRecordPath);
                 if (record != null) {
                     addEmailMetadataToRecord(record, message);
                     uploadAttachmentsToRecord(message, temporaryFolderPath, record);
