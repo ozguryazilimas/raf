@@ -1,7 +1,6 @@
 package com.ozguryazilim.raf.favorite;
 
 import com.ozguryazilim.raf.entities.UserFavorite;
-import com.ozguryazilim.raf.models.RafObject;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
