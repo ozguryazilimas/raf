@@ -22,6 +22,8 @@ import org.primefaces.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 /**
  * Her hangi bir belge için temel bilgiler.
  *
@@ -112,7 +114,8 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     public boolean canEdit() {
         try {
             boolean permission;
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+            Optional<String> selectedObjectPath = Optional.ofNullable(getContext().getSelectedObject()).map(RafObject::getPath);
+            if (selectedObjectPath.isPresent() && getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
                 permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
             } else {
                 permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());

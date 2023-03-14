@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMetadataPanel implements Serializable{
 
-    private static final Logger LOG = LoggerFactory.getLogger(CreateFolderAction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractMetadataPanel.class);
 
     @Inject
     private ViewConfigResolver viewConfigResolver;
