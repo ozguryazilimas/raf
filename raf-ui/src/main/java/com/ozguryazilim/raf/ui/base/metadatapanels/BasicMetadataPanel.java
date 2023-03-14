@@ -115,8 +115,8 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
         try {
             boolean permission;
             Optional<String> selectedObjectPath = Optional.ofNullable(getContext().getSelectedObject()).map(RafObject::getPath);
-            if (selectedObjectPath.isPresent() && getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
-                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+            if (selectedObjectPath.isPresent() && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
+                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), selectedObjectPath.get());
             } else {
                 permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
             }
