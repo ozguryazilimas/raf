@@ -2,7 +2,16 @@ package com.ozguryazilim.raf.entities;
 
 import com.ozguryazilim.telve.entities.TreeNodeEntityBase;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,7 +24,7 @@ public class RafDepartment extends TreeNodeEntityBase<RafDepartment> {
     private Long id;
 
     @OneToMany(mappedBy = "department", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<RafDepartmentMember> members;
+    private List<RafDepartmentMember> members = new ArrayList<>();
 
     @Override
     public Long getId() {
