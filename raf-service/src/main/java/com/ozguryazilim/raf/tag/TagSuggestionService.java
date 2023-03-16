@@ -4,7 +4,6 @@ import com.ozguryazilim.telve.entities.SuggestionItem;
 import com.ozguryazilim.telve.suggestion.SuggestionRepository;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
