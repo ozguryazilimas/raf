@@ -2117,7 +2117,8 @@ public class RafModeshapeRepository implements Serializable {
             //FIXME: url encoding
             for (RafObject o : from) {
                 String[] pathArr = targetPath(session, o, to.getPath());
-                copy(session.getWorkspace(), o.getPath(), pathArr[0], pathArr[1]);
+                String fileTitle = Objects.nonNull(o.getTitle()) ? o.getTitle() : pathArr[1];
+                copy(session.getWorkspace(), o.getPath(), pathArr[0], fileTitle);
             }
 
             session.save();
