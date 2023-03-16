@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserLookup;
+import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
@@ -51,11 +52,11 @@ public class RafObjectMemberController implements Serializable {
     @Inject
     private UserLookup userLookup;
 
+    @Inject
+    private UserService userService;
+
     private RafObject rafObject;
     private String path;
-
-    //Kullanıcı seçimi için userLookup üzerinden toparlanıp cache'lenecek. 
-    private List<UserInfo> users;
 
     private List<UserInfo> selectedUsers = new ArrayList<>();
     private String role;
@@ -76,7 +77,6 @@ public class RafObjectMemberController implements Serializable {
         selectedUsers.clear();
         //FIXME: burda default rol ataması yapılabilir belki?
         role = "";
-        populateUsers();
     }
 
     public String getPath() {
@@ -112,28 +112,14 @@ public class RafObjectMemberController implements Serializable {
 
         LOG.info("Seçili Kullanıcılar : {}}", selectedUsers);
 
-        if (users == null) {
-            populateUsers();
-        }
-
         //FIXME: localeSelector den mi alsak? Yoksa Telve tarafına butür şeyler için bir locale mi tanımlatsak?
         Locale locale = new Locale("tr");
 
         //FIXME: daha önce seçilmiş olanları da filtreleyelim.
-        List<UserInfo> result = users.stream()
+
+        return getUsers().stream()
                 .filter(u -> u.getUserName().toUpperCase(locale).contains(query.toUpperCase(locale)) || u.getLoginName().contains(query))
                 .collect(Collectors.toList());
-
-        return result;
-    }
-
-    protected void populateUsers() {
-
-        users = new ArrayList<>();
-
-        userLookup.getLoginNames().forEach((s) -> {
-            users.add(userLookup.getUserInfo(s));
-        });
     }
 
     public List<UserInfo> getSelectedUsers() {
@@ -212,5 +198,11 @@ public class RafObjectMemberController implements Serializable {
             LOG.error("Member cannot delete", ex);
             FacesMessages.error("Kullanıcı Silinemedi", ex.getLocalizedMessage());
         }
+    }
+
+    private List<UserInfo> getUsers() {
+        return userService.getLoginNames().stream()
+                .map(userService::getUserInfo)
+                .collect(Collectors.toList());
     }
 }
