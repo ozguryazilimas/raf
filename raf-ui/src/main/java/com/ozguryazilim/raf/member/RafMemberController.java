@@ -11,6 +11,7 @@ import com.ozguryazilim.raf.events.RafDataChangedEvent;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserLookup;
+import com.ozguryazilim.telve.auth.UserService;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
@@ -56,6 +57,9 @@ public class RafMemberController implements Serializable {
     private RafMemberService memberService;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
 
     @Inject
@@ -63,9 +67,6 @@ public class RafMemberController implements Serializable {
 
     private RafDefinition rafDefinition;
     private String rafCode;
-
-    //Kullanıcı seçimi için userLookup üzerinden toparlanıp cache'lenecek. 
-    private List<UserInfo> users;
 
     private List<UserInfo> selectedUsers = new ArrayList<>();
     private String role;
@@ -166,28 +167,10 @@ public class RafMemberController implements Serializable {
 
         LOG.info("Seçili Kullanıcılar : {}}", selectedUsers);
 
-        if (users == null) {
-            populateUsers();
-        }
-
-        //FIXME: localeSelector den mi alsak? Yoksa Telve tarafına butür şeyler için bir locale mi tanımlatsak?
-        Locale locale = new Locale("tr");
-
         //FIXME: daha önce seçilmiş olanları da filtreleyelim.
-        List<UserInfo> result = users.stream()
+        return getUsers().stream()
                 .filter(u ->  isTextContains(u.getUserName(),query))
                 .collect(Collectors.toList());
-
-        return result;
-    }
-
-    protected void populateUsers() {
-
-        users = new ArrayList<>();
-
-        userLookup.getLoginNames().forEach((s) -> {
-            users.add(userLookup.getUserInfo(s));
-        });
     }
 
     public List<UserInfo> getSelectedUsers() {
@@ -348,5 +331,11 @@ public class RafMemberController implements Serializable {
         }
 
         return Collections.emptyList();
+    }
+
+    private List<UserInfo> getUsers() {
+        return userService.getLoginNames().stream()
+                .map(userService::getUserInfo)
+                .collect(Collectors.toList());
     }
 }
