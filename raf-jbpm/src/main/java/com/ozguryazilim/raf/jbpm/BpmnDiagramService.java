@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.jbpm;
 
-import com.ozguryazilim.raf.jbpm.ui.ProcessConsoleController;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,8 +36,9 @@ public class BpmnDiagramService {
      * @param processId
      * @return 
      */
-    public String getBpmnDiagram( String deploymentId, String processId ){
-        DeployedUnit du = deploymentService.getDeployedUnit(deploymentId);
+    public String getBpmnDiagram( String deploymentId, String processId ) throws UnsupportedEncodingException {
+        String decodedDeploymentId = URLDecoder.decode(deploymentId, StandardCharsets.UTF_8.displayName());
+        DeployedUnit du = deploymentService.getDeployedUnit(decodedDeploymentId);
         LOG.debug("Deployed Assests : {}", du.getDeployedAssets()); 
         for( DeployedAsset da : du.getDeployedAssets() ){
             if( da.getId().equals(processId)){
