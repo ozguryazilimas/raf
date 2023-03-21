@@ -262,17 +262,23 @@ public class RafService implements Serializable {
         return result;
     }
 
-    public RafDocument uploadDocument(String fileName, InputStream in, boolean generatePreview) throws RafException {
+    public RafDocument uploadDocument(String fileName, InputStream in, boolean generatePreview, boolean sendFavoriteEmail) throws RafException {
         //FIXME: yetki kontrolü
         RafDocument result = rafRepository.uploadDocument(fileName, in, generatePreview);
-        emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.ADD);
+        if (sendFavoriteEmail) {
+            emailNotificationService.sendEmailToFavorites(result, EmailNotificationActionType.ADD);
+        }
         sendEventLog("UploadDocument", result);
         sendAuditLog(result.getId(), "UPLOAD_DOCUMENT", result.getPath());
         return result;
     }
 
     public RafDocument uploadDocument(String fileName, InputStream in) throws RafException {
-        return uploadDocument(fileName, in, true);
+        return uploadDocument(fileName, in, true, true);
+    }
+
+    public RafDocument uploadDocument(String fileName, InputStream in, boolean sendFavoriteEmail) throws RafException {
+        return uploadDocument(fileName, in, true, sendFavoriteEmail);
     }
 
     public RafObject getRafObject(String id) throws RafException {

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,13 +76,19 @@ public class EmailNotificationService implements Serializable {
      */
     public void sendEmailToFavorites(RafObject object, EmailNotificationActionType actionType) {
         List<UserInfo> consumers = findConsumersWhoAddedFavorites(object.getPath());
-        String name = Strings.capitalize(identity.getUserInfo().getFirstName());
-        String surname = Strings.capitalize(identity.getUserInfo().getLastName());
         String link = appLinkDomain + "raf.jsf" + "?id=" + "&o=" + object.getId();
         String objectName = object.getName();
         String objectType = object.getClass().getSimpleName();
         LOG.debug("Sending email to Consumers:{} for the ObjectName:{} ActionType:{} ", consumers, objectName, actionType);
-        sendMessage(consumers, name, surname, link, objectName, objectType, actionType);
+
+        //If SecurityManager is not present (and UserInfo is null), it's a system message
+        if (Objects.isNull(identity.getUserInfo())) {
+            sendSystemMessage(consumers, link, objectName, objectType, actionType);
+        } else {
+            String name = Strings.capitalize(identity.getUserInfo().getFirstName());
+            String surname = Strings.capitalize(identity.getUserInfo().getLastName());
+            sendMessage(consumers, name, surname, link, objectName, objectType, actionType);
+        }
     }
 
     public void sendEmailToSharedContacts(RafShare rafShare, String filename) {
@@ -208,6 +215,22 @@ public class EmailNotificationService implements Serializable {
             emailChannel.sendMessage(consumer.getEmail(), subject, "", headers);
         }
 
+    }
+
+    /**
+     * @param consumers  -> e-posta gönderilecek olan liste (Consumer List)
+     * @param link       -> e-posta üzerinde bağlantı verilecek link
+     * @param objectName -> değişiklik yapılan obje ismi
+     * @param objectType -> değişiklik yapılan objenin tipi. Klasör ya da Belge olabilir.
+     * @param actionType -> ne yapıldı? Örn: ADD, UPDATE, REMOVE
+     */
+    private void sendSystemMessage(List<UserInfo> consumers,
+                             String link,
+                             String objectName,
+                             String objectType,
+                             EmailNotificationActionType actionType
+    ) {
+        sendMessage(consumers, "SYSTEM", "", link, objectName, objectType, actionType);
     }
 
 }
