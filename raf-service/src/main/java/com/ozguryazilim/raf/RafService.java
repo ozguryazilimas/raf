@@ -667,4 +667,22 @@ public class RafService implements Serializable {
         this.bpmnSystemEnabled = bpmnSystemEnabled;
     }
 
+    public long getRafObjectsSize(List<RafObject> objects) {
+        List<String> paths = new ArrayList<>();
+        long size = 0;
+
+        for (RafObject obj : objects) {
+            if (obj instanceof RafDocument) {
+                size += obj.getLength();
+            } else if (obj instanceof RafFolder) {
+                paths.add(obj.getPath() + "/%");
+            }
+        }
+        if (!paths.isEmpty()) {
+            size += rafRepository.getPathsContentSize(paths);
+        }
+
+        return size;
+    }
+
 }
