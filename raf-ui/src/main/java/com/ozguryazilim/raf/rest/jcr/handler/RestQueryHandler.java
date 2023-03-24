@@ -4,6 +4,8 @@ import com.ozguryazilim.raf.rest.jcr.RestHelper;
 import com.ozguryazilim.raf.rest.jcr.model.RestQueryPlanResult;
 import com.ozguryazilim.raf.rest.jcr.model.RestQueryResult;
 import org.modeshape.common.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
  * @author Horia Chiorean (hchiorea@redhat.com)
  */
 public final class RestQueryHandler extends AbstractHandler {
+    private Logger LOG = LoggerFactory.getLogger(RestQueryHandler.class);
 
     private static final String MODE_URI = "mode:uri";
     private static final String UNKNOWN_TYPE = "unknown-type";
@@ -68,8 +71,10 @@ public final class RestQueryHandler extends AbstractHandler {
         Query query = createQuery(language, statement, session);
         bindExtraVariables(uriInfo, session.getValueFactory(), query);
 
-        QueryResult result = query.execute();
+        org.modeshape.jcr.api.query.QueryResult result = (org.modeshape.jcr.api.query.QueryResult) query.execute();
         RestQueryResult restQueryResult = new RestQueryResult();
+        String plan = result.getPlan();
+        LOG.debug("Query plan : {}", plan);
 
         String[] columnNames = result.getColumnNames();
         setColumns(result, restQueryResult, columnNames);
