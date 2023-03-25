@@ -100,6 +100,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String NODE_HIERARCHY = "nt:hierarchyNode";
     private static final String NODE_FOLDER = "nt:folder";
     private static final String NODE_FILE = "nt:file";
+    private static final String NODE_RESOURCE = "nt:resource";
     private static final String NODE_CONTENT = "jcr:content";
     private static final String NODE_PREVIEW = "raf:preview";
     private static final String NODE_THUMBNAIL = "raf:thumbnail";
@@ -962,9 +963,17 @@ public class RafModeshapeRepository implements Serializable {
         return result;
     }
 
-    public RafCollection getDetailedSearchCollection(DetailedSearchModel searchModel,
+    public RafCollection getDetailedSearchCollection(
+            DetailedSearchModel searchModel,
             List<RafDefinition> rafs,
-            RafPathMemberService rafPathMemberService, String searcherUserName, int limit, int offset, List extendedQuery, List extendedSortQuery, Locale searchLocale) throws RafException {
+            RafPathMemberService rafPathMemberService,
+            String searcherUserName,
+            int limit,
+            int offset,
+            List extendedQuery,
+            List extendedSortQuery,
+            Locale searchLocale) throws RafException {
+
         RafCollection result = new RafCollection();
         result.setId("SEARCH");
         result.setMimeType("raf/search");
@@ -979,7 +988,8 @@ public class RafModeshapeRepository implements Serializable {
             org.modeshape.jcr.api.query.QueryManager queryManager = (org.modeshape.jcr.api.query.QueryManager) session.getWorkspace().getQueryManager();
 
             //FIXME: Burada search textin için temizlenmeli. Kuralları bozacak bişiler olmamalı
-            String expression = "SELECT nodes.[" + PROP_PATH + "] FROM [nt:file] as nodes ";
+            String table = searchModel.getSearchInFileDataAvailable() ? NODE_RESOURCE : NODE_FILE;
+            String expression = String.format("SELECT * FROM [%s] as nodes ", table);
 
             List<String> whereExpressions = new ArrayList();
 
