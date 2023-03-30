@@ -29,7 +29,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.util.StringUtils;
-import org.modeshape.jcr.RepositoryIndexes;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.api.index.IndexDefinition;
 import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
@@ -80,6 +79,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -3292,6 +3292,38 @@ public class RafModeshapeRepository implements Serializable {
             Thread.sleep(10L);
         } while ((System.currentTimeMillis() - start) <= maxWaitInMillis);
         LOG.warn("Failed to find preview {} even after waiting {} {}", n.getPath(), 10, TimeUnit.SECONDS);return n;
+    }
+
+    public long getPathsContentSize(List<String> paths) {
+        long size = 0;
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            String pathQueries = paths.stream()
+                    .map(path -> String.format(" (nodes.[jcr:path] LIKE '%s') ", path))
+                    .collect(Collectors.joining(" OR "));
+
+            String expression = "SELECT * FROM [nt:file] as nodes WHERE" + pathQueries;
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
+
+            org.modeshape.jcr.api.query.QueryResult planResult = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            LOG.debug(planResult.getPlan());
+            NodeIterator iterator = planResult.getNodes();
+
+            while (iterator.hasNext()) {
+                Node file = iterator.nextNode();
+                if (file.hasProperty("jcr:content/jcr:data")) {
+                    size += file.getProperty("jcr:content/jcr:data").getLength();
+                }
+            }
+
+            return size;
+        } catch (RepositoryException e) {
+            LOG.error("Error while calculating paths sizes", paths, 10, TimeUnit.SECONDS);
+            e.printStackTrace();
+        }
+
+        return size;
     }
 
 }

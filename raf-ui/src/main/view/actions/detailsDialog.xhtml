@@ -1,0 +1,81 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <f:view locale="#{localeSelector.locale}">
+        <h:head>
+
+            <title>#{detailsAction.selectedItems.size()} öğe</title>
+            <style>
+              html {
+                background: none !important;
+              }
+
+              .ui-inputfield:not(.ui-selectonemenu-label),
+              .ui-autocomplete,
+              .ui-spinner,
+              .ui-autocomplete-input,
+              .ui-selectonemenu,
+              .ui-spinner,
+              .ui-picklist-list {
+                height: auto;
+              }
+            </style>
+
+        </h:head>
+
+        <h:body>
+            <script type="text/javascript">
+                jQuery(document).ready(function () {
+                    bindEnters();
+                });
+            </script>
+            <ui:fragment rendered="#{ajaxStatus eq 'true'}">
+                <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+                <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                    <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                </p:dialog>
+            </ui:fragment>
+            <div class="container-fluid">
+                <style>
+                </style>
+                <h:form id="ff">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p:messages style="margin: 0px;">
+                                <p:autoUpdate/>
+                            </p:messages>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <span>#{messages['general.label.Size']}:</span>
+                        <span>${rafController.byteCountToDisplaySize(detailsAction.totalSize)}</span>
+                    </div>
+                    <div class="row">
+                        <span>#{messages['general.label.SelectedDocuments']}:</span>
+                        <p:repeat value="#{detailsAction.selectedContentCounts.entrySet().toArray()}" var="item" >
+                            <span>#{item.value} #{messages['document.type.'.concat(item.key)]}</span>
+                        </p:repeat>
+                    </div>
+                    <div class="row">
+                    </div>
+                </h:form>
+            </div>
+
+            <script type="text/javascript">
+
+                //Mobil cihazlar için tam ekran dialog desteği
+                setTimeout(function () {
+                    maximazeDialog();
+                    zIndexChange();
+                }, 100);
+
+            </script>
+
+        </h:body>
+    </f:view>
+
+</ui:composition>
