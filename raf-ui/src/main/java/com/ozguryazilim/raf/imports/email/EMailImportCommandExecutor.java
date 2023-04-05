@@ -24,13 +24,10 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
     private static final Logger LOG = LoggerFactory.getLogger(EMailImportCommandExecutor.class);
 
     @Inject
-    RafCategoryService categoryService;
+    private RafService rafService;
 
     @Inject
-    RafService rafService;
-
-    @Inject
-    TagSuggestionService tagService;
+    private RafEMailImporter rafEMailImporter;
 
     @Override
     public void execute(EMailImportCommand command) {
@@ -44,10 +41,10 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         JexlEngine jexl = new JexlBuilder().create();
         JexlScript e = jexl.createScript(command.getJexlExp());
         JexlContext jc = new MapContext();
-        RafEMailImporter importer = new RafEMailImporter(rafService, categoryService, tagService);
         jc.set("rafService", rafService);
-        jc.set("message", importer.parseEmail(command.getEml()));
-        jc.set("importer", importer);
+        jc.set("message", command.getEml());
+        jc.set("importer", rafEMailImporter);
+        jc.set("command", command);
         Object o = e.execute(jc);
         LOG.debug("E-mail importer jexl result. {}", o);
         LOG.info("E-mail importer jexl command executed.");

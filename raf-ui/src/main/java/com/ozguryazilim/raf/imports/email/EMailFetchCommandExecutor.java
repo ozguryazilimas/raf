@@ -3,20 +3,21 @@ package com.ozguryazilim.raf.imports.email;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Properties;
 import javax.inject.Inject;
-import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Bu Command ve Executor'u sadece e-posta bağlantısını yapıp okunmamış
@@ -34,6 +35,9 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
 
     @Inject
     private CommandSender commandSender;
+
+    @Inject
+    private EMailImportCommandExecutor eMailImportCommandExecutor;
 
     @Override
     public void execute(EMailFetchCommand command) {
@@ -66,40 +70,46 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
             Message[] messages = emailFolder.getMessages();
             LOG.info("messages.length : {}", messages.length);
 
+            List<EMailImportCommand> importCommandList = new ArrayList<>();
             for (Message message : messages) {
 
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                message.writeTo(out);
-                String eml = out.toString();
-                LOG.trace("Message : {}", eml);
+                EMailImportCommand importCommand = getImportCommand(message, command, store);
+                importCommandList.add(importCommand);
 
-                EMailImportCommand importCommand = new EMailImportCommand();
-                importCommand.setEml(eml);
-                importCommand.setRafPath(command.getRafPath());
-                importCommand.setJexlExp(command.getJexlExp());
+            }
 
-                
-                message.setFlag(Flags.Flag.DELETED, true);
-                
-                
-                commandSender.sendCommand(importCommand);
-                message.setFlag(Flags.Flag.DELETED, true);
-            }
-            
-            emailFolder.expunge();
-            
-            //FIXME: Arşive alıp almama parametreye bağlanmalı. Ki aşağıdaki kod sorunlu. 
-            /*
-            String archiveFolderName = command.getArchiveFolder();
-            if (IMAP.equals(protocol) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
-                //arşivle
-                Folder archiveFolder = store.getFolder(archiveFolderName);
-                archiveFolder.open(Folder.READ_WRITE);
-                //TODO: direk kafadan arşivledik ama EMailImportCommand işi halledemezse ne olacak?
-                emailFolder.copyMessages(messages, archiveFolder);
-                archiveFolder.close(false);
-            }
-            */
+            CompletableFuture.allOf(
+                importCommandList.stream()
+                    .map(importCommand -> CompletableFuture.runAsync(() -> eMailImportCommandExecutor.execute(importCommand)))
+                    .toArray(CompletableFuture[]::new)
+            ).thenRun(() -> {
+                switch (command.getPostImportCommand()) {
+                    case DELETE_AND_EXPUNGE:
+                        try {
+                            emailFolder.expunge();
+                        } catch (MessagingException ex) {
+                            LOG.error("EMail Import Post Action Failed", ex);
+                        }
+                        break;
+                    case ARCHIVE:
+                        try {
+                            String archiveFolderName = command.getArchiveFolder();
+                            if (IMAP.equals(protocol) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
+                                Folder archiveFolder = store.getFolder(archiveFolderName);
+                                archiveFolder.open(Folder.READ_WRITE);
+                                emailFolder.copyMessages(messages, archiveFolder);
+                                archiveFolder.close(false);
+                            }
+                        } catch (MessagingException ex) {
+                            LOG.error("EMail Import Post Action Failed", ex);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+
             // close the store and folder objects
             emailFolder.close(true);
             store.close();
@@ -132,4 +142,22 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
         // emailSession.setDebug(true);
         return emailSession;
     }
+
+    private EMailImportCommand getImportCommand(Message message, EMailFetchCommand command, Store store) throws MessagingException, IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        message.writeTo(out);
+        String eml = out.toString();
+        LOG.trace("Message : {}", eml);
+
+        EMailImportCommand importCommand = new EMailImportCommand();
+        importCommand.setEml(message);
+        importCommand.setRafPath(command.getRafPath());
+        importCommand.setTempPath(command.getTempPath());
+        importCommand.setJexlExp(command.getJexlExp());
+        importCommand.setStore(store);
+        importCommand.setPostImportCommand(command.getPostImportCommand());
+
+        return importCommand;
+    }
+
 }

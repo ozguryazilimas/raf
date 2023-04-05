@@ -1,9 +1,18 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <p:scrollPanel mode="native" style="width:490px; height:400px">
-        <p:panel id="emailSettings" header="-">
+    <p:scrollPanel mode="native"
+                   style="
+                       height:400px;
+                       margin-top: 10px;
+                       margin-bottom: 10px
+                   ">
+
+        <p:panel id="emailSettings" header="#{messages['general.label.email.fetch.emailSettings']}">
             <p:outputLabel value="#{messages['general.label.email.protocol']}"/>
             <p:inputText value="#{eMailFetchCommandEditor.command.protocol}"/>
 
@@ -22,15 +31,57 @@
             <p:outputLabel value="#{messages['general.label.email.password']}"/>
             <p:password value="#{eMailFetchCommandEditor.command.pass}"/>
 
-            <p:outputLabel value="#{messages['general.label.email.ssl']}"/>
-            <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" itemLabel="#{messages['general.label.yes']}"/>            
+            <h:panelGroup styleClass="col-xs-12" style="padding: 0">
+                <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" />
+                <p:outputLabel value="#{messages['general.label.email.ssl']}"/>
+            </h:panelGroup>
+        </p:panel>
 
+        <p:panel id="importSettings" header="#{messages['general.label.email.fetch.importSettings']}">
             <p:outputLabel value="#{messages['general.label.email.folder']}"/>
             <p:inputText value="#{eMailFetchCommandEditor.command.folder}"/>
 
+            <p:outputLabel value="#{messages['general.label.email.fetch.postImportAction']}"/>
+            <p:selectOneMenu value="#{eMailFetchCommandEditor.command.postImportCommand}" required="true">
+                <f:selectItems var="postImportCommand"
+                               value="#{eMailFetchCommandEditor.postCommands}"
+                               itemLabel="#{messages['general.label.email.fetch.postcommand.'.concat(postImportCommand)]}"
+                />
+                <p:ajax update="archive-panel action-reminder" event="change"/>
+            </p:selectOneMenu>
+
+            <h:panelGroup id="action-reminder">
+                <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'DELETE_AND_EXPUNGE'}">
+                    <div class="ui-message-warn" style="margin: 0;">
+                        <span class="ui-message-warn-icon"/>
+                        <span class="ui-message-warn-detail">
+                            #{
+                            messages['general.label.email.fetch.postcommand.'
+                                .concat(eMailFetchCommandEditor.command.postImportCommand)
+                                .concat(".reminder")]
+                            }
+                        </span>
+                    </div>
+                </c:if>
+            </h:panelGroup>
+
+            <h:panelGroup id="archive-panel">
+                <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'ARCHIVE'}">
+                    <p:outputLabel for="email-archiveFolder" value="#{messages['general.label.email.fetch.archiveFolder']}"/>
+                    <p:inputText id="email-archiveFolder" value="#{null}" />
+                </c:if>
+            </h:panelGroup>
+
+            <p:outputLabel for="email-recordpath" value="#{messages['general.label.email.fetch.recordPath']}"/>
+            <p:inputText id="email-recordpath" value="#{eMailFetchCommandEditor.command.rafPath}" validator="#{eMailFetchCommandEditor.validateRafPath}"/>
+            <p:message for="email-recordpath" />
+
+            <p:outputLabel for="email-temppath" value="#{messages['general.label.email.fetch.tempPath']}"/>
+            <p:inputText id="email-temppath" value="#{eMailFetchCommandEditor.command.tempPath}" validator="#{eMailFetchCommandEditor.validateRafPath}"/>
+            <p:message for="email-temppath" />
+
             <p:outputLabel value="#{messages['general.label.email.fetch.jexl']}"/>
             <p:inputTextarea rows="10" value="#{eMailFetchCommandEditor.command.jexlExp}"/>
-
         </p:panel>
 
     </p:scrollPanel>

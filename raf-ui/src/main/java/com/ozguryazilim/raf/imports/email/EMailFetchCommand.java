@@ -14,27 +14,38 @@ public class EMailFetchCommand extends AbstractStorableCommand {
     private String user;
     private String pass;
     private Boolean ssl;
+    private PostImportCommand postImportCommand = PostImportCommand.NONE;
     private String folder;
     private String archiveFolder;
     private String domain;
     private String defaultUser;
     private String rafPath;
+    private String tempPath;
     private String jexlExp;
+
+    public enum PostImportCommand {
+        NONE,
+        ARCHIVE,
+        DELETE_AND_EXPUNGE
+    }
 
     public EMailFetchCommand() {
     }
 
-    public EMailFetchCommand(String protocol, String host, Integer port, String user, String pass, Boolean ssl, String folder, String archiveFolder, String domain, String defaultUser, String jexlExp) {
+    public EMailFetchCommand(String protocol, String host, Integer port, String user, String pass, Boolean ssl, PostImportCommand postImportCommand, String folder, String archiveFolder, String domain, String defaultUser, String rafPath, String tempPath, String jexlExp) {
         this.protocol = protocol;
         this.host = host;
         this.port = port;
         this.user = user;
         this.pass = pass;
         this.ssl = ssl;
+        this.postImportCommand = postImportCommand;
         this.folder = folder;
         this.archiveFolder = archiveFolder;
         this.domain = domain;
         this.defaultUser = defaultUser;
+        this.rafPath = rafPath;
+        this.tempPath = tempPath;
         this.jexlExp = jexlExp;
     }
 
@@ -134,4 +145,19 @@ public class EMailFetchCommand extends AbstractStorableCommand {
         this.jexlExp = jexlExp;
     }
 
+    public String getTempPath() {
+        return tempPath;
+    }
+
+    public void setTempPath(String tempPath) {
+        this.tempPath = tempPath;
+    }
+
+    public PostImportCommand getPostImportCommand() {
+        return postImportCommand;
+    }
+
+    public void setPostImportCommand(PostImportCommand postImportCommand) {
+        this.postImportCommand = postImportCommand;
+    }
 }
