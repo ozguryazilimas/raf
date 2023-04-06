@@ -14,10 +14,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Bu Command ve Executor'u sadece e-posta bağlantısını yapıp okunmamış
@@ -70,45 +67,10 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
             Message[] messages = emailFolder.getMessages();
             LOG.info("messages.length : {}", messages.length);
 
-            List<EMailImportCommand> importCommandList = new ArrayList<>();
             for (Message message : messages) {
-
                 EMailImportCommand importCommand = getImportCommand(message, command, store);
-                importCommandList.add(importCommand);
-
+                commandSender.sendCommand(importCommand);
             }
-
-            CompletableFuture.allOf(
-                importCommandList.stream()
-                    .map(importCommand -> CompletableFuture.runAsync(() -> eMailImportCommandExecutor.execute(importCommand)))
-                    .toArray(CompletableFuture[]::new)
-            ).thenRun(() -> {
-                switch (command.getPostImportCommand()) {
-                    case DELETE_AND_EXPUNGE:
-                        try {
-                            emailFolder.expunge();
-                        } catch (MessagingException ex) {
-                            LOG.error("EMail Import Post Action Failed", ex);
-                        }
-                        break;
-                    case ARCHIVE:
-                        try {
-                            String archiveFolderName = command.getArchiveFolder();
-                            if (IMAP.equals(protocol) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
-                                Folder archiveFolder = store.getFolder(archiveFolderName);
-                                archiveFolder.open(Folder.READ_WRITE);
-                                emailFolder.copyMessages(messages, archiveFolder);
-                                archiveFolder.close(false);
-                            }
-                        } catch (MessagingException ex) {
-                            LOG.error("EMail Import Post Action Failed", ex);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            });
-
 
             // close the store and folder objects
             emailFolder.close(true);
@@ -154,8 +116,8 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
         importCommand.setRafPath(command.getRafPath());
         importCommand.setTempPath(command.getTempPath());
         importCommand.setJexlExp(command.getJexlExp());
-        importCommand.setStore(store);
         importCommand.setPostImportCommand(command.getPostImportCommand());
+        importCommand.setFetchCommand(command);
 
         return importCommand;
     }

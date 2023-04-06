@@ -14,7 +14,7 @@ public class EMailFetchCommand extends AbstractStorableCommand {
     private String user;
     private String pass;
     private Boolean ssl;
-    private PostImportCommand postImportCommand = PostImportCommand.NONE;
+    private PostImportCommand postImportCommand = PostImportCommand.ARCHIVE;
     private String folder;
     private String archiveFolder;
     private String domain;
@@ -24,9 +24,8 @@ public class EMailFetchCommand extends AbstractStorableCommand {
     private String jexlExp;
 
     public enum PostImportCommand {
-        NONE,
         ARCHIVE,
-        DELETE_AND_EXPUNGE
+        DELETE
     }
 
     public EMailFetchCommand() {

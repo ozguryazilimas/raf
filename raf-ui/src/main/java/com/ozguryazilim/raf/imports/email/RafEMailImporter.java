@@ -22,14 +22,19 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mail.Flags;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
@@ -85,7 +90,7 @@ public class RafEMailImporter implements Serializable {
         return re.encode(path);
     }
 
-    public EMailMessage parseEmail(String eml) {
+    public static EMailMessage parseEmail(String eml) {
         try {
             EMailParser parser = new EMailParser();
             EMailMessage message = parser.parse(eml);
@@ -96,7 +101,7 @@ public class RafEMailImporter implements Serializable {
         }
     }
 
-    public EMailMessage parseEmail(Message mail) {
+    public static EMailMessage parseEmail(Message mail) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             mail.writeTo(out);
@@ -247,10 +252,10 @@ public class RafEMailImporter implements Serializable {
                         rafService.saveProperties(record);
                     }
                 }
-            }
 
-            if (rafService.isRafObjectAvailable(record.getId()) && command.getStore().isConnected()) {
-                postUploadAction(command, email);
+                if (rafService.isRafObjectAvailable(record.getId())) {
+                    postUploadAction(command, command.getFetchCommand(), email);
+                }
             }
 
         } catch (RafException | MessagingException ex) {
@@ -259,15 +264,40 @@ public class RafEMailImporter implements Serializable {
         return record;
     }
 
-    public void postUploadAction(EMailImportCommand command, Message message) throws MessagingException {
+    public void postUploadAction(EMailImportCommand command, EMailFetchCommand fetchCommand, Message message) throws MessagingException {
+        EMailFetchCommandExecutor fetchCommandExecutor = new EMailFetchCommandExecutor();
+
+        String host = fetchCommand.getHost();
+        String user = fetchCommand.getUser();
+        String pass = fetchCommand.getPass();
+        int port = fetchCommand.getPort();
+        Store store = fetchCommandExecutor.getSession(fetchCommand).getStore(fetchCommand.getProtocol() + "s");
+        store.connect(host, port, user, pass);
+
         switch (command.getPostImportCommand()) {
-            case DELETE_AND_EXPUNGE:
+            case ARCHIVE:
+                String folder = fetchCommand.getFolder();
+                Folder emailFolder = store.getFolder(folder);
+
+                String archiveFolderName = fetchCommand.getArchiveFolder();
+                if ("imap".equals(fetchCommand.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
+                    Folder archiveFolder = store.getFolder(archiveFolderName);
+                    archiveFolder.open(Folder.READ_WRITE);
+
+                    emailFolder.copyMessages(new Message[]{message}, archiveFolder);
+                    message.setFlag(Flags.Flag.DELETED, true);
+
+                    archiveFolder.close(false);
+                    emailFolder.close(true);
+                }
+            case DELETE:
                 message.setFlag(Flags.Flag.DELETED, true);
                 break;
-            case ARCHIVE:
             default:
                 break;
         }
+
+        store.close();
     }
 
 }

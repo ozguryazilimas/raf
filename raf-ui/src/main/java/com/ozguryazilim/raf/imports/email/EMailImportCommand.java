@@ -3,7 +3,6 @@ package com.ozguryazilim.raf.imports.email;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommand;
 
 import javax.mail.Message;
-import javax.mail.Store;
 
 /**
  * Tek bir e-posta taşır içerisinde.
@@ -18,8 +17,8 @@ public class EMailImportCommand extends AbstractCommand {
     private String rafPath;
     private String tempPath;
     private String jexlExp;
-    private Store store;
 
+    private EMailFetchCommand fetchCommand;
     private EMailFetchCommand.PostImportCommand postImportCommand;
 
     public Message getEml() {
@@ -46,14 +45,6 @@ public class EMailImportCommand extends AbstractCommand {
         this.jexlExp = jexlExp;
     }
 
-    public Store getStore() {
-        return store;
-    }
-
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
     public EMailFetchCommand.PostImportCommand getPostImportCommand() {
         return postImportCommand;
     }
@@ -68,5 +59,13 @@ public class EMailImportCommand extends AbstractCommand {
 
     public void setTempPath(String tempPath) {
         this.tempPath = tempPath;
+    }
+
+    public EMailFetchCommand getFetchCommand() {
+        return fetchCommand;
+    }
+
+    public void setFetchCommand(EMailFetchCommand fetchCommand) {
+        this.fetchCommand = fetchCommand;
     }
 }

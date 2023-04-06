@@ -51,10 +51,10 @@
             </p:selectOneMenu>
 
             <h:panelGroup id="action-reminder">
-                <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'DELETE_AND_EXPUNGE'}">
-                    <div class="ui-message-warn" style="margin: 0;">
+                <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'DELETE'}">
+                    <div class="ui-message-error" style="margin: 0;">
                         <span class="ui-message-warn-icon"/>
-                        <span class="ui-message-warn-detail">
+                        <span class="ui-message-error-detail">
                             #{
                             messages['general.label.email.fetch.postcommand.'
                                 .concat(eMailFetchCommandEditor.command.postImportCommand)
@@ -68,7 +68,7 @@
             <h:panelGroup id="archive-panel">
                 <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'ARCHIVE'}">
                     <p:outputLabel for="email-archiveFolder" value="#{messages['general.label.email.fetch.archiveFolder']}"/>
-                    <p:inputText id="email-archiveFolder" value="#{null}" />
+                    <p:inputText id="email-archiveFolder" value="#{eMailFetchCommandEditor.command.archiveFolder}" />
                 </c:if>
             </h:panelGroup>
 

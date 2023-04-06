@@ -6,6 +6,8 @@ import com.ozguryazilim.raf.tag.TagSuggestionService;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
+
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -43,6 +45,7 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         JexlContext jc = new MapContext();
         jc.set("rafService", rafService);
         jc.set("message", command.getEml());
+        jc.set("mail", RafEMailImporter.parseEmail(command.getEml()));
         jc.set("importer", rafEMailImporter);
         jc.set("command", command);
         Object o = e.execute(jc);

@@ -12,7 +12,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.print.attribute.standard.Severity;
 
 /**
  *
@@ -27,8 +26,8 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
     @Override
     public EMailFetchCommand createNewCommand() {
         String defaultCode = ""
-                + "var emailExtension = \"text/html\".equals(message.getMimeType()) ? \".html\" : \".txt\";\n"
-                + "var fileName = message.getSubject().concat(emailExtension);\n"
+                + "var emailExtension = \"text/html\".equals(mail.getMimeType()) ? \".html\" : \".txt\";\n"
+                + "var fileName = mail.getSubject().concat(emailExtension);\n"
                 + "var tags = \"Email,Imported Email\";\n"
                 + "\n"
                 + "/*\n"
@@ -46,7 +45,7 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
                 "",
                 "",
                 Boolean.TRUE,
-                EMailFetchCommand.PostImportCommand.NONE,
+                EMailFetchCommand.PostImportCommand.ARCHIVE,
                 "INBOX",
                 "archive",
                 "",
