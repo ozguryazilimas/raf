@@ -228,7 +228,7 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
 
             if (!Strings.isNullOrEmpty(searchModel.getSearchText())) {
                 if (searchModel.getSearchInFileDataAvailable()) {
-                    whereExpressions.add(String.format(" CONTAINS(nodes.[jcr:data], '\"%s\")') ", escapeQueryParam(searchModel.getSearchText().trim())));
+                    whereExpressions.add(String.format(" CONTAINS(nodes.[jcr:data], '\"%s\"')) ", escapeQueryParam(searchModel.getSearchText().trim())));
                 } else if (searchModel.getSearchInDocumentTags()) {
                     if (searchModel.getCaseSensitive()) {
                         whereExpressions.add(String.format(" nodes.[raf:tags] LIKE '%%%1$s%%' ", escapeQueryParam(searchModel.getSearchText().trim())));
