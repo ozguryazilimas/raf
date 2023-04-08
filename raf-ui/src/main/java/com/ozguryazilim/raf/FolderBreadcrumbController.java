@@ -13,6 +13,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import com.ozguryazilim.raf.utils.RafObjectUtils;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
@@ -74,6 +76,15 @@ public class FolderBreadcrumbController implements Serializable {
                         continue;
                     }
                     p = p + "/" + s;
+
+                    try {
+                        if (RafObjectUtils.isRootPath(p)) {
+                            continue;
+                        }
+                    } catch (RafException e) {
+                        continue;
+                    }
+
                     RafFolder f = findFolder(p);
                     if (f != null) {
                         items.add(f);
@@ -118,7 +129,12 @@ public class FolderBreadcrumbController implements Serializable {
                 return f;
             }
         }
-        return null;
+
+        try {
+            return rafService.getFolder(path);
+        } catch (RafException e) {
+            return null;
+        }
 
     }
 

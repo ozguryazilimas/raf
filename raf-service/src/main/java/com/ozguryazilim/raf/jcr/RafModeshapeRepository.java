@@ -414,6 +414,9 @@ public class RafModeshapeRepository implements Serializable {
 
             //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
             //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
+            if (!node.isNodeType("nt:folder")) {
+                return null;
+            }
             RafFolder f = nodeToRafFolder(node);
             f.setParentId("#");
 
