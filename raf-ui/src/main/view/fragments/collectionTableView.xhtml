@@ -21,11 +21,11 @@
                         <th></th>
                         <th></th>
                         <th>
-                            <p:commandLink action="#{controllerBean.setSortByAndType('NAME', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                            <p:commandLink action="#{controllerBean.setSortByAndType('TITLE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.Title']}
                             </p:commandLink>
 
-                            <ui:fragment rendered="#{controllerBean.sortBy eq 'NAME'}">
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'TITLE'}">
                                 <ui:fragment rendered="#{controllerBean.descSort}">
                                     <i class="fa fa-sort-alpha-desc"></i>
                                 </ui:fragment>
@@ -36,11 +36,11 @@
 
                         </th>
                         <th>
-                            <p:commandLink action="#{controllerBean.setSortByAndType('MIMETYPE', !controllerBean.descSort)}" process="@this" update="raf-view-content">
+                            <p:commandLink action="#{controllerBean.setSortByAndType('NAME', !controllerBean.descSort)}" process="@this" update="raf-view-content">
                                 #{messages['collection.table.File']}
                             </p:commandLink>
 
-                            <ui:fragment rendered="#{controllerBean.sortBy eq 'MIMETYPE'}">
+                            <ui:fragment rendered="#{controllerBean.sortBy eq 'NAME'}">
                                 <ui:fragment rendered="#{controllerBean.descSort}">
                                     <i class="fa fa-sort-alpha-desc"></i>
                                 </ui:fragment>
