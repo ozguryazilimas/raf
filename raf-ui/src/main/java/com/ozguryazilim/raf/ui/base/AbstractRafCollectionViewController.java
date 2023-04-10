@@ -2,7 +2,6 @@ package com.ozguryazilim.raf.ui.base;
 
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
-import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;

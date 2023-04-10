@@ -795,7 +795,7 @@ public class RafController implements Serializable {
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
-            if (context.getSelectedObject() != null) {
+            if (context.getSelectedObject() != null && context.getSelectedObject().getTitle() != null) {
                 if(context.getSelectedObject() instanceof RafFolder){
                     populateFolderCollection(context.getSelectedObject().getId());
                 } else if(context.getSelectedObject() instanceof RafDocument){
@@ -850,16 +850,6 @@ public class RafController implements Serializable {
             return;
         }
 
-        if (!showFolders) {
-            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
-            collection.setItems(
-                    collection.getItems()
-                            .stream()
-                            .filter(o -> !"raf/folder".equals(o.getMimeType()))
-                            .collect(Collectors.toList())
-            );
-        }
-
         if (context.getCollection() == null || !context.getCollection().getId().equals(folderId)) {
             //farklı bir klasör içeriği lissteleniyor veya klasörün içeriği ilk defa listeleniyor.
             context.setCollection(collection);
@@ -876,6 +866,17 @@ public class RafController implements Serializable {
             }
 
         }
+
+        if (!showFolders) {
+            //Eğer UI'da folder görülmesin isteniyor ise filtreliyoruz.
+            context.getCollection().setItems(
+                    context.getCollection().getItems()
+                            .stream()
+                            .filter(o -> !"raf/folder".equals(o.getMimeType()))
+                            .collect(Collectors.toList())
+            );
+        }
+
         lastRafObjectId = collection.getItems().isEmpty() ? "" : collection.getItems().get(collection.getItems().size() - 1).getId();
         rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
