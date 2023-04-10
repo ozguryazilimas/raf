@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.ui.base;
 import com.ozguryazilim.raf.IconResolver;
 import com.ozguryazilim.raf.RafController;
 import com.ozguryazilim.raf.events.RafCheckInEvent;
+import com.ozguryazilim.raf.events.RafCollectionChangeEvent;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -11,6 +12,7 @@ import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.utils.RafCollectionGrouper;
 import com.ozguryazilim.raf.ui.utils.RafCollectionSorter;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     @Inject
     private Event<RafFolderDataChangeEvent> folderDataChangeEvent;
 
+    @Inject
+    private Event<RafCollectionChangeEvent> rafCollectionChangeEvent;
+
     @Override
     public String getIcon() {
         if (getCollection() != null && getCollection().getMimeType() != null) {
@@ -72,9 +77,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
     @Override
     public void setCollection(RafCollection collection) {
         this.collection = collection;
-        if (foldersFirst) {
-            RafCollectionSorter.sort(rafController.getSortBy(), rafController.getDescSort(), foldersFirst, getCollection());
-        }
+        RafCollectionSorter.sort(rafController.getSortBy(), rafController.getDescSort(), foldersFirst, getCollection());
     }
 
     public void checkInListener(@Observes RafCheckInEvent event) {
@@ -119,6 +122,7 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
 
     public void setFoldersFirst(Boolean foldersFirst) {
         this.foldersFirst = foldersFirst;
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
         clear();
     }
 
