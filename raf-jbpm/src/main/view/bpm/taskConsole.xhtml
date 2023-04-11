@@ -140,6 +140,11 @@
                     <h:form id="tfrm">
                         <ui:fragment rendered="#{not empty taskController.selectedTask}">
                             <div class="box box-primary">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <p:messages closable="true" severity="error" id="taskLifecycleMessage" style="margin: 0px;" />
+                                    </div>
+                                </div>
                                 <div class="box-header with-border">
                                     <h3 class="box-title" style="font-weight: bold; font-size: 24px;">
                                         ##{taskController.selectedTask.taskData.processInstanceId} #{taskController.selectedTask.subject}  [#{taskController.selectedTask.name}]
