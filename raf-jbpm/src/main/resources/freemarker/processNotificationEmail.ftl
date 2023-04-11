@@ -3,4 +3,4 @@ ${body}
 
 ${headers.description}
 
-Süreç Linki : ${headers.linkDomain}/bpm/processConsole.jsf?tid=${headers.ProcessInstanceId?string['#########']}
+Süreç Linki : ${headers.linkDomain}bpm/processConsole.jsf?tid=${headers.ProcessInstanceId?string['#########']}
