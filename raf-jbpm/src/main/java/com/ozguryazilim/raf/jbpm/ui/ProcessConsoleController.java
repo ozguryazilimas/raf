@@ -228,6 +228,16 @@ public class ProcessConsoleController implements Serializable, FormController, D
      */
     public void abortProcess(){
         processService.abortProcessInstance(selectedProcessIntanceId);
+        resetSelectedProcessInstance();
+    }
+
+    public void resetSelectedProcessInstance() {
+        try {
+            selectProcess(selectedProcessIntanceId);
+        } catch (UnsupportedEncodingException e) {
+            selectedProcessInstance = null;
+            selectedProcessIntanceId = null;
+        }
     }
 
     public List<RafObject> getRafObjectItems() {
