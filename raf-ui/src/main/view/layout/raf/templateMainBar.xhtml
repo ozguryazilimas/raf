@@ -49,7 +49,7 @@
                         #{telveConfigResolver.getProperty('app.title')}
                         </ui:fragment>
                         <ui:fragment rendered="#{telveConfigResolver.getProperty('brand.company.navigationLogo') ne null}">
-                            <img style="margin-top: -10px; width: 120px; height: 41px;"
+                            <img style="margin-top: -10px; width: auto; height: 41px; background: none; border: none;"
                                  src="#{request.contextPath}/javax.faces.resource/img/#{telveConfigResolver.getProperty('brand.company.navigationLogo')}.jsf?ln=brand"
                                  class="img-thumbnail nav-logo"/>
                         </ui:fragment>
