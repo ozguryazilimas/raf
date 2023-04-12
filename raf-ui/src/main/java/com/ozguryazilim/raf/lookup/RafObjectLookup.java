@@ -80,7 +80,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private RafObject selected;
 
     private int page = 0;
-    private int pageSize = 50;
+    private int pageSize = 350;
     private boolean showPrivateAndSharedRafs = Boolean.FALSE;
     private boolean getAvailableDirectoriesByIdentity = Boolean.FALSE;
 
