@@ -10,11 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.context.FacesContextWrapper;
 import javax.inject.Inject;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import java.util.Properties;
@@ -26,15 +27,16 @@ import java.util.Properties;
 @CommandEditor(command = EMailFetchCommand.class, page = RafCommandPages.EMailFetchCommandEditor.class)
 public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand> {
 
-    private static final String ARCHIVE_INPUT_ATTR_PROTOCOL = "protocol";
-    private static final String ARCHIVE_INPUT_ATTR_HOST     = "host";
-    private static final String ARCHIVE_INPUT_ATTR_PORT     = "port";
-    private static final String ARCHIVE_INPUT_ATTR_DOMAIN   = "domain";
-    private static final String ARCHIVE_INPUT_ATTR_USER     = "user";
-    private static final String ARCHIVE_INPUT_ATTR_PASSWORD = "pass";
-    private static final String ARCHIVE_INPUT_ATTR_SSL      = "ssl";
+    private static final String FOLDER_INPUT_ATTR_PROTOCOL = "protocol";
+    private static final String FOLDER_INPUT_ATTR_HOST     = "host";
+    private static final String FOLDER_INPUT_ATTR_PORT     = "port";
+    private static final String FOLDER_INPUT_ATTR_DOMAIN   = "domain";
+    private static final String FOLDER_INPUT_ATTR_USER     = "user";
+    private static final String FOLDER_INPUT_ATTR_PASSWORD = "pass";
+    private static final String FOLDER_INPUT_ATTR_SSL      = "ssl";
 
     private static final String MESSAGES_CLIENTID_EMAIL_SETTINGS = "ceForm:emailConnection";
+    private static final String INPUT_ID_EMAIL_SETTINGS = "emailConnectionInput";
 
     @Inject
     private RafService rafService;
@@ -82,10 +84,10 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
         }
     }
 
-    public void validateArchiveFolder(FacesContext facesContext, UIComponent uiComponent, Object value) {
+    public void validateFolder(FacesContext facesContext, UIComponent uiComponent, Object value) {
         String folder = (String) value;
         try {
-            if (!isEmailFolderPresent(uiComponent, folder)) {
+            if (!isEmailFolderPresent(folder)) {
                 ((UIInput) uiComponent).setValid(false);
                 FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email folder does not exists.", "Email folder does not exists.");
                 facesContext.addMessage(uiComponent.getClientId(), message);
@@ -99,7 +101,7 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
 
     public void validateEmailConnection(FacesContext facesContext, UIComponent uiComponent, Object value) {
         try {
-            if (!isEmailConnectionPresent(uiComponent)) {
+            if (!isEmailConnectionPresent()) {
                 ((UIInput) uiComponent).setValid(false);
                 FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email connection is not available. Please check your connection settings.", "Email connection is not available. Please check your connection settings.");
                 facesContext.addMessage(MESSAGES_CLIENTID_EMAIL_SETTINGS, message);
@@ -115,37 +117,33 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
         return EMailFetchCommand.PostImportCommand.values();
     }
 
-    private boolean isEmailFolderPresent(UIComponent component, String folderName) throws MessagingException {
-        String protocol = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PROTOCOL));
-        Boolean ssl = ((Boolean) component.getAttributes().get(ARCHIVE_INPUT_ATTR_SSL));
-        String host = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_HOST));
-        String user = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_USER));
-        String pass = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PASSWORD));
-        int port = ((Integer) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PORT));
-
-        Properties properties = new Properties();
-        properties.put("mail.store.protocol", protocol);
-        properties.put("mail." + protocol + ".host", host);
-        properties.put("mail." + protocol + ".port", port);
-        properties.put("mail." + protocol + ".starttls.enable", ssl);
-        properties.put("mail.imap.connectiontimeout", "1000");
-
-        Session emailSession = Session.getDefaultInstance(properties);
-        Store store = emailSession.getStore(protocol + "s");
-        store.connect(host, port, user, pass);
-
+    private boolean isEmailFolderPresent(String folderName) throws MessagingException {
+        Store store = connectEmailStoreFromInputAttributes();
         Folder emailFolder = store.getFolder(folderName);
 
-        return emailFolder.exists();
+        boolean emailFolderExists = emailFolder.exists();
+
+        store.close();
+        return emailFolderExists;
     }
 
-    private boolean isEmailConnectionPresent(UIComponent component) throws MessagingException {
-        String protocol = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PROTOCOL));
-        Boolean ssl = ((Boolean) component.getAttributes().get(ARCHIVE_INPUT_ATTR_SSL));
-        String host = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_HOST));
-        String user = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_USER));
-        String pass = ((String) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PASSWORD));
-        int port = ((Integer) component.getAttributes().get(ARCHIVE_INPUT_ATTR_PORT));
+    private boolean isEmailConnectionPresent() throws MessagingException {
+        Store store = connectEmailStoreFromInputAttributes();
+        boolean isConnected = store.isConnected();
+        store.close();
+
+        return isConnected;
+    }
+
+    Store connectEmailStoreFromInputAttributes() throws MessagingException {
+        UIComponent component = getEmailConnectionInputFromContext();
+
+        String protocol = ((String) component.getAttributes().get(FOLDER_INPUT_ATTR_PROTOCOL));
+        Boolean ssl = ((Boolean) component.getAttributes().get(FOLDER_INPUT_ATTR_SSL));
+        String host = ((String) component.getAttributes().get(FOLDER_INPUT_ATTR_HOST));
+        String user = ((String) component.getAttributes().get(FOLDER_INPUT_ATTR_USER));
+        String pass = ((String) component.getAttributes().get(FOLDER_INPUT_ATTR_PASSWORD));
+        int port = ((Integer) component.getAttributes().get(FOLDER_INPUT_ATTR_PORT));
 
         Properties properties = new Properties();
         properties.put("mail.store.protocol", protocol);
@@ -157,6 +155,30 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
         Session emailSession = Session.getDefaultInstance(properties);
         Store store = emailSession.getStore(protocol + "s");
         store.connect(host, port, user, pass);
-        return store.isConnected();
+
+        return store;
+    }
+
+    public UIComponent getEmailConnectionInputFromContext() {
+
+        FacesContext facesContext = FacesContextWrapper.getCurrentInstance();
+        UIViewRoot root = facesContext.getViewRoot();
+        return findComponentById(facesContext, root, INPUT_ID_EMAIL_SETTINGS);
+    }
+
+    public static UIComponent findComponentById(FacesContext context, UIComponent root, String id) {
+        UIComponent component = null;
+
+        for (int i = 0; i < root.getChildCount() && component == null; i++) {
+            UIComponent child = root.getChildren().get(i);
+            component = findComponentById(context, child, id);
+        }
+
+        if (root.getId() != null) {
+            if (component == null && root.getId().equals(id)) {
+                component = root;
+            }
+        }
+        return component;
     }
 }

@@ -55,7 +55,8 @@
 
         <p:panel id="importSettings" header="#{messages['general.label.email.fetch.importSettings']}">
             <p:outputLabel value="#{messages['general.label.email.folder']}"/>
-            <p:inputText value="#{eMailFetchCommandEditor.command.folder}"/>
+            <p:inputText id="email-emailFolder" value="#{eMailFetchCommandEditor.command.folder}" validator="#{eMailFetchCommandEditor.validateFolder}" />
+            <p:message for="email-emailFolder" style="margin: 0;"/>
 
             <p:outputLabel value="#{messages['general.label.email.fetch.postImportAction']}"/>
             <p:selectOneMenu value="#{eMailFetchCommandEditor.command.postImportCommand}" required="true">
@@ -84,15 +85,7 @@
             <h:panelGroup id="archive-panel">
                 <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'ARCHIVE'}">
                     <p:outputLabel for="email-archiveFolder" value="#{messages['general.label.email.fetch.archiveFolder']}"/>
-                    <p:inputText id="email-archiveFolder" value="#{eMailFetchCommandEditor.command.archiveFolder}" validator="#{eMailFetchCommandEditor.validateArchiveFolder}">
-                        <f:attribute name="protocol" value="#{protocol.value}" />
-                        <f:attribute name="host" value="#{host.value}" />
-                        <f:attribute name="port" value="#{port.value}" />
-                        <f:attribute name="domain" value="#{domain.value}" />
-                        <f:attribute name="user" value="#{user.value}" />
-                        <f:attribute name="pass" value="#{pass.value}" />
-                        <f:attribute name="ssl" value="#{ssl.value}" />
-                    </p:inputText>
+                    <p:inputText id="email-archiveFolder" value="#{eMailFetchCommandEditor.command.archiveFolder}" validator="#{eMailFetchCommandEditor.validateFolder}" />
                     <p:message for="email-archiveFolder" style="margin: 0;"/>
                 </c:if>
             </h:panelGroup>
