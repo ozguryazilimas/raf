@@ -13,28 +13,44 @@
                    ">
 
         <p:panel id="emailSettings" header="#{messages['general.label.email.fetch.emailSettings']}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p:messages id="emailConnection" for="emailConnection" severity="error" showDetail="false" closable="true" />
+                </div>
+            </div>
+
             <p:outputLabel value="#{messages['general.label.email.protocol']}"/>
-            <p:inputText value="#{eMailFetchCommandEditor.command.protocol}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.protocol}" binding="#{protocol}" />
 
             <p:outputLabel value="#{messages['general.label.email.server']}"/>
-            <p:inputText value="#{eMailFetchCommandEditor.command.host}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.host}" binding="#{host}" />
 
             <p:outputLabel value="#{messages['general.label.email.port']}"/>
-            <p:inputNumber value="#{eMailFetchCommandEditor.command.port}" decimalPlaces="0" decimalSeparator="," thousandSeparator="."/>
+            <p:inputNumber value="#{eMailFetchCommandEditor.command.port}" decimalPlaces="0" decimalSeparator="," thousandSeparator="." binding="#{port}" />
 
             <p:outputLabel value="#{messages['general.label.email.domain']}"/>
-            <p:inputText value="#{eMailFetchCommandEditor.command.domain}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.domain}" binding="#{domain}" />
 
             <p:outputLabel value="#{messages['general.label.email.username']}"/>
-            <p:inputText value="#{eMailFetchCommandEditor.command.user}"/>
+            <p:inputText value="#{eMailFetchCommandEditor.command.user}" binding="#{user}" />
 
             <p:outputLabel value="#{messages['general.label.email.password']}"/>
-            <p:password value="#{eMailFetchCommandEditor.command.pass}"/>
+            <p:password value="#{eMailFetchCommandEditor.command.pass}" binding="#{pass}" />
 
             <h:panelGroup styleClass="col-xs-12" style="padding: 0">
-                <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" />
-                <p:outputLabel value="#{messages['general.label.email.ssl']}"/>
+                <p:selectBooleanCheckbox value="#{eMailFetchCommandEditor.command.ssl}" binding="#{ssl}"/>
+                <p:outputLabel value="#{messages['general.label.email.ssl']}" />
             </h:panelGroup>
+
+            <p:inputText id="emailConnectionInput" type="hidden" validator="#{eMailFetchCommandEditor.validateEmailConnection}" >
+                <f:attribute name="protocol" value="#{protocol.value}" />
+                <f:attribute name="host" value="#{host.value}" />
+                <f:attribute name="port" value="#{port.value}" />
+                <f:attribute name="domain" value="#{domain.value}" />
+                <f:attribute name="user" value="#{user.value}" />
+                <f:attribute name="pass" value="#{pass.value}" />
+                <f:attribute name="ssl" value="#{ssl.value}" />
+            </p:inputText>
         </p:panel>
 
         <p:panel id="importSettings" header="#{messages['general.label.email.fetch.importSettings']}">
@@ -68,17 +84,26 @@
             <h:panelGroup id="archive-panel">
                 <c:if test="#{eMailFetchCommandEditor.command.postImportCommand.name() eq 'ARCHIVE'}">
                     <p:outputLabel for="email-archiveFolder" value="#{messages['general.label.email.fetch.archiveFolder']}"/>
-                    <p:inputText id="email-archiveFolder" value="#{eMailFetchCommandEditor.command.archiveFolder}" />
+                    <p:inputText id="email-archiveFolder" value="#{eMailFetchCommandEditor.command.archiveFolder}" validator="#{eMailFetchCommandEditor.validateArchiveFolder}">
+                        <f:attribute name="protocol" value="#{protocol.value}" />
+                        <f:attribute name="host" value="#{host.value}" />
+                        <f:attribute name="port" value="#{port.value}" />
+                        <f:attribute name="domain" value="#{domain.value}" />
+                        <f:attribute name="user" value="#{user.value}" />
+                        <f:attribute name="pass" value="#{pass.value}" />
+                        <f:attribute name="ssl" value="#{ssl.value}" />
+                    </p:inputText>
+                    <p:message for="email-archiveFolder" style="margin: 0;"/>
                 </c:if>
             </h:panelGroup>
 
             <p:outputLabel for="email-recordpath" value="#{messages['general.label.email.fetch.recordPath']}"/>
             <p:inputText id="email-recordpath" value="#{eMailFetchCommandEditor.command.rafPath}" validator="#{eMailFetchCommandEditor.validateRafPath}"/>
-            <p:message for="email-recordpath" />
+            <p:message for="email-recordpath" style="margin: 0;"/>
 
             <p:outputLabel for="email-temppath" value="#{messages['general.label.email.fetch.tempPath']}"/>
             <p:inputText id="email-temppath" value="#{eMailFetchCommandEditor.command.tempPath}" validator="#{eMailFetchCommandEditor.validateRafPath}"/>
-            <p:message for="email-temppath" />
+            <p:message for="email-temppath" style="margin: 0;"/>
 
             <p:outputLabel value="#{messages['general.label.email.fetch.jexl']}"/>
             <p:inputTextarea rows="10" value="#{eMailFetchCommandEditor.command.jexlExp}"/>

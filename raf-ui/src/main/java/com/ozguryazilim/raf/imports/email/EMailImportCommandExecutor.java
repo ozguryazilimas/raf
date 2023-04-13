@@ -29,7 +29,10 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
     private RafService rafService;
 
     @Inject
-    private RafEMailImporter rafEMailImporter;
+    private RafCategoryService rafCategoryService;
+
+    @Inject
+    private TagSuggestionService tagSuggestionService;
 
     @Override
     public void execute(EMailImportCommand command) {
@@ -46,7 +49,7 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         jc.set("rafService", rafService);
         jc.set("message", command.getEml());
         jc.set("mail", RafEMailImporter.parseEmail(command.getEml()));
-        jc.set("importer", rafEMailImporter);
+        jc.set("importer", new RafEMailImporter(rafService, rafCategoryService, tagSuggestionService));
         jc.set("command", command);
         Object o = e.execute(jc);
         LOG.debug("E-mail importer jexl result. {}", o);

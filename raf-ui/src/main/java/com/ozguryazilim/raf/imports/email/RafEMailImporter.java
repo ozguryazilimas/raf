@@ -44,31 +44,24 @@ import org.slf4j.LoggerFactory;
  *
  * @author oyas
  */
-@ApplicationScoped
 public class RafEMailImporter implements Serializable {
 
-    @Inject
     private RafService rafService;
-
-    @Inject
     private RafCategoryService rafCategoryService;
-
-    @Inject
     private TagSuggestionService tagSuggestionService;
 
-    private RafEncoder re = RafEncoderFactory.getFileNameEncoder();
+    private RafEncoder re;
+
+    public RafEMailImporter(RafService rafService, RafCategoryService rafCategoryService, TagSuggestionService tagSuggestionService) {
+        this.rafService = rafService;
+        this.rafCategoryService = rafCategoryService;
+        this.tagSuggestionService = tagSuggestionService;
+        if (this.re == null) {
+            this.re = RafEncoderFactory.getFileNameEncoder();
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(RafEMailImporter.class);
-
-    public boolean isFileExistsInRAF(String rafPath) {
-        try {
-            RafObject rafObject = rafService.getRafObjectByPath(rafPath);
-            return rafObject != null;
-        } catch (RafException ex) {
-            LOG.error("Raf exception", ex.getMessage());
-        }
-        return false;
-    }
 
     public void debug(String s) {
         LOG.debug(s);
@@ -277,21 +270,34 @@ public class RafEMailImporter implements Serializable {
         switch (command.getPostImportCommand()) {
             case ARCHIVE:
                 String folder = fetchCommand.getFolder();
-                Folder emailFolder = store.getFolder(folder);
 
                 String archiveFolderName = fetchCommand.getArchiveFolder();
                 if ("imap".equals(fetchCommand.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
                     Folder archiveFolder = store.getFolder(archiveFolderName);
-                    archiveFolder.open(Folder.READ_WRITE);
+                    Folder emailFolder = store.getFolder(folder);
+                    if (archiveFolder.exists() && emailFolder.exists()) {
+                        archiveFolder.open(Folder.READ_WRITE);
+                        emailFolder.open(Folder.READ_WRITE);
 
-                    emailFolder.copyMessages(new Message[]{message}, archiveFolder);
-                    message.setFlag(Flags.Flag.DELETED, true);
+                        if (emailFolder.isOpen() && archiveFolder.isOpen()) {
+                            emailFolder.copyMessages(new Message[]{message}, archiveFolder);
+                            message.setFlag(Flags.Flag.DELETED, true);
 
-                    archiveFolder.close(false);
-                    emailFolder.close(true);
+                            archiveFolder.close(false);
+                            emailFolder.close(true);
+                        }
+                    }
                 }
+                break;
             case DELETE:
-                message.setFlag(Flags.Flag.DELETED, true);
+                Folder emailFolder = store.getFolder(fetchCommand.getFolder());
+                if (emailFolder.exists()) {
+                    emailFolder.open(Folder.READ_WRITE);
+                    if (emailFolder.isOpen()) {
+                        message.setFlag(Flags.Flag.DELETED, true);
+                        emailFolder.close(true);
+                    }
+                }
                 break;
             default:
                 break;

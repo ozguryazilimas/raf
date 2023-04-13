@@ -68,8 +68,10 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
             LOG.info("messages.length : {}", messages.length);
 
             for (Message message : messages) {
-                EMailImportCommand importCommand = getImportCommand(message, command, store);
-                commandSender.sendCommand(importCommand);
+                if (!message.isExpunged()) {
+                    EMailImportCommand importCommand = getImportCommand(message, command, store);
+                    commandSender.sendCommand(importCommand);
+                }
             }
 
             // close the store and folder objects
