@@ -8,7 +8,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.OutputStream;
 
 @RequestScoped
@@ -21,27 +20,29 @@ public class DownloadService {
     @Inject
     private FacesContext facesContext;
 
-    public void downloadFile(RafObject doc) throws RafException {
+    public void writeFileDataToResponse(RafObject doc) throws RafException {
         //FIXME: Yetki kontrolü ve event fırlatılacak
 
         HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
-        response.setContentType(doc.getMimeType());
-
-        response.setHeader("Content-disposition", String.format("attachment;filename=\"%s\"", doc.getName()));
-        response.setContentLengthLong(doc.getLength());
-
         //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
+        if (!rafService.isContentPresent(doc)) {
+            LOG.error("Error while downloading file: {}", doc.getPath());
+            throw new RafException("Error while downloading file. Content is not present.");
+        }
 
         try (OutputStream out = response.getOutputStream()) {
             rafService.getDocumentContent(doc.getId(), out);
             out.flush();
-        } catch (IOException ex) {
-            LOG.error("Error while downloading file: {}", doc.getPath());
-            facesContext.responseComplete();
-            throw new RafException("Error while downloading file");
+
+            response.setContentType(doc.getMimeType());
+
+            response.setHeader("Content-disposition", String.format("attachment;filename=\"%s\"", doc.getName()));
+            response.setContentLengthLong(doc.getLength());
+        } catch (Exception ex) {
+            LOG.error("Error while downloading file: {}", doc.getPath(), ex);
+            throw new RafException("Error while downloading file", ex);
         }
 
-        facesContext.responseComplete();
     }
 
 }

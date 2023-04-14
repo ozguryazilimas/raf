@@ -12,14 +12,10 @@ import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import javax.faces.context.FacesContext;
+
 import javax.faces.context.FacesContextWrapper;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +66,8 @@ public class DownloadAction extends AbstractAction {
 
     public void downloadFile(RafObject doc) {
         try {
-            downloadService.downloadFile(doc);
+            downloadService.writeFileDataToResponse(doc);
+            FacesContextWrapper.getCurrentInstance().responseComplete();
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);

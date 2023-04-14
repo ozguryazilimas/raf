@@ -3339,4 +3339,26 @@ public class RafModeshapeRepository implements Serializable {
         return size;
     }
 
+    public boolean isContentPresent(String id) {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Content Requested: {}", node.getPath());
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                return false;
+            }
+
+            Node content = node.getNode(NODE_CONTENT);
+            content.getProperty(PROP_DATA).getBinary().getStream();
+
+            session.logout();
+
+            return true;
+        } catch (RepositoryException ex) {
+            return false;
+        }
+    }
+
 }
