@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.action;
 
+import com.ozguryazilim.raf.DownloadService;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.faces.context.FacesContext;
+import javax.faces.context.FacesContextWrapper;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
@@ -33,10 +35,10 @@ public class DownloadAction extends AbstractAction {
     private static final Logger LOG = LoggerFactory.getLogger(DownloadAction.class);
 
     @Inject
-    private FacesContext facesContext;
+    private RafService rafService;
 
     @Inject
-    private RafService rafService;
+    private DownloadService downloadService;
 
     @Inject
     private CommandSender commandSender;
@@ -67,29 +69,13 @@ public class DownloadAction extends AbstractAction {
     }
 
     public void downloadFile(RafObject doc) {
-
-        //FIXME: Yetki kontrolü ve event fırlatılacak
         try {
-            //InputStream is = rafService.getDocumentContent(doc.getId());
-
-            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
-            response.setContentType(doc.getMimeType());
-
-            response.setHeader("Content-disposition", String.format("attachment;filename=\"%s\"", doc.getName()));
-            //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
-            //response.setContentLength((int) content.getProperty("jcr:data").getBinary().getSize());
-
-            try (OutputStream out = response.getOutputStream()) {
-                //IOUtils.copy(is, out);
-                rafService.getDocumentContent(doc.getId(), out );
-                out.flush();
-            }
-
-            facesContext.responseComplete();
+            downloadService.downloadFile(doc);
         } catch (RafException | IOException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);
             FacesMessages.error("File cannot downloaded");
         }
     }
+
 }

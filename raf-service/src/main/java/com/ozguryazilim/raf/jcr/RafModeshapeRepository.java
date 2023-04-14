@@ -1759,7 +1759,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void getDocumentContent(String id, OutputStream out) throws RafException {
+    public long getDocumentContent(String id, OutputStream out) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
@@ -1773,11 +1773,14 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             Node content = node.getNode(NODE_CONTENT);
+            Binary binary = content.getProperty(PROP_DATA).getBinary();
 
-            IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), out);
+            long size = binary.getSize();
+            IOUtils.copy(binary.getStream(), out);
 
             session.logout();
 
+            return size;
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
