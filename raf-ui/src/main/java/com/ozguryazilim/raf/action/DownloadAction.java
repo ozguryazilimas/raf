@@ -71,7 +71,7 @@ public class DownloadAction extends AbstractAction {
     public void downloadFile(RafObject doc) {
         try {
             downloadService.downloadFile(doc);
-        } catch (RafException | IOException ex) {
+        } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);
             FacesMessages.error("File cannot downloaded");

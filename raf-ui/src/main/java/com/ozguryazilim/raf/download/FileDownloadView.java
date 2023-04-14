@@ -42,7 +42,7 @@ public class FileDownloadView {
         try {
             RafObject doc = shareService.getDocument(token, password);
             downloadService.downloadFile(doc);
-        } catch (RafException | IOException ex) {
+        } catch (RafException ex) {
             LOG.error("file.cannot.be.downloaded", ex);
             FacesMessages.error("file.cannot.be.downloaded", ex.getMessage());
         }

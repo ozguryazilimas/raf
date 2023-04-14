@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf;
 
 import com.ozguryazilim.raf.models.RafObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
@@ -11,6 +13,7 @@ import java.io.OutputStream;
 
 @RequestScoped
 public class DownloadService {
+    private Logger LOG = LoggerFactory.getLogger(DownloadService.class);
 
     @Inject
     private RafService rafService;
@@ -18,7 +21,7 @@ public class DownloadService {
     @Inject
     private FacesContext facesContext;
 
-    public void downloadFile(RafObject doc) throws IOException, RafException {
+    public void downloadFile(RafObject doc) throws RafException {
         //FIXME: Yetki kontrolü ve event fırlatılacak
 
         HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
@@ -32,6 +35,10 @@ public class DownloadService {
         try (OutputStream out = response.getOutputStream()) {
             rafService.getDocumentContent(doc.getId(), out);
             out.flush();
+        } catch (IOException ex) {
+            LOG.error("Error while downloading file: {}", doc.getPath());
+            facesContext.responseComplete();
+            throw new RafException("Error while downloading file");
         }
 
         facesContext.responseComplete();
