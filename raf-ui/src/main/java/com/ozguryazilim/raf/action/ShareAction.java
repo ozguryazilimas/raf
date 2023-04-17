@@ -107,6 +107,7 @@ public class ShareAction extends AbstractAction {
                     .build());
             return true;
         } catch (Exception ex) {
+            LOG.error("RafShare error", ex);
             FacesMessages.error("raf.share.error", ex.getMessage());
             return false;
         }
