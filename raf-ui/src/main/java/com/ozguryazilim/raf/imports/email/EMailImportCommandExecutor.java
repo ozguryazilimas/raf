@@ -6,6 +6,8 @@ import com.ozguryazilim.raf.tag.TagSuggestionService;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommandExecuter;
 import com.ozguryazilim.telve.messagebus.command.CommandExecutor;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
+
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -24,13 +26,13 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
     private static final Logger LOG = LoggerFactory.getLogger(EMailImportCommandExecutor.class);
 
     @Inject
-    RafCategoryService categoryService;
+    private RafService rafService;
 
     @Inject
-    RafService rafService;
+    private RafCategoryService rafCategoryService;
 
     @Inject
-    TagSuggestionService tagService;
+    private TagSuggestionService tagSuggestionService;
 
     @Override
     public void execute(EMailImportCommand command) {
@@ -44,10 +46,11 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         JexlEngine jexl = new JexlBuilder().create();
         JexlScript e = jexl.createScript(command.getJexlExp());
         JexlContext jc = new MapContext();
-        RafEMailImporter importer = new RafEMailImporter(rafService, categoryService, tagService);
         jc.set("rafService", rafService);
-        jc.set("message", importer.parseEmail(command.getEml()));
-        jc.set("importer", importer);
+        jc.set("message", command.getEml());
+        jc.set("mail", RafEMailImporter.parseEmail(command.getEml()));
+        jc.set("importer", new RafEMailImporter(rafService, rafCategoryService, tagSuggestionService));
+        jc.set("command", command);
         Object o = e.execute(jc);
         LOG.debug("E-mail importer jexl result. {}", o);
         LOG.info("E-mail importer jexl command executed.");

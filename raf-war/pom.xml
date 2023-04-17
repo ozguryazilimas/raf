@@ -61,8 +61,8 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        
-        <!-- Kendi war paketi var record grubunun 
+
+        <!-- Kendi war paketi var record grubunun
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>raf-jbpm</artifactId>
