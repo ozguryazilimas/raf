@@ -13,7 +13,7 @@
 
     <t:accordion id="xdocs" icon="fa fa-files-o" label="general.label.Documents">
         <f:facet name="toolbar">
-            <p:commandLink action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', '', false, false )}"
+            <p:commandLink action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', '/RAF/', true, true )}"
                            partialSubmit="true" process="@this" rendered="#{controller.getCanAdd()}">
                 <i class="fa fa-plus-circle" />  
                 <p:ajax event="dialogReturn"  listener="#{controller.onAddDocumentSelect}" update="xdocs" partialSubmit="true" process="@this" />   
