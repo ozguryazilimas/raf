@@ -17,6 +17,7 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.share.RafShareService;
+import com.ozguryazilim.raf.ui.base.metadatapanels.ShareMetadataPanel;
 import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -85,7 +86,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private RafDefinitionService rafDefinitionService;
 
     @Inject
-    private RafShareService shareService;
+    private ShareMetadataPanel shareMetadataPanel;
 
     @Inject
     private RafContext context;
@@ -95,6 +96,12 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
     private Boolean versionManagementEnabled;
 
     private Boolean readerEnabled;
+
+    @Override
+    protected void addCustomMetadataPanel(List<AbstractMetadataPanel> list) {
+        shareMetadataPanel.setObject(getObject());
+        list.add(shareMetadataPanel);
+    }
 
     private RafDefinition getRafFromObject() {
         if (getObject() != null && !Strings.isNullOrEmpty(getObject().getPath()) && getObject().getPath().contains("/")) {
@@ -425,63 +432,6 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         } catch (RafException e) {
             LOG.error("Cannot regenerate preview", e);
         }
-    }
-
-    public boolean getHasShare(){
-        return CollectionUtils.isNotEmpty(shareService.get(getObject().getId()));
-    }
-
-    public List<RafShare> getShareObjects() {
-        return shareService.get(getObject().getId())
-                .stream()
-                .sorted(Comparator.comparing(RafShare::getStartDate).reversed())
-                .collect(Collectors.toList());
-    }
-
-    public List<RafObject> getShareGroup(RafShare rafShare) {
-        if (!Strings.isNullOrEmpty(rafShare.getShareGroup())) {
-            return shareService.getShareGroup(rafShare.getShareGroup())
-                    .stream().sorted(Comparator.comparing(RafShare::getNodeId))
-                    .map((RafShare rshare) -> {
-                        try {
-                            return rafService.getRafObject(rshare.getNodeId());
-                        } catch (RafException e) {
-                            LOG.error("Error while finding shared object with id {}", rshare.getId(), e);
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
-    }
-
-    public boolean getHasRemoveSharing(RafShare rafShare) {
-        if(rafShare != null){
-            return rafShare.getSharedBy().equals(identity.getLoginName());
-        }
-        return false;
-    }
-
-    public void removeSharing(RafShare rafShare) {
-        if(rafShare != null){
-            shareService.clear(rafShare.getToken());
-            shareService.rafShareEndAuditLog(rafShare);
-        }
-    }
-
-    public void removeGroupSharing(List<RafShare> rafShares) {
-        if(CollectionUtils.isNotEmpty(rafShares) && !Strings.isNullOrEmpty(rafShares.get(0).getShareGroup())){
-            shareService.clearShareGroup(rafShares.get(0).getShareGroup());
-        }
-        rafShares.forEach(shareService::rafShareEndAuditLog);
-    }
-
-    public String getSharingUrl(RafShare rafShare) {
-        if (rafShare != null) {
-            return UrlUtils.getDocumentShareURL(rafShare.getToken());
-        }
-        return "";
     }
 
 }

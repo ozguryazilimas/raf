@@ -24,4 +24,7 @@ public interface MetadataPanelPages extends Pages{
     
     @SecuredPage
     class BasicMetadataEditorDialog implements MetadataPanelPages {}
+
+    @SecuredPage
+    class ShareMetadataPanel implements MetadataPanelPages {}
 }

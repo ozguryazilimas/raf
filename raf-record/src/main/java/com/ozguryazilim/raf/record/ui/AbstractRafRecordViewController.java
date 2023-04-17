@@ -7,6 +7,8 @@ import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.AbstractRafObjectViewController;
 import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.raf.ui.base.PreviewPanelRegistery;
+import com.ozguryazilim.raf.ui.base.metadatapanels.ShareMetadataPanel;
+
 import java.util.List;
 import javax.inject.Inject;
 
@@ -18,7 +20,10 @@ public class AbstractRafRecordViewController extends AbstractRafObjectViewContro
     
     @Inject
     private RecordMetadataPanel recordMetadataPanel;
-    
+
+    @Inject
+    private ShareMetadataPanel shareMetadataPanel;
+
     @Override
     public String getViewId() {
         return "/fragments/recordView.xhtml";
@@ -32,7 +37,9 @@ public class AbstractRafRecordViewController extends AbstractRafObjectViewContro
     @Override
     protected void addCustomMetadataPanel(List<AbstractMetadataPanel> list) {
         recordMetadataPanel.setObject(getObject());
+        shareMetadataPanel.setObject(getObject());
         list.add(recordMetadataPanel);
+        list.add(shareMetadataPanel);
     }
     
     
