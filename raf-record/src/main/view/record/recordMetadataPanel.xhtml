@@ -17,7 +17,7 @@
             <t:outputText label="record.label.DocumentType" value="#{recordMetadataPanel.documentType}" columnClass="col-xs-12"/>
             <t:outputText label="record.label.RecordNo" value="#{recordMetadataPanel.object.recordNo}" columnClass="col-xs-12"/>
             <t:outputText label="record.label.Location" value="#{recordMetadataPanel.object.location}" columnClass="col-xs-12"/>
-            <t:outputAny label="Süreç Detayları" columnClass="col-xs-12">
+            <t:outputAny label="Süreç Detayları" columnClass="col-xs-12" rendered="#{!rafRecordViewDialog.class.isInstance(viewBean)}">
                 <h:link outcome="/bpm/processConsole.xhtml">
                     #{recordMetadataPanel.processInstanceDesc.processName} - ##{recordMetadataPanel.object.processIntanceId}<i class="fa fa-external-link"/>
                     <f:param name="tid" value="#{recordMetadataPanel.object.processIntanceId}" />
