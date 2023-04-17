@@ -9,6 +9,7 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
 import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
+import com.ozguryazilim.raf.utils.RafObjectUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -31,9 +32,6 @@ public class DownloadAction extends AbstractAction {
     private static final Logger LOG = LoggerFactory.getLogger(DownloadAction.class);
 
     @Inject
-    private RafService rafService;
-
-    @Inject
     private DownloadService downloadService;
 
     @Inject
@@ -45,6 +43,15 @@ public class DownloadAction extends AbstractAction {
     @Override
     protected void initActionModel() {
         LOG.info("File {} dowloaded", getContext().getSelectedObject().getPath());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        if (RafObjectUtils.isEmptyRecord(getContext().getSelectedObject())) {
+           return false;
+        }
+
+        return super.isEnabled();
     }
 
     @Override
