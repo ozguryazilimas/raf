@@ -117,6 +117,7 @@ public class RafModeshapeRepository implements Serializable {
     private static final String MIXIN_METADATA = "raf:metadata";
 
     private static final String PROP_TITLE = "jcr:title";
+    private static final String PROP_NAME = "jcr:name";
     private static final String PROP_DESCRIPTON = "jcr:description";
     private static final String PROP_CATEGORY = "raf:category";
     private static final String PROP_CATEGORY_PATH = "raf:categoryPath";
@@ -414,6 +415,9 @@ public class RafModeshapeRepository implements Serializable {
 
             //Root'u ekleyecek miyiz? Aslında bu bir RafNode ama aynı zamanda bir folder.
             //RootNode'un parentId'sini saklıyoruz. Ayrıca # ile UI tarafında ağaç da düzgün olacak.
+            if (!node.isNodeType("nt:folder")) {
+                return null;
+            }
             RafFolder f = nodeToRafFolder(node);
             f.setParentId("#");
 
@@ -545,6 +549,10 @@ public class RafModeshapeRepository implements Serializable {
                 String sortQuery;
 
                 switch (sortBy) {
+                    case NAME: {
+                        sortQuery = String.format("nodes.[%s]", PROP_NAME);
+                        break;
+                    }
                     case DATE_ASC: {
                         descSort = false;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
@@ -575,6 +583,10 @@ public class RafModeshapeRepository implements Serializable {
                     }
                     case SIZE: {
                         sortQuery = "LENGTH(nodes.[jcr:content/jcr:data])";
+                        break;
+                    }
+                    case TITLE: {
+                        sortQuery = String.format("nodes.[%s]", PROP_TITLE);
                         break;
                     }
                     default: {

@@ -16,15 +16,25 @@ import com.ozguryazilim.raf.models.email.EMailMessage;
 import com.ozguryazilim.raf.models.email.MeetingFile;
 import com.ozguryazilim.raf.tag.TagSuggestionService;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
@@ -40,9 +50,7 @@ public class RafEMailImporter implements Serializable {
     private RafCategoryService rafCategoryService;
     private TagSuggestionService tagSuggestionService;
 
-    RafEncoder re;
-
-    private static final Logger LOG = LoggerFactory.getLogger(RafEMailImporter.class);
+    private RafEncoder re;
 
     public RafEMailImporter(RafService rafService, RafCategoryService rafCategoryService, TagSuggestionService tagSuggestionService) {
         this.rafService = rafService;
@@ -53,23 +61,7 @@ public class RafEMailImporter implements Serializable {
         }
     }
 
-    private boolean checkRafFolder(String folder) {
-        try {
-            return rafService.getFolder(folder) != null;
-        } catch (RafException ex) {
-            return false;
-        }
-    }
-
-    public boolean isFileExistsInRAF(String rafPath) {
-        try {
-            RafObject rafObject = rafService.getRafObjectByPath(rafPath);
-            return rafObject != null;
-        } catch (RafException ex) {
-            LOG.error("Raf exception", ex.getMessage());
-        }
-        return false;
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(RafEMailImporter.class);
 
     public void debug(String s) {
         LOG.debug(s);
@@ -91,12 +83,24 @@ public class RafEMailImporter implements Serializable {
         return re.encode(path);
     }
 
-    public EMailMessage parseEmail(String eml) {
+    public static EMailMessage parseEmail(String eml) {
         try {
             EMailParser parser = new EMailParser();
             EMailMessage message = parser.parse(eml);
             return message;
         } catch (MessagingException | IOException ex) {
+            LOG.error("Mail Import Error", ex);
+            return null;
+        }
+    }
+
+    public static EMailMessage parseEmail(Message mail) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            mail.writeTo(out);
+            String eml = out.toString();
+            return parseEmail(eml);
+        } catch (IOException | MessagingException ex) {
             LOG.error("Mail Import Error", ex);
             return null;
         }
@@ -179,7 +183,7 @@ public class RafEMailImporter implements Serializable {
         try {
             rafAttachmentFolder = encodeFilePath(rafAttachmentFolder);
             if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
-                if (!checkRafFolder(rafAttachmentFolder)) {
+                if (!rafService.checkRafFolder(rafAttachmentFolder)) {
                     rafService.createFolder(rafAttachmentFolder);
                 }
                 for (EMailAttacment attachment : message.getAttachments()) {
@@ -200,22 +204,29 @@ public class RafEMailImporter implements Serializable {
         }
     }
 
-    public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName, String tags) {
-        return uploadEmailRecord(message, temporaryFolderPath, rafEmailFolder, fileName, tags, false);
+    public RafRecord uploadEmailRecord(Message message, EMailImportCommand command, String fileName, String tags) {
+        return uploadEmailRecord(message, command, fileName, tags, false);
     }
 
-    public RafRecord uploadEmailRecord(EMailMessage message, String temporaryFolderPath, String rafEmailFolder, String fileName, String tags, boolean sendFavoriteEmail) {
+    public RafRecord uploadEmailRecord(Message email, EMailImportCommand command, String fileName, String tags, boolean sendFavoriteEmail) {
+        String temporaryFolderPath = command.getTempPath();
+        String rafEmailFolder = command.getRafPath();
+        EMailMessage message = parseEmail(email);
         RafRecord record = null;
+
         try {
             temporaryFolderPath = encodeFilePath(temporaryFolderPath);
             String emailFilePath = encodeFilePath(temporaryFolderPath.concat("/").concat(fileName.replace("/", "_")));
             String emailRecordPath = encodeFilePath(rafEmailFolder);
-            if (!checkRafFolder(temporaryFolderPath)) {
-                rafService.createFolder(temporaryFolderPath);
+
+            if (!rafService.checkRafFolder(temporaryFolderPath)) {
+                LOG.info("Email could not imported. Temporary email path not exists: {}", temporaryFolderPath);
             }
-            if (!checkRafFolder(emailRecordPath)) {
-                rafService.createFolder(emailRecordPath);
+
+            if (!rafService.checkRafFolder(emailRecordPath)) {
+                LOG.info("Email could not imported. Email record path not exists: {}", rafEmailFolder);
             }
+
             RafDocument emailDoc = uploadEmail(message, emailFilePath, sendFavoriteEmail);
             if (emailDoc != null) {
                 record = moveToRecord(message, emailDoc, emailRecordPath);
@@ -234,10 +245,65 @@ public class RafEMailImporter implements Serializable {
                         rafService.saveProperties(record);
                     }
                 }
+
+                if (rafService.isRafObjectAvailable(record.getId())) {
+                    postUploadAction(command, command.getFetchCommand(), email);
+                }
             }
-        } catch (RafException ex) {
+
+        } catch (RafException | MessagingException ex) {
             LOG.error("Raf Exception", ex);
         }
         return record;
     }
+
+    public void postUploadAction(EMailImportCommand command, EMailFetchCommand fetchCommand, Message message) throws MessagingException {
+        EMailFetchCommandExecutor fetchCommandExecutor = new EMailFetchCommandExecutor();
+
+        String host = fetchCommand.getHost();
+        String user = fetchCommand.getUser();
+        String pass = fetchCommand.getPass();
+        int port = fetchCommand.getPort();
+        Store store = fetchCommandExecutor.getSession(fetchCommand).getStore(fetchCommand.getProtocol() + "s");
+        store.connect(host, port, user, pass);
+
+        switch (command.getPostImportCommand()) {
+            case ARCHIVE:
+                String folder = fetchCommand.getFolder();
+
+                String archiveFolderName = fetchCommand.getArchiveFolder();
+                if ("imap".equals(fetchCommand.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
+                    Folder archiveFolder = store.getFolder(archiveFolderName);
+                    Folder emailFolder = store.getFolder(folder);
+                    if (archiveFolder.exists() && emailFolder.exists()) {
+                        archiveFolder.open(Folder.READ_WRITE);
+                        emailFolder.open(Folder.READ_WRITE);
+
+                        if (emailFolder.isOpen() && archiveFolder.isOpen()) {
+                            emailFolder.copyMessages(new Message[]{message}, archiveFolder);
+                            message.setFlag(Flags.Flag.DELETED, true);
+
+                            archiveFolder.close(false);
+                            emailFolder.close(true);
+                        }
+                    }
+                }
+                break;
+            case DELETE:
+                Folder emailFolder = store.getFolder(fetchCommand.getFolder());
+                if (emailFolder.exists()) {
+                    emailFolder.open(Folder.READ_WRITE);
+                    if (emailFolder.isOpen()) {
+                        message.setFlag(Flags.Flag.DELETED, true);
+                        emailFolder.close(true);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        store.close();
+    }
+
 }

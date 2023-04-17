@@ -287,6 +287,14 @@ public class RafService implements Serializable {
         return result;
     }
 
+    public boolean isRafObjectAvailable(String id) {
+        try {
+            return rafRepository.getRafObject(id) != null;
+        } catch (RafException e) {
+            return false;
+        }
+    }
+
     public RafObject getRafObjectByPath(String path) throws RafException {
         //FIXME: yetki kontrolü gerekli.
         //FIXME: event fırlatalım ki log yazılabilsin v.b.
@@ -655,6 +663,15 @@ public class RafService implements Serializable {
         zipOut.flush();
         fis.close();
     }
+
+    public boolean checkRafFolder(String folder) {
+        try {
+            return getFolder(folder) != null;
+        } catch (RafException ex) {
+            return false;
+        }
+    }
+
     public boolean isBpmnSystemEnabled() {
         return bpmnSystemEnabled;
     }

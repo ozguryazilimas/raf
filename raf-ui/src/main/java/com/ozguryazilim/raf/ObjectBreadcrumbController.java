@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import com.ozguryazilim.raf.utils.RafObjectUtils;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
@@ -19,11 +21,14 @@ public class ObjectBreadcrumbController implements Serializable {
     @Inject
     private RafContext context;
 
+    @Inject
+    private RafService rafService;
+
     private List<RafFolder> items;
     
     private RafFolder parentFolder;
     private RafFolder currentFolder;
-    
+
     /**
      * Geriye breadcrumb için kullanılacak folder listesini döndürür.
      *
@@ -45,6 +50,15 @@ public class ObjectBreadcrumbController implements Serializable {
                     //Eğer içi boşsa yani ilk "/" ise pass geçelim. Yoksa //RAF/AAA gibi şeyler oluyor.
                     if( Strings.isNullOrEmpty(s)) continue;
                     p = p + "/" + s;
+
+                    try {
+                        if (RafObjectUtils.isRootPath(p)) {
+                            continue;
+                        }
+                    } catch (RafException e) {
+                        continue;
+                    }
+
                     RafFolder f = findFolder(p);
                     if (f != null) {
                         items.add(f);
@@ -78,7 +92,7 @@ public class ObjectBreadcrumbController implements Serializable {
      * Context'e bulunan RafFolder içinden pathi verilen folder'ı bulur. Bulamaz
      * ise null döner.
      *
-     * @param name
+     * @param path
      * @return
      */
     private RafFolder findFolder(String path) {
@@ -89,6 +103,11 @@ public class ObjectBreadcrumbController implements Serializable {
             }
         }
 
-        return null;
+        try {
+            return rafService.getFolder(path);
+        } catch (RafException e) {
+            return null;
+        }
     }
+
 }
