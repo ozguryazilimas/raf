@@ -267,7 +267,10 @@
                                             <p:commandButton id="aabort" value="#{messages['process.button.Abort']}" 
                                                              icon="fa fa-trash" action="#{processConsoleController.abortProcess()}" styleClass="btn btn-danger"
                                                              update="processConsole"
-                                                             rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"/>
+                                                             rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"
+                                            >
+                                                <p:confirm header="#{messages['general.caption.Confirm']}" message="#{messages['general.message.confirm.Abort']}" icon="ui-icon-alert" />
+                                            </p:commandButton>
                                             <ui:remove>
                                                 <p:repeat value="#{taskController.taskActions}" var="act">
                                                     <p:commandButton id="a#{act.action}" value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" styleClass="#{act.style}"
