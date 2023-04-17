@@ -139,6 +139,16 @@ public class StartRecordDialog implements Serializable, FormController, Document
         RequestContext.getCurrentInstance().closeDialog(taskId);
     }
 
+    @Override
+    public Boolean getCanRemove() {
+        return true;
+    }
+
+    @Override
+    public void removeDocument(RafObject object) {
+        getRafObjects().remove(object);
+    }
+
     public void cancelDialog() {
         RequestContext.getCurrentInstance().closeDialog(null);
     }

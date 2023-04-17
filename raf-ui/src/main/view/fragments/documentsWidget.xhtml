@@ -61,6 +61,11 @@
                         </ui:fragment>                      
                     </td>
                     <td>#{ro.info}</td>
+                    <td>
+                        <p:commandLink action="#{controller.removeDocument(ro)}" process="@this" rendered="#{controller.getCanRemove()}" update="pf:xdocs" partialSubmit="true">
+                            <i class="fa fa-remove" />
+                        </p:commandLink>
+                    </td>
                 </tr>
                 <ui:fragment rendered="#{ro.class.simpleName eq 'RafRecord'}">
                     <p:repeat value="#{ro.documents}" var="doc" >
