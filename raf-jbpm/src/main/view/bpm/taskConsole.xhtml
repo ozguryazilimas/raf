@@ -165,13 +165,30 @@
                                 </div>
                                 <div class="box-footer">
 
+                                    <ui:remove> FIXME: i18n </ui:remove>
+                                    <p:dialog header="Tarihçe" id="taskHistoryDialog" widgetVar="taskHistoryDialog" width="640" height="480" modal="true">
+                                        <ui:include src="components/historyPanel.xhtml" />
+                                    </p:dialog>
 
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
+
+                                        <ui:remove> FIXME: i18n </ui:remove>
                                         <h:link outcome="/bpm/processConsole.xhtml" styleClass="btn btn-warning pull-left">
                                             <f:param name="tid" value="#{taskController.selectedTask.taskData.processInstanceId}" />
                                             <i class="fa fa-external-link" />
                                             Süreç Detayları
                                         </h:link>
+                                        <p:commandButton value="Tarihçe"
+                                                         icon="fa fa-history"
+                                                         styleClass="btn btn-warning pull-left"
+                                                         style="margin-left: 5px; margin-right: 5px; padding: 4px 3px !important;"
+                                                         update="taskHistoryDialog"
+                                                         action="#{processConsoleController.selectProcess(taskController.selectedTask.taskData.processInstanceId)}"
+                                                         ajax="true"
+                                                         process="@this"
+                                                         oncomplete="PF('taskHistoryDialog').show();">
+                                        </p:commandButton>
+
                                         <ui:fragment rendered="#{taskController.selectedTask.taskData.status ne 'Completed'}">
                                             <p:repeat value="#{taskController.taskActions}" var="act">
                                                 <ui:remove>id="a#{act.action}" </ui:remove>
@@ -189,8 +206,6 @@
             </div>
         </h:panelGroup>
     </ui:define>
-
-
 
 </ui:composition>
 
