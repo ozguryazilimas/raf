@@ -437,6 +437,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     public boolean isSelected(RafObject object) {
+        if (SELECT_TYPE_DOCUMENT.equals(getSelectionType())) {
+            return object != null && object.equals(selected);
+        }
         return false;
     }
 
