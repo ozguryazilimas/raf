@@ -13,6 +13,7 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.record.model.RafRecordType;
 import com.ozguryazilim.raf.ui.base.DocumentsWidgetController;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,4 +202,21 @@ public class StartRecordDialog implements Serializable, FormController, Document
         return selectedRafItems;
     }
 
+    @Override
+    public Boolean getCanAdd() {
+        return true;
+    }
+
+    @Override
+    public void onAddDocumentSelect(SelectEvent event) {
+        LookupSelectTuple sl = (LookupSelectTuple) event.getObject();
+        if (sl == null) {
+            return;
+        }
+
+        if (sl.getValue() instanceof RafObject) {
+            RafObject doc = (RafObject) sl.getValue();
+            selectedRafItems.add(doc);
+        }
+    }
 }
