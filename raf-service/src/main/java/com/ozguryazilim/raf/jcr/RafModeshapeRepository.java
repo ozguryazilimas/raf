@@ -1771,7 +1771,7 @@ public class RafModeshapeRepository implements Serializable {
         }
     }
 
-    public void getDocumentContent(String id, OutputStream out) throws RafException {
+    public long getDocumentContent(String id, OutputStream out) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             Node node = session.getNodeByIdentifier(id);
@@ -1785,11 +1785,14 @@ public class RafModeshapeRepository implements Serializable {
             }
 
             Node content = node.getNode(NODE_CONTENT);
+            Binary binary = content.getProperty(PROP_DATA).getBinary();
 
-            IOUtils.copy(content.getProperty(PROP_DATA).getBinary().getStream(), out);
+            long size = binary.getSize();
+            IOUtils.copy(binary.getStream(), out);
 
             session.logout();
 
+            return size;
         } catch (RepositoryException | IOException ex) {
             LOG.error("RAfException", ex);
             throw new RafException("[RAF-0024] Raf Node content cannot found", ex);
@@ -3346,6 +3349,28 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         return size;
+    }
+
+    public boolean isContentPresent(String id) {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            Node node = session.getNodeByIdentifier(id);
+
+            LOG.debug("Document Content Requested: {}", node.getPath());
+
+            if (!node.hasNode(NODE_CONTENT)) {
+                return false;
+            }
+
+            Node content = node.getNode(NODE_CONTENT);
+            content.getProperty(PROP_DATA).getBinary().getStream();
+
+            session.logout();
+
+            return true;
+        } catch (RepositoryException ex) {
+            return false;
+        }
     }
 
 }

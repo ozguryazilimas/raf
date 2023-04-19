@@ -15,6 +15,7 @@ import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +137,7 @@ public class MultipleShareAction extends AbstractAction {
 
                     commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
                         .eventType("ShareDocument")
-                        .forRafObject(getContext().getSelectedObject())
+                        .forRafObject(getSelectedItemByName((String) filename))
                         .message("event.ShareDocument$%&" + identity.getUserName() + "$%&" + filename)
                         .user(identity.getLoginName())
                         .build());
@@ -145,13 +146,23 @@ public class MultipleShareAction extends AbstractAction {
 
 
             rafShareList.clear();
-            emails.clear();
+
+            if (CollectionUtils.isNotEmpty(emails)) {
+                emails.clear();
+            }
 
             return true;
         } catch (Exception ex) {
+            LOG.error("RafMultipleShare error", ex);
             FacesMessages.error("raf.share.error", ex.getMessage());
             return false;
         }
+    }
+
+    private RafObject getSelectedItemByName(String filename) {
+        return getContext().getSeletedItems().stream()
+                .filter(object -> object.getName().equals(filename))
+                .findAny().orElse(null);
     }
 
     public List<String> suggestIsEmail(String email) {

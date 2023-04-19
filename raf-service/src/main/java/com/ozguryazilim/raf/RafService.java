@@ -9,7 +9,6 @@ import com.ozguryazilim.raf.enums.EmailNotificationActionType;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommand;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
-import com.ozguryazilim.raf.jcr.ModeShapeRepositoryFactory;
 import com.ozguryazilim.raf.jcr.RafModeshapeRepository;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafDocument;
@@ -33,20 +32,17 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -342,11 +338,11 @@ public class RafService implements Serializable {
         return rafRepository.getDocumentContent(id);
     }
 
-    public void getDocumentContent(String id, OutputStream out) throws RafException {
+    public long getDocumentContent(String id, OutputStream out) throws RafException {
         if (isReadLogEnabled()) {
             sendAuditLog(id, "READ_DOCUMENT_CONTENT", "");
         }
-        rafRepository.getDocumentContent(id, out);
+        return rafRepository.getDocumentContent(id, out);
     }
 
     public InputStream getPreviewContent(String id) throws RafException {
@@ -700,6 +696,10 @@ public class RafService implements Serializable {
         }
 
         return size;
+    }
+
+    public boolean isContentPresent(RafObject rafObject) {
+        return rafRepository.isContentPresent(rafObject.getId());
     }
 
 }
