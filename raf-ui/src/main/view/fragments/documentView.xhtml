@@ -17,6 +17,8 @@
         </ui:include>
     </ui:fragment>
 
+    <ui:param name="renderReaderPageWithState" value="#{readerPageWithState ne null ? readerPageWithState : true}" />
+
     <div id="raf-obj-preview-container" class="raf-file">
 
 
@@ -91,12 +93,20 @@
             <ui:fragment rendered="#{viewBean.isHaveReaderPage()}">
                 <div class="row">
                     <div class="col-xs-12">
-                        <h:link styleClass="btn" outcome="#{viewBean.readerPage}" includeViewParams="true"
-                                title="#{messages['action.title.Read']}">
-                            <i class="fa fa-window-maximize"></i>
-                            <f:param name="id" value="#{viewBean.object.id}"/>
-                            #{messages['action.title.Read']}
-                        </h:link>
+                        <ui:fragment rendered="#{!renderReaderPageWithState}">
+                            <h:link styleClass="btn" outcome="#{viewBean.readerPage}" includeViewParams="true"
+                                    title="#{messages['action.title.Read']}">
+                                <i class="fa fa-window-maximize"></i>
+                                <f:param name="id" value="#{viewBean.object.id}"/>
+                                #{messages['action.title.Read']}
+                            </h:link>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{renderReaderPageWithState}">
+                            <p:commandLink styleClass="btn" action="#{viewBean.setReaderPageState(true)}" process="@this" ajax="true" update="raf-view-content" title="#{messages['action.title.Read']}">
+                                <i class="fa fa-window-maximize"></i>
+                                #{messages['action.title.Read']}
+                            </p:commandLink>
+                        </ui:fragment>
                     </div>
                 </div>
             </ui:fragment>

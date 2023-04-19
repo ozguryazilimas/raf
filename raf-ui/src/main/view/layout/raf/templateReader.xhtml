@@ -9,7 +9,8 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 <f:view locale="#{localeSelector.locale}">
 
-    <ui:param name="viewBean" value="#{rafController.selectDocumentByIdAndReturnContent(id)}" />
+    <ui:param name="viewBean" value="#{viewBean ne null ? viewBean : rafController.selectDocumentByIdAndReturnContent(id)}" />
+    <ui:param name="isContentOnly" value="#{contentOnly ne null ? contentOnly : false}" />
     <ui:insert name="metadata"/>
 
     <h:head>
@@ -73,16 +74,19 @@
     </h:head>
 
     <h:body styleClass="#{skinSelector.skin}  layout-top-nav fixed">
-        <ds:windowId/>
-        <h:form>
-            <ui:fragment rendered="#{'true' eq telveConfigResolver.getProperty('app.stayLoggedIn')}">
-                <p:poll interval="600" update="notifyCount" global="false"/>
-            </ui:fragment>
-            <p:remoteCommand name="updateNotifies" update="notifyCount"/>
-        </h:form>
-
+        <c:if test="#{!isContentOnly}">
+            <ds:windowId/>
+            <h:form>
+                <ui:fragment rendered="#{'true' eq telveConfigResolver.getProperty('app.stayLoggedIn')}">
+                    <p:poll interval="600" update="notifyCount" global="false"/>
+                </ui:fragment>
+                <p:remoteCommand name="updateNotifies" update="notifyCount"/>
+            </h:form>
+        </c:if>
         <div class="wrapper">
-            <ui:include src="#{themeManager.templateMainBar}"/>
+            <c:if test="#{!isContentOnly}">
+                <ui:include src="#{themeManager.templateMainBar}"/>
+            </c:if>
             <div class="content-wrapper" style="margin-left: 0px; padding-top: 40px;">
                 <section class="content" style="padding:0px;">
                     <ui:insert name="details"/>
@@ -102,9 +106,16 @@
                         </div>
                     </p:sidebar>
                     <div class="viewer-close-bar">
-                        <a class="detail" href="#{rafController.getFilePermalink(rafContext.selectedRaf.code, viewBean.object.id)}">
-                            <i class="fa fa-close fa-2x"></i>
-                        </a>
+                        <ui:fragment rendered="#{!isContentOnly}">
+                            <a class="detail" href="#{rafController.getFilePermalink(rafContext.selectedRaf.code, viewBean.object.id)}">
+                                <i class="fa fa-close fa-2x"></i>
+                            </a>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{isContentOnly}">
+                            <p:commandLink styleClass="detail" action="#{viewBean.setReaderPageState(false)}" process="@this" ajax="true" update="raf-view-content">
+                                <i class="fa fa-close fa-2x"></i>
+                            </p:commandLink>
+                        </ui:fragment>
                     </div>
                 </section>
             </div>
