@@ -86,6 +86,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private boolean showPrivateAndSharedRafs = Boolean.FALSE;
     private boolean getAvailableDirectoriesByIdentity = Boolean.FALSE;
 
+    private String titleMessage;
+    private String pathLabelMessage;
+
     public int getPage() {
         return page;
     }
@@ -163,6 +166,10 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         pagingLimit = false;
     }
 
+    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity) {
+        openDialog(profile, listener, subPath, showPrivateAndShared, getAvailableDirectoriesByIdentity, null, null);
+    }
+
     /**
      * İlgili sınıfa ait dialogu açar
      *
@@ -170,13 +177,15 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      * @param listener sonuçlar nereye gidecek?
      * @param subPath mevcut veri. Ağaç tipi sınıflarda seçim için
      */
-    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity) {
+    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity, String titleMessage, String pathLabelMessage) {
         resetFolderContextVariables();
 
         this.profile = profile;
         this.listener = listener;
         this.showPrivateAndSharedRafs = showPrivateAndShared;
         this.getAvailableDirectoriesByIdentity = getAvailableDirectoriesByIdentity;
+        this.titleMessage = titleMessage;
+        this.pathLabelMessage = pathLabelMessage;
 
         parseProfile();
         initProfile();
@@ -673,5 +682,13 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     public void setPagingLimit(boolean pagingLimit) {
         this.pagingLimit = pagingLimit;
+    }
+
+    public String getTitleMessage() {
+        return titleMessage;
+    }
+
+    public String getPathLabelMessage() {
+        return pathLabelMessage;
     }
 }

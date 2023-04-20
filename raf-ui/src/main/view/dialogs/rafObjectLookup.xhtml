@@ -6,7 +6,8 @@
                 xmlns:xlink="http://www.w3.org/1999/xlink"
                 template="/layout/dialogBase.xhtml">
 
-    <ui:param name="title" value="#{messages['raf.lookup.main.title']}"/>
+    <ui:param name="title" value="#{rafObjectLookup.titleMessage ne null ? messages[rafObjectLookup.titleMessage] : messages['raf.lookup.main.title']}"/>
+    <ui:param name="pathLabel" value="#{rafObjectLookup.pathLabelMessage ne null ? messages[rafObjectLookup.pathLabelMessage] : messages['raf.lookup.label.selectedPath']}"/>
 
     <ui:define name="form">
 
@@ -32,7 +33,7 @@
                         </p:dialog>
 
                         <p:commandLink action="#{rafObjectLookup.goUpFolder()}"
-                                       title="#{messages['raf.lookup.folder.title']}"
+                                       title="#{title}"
                                        process="@this" update="raf-view"
                                        styleClass="btn btn-default pull-right"
                                        style="padding-top: 4px; padding-bottom: 4px; margin-bottom: 4px;"
@@ -204,7 +205,7 @@
                             });
 
                         </script>
-                        <t:inputText label="#{messages['raf.lookup.label.selectedPath']}" value="#{rafObjectLookup.selected.path}" columnClass="pr-0 pl-0" readonly="true"/>
+                        <t:inputText label="#{pathLabel}" value="#{rafObjectLookup.selected.path}" columnClass="pr-0 pl-0" readonly="true"/>
                     </h:panelGroup>
                 </div>
             </h:panelGroup>
