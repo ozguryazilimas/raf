@@ -70,7 +70,7 @@
             </h:panelGroup>
         </div>
 
-        <h:panelGroup id="raf-view-content" styleClass="row" layout="block">
+        <h:panelGroup id="raf-view-content" styleClass="row" layout="block" style="overflow-y: scroll;">
             <ui:include src="#{rafDocumentViewDialog.viewId}" >
                 <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
                 <ui:param name="breadcrumbHide" value="true" />
