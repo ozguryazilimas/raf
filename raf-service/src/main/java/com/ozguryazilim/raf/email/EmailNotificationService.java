@@ -76,18 +76,21 @@ public class EmailNotificationService implements Serializable {
      */
     public void sendEmailToFavorites(RafObject object, EmailNotificationActionType actionType) {
         List<UserInfo> consumers = findConsumersWhoAddedFavorites(object.getPath());
-        String link = appLinkDomain + "raf.jsf" + "?id=" + "&o=" + object.getId();
-        String objectName = object.getName();
-        String objectType = object.getClass().getSimpleName();
-        LOG.debug("Sending email to Consumers:{} for the ObjectName:{} ActionType:{} ", consumers, objectName, actionType);
+            if (!consumers.isEmpty()) {
 
-        //If SecurityManager is not present (and UserInfo is null), it's a system message
-        if (Objects.isNull(identity.getUserInfo())) {
-            sendSystemMessage(consumers, link, objectName, objectType, actionType);
-        } else {
-            String name = Strings.capitalize(identity.getUserInfo().getFirstName());
-            String surname = Strings.capitalize(identity.getUserInfo().getLastName());
-            sendMessage(consumers, name, surname, link, objectName, objectType, actionType);
+            String link = appLinkDomain + "raf.jsf" + "?id=" + "&o=" + object.getId();
+            String objectName = object.getName();
+            String objectType = object.getClass().getSimpleName();
+            LOG.debug("Sending email to Consumers:{} for the ObjectName:{} ActionType:{} ", consumers, objectName, actionType);
+
+            //If SecurityManager is not present (and UserInfo is null), it's a system message
+            if (Objects.isNull(identity.getUserInfo())) {
+                sendSystemMessage(consumers, link, objectName, objectType, actionType);
+            } else {
+                String name = Strings.capitalize(identity.getUserInfo().getFirstName());
+                String surname = Strings.capitalize(identity.getUserInfo().getLastName());
+                sendMessage(consumers, name, surname, link, objectName, objectType, actionType);
+            }
         }
     }
 
@@ -165,8 +168,7 @@ public class EmailNotificationService implements Serializable {
                         EmailNotificationType.DEFAULT.name()).getAsEnum(EmailNotificationType.class);
                 if (notificationType.equals(EmailNotificationType.ONLY_FAVORITE) || (notificationType.equals(EmailNotificationType.DEFAULT) && defaultNotificationType.equals(EmailNotificationType.ONLY_FAVORITE))) {
                     UserInfo userInfo = userService.getUserInfo(u.getUsername());
-                    if (users.stream().noneMatch(user -> user.getEmail().equals(userInfo.getEmail()))
-                            && userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()) {
+                    if (isUserActiveAndValidEmailAddress(users, userInfo)) {
                         users.add(userInfo);
                     }
                 }
@@ -178,6 +180,19 @@ public class EmailNotificationService implements Serializable {
             }
         }
         return users;
+    }
+
+    /**
+     * Is user in users list has valid email address and is active
+     * @param users Current users list
+     * @param userInfo relevant user
+     * @return True if user is active and has valid email address
+     */
+    private boolean isUserActiveAndValidEmailAddress(List<UserInfo> users, UserInfo userInfo) {
+        return Boolean.TRUE.equals(userInfo.getActive()) &&
+                users.stream().noneMatch(user -> user.getEmail().equals(userInfo.getEmail())) &&
+                userInfo.getEmail() != null &&
+                !userInfo.getEmail().isEmpty();
     }
 
     /**
