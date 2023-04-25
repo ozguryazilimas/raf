@@ -87,7 +87,7 @@
             <c:if test="#{!isContentOnly}">
                 <ui:include src="#{themeManager.templateMainBar}"/>
             </c:if>
-            <div class="content-wrapper" style="margin-left: 0px; padding-top: 40px;">
+            <h:panelGroup class="content-wrapper" layout="block" style="#{!isContentOnly ? 'margin-left: 0px; padding-top: 40px;' : 'margin-left: 0px;'}">
                 <section class="content" style="padding:0px;">
                     <ui:insert name="details"/>
                     <div class="icon-bar">
@@ -112,13 +112,15 @@
                             </a>
                         </ui:fragment>
                         <ui:fragment rendered="#{isContentOnly}">
-                            <p:commandLink styleClass="detail" action="#{viewBean.setReaderPageState(false)}" process="@this" ajax="true" update="raf-view-content">
-                                <i class="fa fa-close fa-2x"></i>
-                            </p:commandLink>
+                            <h:form>
+                                <p:commandLink styleClass="detail" action="#{viewBean.setReaderPageState(false)}" process="@this" ajax="true" update="raf-view-content" >
+                                    <i class="fa fa-close fa-2x"></i>
+                                </p:commandLink>
+                            </h:form>
                         </ui:fragment>
                     </div>
                 </section>
-            </div>
+            </h:panelGroup>
         </div>
 
         <script type="text/javascript">

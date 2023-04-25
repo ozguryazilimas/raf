@@ -43,6 +43,7 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
      */
     public void cancelDialog() {
         RequestContext.getCurrentInstance().closeDialog(null);
+        setReaderPageState(false);
     }
 
     public boolean getSupportBreadcrumb() {
@@ -53,7 +54,7 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
         return readerPageState;
     }
 
-    public void setReaderPageState(boolean readerPageState) {
-        this.readerPageState = readerPageState;
+    public void setReaderPageState(boolean val) {
+        this.readerPageState = val;
     }
 }

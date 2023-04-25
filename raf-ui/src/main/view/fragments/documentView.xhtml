@@ -17,7 +17,7 @@
         </ui:include>
     </ui:fragment>
 
-    <ui:param name="renderReaderPageWithState" value="#{readerPageWithState ne null ? readerPageWithState : true}" />
+    <ui:param name="isContentOnly" value="#{contentOnly ne null ? contentOnly : false}" />
 
     <div id="raf-obj-preview-container" class="raf-file">
 
@@ -93,7 +93,7 @@
             <ui:fragment rendered="#{viewBean.isHaveReaderPage()}">
                 <div class="row">
                     <div class="col-xs-12">
-                        <ui:fragment rendered="#{!renderReaderPageWithState}">
+                        <ui:fragment rendered="#{!isContentOnly}">
                             <h:link styleClass="btn" outcome="#{viewBean.readerPage}" includeViewParams="true"
                                     title="#{messages['action.title.Read']}">
                                 <i class="fa fa-window-maximize"></i>
@@ -101,7 +101,7 @@
                                 #{messages['action.title.Read']}
                             </h:link>
                         </ui:fragment>
-                        <ui:fragment rendered="#{renderReaderPageWithState}">
+                        <ui:fragment rendered="#{isContentOnly}">
                             <p:commandLink styleClass="btn" action="#{viewBean.setReaderPageState(true)}" process="@this" ajax="true" update="raf-view-content" title="#{messages['action.title.Read']}">
                                 <i class="fa fa-window-maximize"></i>
                                 #{messages['action.title.Read']}
