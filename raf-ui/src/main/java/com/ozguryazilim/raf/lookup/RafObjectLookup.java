@@ -16,7 +16,6 @@ import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.models.RafCollection;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
-import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
@@ -65,9 +64,6 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     @Inject
     private Identity identity;
-
-    @Inject
-    private RafPathMemberService rafPathMemberService;
 
     @Inject
     private RafDefinitionService rafDefinitionService;
@@ -371,7 +367,13 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
             //LOG.debug("Populated Folders : {}", folders);
             clear();
-            setCollection(rafService.getCollectionPaged(getSelected().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
+            RafCollection collection = rafService.getCollectionPaged(getSelected().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
+
+            if (this.getAvailableDirectoriesByIdentity) {
+                collection.setItems(getFilteredAvailableItems(collection.getItems()));
+            }
+
+            setCollection(collection);
         } catch (RafException ex) {
             LOG.error("Raf Folders cannot populate", ex);
         }
@@ -440,7 +442,11 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         try {
             if (object instanceof RafFolder) {
                 clear();
-                setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
+                RafCollection rafCollection = rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
+                if (this.getAvailableDirectoriesByIdentity) {
+                    rafCollection.setItems(getFilteredAvailableItems(rafCollection.getItems()));
+                }
+                setCollection(rafCollection);
                 if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
                     selected = object;
                 }
@@ -496,7 +502,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
                 RafCollection rafCollection = rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
 
                 if (this.getAvailableDirectoriesByIdentity) {
-                    rafCollection.setItems(getFilteredAvailableItems(getCollection().getItems()));
+                    rafCollection.setItems(getFilteredAvailableItems(rafCollection.getItems()));
                 }
 
                 setCollection(rafCollection);
@@ -574,17 +580,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
             if (isPrivateRaf || isSharedRaf) {
                 filteredList.add(rafObject);
             }
-            else if (isRaf) {
+            else if (isRaf || isRafPath) {
                 String rafCode = rafObject.getPath().split("/")[2];
                 boolean definition = rafDefinitions.stream()
                         .anyMatch(rafDefinition -> Objects.equals(rafDefinition.getCode(), rafCode));
 
                 if (definition) {
-                    filteredList.add(rafObject);
-                }
-            }
-            else if (isRafPath) {
-                if (rafPathMemberService.hasMemberInPath(identity.getLoginName(), rafObject.getPath())) {
                     filteredList.add(rafObject);
                 }
             }
