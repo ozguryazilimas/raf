@@ -18,6 +18,7 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
@@ -50,6 +51,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     private static final String SELECT_TYPE_DOCUMENT = "Document";
     private static final String SELECT_TYPE_FOLDER = "Folder";
+
+    private static List<String> bannedSelections = new ArrayList<String>() {{
+        add("");
+        add("/RAF");
+        add("/");
+    }};
 
     @Inject
     @UserAware
@@ -691,4 +698,17 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     public String getPathLabelMessage() {
         return pathLabelMessage;
     }
+
+    public boolean isSelectable() {
+        switch (getSelectionType()) {
+            case SELECT_TYPE_DOCUMENT:
+            case SELECT_TYPE_FOLDER:
+                return bannedSelections.stream()
+                        .noneMatch(bannedPath -> RafPathUtils.isPathsEqual(bannedPath, getSelected().getPath()));
+            default:
+                return true;
+        }
+
+    }
+
 }

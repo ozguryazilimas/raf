@@ -34,7 +34,7 @@
 
                         <p:commandLink action="#{rafObjectLookup.goUpFolder()}"
                                        title="#{title}"
-                                       process="@this" update="raf-view"
+                                       process="@this" update="raf-view :ff"
                                        styleClass="btn btn-default pull-right"
                                        style="padding-top: 4px; padding-bottom: 4px; margin-bottom: 4px;"
                                        disabled="#{!rafObjectLookup.hasParent()}">
@@ -111,13 +111,13 @@
                                                             </div>
                                                         </span>
                                                         <span class="raf-container-item-item-cnd">
-                                                            <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="text-sm">
+                                                            <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content :ff" ajax="true" process="@form" styleClass="text-sm">
                                                                 <span class="text-sm">#{item.title}</span>
                                                             </p:commandLink>
                                                             <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
                                                                 <p:commandLink rendered="#{hasWriteRole and (showEditOnFolders != null ? showEditOnFolders : true)}"
                                                                                action="#{rafController.selectFolderItem(item)}"
-                                                                               update="raf-view"
+                                                                               update="raf-view :ff"
                                                                                ajax="true"
                                                                                process="@this"
                                                                                styleClass="btn btn-box-tool">
@@ -217,6 +217,7 @@
                     <p:commandButton id="close"
                                      value="#{messages['general.button.Ok']}"
                                      icon="ui-icon-check"
+                                     disabled="#{!rafObjectLookup.isSelectable()}"
                                      action="#{rafObjectLookup.closeDialog()}"
                                      process="@this"
                                      styleClass="btn btn-primary"/>
