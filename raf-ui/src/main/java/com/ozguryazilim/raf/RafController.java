@@ -459,6 +459,7 @@ public class RafController implements Serializable {
             LOG.debug("Selected Collection View : {}", selectedContentPanel.getName());
             kahve.put("raf.collectionView", selectedContentPanel.getName());
         }
+        rafCollectionChangeEvent.fire(new RafCollectionChangeEvent());
     }
 
     /**
@@ -518,6 +519,10 @@ public class RafController implements Serializable {
         }
 
         return selectedCollectionContentPanel;
+    }
+
+    public ContentViewPanel getSelectedCollectionContentPanel() {
+        return this.selectedCollectionContentPanel;
     }
 
     public void selectItem(RafObject item) {

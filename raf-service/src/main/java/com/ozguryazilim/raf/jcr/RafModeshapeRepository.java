@@ -547,6 +547,8 @@ public class RafModeshapeRepository implements Serializable {
                 }
 
                 String sortQuery;
+                String secondSortColumn = "";
+                String defaultSecondSortColumn = String.format("nodes.[%s]", PROP_NAME);
 
                 switch (sortBy) {
                     case NAME: {
@@ -556,46 +558,40 @@ public class RafModeshapeRepository implements Serializable {
                     case DATE_ASC: {
                         descSort = false;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
+                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     case DATE_DESC: {
                         descSort = true;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
-                        break;
-                    }
-                    case MODIFY_DATE_ASC: {
-                        descSort = false;
-                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
-                        break;
-                    }
-                    case MODIFY_DATE_DESC: {
-                        descSort = true;
-                        sortQuery = String.format("nodes.[%s]", PROP_UPDATED_DATE);
-                        break;
-                    }
-                    case CATEGORY: {
-                        sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
-                        break;
-                    }
-                    case MIMETYPE: {
-                        sortQuery = String.format("nodes.[%s]", PROP_MIMETYPE);
-                        break;
-                    }
-                    case SIZE: {
-                        sortQuery = "LENGTH(nodes.[jcr:content/jcr:data])";
+                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     case TITLE: {
                         sortQuery = String.format("nodes.[%s]", PROP_TITLE);
+                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
+                    case CATEGORY: {
+                        sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
+                        secondSortColumn = defaultSecondSortColumn;
+                        break;
+                    }
+                    // Bu veriler ilgili sorgudan elde edilecek jcr:folder ve jcr:file da bulunmuyor.
+                    // Bu sebeple güncel sorguda ilgili alanla dair sıralama yapılarak çıktı alınmıyor.
+                    // İlgili veriler ile yapılan sorgular RafCollectionSorter ve RafCollectionGrouper ile sıralanıp koleksiyon hazırlanıyor.
+                    case MODIFY_DATE_ASC:
+                    case MODIFY_DATE_DESC:
+                    case MIMETYPE:
+                    case SIZE:
                     default: {
                         sortQuery = String.format("nodes.[%s]", PROP_TITLE);
                         break;
                     }
                 }
 
-                expression += String.format(" ORDER BY %s %s", sortQuery, descSort ? "DESC" : "ASC");
+                String secondSortExpression = StringUtils.isNotBlank(secondSortColumn) ? String.format(", %s", secondSortColumn) : "";
+                expression += String.format(" ORDER BY %s %s%s", sortQuery, descSort ? "DESC" : "ASC", secondSortExpression);
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);

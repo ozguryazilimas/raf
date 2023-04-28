@@ -48,6 +48,7 @@
                         w = w - 30;
                         iff.css('height', h + 'px');
                         iff.css('width', w + 'px');
+                        iff.find('#raf-view-content').css('height', h + 20 + 'px');
                     }
 
                 });
@@ -62,19 +63,30 @@
         </script>
 
         <!--<h:form id="documentViewDialogForm">-->
-        <div class="row">
-            <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                <h:form>
-                    <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafDocumentViewDialog.cancelDialog()}" process="@this" styleClass="btn btn-primary"/>
-                </h:form>
-            </h:panelGroup>
-        </div>
 
         <h:panelGroup id="raf-view-content" styleClass="row" layout="block" style="overflow-y: scroll;">
-            <ui:include src="#{rafDocumentViewDialog.viewId}" >
-                <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
-                <ui:param name="breadcrumbHide" value="true" />
-            </ui:include>
+            <c:if test="#{rafDocumentViewDialog.readerPageState eq true}">
+                <ui:include src="#{rafDocumentViewDialog.readerPage}" >
+                    <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
+                    <ui:param name="breadcrumbHide" value="true" />
+                    <ui:param name="contentOnly" value="true" />
+                    <ui:param name="id" value="#{rafDocumentViewDialog.object.id}"/>
+                </ui:include>
+            </c:if>
+            <c:if test="#{rafDocumentViewDialog.readerPageState eq false}">
+                <div class="row">
+                    <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
+                        <h:form>
+                            <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafDocumentViewDialog.cancelDialog()}" process="@this" styleClass="btn btn-primary"/>
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+                <ui:include src="#{rafDocumentViewDialog.viewId}" >
+                    <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
+                    <ui:param name="contentOnly" value="true" />
+                    <ui:param name="breadcrumbHide" value="true" />
+                </ui:include>
+            </c:if>
         </h:panelGroup>
 
         <!--</h:form>-->

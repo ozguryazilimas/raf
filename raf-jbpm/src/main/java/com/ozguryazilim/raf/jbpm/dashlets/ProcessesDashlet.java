@@ -18,7 +18,7 @@ import org.kie.internal.query.QueryFilter;
  *
  * @author oyas
  */
-@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canEdit, DashletCapability.canRefresh, DashletCapability.canMinimize, DashletCapability.canMaximize })
+@Dashlet(capability = { DashletCapability.canHide, DashletCapability.canEdit, DashletCapability.canRefresh, DashletCapability.canMinimize, DashletCapability.canMaximize }, permission = "myProcesses")
 public class ProcessesDashlet extends AbstractDashlet{
     
     @Inject
