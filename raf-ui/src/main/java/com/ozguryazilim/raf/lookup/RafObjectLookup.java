@@ -18,6 +18,7 @@ import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractRafCollectionCompactViewController;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.feature.search.FeatureSearchResult;
 import com.ozguryazilim.telve.lookup.Lookup;
@@ -51,6 +52,12 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private static final String SELECT_TYPE_DOCUMENT = "Document";
     private static final String SELECT_TYPE_FOLDER = "Folder";
 
+    private static List<String> bannedSelections = new ArrayList<String>() {{
+        add("");
+        add("/RAF");
+        add("/");
+    }};
+
     @Inject
     @UserAware
     private Kahve kahve;
@@ -76,6 +83,8 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private String profile;
     private String listener;
     private Map<String, String> profileProperties;
+    private int scrollLeft;
+    private boolean pagingLimit = Boolean.FALSE;
 
     private RafObject selected;
 
@@ -83,6 +92,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private int pageSize = 350;
     private boolean showPrivateAndSharedRafs = Boolean.FALSE;
     private boolean getAvailableDirectoriesByIdentity = Boolean.FALSE;
+
+    private String titleMessage;
+    private String pathLabelMessage;
 
     public int getPage() {
         return page;
@@ -155,6 +167,16 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         return profileProperties.getOrDefault("selectionType", SELECT_TYPE_DOCUMENT);
     }
 
+    private void resetFolderContextVariables() {
+        page = 0;
+        scrollLeft = 0;
+        pagingLimit = false;
+    }
+
+    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity) {
+        openDialog(profile, listener, subPath, showPrivateAndShared, getAvailableDirectoriesByIdentity, null, null);
+    }
+
     /**
      * İlgili sınıfa ait dialogu açar
      *
@@ -162,12 +184,15 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
      * @param listener sonuçlar nereye gidecek?
      * @param subPath mevcut veri. Ağaç tipi sınıflarda seçim için
      */
-    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity) {
-        page = 0;
+    public void openDialog(String profile, String listener, String subPath, boolean showPrivateAndShared, boolean getAvailableDirectoriesByIdentity, String titleMessage, String pathLabelMessage) {
+        resetFolderContextVariables();
+
         this.profile = profile;
         this.listener = listener;
         this.showPrivateAndSharedRafs = showPrivateAndShared;
         this.getAvailableDirectoriesByIdentity = getAvailableDirectoriesByIdentity;
+        this.titleMessage = titleMessage;
+        this.pathLabelMessage = pathLabelMessage;
 
         parseProfile();
         initProfile();
@@ -428,6 +453,9 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     }
 
     public boolean isSelected(RafObject object) {
+        if (SELECT_TYPE_DOCUMENT.equals(getSelectionType())) {
+            return object != null && object.equals(selected);
+        }
         return false;
     }
 
@@ -439,6 +467,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         LOG.debug("Selection : {}", object);
         try {
             if (object instanceof RafFolder) {
+                resetFolderContextVariables();
                 clear();
                 setCollection(rafService.getCollectionPaged(object.getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false));
                 if (SELECT_TYPE_FOLDER.equals(getSelectionType())) {
@@ -492,7 +521,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         else {
             clear();
             try {
-                page = 0;
+                resetFolderContextVariables();
                 RafCollection rafCollection = rafService.getCollectionPaged(getCollection().getParentId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
 
                 if (this.getAvailableDirectoriesByIdentity) {
@@ -592,6 +621,94 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         });
 
         return filteredList;
+    }
+
+    @Override
+    public void nextPage() {
+        if (pagingLimit) {
+            return;
+        }
+
+        if (getCollection() != null && getCollection().getItems() != null && !getCollection().getItems().isEmpty()) {
+            setPage(getPage() + getPageSize());
+        }
+
+        try {
+            clear();
+            RafCollection collection = rafService.getCollectionPaged(getCollection().getId(), getPage(), getPageSize(), SELECT_TYPE_FOLDER.equals(getSelectionType()), getSortBy(), false);
+
+            if (collection.getItems().size() == 0) {
+                setPagingLimit(true);
+                return;
+            }
+
+            String lastRafObjectId = getCollection().getItems().isEmpty() ? "" : getCollection().getItems().get(getCollection().getItems().size() - 1).getId();
+
+            if (getCollection() == null) {
+                //farklı bir klasör içeriği lissteleniyor veya klasörün içeriği ilk defa listeleniyor.
+                setCollection(collection);
+            } else {
+                //mevcut listedeki son elemanın id si ile yeni listedeki son eleman farklı ise yeni sayfa verisi eklenmeli
+                //yeni dosya eklenmiş ise de context'i güncelliyoruz.
+                if (!collection.getItems().isEmpty() && (!lastRafObjectId.equals(collection.getItems().get(collection.getItems().size() - 1).getId())
+                        || collection.getItems().size() > getCollection().getItems().size())) {
+                    for (RafObject item : collection.getItems()) {
+                        if (item != null && !getCollection().getItems().contains(item)) {
+                            getCollection().getItems().add(item);
+                        }
+                    }
+                }
+
+            }
+
+            setCollection(getCollection());
+        } catch (RafException ex) {
+            LOG.error("Raf Exception", ex);
+        }
+    }
+
+    public Long getTotalFileCount() {
+        try {
+            return rafService.getChildCount(getCollection().getPath());
+        } catch (RafException | NullPointerException e) {
+            return -1L;
+        }
+    }
+
+    public int getScrollLeft() {
+        return scrollLeft;
+    }
+
+    public void setScrollLeft(int scrollLeft) {
+        this.scrollLeft = scrollLeft;
+    }
+
+    public boolean isPagingLimit() {
+        return pagingLimit;
+    }
+
+    public void setPagingLimit(boolean pagingLimit) {
+        this.pagingLimit = pagingLimit;
+    }
+
+    public String getTitleMessage() {
+        return titleMessage;
+    }
+
+    public String getPathLabelMessage() {
+        return pathLabelMessage;
+    }
+
+    public boolean isSelectable() {
+        switch (getSelectionType()) {
+            case SELECT_TYPE_DOCUMENT:
+            case SELECT_TYPE_FOLDER:
+                return bannedSelections.stream()
+                        .noneMatch(bannedPath -> RafPathUtils.isPathsEqual(bannedPath, getSelected().getPath()));
+            default:
+                return true;
+        }
+
     }
 
 }

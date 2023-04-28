@@ -3,20 +3,22 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
                 template="/layout/dialogBase.xhtml">
 
-    <ui:param name="title" value="#{messages['raf.lookup.main.title']}" />
+    <ui:param name="title" value="#{rafObjectLookup.titleMessage ne null ? messages[rafObjectLookup.titleMessage] : messages['raf.lookup.main.title']}"/>
+    <ui:param name="pathLabel" value="#{rafObjectLookup.pathLabelMessage ne null ? messages[rafObjectLookup.pathLabelMessage] : messages['raf.lookup.label.selectedPath']}"/>
 
-    <ui:define name="form" >
+    <ui:define name="form">
 
-        <h:outputStylesheet library="raf" name="css/raf.css" />
-        <h:outputScript library="raf" name="js/jquery.mousewheel.js" />
-        <h:outputStylesheet library="icons" name="icons.css" />
+        <h:outputStylesheet library="raf" name="css/raf.css"/>
+        <h:outputScript library="raf" name="js/jquery.mousewheel.js"/>
+        <h:outputStylesheet library="icons" name="icons.css"/>
 
         <style>
-            .content-view-port{
-                border: 1px silver solid;
-            }
+          .content-view-port {
+            border: 1px silver solid;
+          }
         </style>
 
         <div class="row">
@@ -24,28 +26,141 @@
 
                 <div class="col-xs-12">
                     <h:panelGroup id="raf-view-content" style="display: grid" layout="block">
-                        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+                        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"/>
 
                         <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
                             <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
                         </p:dialog>
+
                         <p:commandLink action="#{rafObjectLookup.goUpFolder()}"
-                                       title="#{messages['raf.lookup.folder.title']}"
-                                       process="@this" update="raf-view"
+                                       title="#{title}"
+                                       process="@this" update="raf-view :ff"
                                        styleClass="btn btn-default pull-right"
                                        style="padding-top: 4px; padding-bottom: 4px; margin-bottom: 4px;"
                                        disabled="#{!rafObjectLookup.hasParent()}">
-                            <i class="fa fa-level-up" />
+                            <i class="fa fa-level-up"/>
                         </p:commandLink>
-                        <div class="raf-box-content" >
-                            <ui:include src="#{rafObjectLookup.viewId}" >
-                                <ui:param name="viewBean" value="#{rafObjectLookup}" />
-                                <ui:param name="selectionBean" value="#{rafObjectLookup}" />
-                                <ui:param name="controllerBean" value="#{rafObjectLookup}" />
-                                <ui:param name="showEditOnFolders" value="false" />
-                                <ui:param name="showCollectionContextMenu" value="false" />
-                            </ui:include>
+
+                        <div class="raf-box-content">
+
+                            <script type="text/javascript">
+                                function containerScroll(event) {
+                                    var s = event.target;
+                                    if (s.scrollLeft === 0) {
+                                        return;
+                                    }
+                                    $("#collectionForm\\:scrollLeft").val(s.scrollLeft);
+                                    //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
+
+                                    var totalFileCount = parseInt($("#totalFileCount").val());
+                                    var showingFileCount = parseInt($("#showingFileCount").val());
+                                    var pagingLimit = JSON.parse($("#pagingLimit").val());
+                                    if (!pagingLimit &amp;&amp; totalFileCount > 0 &amp;&amp; (s.clientWidth + 5) >= (s.scrollWidth - s.scrollLeft) &amp;&amp; totalFileCount > showingFileCount) {
+                                        nextPage();
+                                    }
+                                }
+
+                                function scrollToBottom() {
+                                    var ctr = $("#raf-container")[0];
+                                    var sh = ctr.scrollWidth - ctr.clientWidth;
+                                    var newst = sh / 1.1;
+                                    $("#raf-container").scrollLeft(newst);
+                                }
+
+                                $(document).ready(function () {
+                                    $(".raf-box-content").on('scroll', containerScroll);
+                                    $(".raf-container").on('scroll', containerScroll);
+                                    $(".content-view-port").on('scroll', containerScroll);
+
+                                    $(".raf-box-content").scrollLeft($("#collectionForm\\:scrollLeft").val());
+                                    $(".raf-container").scrollLeft($("#collectionForm\\:scrollLeft").val());
+                                    $(".content-view-port").scrollLeft($("#collectionForm\\:scrollLeft").val());
+                                });
+                            </script>
+
+                            <h:form id="collectionForm">
+
+                                <ui:param name="viewBean" value="#{rafObjectLookup}"/>
+                                <ui:param name="selectionBean" value="#{rafObjectLookup}"/>
+                                <ui:param name="controllerBean" value="#{rafObjectLookup}"/>
+                                <ui:param name="showEditOnFolders" value="false"/>
+                                <ui:param name="showCollectionContextMenu" value="false"/>
+                                <ui:param name="contextMenuAvailable" value="#{showCollectionContextMenu ne null ? showCollectionContextMenu : true}"/>
+
+                                <input type="hidden" id="showingFileCount"
+                                       value="#{controllerBean.collection.items.size()}"/>
+                                <input type="hidden" id="totalFileCount"
+                                       value="#{rafObjectLookup.getTotalFileCount()}"/>
+                                <input type="hidden" id="pagingLimit" value="#{rafObjectLookup.pagingLimit}"/>
+
+                                <div id="raf-container" class="content-view-port">
+                                    <div class="raf-container">
+                                        <div class="raf-container-item-group-item">
+                                            <ui:repeat value="#{viewBean.collection.items}" var="item">
+                                                <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}"/>
+                                                <p:outputPanel id="raf-item" layout="block" styleClass="raf-container-item">
+                                                    <div class="raf-container-item-item medium-icon">
+                                                        <span class="raf-container-item-item-img">
+                                                            <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
+                                                                <p:commandLink action="#{selectionBean.toggle(item)}" update="raf-view-content" ajax="true" process="@form">
+                                                                    <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}">
+                                                                        <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}"/>
+                                                                    </svg>
+                                                                    <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon"/>
+                                                                </p:commandLink>
+                                                            </div>
+                                                        </span>
+                                                        <span class="raf-container-item-item-cnd">
+                                                            <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content :ff" ajax="true" process="@form" styleClass="text-sm">
+                                                                <span class="text-sm">#{item.title}</span>
+                                                            </p:commandLink>
+                                                            <ui:fragment rendered="#{item.mimeType eq 'raf/folder'}">
+                                                                <p:commandLink rendered="#{hasWriteRole and (showEditOnFolders != null ? showEditOnFolders : true)}"
+                                                                               action="#{rafController.selectFolderItem(item)}"
+                                                                               update="raf-view :ff"
+                                                                               ajax="true"
+                                                                               process="@this"
+                                                                               styleClass="btn btn-box-tool">
+                                                                    <i class="fa fa-edit"/>
+                                                                </p:commandLink>
+                                                            </ui:fragment>
+
+                                                            <ui:fragment rendered="#{viewBean.showDetails}">
+                                                                <div class="text-muted text-sm">#{item.name}</div>
+                                                                <div class="text-muted text-sm"> #{userLookup.getUserName(item.createBy)} | <t:cellOutputDateTime value="#{item.createDate}"/> </div>
+
+                                                                <ui:fragment rendered="#{not empty item.info}">
+                                                                    <div class="text-muted text-sm"><i class="fa fa-info"/> #{item.info}</div>
+                                                                </ui:fragment>
+
+                                                                <ui:fragment rendered="#{not empty item.category}">
+                                                                    <div class="text-muted text-sm"><i class="fa fa-sitemap"/> #{item.category}</div>
+                                                                </ui:fragment>
+
+                                                                <ui:fragment rendered="#{not empty item.tags}">
+                                                                    <div class="text-muted text-sm">
+                                                                        <p:repeat value="#{item.tags}" var="tag">
+                                                                            <i class="fa fa-tag"/> #{tag}
+                                                                        </p:repeat>
+                                                                    </div>
+                                                                </ui:fragment>
+                                                            </ui:fragment>
+
+                                                        </span>
+                                                    </div>
+                                                </p:outputPanel>
+                                                <ui:fragment rendered="#{contextMenuAvailable}">
+                                                    <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                                                </ui:fragment>
+                                            </ui:repeat>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
+                                <h:inputHidden id="scrollLeft" value="#{viewBean.scrollLeft}"/>
+                            </h:form>
                         </div>
+
                         <script type="text/javascript">
                             function setSizes() {
                                 var clientHeight = 360; //jQuery(window).height() - 150;
@@ -90,18 +205,28 @@
                             });
 
                         </script>
-                        <t:inputText label="#{messages['raf.lookup.label.selectedPath']}" value="#{rafObjectLookup.selected.path}"  columnClass="pr-0 pl-0" readonly="true"/>
+                        <t:inputText label="#{pathLabel}" value="#{rafObjectLookup.selected.path}" columnClass="pr-0 pl-0" readonly="true"/>
                     </h:panelGroup>
                 </div>
             </h:panelGroup>
-
-
         </div>
-        <h:form id="ff">            
+
+        <h:form id="ff">
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                    <p:commandButton id="close" value="#{messages['general.button.Ok']}" icon="ui-icon-check" action="#{rafObjectLookup.closeDialog()}" process="@this" styleClass="btn btn-primary"/>
-                    <p:commandButton id="cancel" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{rafObjectLookup.cancelDialog()}" process="@this" styleClass="btn "/>
+                    <p:commandButton id="close"
+                                     value="#{messages['general.button.Ok']}"
+                                     icon="ui-icon-check"
+                                     disabled="#{!rafObjectLookup.isSelectable()}"
+                                     action="#{rafObjectLookup.closeDialog()}"
+                                     process="@this"
+                                     styleClass="btn btn-primary"/>
+                    <p:commandButton id="cancel"
+                                     value="#{messages['general.button.Cancel']}"
+                                     icon="ui-icon-close"
+                                     action="#{rafObjectLookup.cancelDialog()}"
+                                     process="@this"
+                                     styleClass="btn "/>
                 </h:panelGroup>
             </div>
         </h:form>
