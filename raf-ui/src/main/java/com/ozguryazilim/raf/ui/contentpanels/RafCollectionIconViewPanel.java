@@ -10,6 +10,7 @@ import org.apache.deltaspike.core.util.ProxyUtils;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Objects;
 
 /**
  *
@@ -25,7 +26,7 @@ public class RafCollectionIconViewPanel extends AbstractRafCollectionIconViewCon
     private RafController rafController;
 
     public void listener(@Observes RafCollectionChangeEvent event) {
-        if (ProxyUtils.getUnproxiedClass(rafController.getSelectedContentPanel().getClass()).equals(this.getClass())) {
+        if (Objects.equals(rafController.getSelectedCollectionContentPanel().getName(), this.getName())) {
             clear();
             setCollection(context.getCollection());
         }
