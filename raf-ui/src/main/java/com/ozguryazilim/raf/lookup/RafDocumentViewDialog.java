@@ -17,8 +17,10 @@ import org.primefaces.context.RequestContext;
 @SessionScoped
 @Named
 public class RafDocumentViewDialog extends AbstractRafDocumentViewController implements Serializable {
+    private boolean readerPageState = Boolean.FALSE;
 
     public void openDialog(RafDocument object) {
+        setReaderPageState(false);
         setObject(object);
 
         Map<String, Object> options = new HashMap<>();
@@ -41,9 +43,18 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
      */
     public void cancelDialog() {
         RequestContext.getCurrentInstance().closeDialog(null);
+        setReaderPageState(false);
     }
 
     public boolean getSupportBreadcrumb() {
         return false;
+    }
+
+    public boolean getReaderPageState() {
+        return readerPageState;
+    }
+
+    public void setReaderPageState(boolean val) {
+        this.readerPageState = val;
     }
 }
