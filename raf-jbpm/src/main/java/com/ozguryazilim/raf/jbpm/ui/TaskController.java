@@ -122,6 +122,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
         if (filter == null) {
             filter = new TaskFilter();
+            filter.setTaskOwner(identity.getLoginName());
         }
     }
 
