@@ -11,30 +11,35 @@ import java.util.Locale;
 import java.util.Map;
 
 public class RafObjectComparators {
+
+    private RafObjectComparators() {
+        throw new IllegalStateException("Util Class");
+    }
+
     private static Map<SortType, Comparator<RafObject>> rafObjectComparatorMap;
 
     public static Comparator<RafObject> getSortTypeComparator(SortType sortType) {
         return rafObjectComparatorMap.get(sortType);
     }
 
-    public static Comparator<RafObject> nameComparator = (o1, o2) -> compareString(o1.getName(), o2.getName());
+    public static final Comparator<RafObject> nameComparator = (o1, o2) -> compareString(o1.getName(), o2.getName());
 
-    public static Comparator<RafObject> titleComparator = (o1, o2) -> compareString(o1.getTitle(), o2.getTitle());
+    public static final Comparator<RafObject> titleComparator = (o1, o2) -> compareString(o1.getTitle(), o2.getTitle());
 
-    public static Comparator<RafObject> mimetypeComparator = (o1, o2) -> compareString(o1.getMimeType(), o2.getMimeType());
+    public static final Comparator<RafObject> mimetypeComparator = (o1, o2) -> compareString(o1.getMimeType(), o2.getMimeType());
 
-    public static Comparator<RafObject> categoryComparator = (o1, o2) -> compareString(o1.getCategory(), o2.getCategory());
+    public static final Comparator<RafObject> categoryComparator = (o1, o2) -> compareString(o1.getCategory(), o2.getCategory());
 
-    public static Comparator<RafObject> createdDateComparator = (o1, o2) -> compareDate(o1.getCreateDate(), o2.getCreateDate());
+    public static final Comparator<RafObject> createdDateComparator = (o1, o2) -> compareDate(o1.getCreateDate(), o2.getCreateDate());
 
-    public static Comparator<RafObject> updateDateComparator = (o1, o2) -> compareDate(o1.getUpdateDate(), o2.getUpdateDate());
+    public static final Comparator<RafObject> updateDateComparator = (o1, o2) -> compareDate(o1.getUpdateDate(), o2.getUpdateDate());
 
-    public static Comparator<RafObject> sizeComparator = (o1, o2) -> {
+    public static final Comparator<RafObject> sizeComparator = (o1, o2) -> {
         if (o1 == null || o2 == null) return 0;
         return o1.getLength().compareTo(o2.getLength());
     };
 
-    public static Comparator<RafObject> folderComparator = (t1, t2) -> {
+    public static final Comparator<RafObject> folderComparator = (t1, t2) -> {
         boolean f1 = (t1 instanceof RafFolder);
         boolean f2 = (t2 instanceof RafFolder);
 

@@ -51,11 +51,7 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
     private static final String SELECT_TYPE_DOCUMENT = "Document";
     private static final String SELECT_TYPE_FOLDER = "Folder";
 
-    private static List<String> bannedSelections = new ArrayList<String>() {{
-        add("");
-        add("/RAF");
-        add("/");
-    }};
+    private static List<String> bannedSelections;
 
     @Inject
     @UserAware
@@ -110,6 +106,11 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
 
     @PostConstruct
     public void init() {
+        bannedSelections = new ArrayList<>();
+        bannedSelections.add("");
+        bannedSelections.add("/RAF");
+        bannedSelections.add("/");
+
         setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
     }
 

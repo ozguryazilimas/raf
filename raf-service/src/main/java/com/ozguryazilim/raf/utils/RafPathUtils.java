@@ -6,6 +6,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RafPathUtils {
+
+    private RafPathUtils() {
+        throw new IllegalStateException("Util Class");
+    }
+
     public static boolean isPathsEqual(String p1, String p2) {
         try {
             Path firstPath = Paths.get(p1);
