@@ -29,16 +29,10 @@
 
                 var iff = jQuery("iframe[src*='documentViewDialog']", parent.document);
 
-                console.log(iff);
-                console.log(iff != null &amp;&amp; iff.length > 0);
-
                 if (iff != null &amp;&amp; iff.length > 0) {
                     iff.parents('.ui-dialog').each(function () {
                         var wd = jQuery(this);
                         var wv = wd.attr('data-widgetvar');
-
-                        console.log(wd);
-                        console.log(wv);
 
                         if (wv != undefined) {
                             //parent.PF(wv).toggleMaximize();
