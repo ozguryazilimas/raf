@@ -27,38 +27,42 @@
                 w = jQuery(parent.window).width();
                 h = jQuery(parent.window).height();
 
-                jQuery('.ui-dialog', parent.document).each(function () {
-                    wd = jQuery(this);
-                    var wv = wd.attr('data-widgetvar');
+                var iff = jQuery("iframe[src*='documentViewDialog']", parent.document);
 
-                    if (wv != undefined) {
-                        //parent.PF(wv).toggleMaximize();
-                        w = jQuery(parent.window).width();
-                        h = jQuery(parent.window).height() - 100;
-                        wd.css('max-height', '90vh');
+                if (iff != null &amp;&amp; iff.length > 0) {
+                    iff.parents('.ui-dialog').each(function () {
+                        var wd = jQuery(this);
+                        var wv = wd.attr('data-widgetvar');
 
-                        wd.css('height', h + 'px');
-                        wd.css('width', w + 'px');
-                        wd.css('top', '0px');
-                        wd.css('left', '0px');
-                        wd.css('z-index', '9001');
+                        if (wv != undefined) {
+                            //parent.PF(wv).toggleMaximize();
+                            w = jQuery(parent.window).width();
+                            h = jQuery(parent.window).height() - 100;
+                            wd.css('max-height', '90vh');
 
-                        iff = jQuery('iframe', this);
-                        h = h - 90;
-                        w = w - 30;
-                        iff.css('height', h + 'px');
-                        iff.css('width', w + 'px');
-                        iff.find('#raf-view-content').css('height', h + 20 + 'px');
-                    }
+                            wd.css('height', h + 'px');
+                            wd.css('width', w + 'px');
+                            wd.css('top', '0px');
+                            wd.css('left', '0px');
+                            wd.css('z-index', '9001');
 
-                });
+
+                            h = h - 90;
+                            w = w - 30;
+                            iff.css('height', h + 'px');
+                            iff.css('width', w + 'px');
+                            iff.find('#raf-view-content').css('height', h + 20 + 'px');
+
+                        }
+                    });
+                }
 
             }
 
             //Dosya Seçim dialğu hem maximize olsun
             setTimeout(function () {
                 maximazeDialog2();
-//                zIndexChange();
+                zIndexChange('1036');
             }, 500);
         </script>
 
