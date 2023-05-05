@@ -57,9 +57,17 @@ public class RafDepartmentService implements Serializable {
         return department;
     }
 
-    public RafDepartment findByCode(String code) {
-        List<RafDepartment> searchResult = departmentRepository.findByCode(code);
-        return !searchResult.isEmpty() ? searchResult.get(0) : null;
+    public Optional<RafDepartment> findByCode(String code) {
+        Optional<RafDepartment> cachedDepartment = this.departments.stream()
+                .filter(rafDepartment -> code.equals(rafDepartment.getCode()))
+                .findFirst();
+
+        return Optional.ofNullable(
+                cachedDepartment.orElseGet(() -> {
+                    List<RafDepartment> searchResult = departmentRepository.findByCode(code);
+                    return !searchResult.isEmpty() ? searchResult.get(0) : null;
+                })
+        );
     }
 
     @Transactional
