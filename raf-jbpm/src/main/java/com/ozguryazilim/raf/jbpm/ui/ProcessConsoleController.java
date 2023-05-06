@@ -172,7 +172,7 @@ public class ProcessConsoleController implements Serializable, FormController, D
                     
                     selectedProcessData.put("metadata", metadata);
                 } else {
-                    metadata = (Map<String, Object>) selectedProcessData.get("metadata");
+                    metadata = (Map<String, Object>) selectedProcessData.getOrDefault("metadata", new HashMap<>());
                 }
             }
         }
