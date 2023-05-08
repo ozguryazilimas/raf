@@ -53,6 +53,8 @@ public class TaskController implements Serializable, FormController, DocumentsWi
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskController.class);
 
+    private static final String MY_TASKS = "myTasks";
+
     @Inject
     private Identity identity;
 
@@ -122,7 +124,7 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
         if (filter == null) {
             filter = new TaskFilter();
-            filter.setTaskOwner(identity.getLoginName());
+            filter.setTaskOwner(MY_TASKS);
         }
     }
 
@@ -130,6 +132,9 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         TaskSummaryQueryBuilder queryBuilder;
         if ("*".equals(filter.getTaskOwner())) {//show all
             queryBuilder = runtimeDataService.taskSummaryQuery("Administrator").and();
+        } else if (MY_TASKS.equals(filter.getTaskOwner())){
+            filter.setTaskOwner(identity.getLoginName());
+            queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         } else {
             queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         }
