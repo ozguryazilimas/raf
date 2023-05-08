@@ -377,3 +377,8 @@
     border: none;
     box-shadow: none;
 }
+
+.StartRecordDialog-xdocs-content-panel {
+    max-height: 200px;
+    overflow-y: scroll;
+}
