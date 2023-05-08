@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @ContactSource(name = "department")
 public class DepartmentContactSource extends AbstractContactSource {
@@ -30,8 +31,9 @@ public class DepartmentContactSource extends AbstractContactSource {
 
         String departmentName = map.get(DEPARTMENT_NAME);
 
-        if (StringUtils.isBlank(departmentName))
+        if (StringUtils.isBlank(departmentName)) {
             return;
+        }
 
         departmentService.findByCode(departmentName)
             .map(RafDepartment::getMembers)
@@ -40,18 +42,24 @@ public class DepartmentContactSource extends AbstractContactSource {
 
                 rafDepartmentMembers.stream()
                     .filter(member -> {
-                        if (StringUtils.isNotBlank(departmentRole))
+                        if (StringUtils.isNotBlank(departmentRole)) {
                             return departmentRole.equals(member.getRole());
-                        else
+                        } else {
                             return true;
+                        }
                     })
                     .map(this::rafDepartmentMemberToContact)
+                    .filter(Objects::nonNull)
                     .forEach(list::add);
 
             });
     }
 
     private Contact rafDepartmentMemberToContact(RafDepartmentMember rafDepartmentMember) {
+        if (Objects.isNull(rafDepartmentMember)) {
+            return null;
+        }
+
         Contact contact = new Contact();
 
         UserInfo ui = userService.getUserInfo(rafDepartmentMember.getMemberName());

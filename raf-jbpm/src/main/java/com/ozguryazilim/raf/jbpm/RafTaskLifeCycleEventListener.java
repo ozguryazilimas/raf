@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.Group;
@@ -175,11 +177,9 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
 
             pas.getPotentialOwners().forEach((oe) -> {
                 if (oe instanceof Group) {
-                    String[] departmentSubstrings = checkIfDepartmentGroup(oe.getId());
-                    if (departmentSubstrings != null) {
-                        String departmentName = departmentSubstrings[0];
-                        String departmentRole = departmentSubstrings[1];
-                        targets.add(String.format("cs=department;name=%s;role=%s", departmentName, departmentRole));
+                    String rafDepartmentNotificationTarget = getRafDepartmentNotificationTarget(oe.getId());
+                    if (StringUtils.isNotBlank(rafDepartmentNotificationTarget)) {
+                        targets.add(rafDepartmentNotificationTarget);
                     } else {
                         targets.add("cs=group;id=" + oe.getId());
                     }
@@ -245,7 +245,7 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
      * @param group Group string
      * @return returns department name if present. Else null;
      */
-    private String[] checkIfDepartmentGroup(String group) {
+    private String getRafDepartmentNotificationTarget(String group) {
         String[] groupSubstrings = group.split("-");
 
         if (groupSubstrings.length > 1) {
@@ -259,7 +259,7 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
                         .anyMatch(departmentRole::equals);
 
                 if (isRolePresentInDepartment) {
-                    return groupSubstrings;
+                    return String.format("cs=department;name=%s;role=%s", departmentName, departmentRole);
                 }
             }
         }
