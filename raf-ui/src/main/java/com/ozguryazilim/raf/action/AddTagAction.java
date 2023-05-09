@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 @Action(dialog = ActionPages.AddTagDialog.class,
         icon = "fa-tag",
-        capabilities = {ActionCapability.CollectionViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection})
+        capabilities = { ActionCapability.Ajax, ActionCapability.CollectionViews, ActionCapability.MultiSelection, ActionCapability.NeedSelection})
 public class AddTagAction extends AbstractAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddTagAction.class);
