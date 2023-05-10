@@ -138,6 +138,8 @@ public class RafController implements Serializable {
     private Integer pageSize = 350;
     private Integer pageCount = 0;
 
+    private boolean pagingLimit = Boolean.FALSE;
+
     private SortType sortBy = SortType.DATE_DESC;
     private Boolean descSort = Boolean.FALSE;
 
@@ -179,6 +181,7 @@ public class RafController implements Serializable {
         //selectedContentPanel= collectionCompactViewPanel;
         //selectedCollectionContentPanel = collectionCompactViewPanel;
         setPage(0);
+        setPagingLimit(false);
         setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
         setDescSort(kahve.get("raf.descSort", Boolean.FALSE).getAsBoolean());
     }
@@ -788,7 +791,7 @@ public class RafController implements Serializable {
         LOG.debug("RafUploadEvent");
         //Collection'ı yeniden çekmek lazım.
         selectFolderById(context.getCollection().getId());
-
+        setPagingLimit(false);
     }
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
@@ -796,6 +799,7 @@ public class RafController implements Serializable {
             setPage(0);
             setScrollTop(0);
             setScrollLeft(0);
+            setPagingLimit(false);
         }
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
@@ -853,6 +857,10 @@ public class RafController implements Serializable {
         if (collection == null || collection.getItems() == null) {
             LOG.warn("[RAF-0006] Raf collection not found. folderID: {}", folderId);
             return;
+        }
+
+        if (collection.getItems().isEmpty()) {
+            setPagingLimit(true);
         }
 
         if (context.getCollection() == null || !context.getCollection().getId().equals(folderId)) {
@@ -1022,7 +1030,16 @@ public class RafController implements Serializable {
         //dummy action for scroll attributes
     }
     
-     public boolean isBpmnSystemEnabled() {
+    public boolean isBpmnSystemEnabled() {
         return rafService.isBpmnSystemEnabled();
     }
+
+    public boolean isPagingLimit() {
+        return pagingLimit;
+    }
+
+    public void setPagingLimit(boolean pagingLimit) {
+        this.pagingLimit = pagingLimit;
+    }
+
 }

@@ -59,6 +59,7 @@
                 <div class="pull-right" style="margin-right:4px; margin-top:1.2px;">
                     <span class="text-sm ui-state-disabled">
                             <input type="hidden" id="showingFileCount" value="#{rafContext.collection.items.size()}" />
+                            <input type="hidden" id="pagingLimit" value="#{rafController.pagingLimit}" />
                             #{messages['breadcrumb.total.number.of.files']} <label id="totalFileCount">#{rafController.totalFileCount}</label>
                     </span>
                 </div>
