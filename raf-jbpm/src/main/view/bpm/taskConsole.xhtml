@@ -98,7 +98,7 @@
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.allTasks']}"
                                                           itemValue="*"/>
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.myTasks']}"
-                                                          itemValue="#{identity.loginName}"/>
+                                                          itemValue="myTasks"/>
                                             <f:selectItems value="#{userLookup.loginNames}" var="usr" itemLabel="#{usr}" itemValue="#{usr}"/>
                                             <p:ajax update="taskConsole" event="change"/>
                                         </p:selectOneMenu>
