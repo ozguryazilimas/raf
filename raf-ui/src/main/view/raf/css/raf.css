@@ -378,6 +378,11 @@
     box-shadow: none;
 }
 
+.StartRecordDialog-xdocs-content-panel {
+    max-height: 200px;
+    overflow-y: scroll;
+}
+
 .ui-selectonemenu[role="combobox"] {
     overflow: hidden;
     padding: 0;

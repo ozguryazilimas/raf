@@ -11,7 +11,9 @@
         <!-- Bu fragman verilen listeyi tablo olarak gösterir. Kullanım amacı dialog ve benzeri yerlerde seçili belgeleri göstermektir. -->
     </ui:remove>
 
-    <t:accordion id="xdocs" icon="fa fa-files-o" label="general.label.Documents">
+    <h:outputStylesheet library="raf" name="css/raf.css" />
+
+    <t:accordion id="xdocs" icon="fa fa-files-o" label="general.label.Documents" contentClass="#{controller.class.simpleName.concat('-xdocs-content-panel')}" >
         <f:facet name="toolbar">
             <p:commandLink action="#{rafObjectLookup.openDialog( 'selectionType:Document', '', '/RAF/', true, true, 'raf.lookup.documentSelection', 'raf.lookup.label.path')}"
                            partialSubmit="true" process="@this" rendered="#{controller.getCanAdd()}">
