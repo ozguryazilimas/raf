@@ -382,3 +382,13 @@
     max-height: 200px;
     overflow-y: scroll;
 }
+
+.ui-selectonemenu[role="combobox"] {
+    overflow: hidden;
+    padding: 0;
+}
+
+.ui-selectonemenu[role="combobox"] .ui-selectonemenu-label {
+    max-width: calc(100% - 2em - 5px) !important;
+    text-overflow: ellipsis;
+}

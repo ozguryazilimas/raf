@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -73,7 +74,16 @@ public class MultipleFileDownloadAction extends AbstractAction {
         fileList = new ArrayList();
         String maxZipFileLimitStr = ConfigResolver.getProjectStageAwarePropertyValue("raf.multiplefiledownloadLimit", "104857600");//Default : 100MB
         maxZipFileLimit = Long.parseLong(maxZipFileLimitStr);
-        LOG.info("File {} dowloaded", getContext().getSelectedObject().getPath());
+
+        if (LOG.isInfoEnabled()) {
+            String filePathsToDownload = getContext().getSeletedItems()
+                    .stream()
+                    .map(RafObject::getPath)
+                    .collect(Collectors.joining("\n"));
+
+            LOG.info("List of files are downloaded:\n{}", filePathsToDownload);
+        }
+
     }
 
     @Override

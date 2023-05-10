@@ -1,14 +1,20 @@
 package com.ozguryazilim.raf.jbpm;
 
 import com.google.common.base.Joiner;
+import com.ozguryazilim.raf.department.RafDepartmentService;
+import com.ozguryazilim.raf.entities.RafDepartment;
+import com.ozguryazilim.raf.entities.RafDepartmentMember;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.notification.NotificationCommand;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.Group;
@@ -28,6 +34,9 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
 
     @Inject
     private CommandSender commandSender;
+
+    @Inject
+    private RafDepartmentService rafDepartmentService;
 
     @Override
     public void beforeTaskActivatedEvent(TaskEvent event) {
@@ -168,7 +177,12 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
 
             pas.getPotentialOwners().forEach((oe) -> {
                 if (oe instanceof Group) {
-                    targets.add("cs=group;id=" + oe.getId());
+                    String rafDepartmentNotificationTarget = getRafDepartmentNotificationTarget(oe.getId());
+                    if (StringUtils.isNotBlank(rafDepartmentNotificationTarget)) {
+                        targets.add(rafDepartmentNotificationTarget);
+                    } else {
+                        targets.add("cs=group;id=" + oe.getId());
+                    }
                 } else if (oe instanceof User) {
                     targets.add("cs=user;id=" + oe.getId());
                 }
@@ -226,4 +240,30 @@ public class RafTaskLifeCycleEventListener implements TaskLifeCycleEventListener
         LOG.debug("afterTaskNominatedEvent : {}", event);
     }
 
+    /**
+     * Checks if group string belongs to department. If so, returns the name substrings
+     * @param group Group string
+     * @return returns department name if present. Else null;
+     */
+    private String getRafDepartmentNotificationTarget(String group) {
+        String[] groupSubstrings = group.split("-");
+
+        if (groupSubstrings.length > 1) {
+            String departmentName = groupSubstrings[0];
+            String departmentRole = groupSubstrings[1];
+            Optional<RafDepartment> optionalDepartment = rafDepartmentService.findByCode(departmentName);
+
+            if (optionalDepartment.isPresent()) {
+                boolean isRolePresentInDepartment = optionalDepartment.get().getMembers().stream()
+                        .map(RafDepartmentMember::getRole)
+                        .anyMatch(departmentRole::equals);
+
+                if (isRolePresentInDepartment) {
+                    return String.format("cs=department;name=%s;role=%s", departmentName, departmentRole);
+                }
+            }
+        }
+
+        return null;
+    }
 }
