@@ -352,9 +352,11 @@
                         //jQuery('.raf-container-item-group').css('max-height', clientHeight - 60);
                         jQuery('.raf-container-item-group').css('min-height', clientHeight - 78);
                         jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 80);
-                        jQuery('.content-view-port').css('max-height', clientHeight - 60);
-                        jQuery('.content-view-port').css('min-height', clientHeight - 60);
 
+                        if (jQuery(window).width() > 767) {
+                            jQuery('.content-view-port').css('max-height', clientHeight - 60);
+                            jQuery('.content-view-port').css('min-height', clientHeight - 60);
+                        }
 
                         jQuery('.content-view-port').on('mousewheel', function (event) {
                             this.scrollLeft -= (event.deltaY * 30);
