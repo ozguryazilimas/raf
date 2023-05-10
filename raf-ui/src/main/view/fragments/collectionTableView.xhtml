@@ -213,8 +213,9 @@
                 return;
             }
             $("#collectionForm\\:scrollTop").val(s.scrollTop);
+            var pagingLimit = JSON.parse($("#pagingLimit").val());
             //scroll'da sona yaklastiginde nextPage() calistirsin. Eger daha fazla dosya tekrar tekrar cagirmak anlamsiz
-            if ((s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
+            if (!pagingLimit &amp;&amp; (s.clientHeight + 5) >= (s.scrollHeight - s.scrollTop) &amp;&amp; parseInt($("#totalFileCount").text()) > parseInt($("#showingFileCount").val())) {
                 nextPage();
             }
         }

@@ -157,4 +157,5 @@ public abstract class AbstractRafCollectionViewController implements RafCollecti
         rafController.nextPage();
         folderDataChangeEvent.fire(new RafFolderDataChangeEvent());
     }
+
 }
