@@ -79,6 +79,8 @@ public class TaskController implements Serializable, FormController, DocumentsWi
     @Inject
     private RafDepartmentMemberRepository departmentMemberRepository;
 
+    private String taskOwner = MY_TASKS;
+
     private static final Status[] allActiveStatuses = new Status[]{
         Status.Created,
         Status.Ready,
@@ -124,18 +126,21 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
         if (filter == null) {
             filter = new TaskFilter();
-            filter.setTaskOwner(MY_TASKS);
+            setTaskOwner(MY_TASKS);
+            filter.setTaskOwner(identity.getLoginName());
         }
     }
 
     public List<TaskSummary> getTasks() {
         TaskSummaryQueryBuilder queryBuilder;
-        if ("*".equals(filter.getTaskOwner())) {//show all
+        if ("*".equals(getTaskOwner())) {//show all
+            filter.setTaskOwner("*");
             queryBuilder = runtimeDataService.taskSummaryQuery("Administrator").and();
-        } else if (MY_TASKS.equals(filter.getTaskOwner())){
+        } else if (MY_TASKS.equals(getTaskOwner())){
             filter.setTaskOwner(identity.getLoginName());
             queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         } else {
+            filter.setTaskOwner(getTaskOwner());
             queryBuilder = runtimeDataService.taskSummaryQuery(filter.getTaskOwner()).and();
         }
 
@@ -554,4 +559,11 @@ public class TaskController implements Serializable, FormController, DocumentsWi
         }
     }
 
+    public String getTaskOwner() {
+        return taskOwner;
+    }
+
+    public void setTaskOwner(String taskOwner) {
+        this.taskOwner = taskOwner;
+    }
 }
