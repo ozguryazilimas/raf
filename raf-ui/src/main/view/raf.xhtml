@@ -351,7 +351,11 @@
                         jQuery('.raf-container').css('max-height', clientHeight - 60);
                         //jQuery('.raf-container-item-group').css('max-height', clientHeight - 60);
                         jQuery('.raf-container-item-group').css('min-height', clientHeight - 78);
-                        jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 80);
+                        if (jQuery(window).width() &lt; 424) {
+                            jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 200);
+                        } else {
+                            jQuery('.raf-container-item-group-item').css('max-height', clientHeight - 80);
+                        }
 
                         if (jQuery(window).width() > 767) {
                             jQuery('.content-view-port').css('max-height', clientHeight - 60);
