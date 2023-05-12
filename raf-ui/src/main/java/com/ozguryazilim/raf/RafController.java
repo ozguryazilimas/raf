@@ -796,16 +796,18 @@ public class RafController implements Serializable {
 
     public void folderChangeListener(@Observes RafFolderChangeEvent event) {
         if (event.getAction() != null) {
-            setPage(0);
             setScrollTop(0);
             setScrollLeft(0);
-            setPagingLimit(false);
         }
+        setPagingLimit(false);
         //FIXME: exception handling
         //FIXME: tipe bakarak tek bir RafObject mi yoksa collection mı olacak seçmek lazım. Dolayısı ile hangi view seçeleceği de belirlenmiş olacak.
         try {
             if (context.getSelectedObject() != null && context.getSelectedObject().getTitle() != null) {
                 if(context.getSelectedObject() instanceof RafFolder){
+                    setScrollTop(0);
+                    setScrollLeft(0);
+                    setPage(0);
                     populateFolderCollection(context.getSelectedObject().getId());
                 } else if(context.getSelectedObject() instanceof RafDocument){
                     populateFolderCollection(context.getSelectedObject().getParentId());
