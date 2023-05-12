@@ -46,12 +46,14 @@
                             wd.css('left', '0px');
                             wd.css('z-index', '9001');
 
-
                             h = h - 90;
                             w = w - 30;
                             iff.css('height', h + 'px');
                             iff.css('width', w + 'px');
                             iff.find('#raf-view-content').css('height', h + 20 + 'px');
+
+                            iff.css('overflow-y', 'scroll');
+                            iff.css('overflow-x', 'hidden');
 
                         }
                     });
@@ -68,7 +70,7 @@
 
         <!--<h:form id="documentViewDialogForm">-->
 
-        <h:panelGroup id="raf-view-content" styleClass="row" layout="block" style="overflow-y: scroll;">
+        <h:panelGroup id="raf-view-content" styleClass="row" layout="block">
             <c:if test="#{rafDocumentViewDialog.readerPageState eq true}">
                 <ui:include src="#{rafDocumentViewDialog.readerPage}" >
                     <ui:param name="viewBean" value="#{rafDocumentViewDialog}" />
