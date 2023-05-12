@@ -94,7 +94,7 @@
                                     </t:inputAny>
                                     <t:inputAny label="taskFilter.label.taskOwner"
                                                 rendered="#{identity.isPermitted('allTasks:update')}">
-                                        <p:selectOneMenu value="#{taskController.filter.taskOwner}">
+                                        <p:selectOneMenu value="#{taskController.taskOwner}">
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.allTasks']}"
                                                           itemValue="*"/>
                                             <f:selectItem itemLabel="#{messages['taskFilter.option.myTasks']}"
