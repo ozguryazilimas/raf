@@ -62,16 +62,16 @@
                         <p:outputPanel id="raf-item" layout="block" styleClass="raf-container-item">
                             <div class="raf-container-item-item medium-icon">
                                 <span class="raf-container-item-item-img" >
-                                    <div class="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
+                                    <h:panelGroup id="itemSelector" layout="block" styleClass="raf-container-item-item-chk #{selectionBean.isSelected(item) ? 'raf-item-selected' : ''}">
                                         <p:commandLink action="#{selectionBean.toggle(item)}"
-                                                       update="raf-view-content" ajax="true" process="@form" >
+                                                       update="itemSelector :actf @([id*=rafItemContextMenu])" ajax="true" process="@form" >
                                             <svg class="icon #{viewBean.showDetails ? 'icon-2x' : 'icon-1x'}" >
                                                 <use xlink:href="#{resource['icons:mimetypes.svg']}##{iconResolver.getIcon(item.mimeType)}" />
                                             </svg>
                                             <i class="fa #{selectionBean.isSelected(item) ? 'fa-check-square' : ''} raf-item-select-icon" />
                                         </p:commandLink>
 
-                                    </div>
+                                    </h:panelGroup>
                                 </span>
                                 <span class="raf-container-item-item-cnd">
                                     <p:commandLink action="#{controllerBean.selectItem(item)}" update="raf-view-content" ajax="true" process="@form" styleClass="text-sm">
@@ -112,7 +112,7 @@
                             </div>
                         </p:outputPanel>
                         <ui:fragment rendered="#{contextMenuAvailable}">
-                            <p:contextMenu model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
+                            <p:contextMenu id="rafItemContextMenu" model="#{rafController.getContextMenu(item)}" for="raf-item" styleClass="context-menu-item"/>
                         </ui:fragment>
                     </ui:repeat>
                 </div>
