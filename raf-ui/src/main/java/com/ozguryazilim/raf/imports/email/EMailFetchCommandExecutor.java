@@ -74,9 +74,6 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                 }
             }
 
-            // close the store and folder objects
-            emailFolder.close(true);
-            store.close();
         } catch (MessagingException | IOException ex) {
             LOG.error("EMail Import Failed", ex);
         }
@@ -120,7 +117,7 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
         importCommand.setJexlExp(command.getJexlExp());
         importCommand.setPostImportCommand(command.getPostImportCommand());
         importCommand.setFetchCommand(command);
-
+        importCommand.setParsedEmail(RafEMailImporter.parseEmail(message));
         return importCommand;
     }
 

@@ -211,7 +211,7 @@ public class RafEMailImporter implements Serializable {
     public RafRecord uploadEmailRecord(Message email, EMailImportCommand command, String fileName, String tags, boolean sendFavoriteEmail) {
         String temporaryFolderPath = command.getTempPath();
         String rafEmailFolder = command.getRafPath();
-        EMailMessage message = parseEmail(email);
+        EMailMessage message = command.getParsedEmail();
         RafRecord record = null;
 
         try {
@@ -302,8 +302,6 @@ public class RafEMailImporter implements Serializable {
             default:
                 break;
         }
-
-        store.close();
     }
 
 }
