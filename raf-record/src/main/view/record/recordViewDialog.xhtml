@@ -24,36 +24,38 @@
         <script>
 
             function maximazeDialog2() {
-                w = jQuery(parent.window).width();
-                h = jQuery(parent.window).height();
-
                 var iff = jQuery("iframe[src*='recordViewDialog']", parent.document);
+                var staticNavbar = jQuery('.navbar-static-top', parent.document);
 
                 if (iff != null &amp;&amp; iff.length > 0) {
                     iff.parents('.ui-dialog').each(function () {
                         var wd = jQuery(this);
                         var wv = wd.attr('data-widgetvar');
 
-                        if (wv != undefined) {
-                            //parent.PF(wv).toggleMaximize();
-                            w = jQuery(parent.window).width();
-                            h = jQuery(parent.window).height() - 100;
-                            wd.css('max-height', '90vh');
+                        if (wv !== undefined) {
 
-                            wd.css('height', h + 'px');
-                            wd.css('width', w + 'px');
-                            wd.css('top', '0px');
-                            wd.css('left', '0px');
-                            wd.css('z-index', '9001');
+                            let jq = jQuery(this);
+                            let content = jq.children('.ui-dialog-content');
+                            let titlebar = jq.children('.ui-dialog-titlebar');
 
-                            h = h - 90;
-                            w = w - 30;
-                            iff.css('height', h + 'px');
-                            iff.css('width', w + 'px');
-                            iff.find('#raf-view-content').css('height', h + 20 + 'px');
+                            jq.addClass('ui-dialog-maximized').css({
+                                'width': 'calc(100vw)',
+                                'height': 'calc(100vh - ' + Math.floor(staticNavbar.height()) + 'px)',
+                                'top': Math.floor(staticNavbar.height()),
+                                'left': 0,
+                                'z-index': 2000
+                            });
 
-                            iff.css('overflow-y', 'scroll');
-                            iff.css('overflow-x', 'hidden');
+                            //maximize content
+                            iff.css({
+                                'width': '100%',
+                                'height': '100%'
+                            })
+
+                            content.css({
+                                'width': 'auto',
+                                'height': 'calc(100vh - ' + Math.floor(staticNavbar.height()) + 'px - ' + Math.floor(titlebar.height()) + 'px)'
+                            });
 
                         }
                     });
@@ -64,8 +66,7 @@
             //Dosya Seçim dialğu hem maximize olsun
             setTimeout(function () {
                 maximazeDialog2();
-                zIndexChange('1037');
-            }, 300);
+            }, 500);
         </script>
 
         <h:form id="recordViewDialogForm">
@@ -75,7 +76,7 @@
                 </h:panelGroup>
             </div>
 
-            <h:panelGroup id="raf-view-content" styleClass="row" layout="block">
+            <h:panelGroup id="raf-view-content" styleClass="row" layout="block" style="padding-bottom: 20px">
                 <ui:include src="#{rafRecordViewDialog.viewId}" >
                     <ui:param name="viewBean" value="#{rafRecordViewDialog}" />
                     <ui:param name="breadcrumbHide" value="true" />

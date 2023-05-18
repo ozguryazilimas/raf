@@ -24,6 +24,9 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
         setObject(object);
 
         Map<String, Object> options = new HashMap<>();
+        options.put("draggable", false);
+        options.put("resizable", false);
+        options.put("modal", true);
 
         RequestContext.getCurrentInstance().openDialog(getDialogName(), options, null);
     }
