@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.imports.email;
 
+import com.ozguryazilim.raf.models.email.EMailMessage;
 import com.ozguryazilim.telve.messagebus.command.AbstractCommand;
 
 import javax.mail.Message;
@@ -14,6 +15,7 @@ import javax.mail.Message;
 public class EMailImportCommand extends AbstractCommand {
 
     private Message eml;
+    private EMailMessage parsedEmail;
     private String rafPath;
     private String tempPath;
     private String jexlExp;
@@ -67,5 +69,13 @@ public class EMailImportCommand extends AbstractCommand {
 
     public void setFetchCommand(EMailFetchCommand fetchCommand) {
         this.fetchCommand = fetchCommand;
+    }
+
+    public EMailMessage getParsedEmail() {
+        return parsedEmail;
+    }
+
+    public void setParsedEmail(EMailMessage parsedEmail) {
+        this.parsedEmail = parsedEmail;
     }
 }

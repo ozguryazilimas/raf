@@ -48,7 +48,7 @@ public class EMailImportCommandExecutor extends AbstractCommandExecuter<EMailImp
         JexlContext jc = new MapContext();
         jc.set("rafService", rafService);
         jc.set("message", command.getEml());
-        jc.set("mail", RafEMailImporter.parseEmail(command.getEml()));
+        jc.set("mail", command.getParsedEmail());
         jc.set("importer", new RafEMailImporter(rafService, rafCategoryService, tagSuggestionService));
         jc.set("command", command);
         Object o = e.execute(jc);
