@@ -20,6 +20,9 @@ public class RafRecordViewDialog extends AbstractRafRecordViewController impleme
         setObject(object);
         
         Map<String, Object> options = new HashMap<>();
+        options.put("draggable", false);
+        options.put("modal", true);
+        options.put("resizable", false);
 
         RequestContext.getCurrentInstance().openDialog(getDialogName(), options, null);
     }
