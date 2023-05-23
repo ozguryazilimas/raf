@@ -19,7 +19,7 @@ public interface SettingsPages extends Pages{
     @SecuredPage("rafDefinitionAdmin")
     @Navigation(icon = "fa fa-archive", section = AdminNavigationSection.class)
     class RafDefinitionBrowse implements SettingsPages {};
-    
+
     @SecuredPage()
     class RafSettings implements SettingsPages {};
     
@@ -34,5 +34,8 @@ public interface SettingsPages extends Pages{
 
     @SecuredPage @View
     class DefaultSearchOptionPane implements Admin {};
-           
+
+    @SecuredPage @View
+    class ReadOnlyModeOptionPane implements Admin {};
+
 }

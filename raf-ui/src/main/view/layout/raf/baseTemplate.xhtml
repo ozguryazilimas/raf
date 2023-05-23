@@ -47,6 +47,21 @@
             
             <ui:insert name="outerspace"></ui:insert>
 
+            <ui:fragment rendered="#{readOnlyModeService.isEnabled() eq true}">
+                <div class="read-only-border"
+                     style="
+                        width: 100vw;
+                        height: 100vh;
+                        opacity: 0.7;
+                        display: block;
+                        border: 5px solid #ab1e00;
+                        z-index: 99999;
+                        position: fixed;
+                        pointer-events: none;
+                    "
+                ></div>
+            </ui:fragment>
+
             <div class="wrapper">
 
                 <ui:include src="#{themeManager.templateMainBar}" />

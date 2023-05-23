@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.jcr;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.definition.RafDefinitionRepository;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
@@ -43,6 +44,9 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
     @Inject
     private ServletCredentials servletCredentials;
 
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
+
     @Override
     public ExecutionContext authenticate(Credentials credentials, String repositoryName, String workspaceName, ExecutionContext repositoryContext, Map<String, Object> sessionAttributes) {
         return repositoryContext.with(this);
@@ -63,8 +67,14 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                         if (actionList.contains(READ)) {
                             rafPermission = getRafMemberService().hasReadRole(getIdentity().getLoginName(), rafDef);
                         } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
+                            if (readOnlyModeService.isEnabled()) {
+                                return false;
+                            }
                             rafPermission = getRafMemberService().hasWriteRole(getIdentity().getLoginName(), rafDef);
                         } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
+                            if (readOnlyModeService.isEnabled()) {
+                                return false;
+                            }
                             rafPermission = getRafMemberService().hasDeleteRole(getIdentity().getLoginName(), rafDef);
                         }
                     }
@@ -86,8 +96,14 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                 if (actionList.contains(READ)) {
                     permission = getRafPathMemberService().hasReadRole(getIdentity().getLoginName(), docPath);
                 } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
+                    if (readOnlyModeService.isEnabled()) {
+                        return false;
+                    }
                     permission = getRafPathMemberService().hasWriteRole(getIdentity().getLoginName(), docPath);
                 } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
+                    if (readOnlyModeService.isEnabled()) {
+                        return false;
+                    }
                     permission = getRafPathMemberService().hasDeleteRole(getIdentity().getLoginName(), docPath);
                 }
 
