@@ -2,6 +2,7 @@ package com.ozguryazilim.raf;
 
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.KahveKey;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class ReadOnlyModeService {
 
     @Transactional
     public void setState(ReadOnlyState state, String value) {
-        if (Arrays.stream(state.values).noneMatch(value::equals)) {
+        if (!isValidState(state, value)) {
             throw new IllegalArgumentException(String.format("Target value is not belonging to possible values. Possible values for %s are: %s", state.name(), Arrays.toString(state.values)));
         } else if (stateValues.get(state).equals(value)) {
             LOG.info("Target value is same as the states current value");
@@ -57,6 +58,14 @@ public class ReadOnlyModeService {
             kahve.put(state, value);
             stateValues.put(state, value);
         }
+    }
+
+    public boolean isValidState(ReadOnlyState state, String value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
+        }
+
+        return Arrays.stream(state.values).anyMatch(value::equals);
     }
 
     public String getState(ReadOnlyState state) {
