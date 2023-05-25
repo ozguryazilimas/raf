@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
+
+import org.primefaces.PrimeFaces;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -24,7 +26,7 @@ public class RafRecordViewDialog extends AbstractRafRecordViewController impleme
         options.put("modal", true);
         options.put("resizable", false);
 
-        RequestContext.getCurrentInstance().openDialog(getDialogName(), options, null);
+        PrimeFaces.current().dialog().openDynamic(getDialogName(), options, null);
     }
     
     protected String getDialogName() {
