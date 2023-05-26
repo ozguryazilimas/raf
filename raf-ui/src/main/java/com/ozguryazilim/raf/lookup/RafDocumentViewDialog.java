@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.UUID;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
+
+import org.primefaces.PrimeFaces;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -28,7 +30,7 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
         options.put("resizable", false);
         options.put("modal", true);
 
-        RequestContext.getCurrentInstance().openDialog(getDialogName(), options, null);
+        PrimeFaces.current().dialog().openDynamic(getDialogName(), options, null);
     }
 
     public String getUniqueFormName() {
