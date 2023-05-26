@@ -1,5 +1,7 @@
 package com.ozguryazilim.raf.models;
 
+import org.modeshape.jcr.query.model.QueryCommand;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -28,6 +30,8 @@ public class DetailedSearchModel {
     private Map<String, Object> mapAttValue;
 
     private Map<String, Object> mapWFAttValue;
+
+    private QueryCommand recordSubQuery;
 
     private Boolean caseSensitive = Boolean.FALSE;
     private Boolean searchInDocumentName = Boolean.TRUE;
@@ -246,5 +250,14 @@ public class DetailedSearchModel {
     public void setSearchInCreatedAndModifiedData(Boolean searchInCreatedAndModifiedData) {
         this.searchInCreatedAndModifiedData = searchInCreatedAndModifiedData;
     }
+
+    public QueryCommand getRecordSubQuery() {
+        return recordSubQuery;
+    }
+
+    public void setRecordSubQuery(QueryCommand recordSubQuery) {
+        this.recordSubQuery = recordSubQuery;
+    }
+
 
 }
