@@ -24,7 +24,7 @@
         <h:form id="recordViewDialogForm">
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                    <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafRecordViewDialog.cancelDialog()}" process="@this" styleClass="btn btn-primary"/>
+                    <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafRecordViewDialog.cancelDialog()}" process="@parent" styleClass="btn btn-primary"/>
                 </h:panelGroup>
             </div>
 
@@ -34,53 +34,6 @@
                     <ui:param name="breadcrumbHide" value="true" />
                 </ui:include>
             </h:panelGroup>
-
-            <script>
-                function maximizeDocumentViewDialog() {
-                    var iff = jQuery("iframe[src*='recordViewDialog']", parent.document);
-                    var staticNavbar = jQuery('.navbar-static-top', parent.document);
-
-                    if (iff != null &amp;&amp; iff.length > 0) {
-                        iff.parents('.ui-dialog').each(function () {
-                            var wd = jQuery(this);
-                            var wv = wd.attr('data-widgetvar');
-
-                            if (wv !== undefined) {
-
-                                let jq = jQuery(this);
-                                let titlebar = jq.children('.ui-dialog-titlebar');
-                                let content = jq.children('.ui-dialog-content');
-
-                                jq.addClass('ui-dialog-maximized').css({
-                                    'width': 'calc(100vw)',
-                                    'height': 'calc(100vh - ' + Math.floor(staticNavbar.height()) + 'px)',
-                                    'top': Math.floor(staticNavbar.height()),
-                                    'left': 0,
-                                    'z-index': 2000
-                                });
-
-                                //maximize content
-                                iff.css({
-                                    'width': '100%',
-                                    'height': '100%'
-                                })
-
-                                content.css({
-                                    'width': 'auto',
-                                    'height': 'calc(100vh - ' + Math.floor(staticNavbar.height()) + 'px - ' + Math.floor(titlebar.height()) + 'px)'
-                                });
-                            }
-                        });
-                    }
-                }
-
-                jQuery(document).ready(function () {
-                    setTimeout(() => {
-                        maximizeDocumentViewDialog();
-                    }, 1000);
-                });
-
-            </script>
 
         </h:form>
     </ui:define>

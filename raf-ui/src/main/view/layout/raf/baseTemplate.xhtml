@@ -17,6 +17,10 @@
             <title>#{telveConfigResolver.getProperty('app.title')} - #{ messages[pageTitle] }</title>
 
             <ui:include src="#{themeManager.templateHeader}" />
+
+            <h:outputScript library="raf" name="js/core.js" />
+            <h:outputStylesheet library="raf" name="css/rafFaces.css" />
+
             <ui:insert name="extraHead" />
             
             <ui:include src="/branding/applicationExtentions.xhtml" />
@@ -44,7 +48,7 @@
             <ui:remove>
             <ui:include src="/layout/notificationBar.xhtml" />
             </ui:remove>
-            
+
             <ui:insert name="outerspace"></ui:insert>
 
             <div class="wrapper">
@@ -55,6 +59,8 @@
                 </ui:remove>
 
                 <div class="content-wrapper" style="margin-left: 0px;">
+                    <h:panelGroup id="documentViewDialog-wrapper" />
+
                     <div id="quickpanel" class="quickPanel">
                         <p:outputPanel id="quickPanelContent">
                             <ui:include src="#{quickRecordController.dialogViewId}" />
