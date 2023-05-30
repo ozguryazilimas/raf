@@ -30,8 +30,6 @@ public class RafDocumentViewDialog extends AbstractRafDocumentViewController imp
     }
 
     public void cancelDialog() {
-        DocumentViewDialogUtils.cancelDialog();
-        setReaderPageState(false);
     }
 
     public boolean getSupportBreadcrumb() {

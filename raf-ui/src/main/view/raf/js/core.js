@@ -110,7 +110,6 @@
                     });
                 }
 
-                const conversationInputEl =
                 $frame.contents().find('form').each((idx, el) => {
                     $(el).append(RafFaces.__dialogUtils.__getConversationInputEl($(el).attr('id'), cfg.pfdlgcid));
                 });
@@ -137,9 +136,15 @@
                 .attr('src', frameURL);
         },
 
-        closeDocumentViewDialog: function(cfg) {
+        closeDocumentViewDialog: function(actionDlg) {
+            //Get conversation client id
+            var conversationClientId = new URLSearchParams(actionDlg.data).get('pfdlgcid');
+            if (!conversationClientId) {
+                return;
+            }
+
             var rootWindow = PrimeFaces.dialog.DialogHandler.findRootWindow(),
-                dlgs = $('#documentViewDialog_' + cfg.pfdlgcid + '_dlg', rootWindow.document).not('[data-queuedforremoval]'),
+                dlgs = $('.ui-dialog[data-pfdlgcid="' + conversationClientId + '"]', rootWindow.document).not('[data-queuedforremoval]'),
                 dlgsLength = dlgs.length,
                 dlg = dlgs.eq(dlgsLength - 1),
                 dlgWidget = rootWindow.PF(dlg.data('widgetvar'));

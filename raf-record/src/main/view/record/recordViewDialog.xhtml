@@ -24,7 +24,13 @@
         <h:form id="recordViewDialogForm">
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" style="/*position: fixed; bottom: 0; display: block;*/">
-                    <p:commandButton id="close" value="#{messages['general.button.Close']}" icon="ui-icon-close" action="#{rafRecordViewDialog.cancelDialog()}" process="@parent" styleClass="btn btn-primary"/>
+                    <p:commandButton id="close"
+                                     value="#{messages['general.button.Close']}"
+                                     icon="ui-icon-close"
+                                     action="#{rafRecordViewDialog.cancelDialog()}"
+                                     oncomplete="window.top.RafFaces.closeDocumentViewDialog(this)"
+                                     process="@this"
+                                     styleClass="btn btn-primary"/>
                 </h:panelGroup>
             </div>
 

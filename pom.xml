@@ -125,7 +125,7 @@
         <repository>
             <id>ozguryazilim</id>
             <name>Özgür Yazılım A.Ş. Nexus Reporsitory</name>
-            <url>https://ambar.ozguryazilim.com.tr/repository/maven-public</url>
+            <url>http://nexus.ozguryazilim.com.tr/repository/maven-public</url>
         </repository>
     </repositories>
     
@@ -133,12 +133,12 @@
         <repository>
             <id>nexus</id>
             <name>Özgür Yazılım A.Ş. Nexus Reporsiyory</name>
-            <url>https://ambar.ozguryazilim.com.tr/content/repositories/releases/</url>
+            <url>http://nexus.ozguryazilim.com.tr/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
             <name>Özgür Yazılım A.Ş. Nexus Snapshots Reporsiyory</name>
-            <url>https://ambar.ozguryazilim.com.tr/content/repositories/snapshots/</url>
+            <url>http://nexus.ozguryazilim.com.tr/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
