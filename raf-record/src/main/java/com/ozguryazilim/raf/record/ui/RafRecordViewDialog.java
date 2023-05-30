@@ -28,7 +28,6 @@ public class RafRecordViewDialog extends AbstractRafRecordViewController impleme
      * Dialogu hiç bir şey seçmeden kapatır.
      */
     public void cancelDialog() {
-        DocumentViewDialogUtils.cancelDialog();
     }
     
     public boolean getSupportBreadcrumb() {

@@ -38,20 +38,5 @@ public class DocumentViewDialogUtils {
         }
 
     }
-    
-    public static void cancelDialog() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        Map<String,String> requestParams = facesContext.getExternalContext().getRequestParameterMap();
-        String pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
-        
-        try {
-            JSONObject closeDialogParams = new JSONObject();
-            closeDialogParams.put("pfdlgcid", pfdlgcid);
-            PrimeFaces.current().executeScript("window.top.RafFaces.closeDocumentViewDialog(" + closeDialogParams+ ")");
-        } catch (JSONException e) {
-            LOG.error("Error while canceling document view dialog with pfdlgcid: {}", pfdlgcid);
-        }
-
-    }
 
 }
