@@ -1,0 +1,937 @@
+= RAF Sürüm Notları
+
+== 1.3.0-Beta.9
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73410[#73410] Arama sayfasında Süreç Arama ekranında süreç arama işlemi gerçekleştirilemiyor  
+
+== 1.3.0-Beta.8
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73887[#73887] Süreç akışında bazı görsel dosyalar için önizleme modalı açıldığında modal tam ekran olmuyor ve scroll yapılamıyor  
+
+== 1.3.0-Beta.7
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53169[#53169] Raf E-Posta import sırasında okunmuş e-postalara ne yapılacak parametre yapısı gelmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73016[#73016] Yeni süreç başlatma modalında ekli olan belge üzerine tıklayınca önizleme ekranı modalın arkasında açılıyor ve görünümün bozulması neden oluyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73785[#73785] Telve 4.2.10-Final versiyon güncellemesi  
+
+== 1.3.0-Beta.6
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71809[#71809] (Mobil) Desktop&#x27;ta görünen dosyaların hepsi mobilde görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73016[#73016] Yeni süreç başlatma modalında ekli olan belge üzerine tıklayınca önizleme ekranı modalın arkasında açılıyor ve görünümün bozulması neden oluyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73074[#73074] Raf-docs-release pipeline ı hazırlanması ve raf-release pipeline ının raf-help paketini de deploy edecek şekilde güncellenmesi.  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73646[#73646] Raf koleksiyon ekranında &quot;Tablo&quot; görünüm türünde eğer sayfanın listeleyebileceği sayıdan fazla klasör ve/veya dosya varsa ve &quot;Klasörleri Göster&quot; seçeneği kaldırılıp sayfa sonuna scroll yapıldıktan sonra dosyaların kaybolması  
+
+== 1.3.0-Beta.5
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71809[#71809] (Mobil) Desktop&#x27;ta görünen dosyaların hepsi mobilde görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73015[#73015] Yeni süreç başlatma modalında belge sayısı çok olduğunda (7-8+ belge) modalın alt tarafı görünmüyor, görünmediği için butonlara tıklanamıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73474[#73474] Arama sayfasında &quot;Sadece Dosya İçeriğinde Arama&quot; yaparken tüm raflarda arama izni verilmemesine rağmen /PROCESS ve /RAF/Email dizinlerinin içindeki çıktıların da gelmesi sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73475[#73475] Raf koleksiyon ekranında &quot;Tablo&quot; görünüm türünde eğer sayfanın listeleyebileceği sayıdan fazla klasör ve/veya dosya varsa ve  &quot;Klasörleri Göster&quot; seçeneği kaldırılıp sayfa sonuna scroll yapılmaya çalışılırsa load animasyonu döngüsüne giriyor.  
+
+== 1.3.0-Beta.4
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/60037[#60037] Belge seçim modalında belgelerin devamının yüklenmemesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71428[#71428] Kilitli kullanıcılara da e-posta bildirimi yapılıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71878[#71878] Arama sayfasında listelenen dosyaların üzerine tıklayınca açılan &quot;Belge Detayları&quot; modalının alt tarafı görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72982[#72982] Etiket ekleme modalını açıp kapattıktan sonra sayfa yenilenmek istendiğinde etiket ekleme modalını açmak için yeniden istek gönderiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72992[#72992] Dosya önizleme sayfasını açtıktan sonra rafa geri dönünce dosya indirme işlemi yapılamıyor, sayfayı yenileyince bilgiyi yeniden gönder uyarısı veriyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73016[#73016] Yeni süreç başlatma modalında ekli olan belge üzerine tıklayınca önizleme ekranı modalın arkasında açılıyor ve görünümün bozulması neden oluyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73028[#73028] Evrak Kayıt--&gt; Görevler sayfasında dosya yolu seçim modalında kullanıcının raflar listesinde yer almayan (yetkisi olmayan) raflar listeleniyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73029[#73029] Evrak Kayıt--&gt; Görevler sayfasında dosya yolu seçim modalında &quot;Arama Yapılacak Dosya Yolu Seçimi&quot; ve &quot;Arama Yapılacak Dizin&quot; textlerinin değiştirilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73030[#73030] Evrak Kayıt--&gt; Görevler sayfasında dosya yolu seçim modalında seçilen dosyanın seçili olduğunu belirten bir işaret eklenmesi (check ikonu gibi)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73057[#73057] Evrak Kayıt--&gt; Görevler sayfasında dosya yolu seçim modalında dosya seçimi yapmadan tamam butonuna tıklandığında ekran uzun süre animasyonda kalıyor (20sn kadar)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73122[#73122] &quot;Evrak Kayıt&quot;--&gt;&quot;Süreçler&quot; sayfasında yeni bir gelen evrak veya iç yazışma oluşturulduğunda tarihçe sekmesinin yanlış gösterilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73196[#73196] Dosya yeni sekmede açıldığında, permalink oluşturma sonrasında, klasör yeni sekmede açıldığında önizleme alanının üst tarafındaki klasör ağacındaki klasörler eksiliyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73233[#73233] Süreç akışında süreç belgelerini içeren ana bağlantıya tıklayınca açılan evrak detayları modalı ekrana sığmıyor, scroll olmuyor, tarayıcı çözünürlüğü düşürüldüğünde sığıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73240[#73240] Süreç akışlarındaki inputların hizalama/kayma sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73241[#73241] Standart Kullanıcı hesabında döşeme düzenleyici ekranında &quot;Süreçlerim&quot; dashboard&#x27;u görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73253[#73253] Evrak kayıt (Süreçler) akışı görev arama alanı &quot;Görev Sahibi&quot; dropdown&#x27;ında &quot;Benim Görevlerim&quot; seçeneğinde scroll sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73276[#73276] Evrak Kayıt--&gt; &quot;Görevler&quot; sayfasına ilk girildiğinde &quot;Aktif, Benim Görevlerim&quot; görünecek şekilde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73351[#73351] Süreçler sayfasında bir süreçte yer alan belgeye tıklayıp ardından &quot;İncele&quot; butonuna tıklayınca beyaz ekran açılıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73439[#73439] Raf Telve sürümünün 4.2.8-Final e yükseltilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73440[#73440]  Raf içerisinde farklı klasörlere geçildiğinde dizin içerisindeki dosya ve klasörlerin sıralaması değişiyor (&quot;Tip&quot; , &quot;Kategori&quot; , &quot;Değiştirme Tarihi (Eskiden Yeniye)&quot; , &quot;Değiştirme Tarihi (Yeniden Eskiye)&quot; sıralama seçenekleri için)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73458[#73458] Süreçler akışında kullanıcıya görev atandığında mail gitmiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73590[#73590] Raf Telve sürümünün 4.2.9-Final sürümününe yükseltilmesi  
+
+== 1.3.0-Beta.3
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73562[#73562] 1.3.0-Beta.3 Aktarımında bulunan Sonar bug ları ve code smell lerinin çözülmesi  
+
+== 1.3.0-Beta.2
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53169[#53169] Raf E-Posta import sırasında okunmuş e-postalara ne yapılacak parametre yapısı gelmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72664[#72664] Raf içerisinde dosya ve klasörleri sıralarken &quot;Önce Klasörler&quot; seçeneği seçili olmadığı halde seçiliymiş gibi davranıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72909[#72909] Arama sayfasında &quot;Sadece Dosya İçeriğinde Ara&quot; seçeneği ile arama yapınca çıktı vermiyor (full text search)  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73017[#73017] Yeni süreç başlatma modalından belge eklenebilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73018[#73018] Yeni süreç başlatma modalında eklenen belgelerin modal üzerinden silinebilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73023[#73023] Raf içerisinde alt klasöre ardından tekrar üst klasöre geçildiğinde dizin içerisindeki dosya/klasör sıralaması değişiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73028[#73028] Evrak Kayıt--&gt; Görevler sayfasında dosya yolu seçim modalında kullanıcının raflar listesinde yer almayan (yetkisi olmayan) raflar listeleniyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73037[#73037] Evrak Kayıt--&gt; Görevler sayfasındaki Süreç Detayları butonunun yanına &quot;Tarihçe&quot; butonunun eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73038[#73038] Süreç iptal butonuna tıklayınca uyarı modalı açılması, iptal butonunun gösterilmemesi (veya pasif gösterilmesi)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73055[#73055] Yeni süreç başlatıldığında kullanıcıya giden maildeki görev linki TSPB&#x27;ye ait  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73117[#73117] Süreç akışlarında ilgili kullanıcının ilgili akışı ilerletmek için yetkisi yoksa &quot;Onayla&quot; , &quot;Reddet&quot; vb. butonların gösterilmemesi veya kullanıcıya yetkisi olmadığına dair uyarı gösterilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73196[#73196] Dosya yeni sekmede açıldığında, permalink oluşturma sonrasında, klasör yeni sekmede açıldığında önizleme alanının üst tarafındaki klasör ağacındaki klasörler eksiliyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73237[#73237] Süreç akışında süreç belgelerini içeren ana bağlantıya tıklayınca açılan evrak detayları modalında süreç detayları bağlantısına tıklayınca beyaz ekran sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73246[#73246] Raf içerisinde süreç record dosyası dosya paylaşımına açıldığında paylaşım bilgileri önizleme sayfasında görünmüyor, maile gelen paylaşım bağlantısı boş dosya indiriyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73312[#73312] Logo alanına yeni bir logo eklendiğinde daha iyi görünecek şekilde düzenlenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73360[#73360] Raf Telve4 versiyonunun 4.2.7&#x27;ye yükseltilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73398[#73398] TaskConsole alanı açılmaya çalışılırken hata alınması, beyaz ekran ile karşılaşılması.  
+
+* ** #73426   
+
+== 1.3.0-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 11 https://lab.ozguryazilim.com.tr/raf/raf/commit/87d63bd159764f4a84770b4575d501907441128d[87d63bd159764f4]
+** changed minornumber to 10 https://lab.ozguryazilim.com.tr/raf/raf/commit/d5d570a7c400836f95c1141883b4e12762cc68ec[d5d570a7c400836]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71428[#71428] Kilitli kullanıcılara da e-posta bildirimi yapılıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71789[#71789] Seçili durumdaki dosyaların/klasörlerin toplam boyutunu görebilme  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72640[#72640] Arama sayfasında &quot;İsim&quot; seçeneğine göre sıralama yapınca arama sonuçlarında listelenen dosya sayısı azalıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72645[#72645] Yönetim--&gt; &quot;Departmanlar&quot; sayfasında &quot;Sakla ve Yeni&quot; butonu ile yeni departman ve alt departman tanımlanamıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72646[#72646] Yönetim--&gt; &quot;Öneriler&quot; sayfasında arama yapınca çıktı vermiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72677[#72677] Kişisel raftaki bir dosya özelindeki kopyala yapıştır işleminde farklı bir dosyanın yapıştırılması sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72909[#72909] Arama sayfasında &quot;Sadece Dosya İçeriğinde Ara&quot; seçeneği ile arama yapınca çıktı vermiyor (full text search)  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72933[#72933] Raf Email Import zamanlanmış görevinin eksikliklerinin giderilmesi ve testlerinin yapılması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72970[#72970] Adında jcr-illegal karakterler içeren dosyaların yükleme sorunlarının giderilmesi - jcr-name alanlarında kullanılacak JCR-illegal karakterlerin encode edilmesi.  
+
+* ** #72993   
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73013[#73013] Süreç diyagramları uygulama içerisinde görülmüyor.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73076[#73076] Raf OCR - Tesseract incelemeleri  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73079[#73079] JcrRest /query endpointine atılan isteklerde debug logu olarak queryPlan basılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73157[#73157] 1.3.0 Sürüm yükseltilmesi ve sürüm çalışmaları  
+
+== 1.2.10-Final
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72989[#72989] Raf Telve versiyonunun 4.2.6-Final e yükseltilmesi  
+
+== 1.2.9-Final
+* *Diğer Değişiklik*
+** changed minornumber to 9 https://lab.ozguryazilim.com.tr/raf/raf/commit/c064c4f28ddfac4502f560876e93f9f3d9330600[c064c4f28ddfac4]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71681[#71681] Herhangi bir rafın içerisinde dosya veya klasör seçince sayfanın en üstüne scroll olma sorunu  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72763[#72763] Birden fazla dosya/klasör seçilerek favorilere eklenebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72785[#72785] Dosya paylaşımında girilen maillerin alt alta görünecek şekilde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72927[#72927] Okuyucu rolüne sahip kullanıcının etiket ekleme sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72938[#72938] Etiket ekleme aksiyonunun yetkilendirilmesinin düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72956[#72956] Kod kalitesinin iyileştirilmesi, Sonar quality gate raporuna yönelik düzenlemeler.  
+
+== 1.2.8-Final
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72859[#72859] Arama sayfasında arama yapınca sonuçlar listelenmiyor, kayıt yok uyarısı veriyor  
+
+== 1.2.8-Beta.3
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72856[#72856] Raf Telve versiyonunun 4.2.5-Final e yükseltilmesi  
+
+== 1.2.8-Beta.2
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/66597[#66597] Mac işletim sisteminde ismi Türkçe karakterler ile oluşturulan dosyalar rafa yüklenince ismi İngilizce karakter olarak değişmiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71681[#71681] Herhangi bir rafın içerisinde dosya veya klasör seçince sayfanın en üstüne scroll olma sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71834[#71834] Zip olmayan dosyalarda görünen &quot;Zip Dosyayı Bulunduğu Klasöre Çıkar&quot; butonunun kaldırılması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71860[#71860] Arama sayfasında &quot;Oluşturma Tarih&quot; inputlarında bitiş tarihi başlangıç tarihinden önceki tarihlere seçilebiliyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71865[#71865] Ana ekran üzerinden arama sayfasına girip arama sayfasında dosya yolu seçim modalında yukarı butonuna veya klasöre tıklayınca animasyonda kalıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71874[#71874] Dosyaların/klasörlerin çoklu olarak etiketlenebilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71878[#71878] Arama sayfasında listelenen dosyaların üzerine tıklayınca açılan &quot;Belge Detayları&quot; modalının alt tarafı görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71892[#71892] Arama sayfası--&gt; Aramayı Kaydet modalı--&gt; &quot;Açıklama&quot; inputuna veri girmeden kaydet yapıldığında gösterilen mesajın anlamlı hale getirilmesi veya veri girişi yapmadan kaydetme işlemi yapılamayacak şekilde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72429[#72429] Dosya üzerinde sağ tıklayıp &quot;Yeni Sekmede Aç&quot; butonuna tıklayınca dosya yerine dosyanın bulunduğu raf yeni sekmede açılıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72778[#72778] Raf Telve versiyonunun 4.2.5-Beta.2 ye yükseltilmesi  
+
+== 1.2.8-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 8 https://lab.ozguryazilim.com.tr/raf/raf/commit/fb77f5cef3a3326e554213fd568305c984252949[fb77f5cef3a3326]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71857[#71857] Arama sayfasında aramayı kaydet işleminden sonra &quot;Oluşturma Tarih&quot; ve &quot;Arama&quot; inputlarına veri girişi yapılamıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71919[#71919] Kopyala yapıştır işlemi bazen gerçekleşmiyor bazen de sayfayı yeniledikten sonra gerçekleşiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72431[#72431] Dosya önizleme sayfasından rafa geri dönünce scroll konumu hatırlanmıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72616[#72616] Arama sayfasında &quot;Değiştirme Tarihi&quot; seçeneğine göre sıralamanın doğru çalışmama sorunu  
+
+== 1.2.7-Final
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72136[#72136] Yönetim--&gt; &quot;Raf Yönetimi&quot; sayfasında raf&#x27;a grup ekleme ekranında Grup inputundan Büyük/Küçük harf duyarlılığının kaldırılması  
+
+== 1.2.7-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 7 https://lab.ozguryazilim.com.tr/raf/raf/commit/4becd8574366522c3c7a3a941260975e4724f1e9[4becd8574366522]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71910[#71910] Dosyayı seçili duruma getirip sağ tık ile açılan menüden sil işlemi yapınca &quot;Kayıt silinemedi!&quot; uyarısı veriyor ama dosyayı siliyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71927[#71927] Arama sayfasında &quot;Oluşturma Tarihi&quot; ve &quot;Değiştirme Tarihi&quot; ile sıralama yaparken sıralama türünün A&#x27;dan Z&#x27;ye yerine &quot;Eskiden Yeniye&quot; ve &quot;Yeniden Eskiye&quot; olacak şekilde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71928[#71928] İsmi değiştirilen (silinmeyen) belge olaylar dashboard&#x27;unda &quot;....isimli belge silindi&quot; şeklinde görünüyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72226[#72226] Döküman paylaşım linkinin clickable yapılması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72303[#72303] Yönetim--&gt; &quot;Raf Yönetimi&quot; sayfasında raf seçilip &quot;Sil&quot; butonuna basıldığında uyarı modalı çıkmalı  
+
+== 1.2.6-Final
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/70927[#70927] nodeId döndürecek rest endpointi eklenmesi  
+
+== 1.2.6-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 6 https://lab.ozguryazilim.com.tr/raf/raf/commit/ed8fa9dae16fba7bc2d50a15bb6e48c196b82de8[ed8fa9dae16fba7]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/68825[#68825] &#x27; karakterin içeren dosya isimleri ile Elasticsearch e istek atılamaması, karakteri içeren indexlerin yazımı ve aramalarında sorun oluşması  
+
+== 1.2.5-Final
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/68074[#68074] Reindex için yazılan rest endpointindeki kusurların giderilmesi.  
+
+== 1.2.5-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 5 https://lab.ozguryazilim.com.tr/raf/raf/commit/eae8d114f8c49526daea6cc318e5ebc996d7742f[eae8d114f8c4952]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/67902[#67902] Raf arama sorgularının ve indexlerin optimize edilmesi, gereksiz dokümanlardan ayırıştırılması  
+
+== 1.2.4-Final
+* ** #6708   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/67429[#67429] Session, Workspace ve QueryManager ların org.modeshape paketinden kullanılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/67458[#67458] Dizin reindexleme komutu implementasyonunun ortak ve kişisel rafları kapsayacak biçimde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/67459[#67459] jcr:data verisinin ayrı index ile indexlenmesi  
+
+== 1.2.4-Beta.3
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/67089[#67089] Emergency Exit Seat Warning&#x27;te hatalı yazı gelmesi  
+
+== 1.2.4-Beta.2
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/66728[#66728] Herhangi bir rafta search işlemi sonrası anasayfaya ilerleyip ardından search butonuna basınca beyaz ekranda kalma sorunu  
+
+== 1.2.4-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 4 https://lab.ozguryazilim.com.tr/raf/raf/commit/84be806cbcf1b4882cb90bf0b5e663299074a525[84be806cbcf1b48]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/66101[#66101] Rollerdeki ortak raf yetkilerinden işlevi eksik olanlarının implementasyonlarının yapılması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/66418[#66418] Indexprovider düzenlemeleri, index ile ilgili sorunların giderilmesi  
+
+== 1.2.3-Final
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/65754[#65754] Raf altındaki klasör isminde arama yapıldığında çıktı alınamıyor  
+
+== 1.2.3-Beta.2
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/61533[#61533] Birden fazla dosyanın seçilerek paylaşılabilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/61855[#61855] Ortak raf yetkilendirme sorunları  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/62595[#62595] Dosya paylaşım e-posta öntanımlı şablonunun düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/64478[#64478] Raf altında klasör içindeki dosyalar sağ tarafta listelenmiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/64914[#64914] Toplu yüklemelerde dosya önizlemesi oluşturulması için dosya sayısı sınırı oluşturulması  
+
+== 1.2.3-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 3 https://lab.ozguryazilim.com.tr/raf/raf/commit/3045a4efef24ef43d688933f171949b329fd2b49[3045a4efef24ef4]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/61553[#61553] Klasör diziliminin sağ ve sol tarafta aynı olacak şekilde düzenlenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/61601[#61601] Raf telve sürümünün 4.2.3-Final e yükseltilmesi  
+
+== 1.2.2-Final
+* *Diğer Değişiklik*
+** changed minornumber to 2 https://lab.ozguryazilim.com.tr/raf/raf/commit/6515f406725ee11f6555561cf212c44ce7af494b[6515f406725ee11]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60387[#60387] Rafa kullanıcı ekleme ve silmede audit logu yazılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/61081[#61081] Webdav adında fazladan . olan dosyalar yüklenince alınan hata.  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/61091[#61091] Rafshare url inin linkDomain sonunda &#x27;/&#x27; olmadığı durumları da kapsayacak şekilde oluşturulması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/61123[#61123] Rafshare tooltip inin adının yanlış gözülmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/61156[#61156] Raf içerik panelinin genişletilmesi  
+
+== 1.2.2-Beta.1
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53633[#53633] Paylaşılan dosyaların listesi ve indirilme bilgileri bir dashboard&#x27;da görülebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60208[#60208] Türkçe karakter içeren dosya isimlerine sahip dosyaların webdav ile yüklenememesi.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60889[#60889] Versiyon sıralaması düzenlemesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60890[#60890]  Değiştirme tarihi güncellenmiyor.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60892[#60892] RAF PDF Dosya incele ekranından geri dönülemiyor.  
+
+== 1.2.1-Final
+* *Diğer Değişiklik*
+** Update telve version 4.2.2-Final https://lab.ozguryazilim.com.tr/raf/raf/commit/29c3d5515a2948a2eb16b2330ef778f724936df8[29c3d5515a2948a]
+
+== 1.2.1-Beta.7
+* *Diğer Değişiklik*
+** update telve version to 4.2.0-Final https://lab.ozguryazilim.com.tr/raf/raf/commit/93208a7b7119043b530b1a93515528679c391c57[93208a7b7119043]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/59646[#59646] Shared ve Private rafta obje kök dizini aranırken sonsuz döngüye giriliyor  
+
+* ** #59794   
+
+* ** #59795   
+
+* ** #59822   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60161[#60161] Raflarım paletindeki kalem ikonunun mercek ikonuyla değiştirilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/60211[#60211] Destekçi rolünün yeni versiyon yükleyebilmesinin engellenmesi.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/60266[#60266] 1.2.1-Beta.6 Sürüm çalışmaları  
+
+== 1.2.1-Beta.6
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53633[#53633] Paylaşılan dosyaların listesi ve indirilme bilgileri bir dashboard&#x27;da görülebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/59437[#59437] İçerik kontrol görevinin eksik içerikleri loga da yazacak şekilde güncellenmesi  
+
+== 1.2.1-Beta.5
+* *Diğer Değişiklik*
+** updated telve version to 4.2.0-Beta.2 https://lab.ozguryazilim.com.tr/raf/raf/commit/0a93916981ff5efac3a61c87c4dcd35ba0a8cb3d[0a93916981ff5ef]
+** Revert "Merge branch 'fix/29605/organizer_role' into 'master'" https://lab.ozguryazilim.com.tr/raf/raf/commit/5b5c2d46331e7e9367a82475a02157781067cab0[5b5c2d46331e7e9]
+** Update telve.properties https://lab.ozguryazilim.com.tr/raf/raf/commit/c2b7e5833006314c730ae69883f60d14d2962ccf[c2b7e5833006314]
+** Upload New File https://lab.ozguryazilim.com.tr/raf/raf/commit/325bdfdb386e2ccc72d182e6b3ed90a9b37dc035[325bdfdb386e2cc]
+** Upload New File https://lab.ozguryazilim.com.tr/raf/raf/commit/3588d36239be589c04336a2e4884000eccd2cdb2[3588d36239be589]
+** Upload New File https://lab.ozguryazilim.com.tr/raf/raf/commit/5e7ce6f6d3f034be2975d0b4fc176d0aede5a7ee[5e7ce6f6d3f034b]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29067[#29067] Permalink desteği eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29158[#29158] Belgelere yorum girilebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29605[#29605] Raf&#x27;a eklenen kullanıcı rollerine silme yetkisi olmayan bir rol eklenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31825[#31825] Tema değiştirme seçeneğinin kaldırılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53633[#53633] Paylaşılan dosyaların listesi ve indirilme bilgileri bir dashboard&#x27;da görülebilmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/57076[#57076] Grup yönetiminde grup üyelerinde yapılan değişiklik rafa yansıyor fakat o rafın klasörüne yansımıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/57649[#57649] Duyuru özelliğinin geliştirilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/58135[#58135] REST API&#x27;a dosya silme endpoint&#x27;i eklenmesi  
+
+== 1.2.1-Beta.4
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29605[#29605] Raf&#x27;a eklenen kullanıcı rollerine silme yetkisi olmayan bir rol eklenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31175[#31175] FileUpload dialoğuna yüklenecek dosyaların nereye yükleneceği gösterilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53618[#53618] Yetkili kullanıcının mevcut checkout&#x27;u iptal etme becerisi olmalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53622[#53622] Recently (son bakılan, indirilen, yüklenen) dosyalar dashboard&#x27;u yapalım  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/58012[#58012] Ortak ve Kişisel raflarda aksiyonların gözükmemesi.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/58135[#58135] REST API&#x27;a dosya silme endpoint&#x27;i eklenmesi  
+
+== 1.2.1-Beta.3
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29161[#29161] Zamanlanmış ve parola korumalı olarak dosyalar dış dünya ile paylaşılabilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/30020[#30020] Bir kullanıcı bir Raf&#x27;a eklendiğinde &quot;Olaylar&quot; dashletine olay eklensin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52806[#52806] Tüm aramalarda büyük-küçük harf ayrımı yapılmaması ayarının eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53637[#53637] Checkout edilmiş dosyaların listesi dashboard olarak sunulmalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54057[#54057] raf-cli ile belirli bir Raf&#x27;ın ya da Raf içindeki klasörün export edilebilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/54951[#54951] bazı audit logu db&#x27;ye yazılamıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54995[#54995] Tablo görünümünde sütun başlıklarında sıralama türü gösterilsin.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55882[#55882] RAF CLI - user import edildiginde ldap kullanıcıları isAutoCreated olarak işaretlenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/56209[#56209] Regenerate Preview gün sonu job&#x27;una sadece eksikleri üret seçeneğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/56259[#56259] Regenerate Preview aksiyonuna tıklandığında onay popup&#x27;ı çıkarılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/56404[#56404] Tus upload directory temizliği için zamanlanmış görev oluşturulması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/57143[#57143] Infinite Scroll yapılarak 200 den fazla dosya görüntülenemiyor.  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/57185[#57185] RAF JBPM Modülünün kontrolünün RafContext e bağlanması sorunu  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/57439[#57439] &quot;Oluşturan Kullanıcı&quot; ve &quot;Değiştiren Kullanıcı&quot; sıralaması implementasyonunun yapılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/57576[#57576] Raf&#x27;ın veritabanı bütünlüğünü kontrol edecek bir scheduled job hazırlanması  
+
+== 1.2.1-Beta.2
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/57673[#57673] Raf 1.2.1-Beta.2 versiyon çalışmaları  
+
+== 1.2.1-Beta.1
+* *Diğer Değişiklik*
+** fix: fixed sonar errors and update telve version https://lab.ozguryazilim.com.tr/raf/raf/commit/5c52496f348eb5a60c431809303cf07cf8d8b3dc[5c52496f348eb5a]
+** Conflict fixing https://lab.ozguryazilim.com.tr/raf/raf/commit/dac19fa54bca09cfc39ba63e94b7640504d5325f[dac19fa54bca09c]
+** increment major version number https://lab.ozguryazilim.com.tr/raf/raf/commit/67d27ca242f3686620f88beec2f0ca1225170d16[67d27ca242f3686]
+** changed minornumber to 1 https://lab.ozguryazilim.com.tr/raf/raf/commit/b56669a7833698f936e4938a6a89edfc50786de0[b56669a7833698f]
+** conflict fixed https://lab.ozguryazilim.com.tr/raf/raf/commit/8a4d27bef1811d549fd1eb573ac53330b1b65caf[8a4d27bef1811d5]
+** conflict fix https://lab.ozguryazilim.com.tr/raf/raf/commit/efa80f7ef3b7211257620f407f36ba6e0275de70[efa80f7ef3b7211]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29165[#29165] Kullanıcılar tarafından istenilen dosyalar ve klasörler favori olarak işaretlenebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/30049[#30049] Aynı dizine aynı isimde dosya yüklemek denendiğinde uyarı versin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52806[#52806] Tüm aramalarda büyük-küçük harf ayrımı yapılmaması ayarının eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52817[#52817] &quot;Olaylar&quot;ın ilgili Raf&#x27;taki kullanıcılara e-posta ile gönderilebilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53624[#53624] Favori dosya ve klasörleri uygulama dashboardunda gösterilsin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54328[#54328] Raf Rest API üzerinde çekilen users, raf definitions, raf members gibi endpointlerde yetki mekanizması uygulanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55127[#55127] Raf favicon eklenlenmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55182[#55182] Yönetici rolündeki kişi üye olmadığı raf&#x27;ın istatistiklerini göremiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55234[#55234] Raf içerisinde dosya sisteminde gezinirken mouse ile yapılan sağ click&#x27;in özelliştirilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55235[#55235] Seçim yapılan dosyayı kapadığımızda navigasyon listenin en başına atıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55324[#55324] Kesilen dosya başka bir rafa taşınırken hata veriyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55648[#55648] Raf Member Ekleme/Silme işlemlerinde audit log ile loglanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55696[#55696] Arama kutucuğuna search simgesi eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55807[#55807] Multiple File Download anahtarı varsayılan olarak true olsun  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55953[#55953] Key çeviri eksikliği (action.title.ShowDirectionAction)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/56072[#56072] Statik tanımlı raflarda önizlemeleri yeniden oluşturma ikonu gözükmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/56088[#56088] Yeni Raf oluştururken türkçe karakter kullanılamıyor.  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/56092[#56092] Statik tanımlı raflarda daha önce açılmış bir belge gösterimi sürekli karşımıza çıkıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/56294[#56294] Raf Path Member - Ekleme/Silme/Güncelleme işlemlerinin audit log&#x27;a kaydedilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/56918[#56918] Elasticsearch index&#x27;leri sorgularda kullanamıyor  
+
+== 1.1.0-Final
+* *Diğer Değişiklik*
+** updated telve version to 4.1.0-final https://lab.ozguryazilim.com.tr/raf/raf/commit/7cf40a6134576ab5ffaa2ce0fd4e2aa7b7c6bdf2[7cf40a6134576ab]
+
+== 1.1.0-Beta.5
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/30030[#30030] action.addMetadata çevirisi eksik ve hatalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31628[#31628] Çeviri hataları/Eksikleri  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53577[#53577] İstenildiği zaman eski sürüme dönülebilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53601[#53601] Navigasyon barına logo eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54824[#54824] Raf klasörlerinde pagination yerine lazy loading yapılabilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55103[#55103] Daha önce açılmış bir belge gösterimi sürekli karşımıza çıkıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55201[#55201] PDF Preview için 2 sayfa çıkarma  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/55233[#55233] PDF reader özelliğinin geliştirilmesi  
+
+== 1.1.0-Beta.4
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55443[#55443] Lazy Loading geliştirme sonrası raf&#x27;a yüklenen dosyanın context&#x27;i yenilemeden gözükmemesi  
+
+== 1.1.0-Beta.3
+* *Diğer Değişiklik*
+** chore: Telve version up 4.1.0-Beta.4 https://lab.ozguryazilim.com.tr/raf/raf/commit/41c71ab68a50d29ed7e1d216b2a496705c5767a2[41c71ab68a50d29]
+
+== 1.1.0-Beta.2
+* *Diğer Değişiklik*
+** feat: raf help icin konfigurasyon tanimlari https://lab.ozguryazilim.com.tr/raf/raf/commit/199c860a55a8053895f08623bb39bd03abab426e[199c860a55a8053]
+** refactor: Artık kullanılmayan raf-help-war silindi https://lab.ozguryazilim.com.tr/raf/raf/commit/0f796e7dd9e539a6909022ebb1fb6d07b8e1ab38[0f796e7dd9e539a]
+** feat: Telve yeni yardım topic yapısına geçiş https://lab.ozguryazilim.com.tr/raf/raf/commit/4965d359e29b4e322972279544c4e7601cabd0d7[4965d359e29b4e3]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29166[#29166] Bir klasör ya da dosyanın ismi değiştirilebilmeli   
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31937[#31937] Yeni raf adı boşluk şeklinde oluşturulabiliyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/45113[#45113] Raf üyelerindeki son yönetici silinemesin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/50063[#50063] Raflarım paletindeki raf sayısının her bir kullanıcı için özelleştirilebilmesi ve hatırlanması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/52812[#52812] Klasöre yeni yüklediklerimin listesini ilk sayfada göremiyorum  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52819[#52819] Dosya yeni sürüm ilavesi için açıklama notu bırakma özelliği   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52822[#52822] Rafların rapor / istatistik sayfası oluşturulması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52823[#52823] Yönetim -&gt; Kullanıcılar bölümünde ilgili kullanıcının hangi Raf&#x27;lara yetkisi olduğunun görülebilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52826[#52826] Her bir dosyanın boyutunun da dosya listesinde görülebilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53113[#53113] properties dosyasında tanımlanabilecek tüm ayarların öntanımlı değerlerini ve açıklamaları yer almalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53114[#53114] Properties dosyasındaki ayarlar gruplanmalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/54329[#54329] Bir dosyaya yeni bir versiyon eklediğimizde açıklama alanı kayboluyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54475[#54475] raf-cli ile kategori bilgilerinin aktarılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54535[#54535] Raf kullanıcılarının session timeout olmamasının sağlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54569[#54569] Raf Rest API sürümlendirilmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/54910[#54910] Ofis belgeleri önizleme hatalı çalışıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55102[#55102] Bazı text formatları preview göstermiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55128[#55128] Yeni Raf dialoğunda cancel hatalı çalışıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55415[#55415] Raf içerisinde hataya sebep olabilecek bir dosya yoksayılmalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55424[#55424] Exception durumlarında hatalı node&#x27;un id&#x27;si log&#x27;da gözükmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55430[#55430] Raf Yönetimi - Nesne sil tuşu node bozulmuş/eksik olsa bile görevini yapmalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55443[#55443] Lazy Loading geliştirme sonrası raf&#x27;a yüklenen dosyanın context&#x27;i yenilemeden gözükmemesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/55461[#55461] Arama - case sensitive sorunları  
+
+== 1.1.0-Beta1
+* *Diğer Değişiklik*
+** Feature/54303/raf cli command implementations https://lab.ozguryazilim.com.tr/raf/raf/commit/f6b839184b03e08ef03b2edda768c6118819dfc3[f6b839184b03e08]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53858[#53858] mysql-connector-java&#x27;nın 8.0.16 ya da daha büyük bir sürüme yükseltilmesi  
+
+== 1.1.0-Alpha
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/54303[#54303] raf-cli ile grup üyelik bilgilerinin aktarılması  
+
+== 1.1.0-Alpha1
+* *Diğer Değişiklik*
+** telve version up https://lab.ozguryazilim.com.tr/raf/raf/commit/9527bcc9909a0497ab7ac8be693373a4794aea51[9527bcc9909a049]
+** inithotdeploy.sh betiği içinde sürüm bilgisinin otomatik alınması sağlandı https://lab.ozguryazilim.com.tr/raf/raf/commit/f9d2527476c71d8298289fec46aa9b8ba3c365a8[f9d2527476c71d8]
+** init betiğinin sürüm bilgileri güncellendi https://lab.ozguryazilim.com.tr/raf/raf/commit/f0f21c05577f913adf2f2ab330c554d17ea47d84[f0f21c05577f913]
+** WildFly 25 için güvenlik tanımı https://lab.ozguryazilim.com.tr/raf/raf/commit/9a19c294765de373b2515ccaf7185957e683cf3f[9a19c294765de37]
+** Revert "Merge branch 'fix/52809/raf_member_user_name_filter_clean_code' into 'master'" https://lab.ozguryazilim.com.tr/raf/raf/commit/947d3d9c6e4faecb9dca40a82dd070cdcea5681d[947d3d9c6e4faec]
+** RafMember filter code cleaned. https://lab.ozguryazilim.com.tr/raf/raf/commit/a9b16a401b77c9ef342ea6a1323be15584d6760f[a9b16a401b77c9e]
+** RafMember filter code cleaned. https://lab.ozguryazilim.com.tr/raf/raf/commit/01e4e40b5887ac556074b72b17fc18f6a02b243f[01e4e40b5887ac5]
+** https://islergucler.ozguryazilim.com.tr/issues/52809 https://lab.ozguryazilim.com.tr/raf/raf/commit/1eb3789f5a416178c409dd9377d7d7757bc26e15[1eb3789f5a41617]
+** https://islergucler.ozguryazilim.com.tr/issues/52807 https://lab.ozguryazilim.com.tr/raf/raf/commit/f057cb3ccb1086daf2e9329df61a17704024e4cd[f057cb3ccb1086d]
+** https://islergucler.ozguryazilim.com.tr/issues/52806 https://lab.ozguryazilim.com.tr/raf/raf/commit/3d2c72757219262e5e47188d921f800995ead8e3[3d2c72757219262]
+** https://islergucler.ozguryazilim.com.tr/issues/52806 https://lab.ozguryazilim.com.tr/raf/raf/commit/5d294ed63e45a3181db1feef14c54818e26d6e61[5d294ed63e45a31]
+** documentswidget sayfasındaki dosya indirme linkinin forum https://lab.ozguryazilim.com.tr/raf/raf/commit/b1fd431b12c06bb1a1f14c8bda294fb4cbe4a875[b1fd431b12c06bb]
+** Detaylı arama arama sonuçlarına dinamik sütun eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/f2d831b8773ac38279b158c9fd6ef4e55fe95f54[f2d831b8773ac38]
+** arama sayfası datatable column sıralama https://lab.ozguryazilim.com.tr/raf/raf/commit/dbdd5e8ab642730e6b1fa98b767fb023f46be7e9[dbdd5e8ab642730]
+** Kullanıcılardan gelen talep üzerine, record kayıtların içerisindeki https://lab.ozguryazilim.com.tr/raf/raf/commit/50a516dcc42b4bc970e0682cd574ae8d16b63924[50a516dcc42b4bc]
+** Kullanıcılardan gelen talep üzerine, record kayıtların içerisindeki https://lab.ozguryazilim.com.tr/raf/raf/commit/8af6dda7bdf1bfaf8610a7411e7f39f73787869f[8af6dda7bdf1bfa]
+** Kullanıcılar formlardaki butonlara bastığında ajax status process https://lab.ozguryazilim.com.tr/raf/raf/commit/c52625080591be04728666f75b7c06a58ffbabb1[c52625080591be0]
+** elastic search export scheduled job update start date https://lab.ozguryazilim.com.tr/raf/raf/commit/49d4e2f4508953512040b8df535c53218ea65686[49d4e2f45089535]
+** Arama sayfasında kullanıcılar tüm süreç tiplerine göre arama yapabilir. https://lab.ozguryazilim.com.tr/raf/raf/commit/419c7b742056205b8da2285a722b33b7b0272205[419c7b742056205]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52746[#52746] Raf sürümlendirmesinin düzenlenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52810[#52810] Menüde &quot;Raflar&quot; alt menüsünde &quot;Yeni Raf Oluştur&quot; düğmesi en sonda değil en başta yer alsın  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52813[#52813] Zip dosyaları yüklendiğinde içindeki dosyalar otomatik olarak açılarak Raf&#x27;a yerleştirilebilsin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52815[#52815] Klasör içerisinde arama yapılabilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/52816[#52816] Bir klasör incelenirken o klasörde kaç dosya bulunduğu gösterilsin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53110[#53110] Raf Record ile Süreç parçalarının ayrılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53169[#53169] Raf E-Posta import sırasında okunmuş e-postalara ne yapılacak parametre yapısı gelmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53856[#53856] Jackson-databind 2.9.10.7 ya da daha büyük bir sürüme yükseltilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53857[#53857] jsoup&#x27;un 1.14.2 ya da daha büyük bir sürüme yükseltilmesi  
+
+== 1.0.0.Final
+* *Diğer Değişiklik*
+** Bug fixed https://lab.ozguryazilim.com.tr/raf/raf/commit/7dc1319f555ffbc7e6fb7a2a62e7eaf13d981ddd[7dc1319f555ffbc]
+** On branch fix/tesseract_ocr_bug_fixed https://lab.ozguryazilim.com.tr/raf/raf/commit/2eb320ff31d06cb4018bf5e6158e6811bba7fbd0[2eb320ff31d06cb]
+** Elastic search module full text search module. https://lab.ozguryazilim.com.tr/raf/raf/commit/772dc93be0142774c5e7aa9526e2873c4db65ac1[772dc93be014277]
+** İş akışında olmayan dokumanların içeri aktarımı sorgusundaki hata düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/57978ccb634604d1955dfef30298984bbab1dad5[57978ccb634604d]
+** Doxoft file exists check function bug fix https://lab.ozguryazilim.com.tr/raf/raf/commit/47efcf8719be93748ee754a8a0ed204e456cf63c[47efcf8719be937]
+** RAF Drop Down Menu Scrollbar feature. https://lab.ozguryazilim.com.tr/raf/raf/commit/70a05a7ff76b1e9a8168056c49c590ddd831e785[70a05a7ff76b1e9]
+** Temp file name is changed. https://lab.ozguryazilim.com.tr/raf/raf/commit/da648dd0c3b8d42a81cdd163c2cfce15ed344570[da648dd0c3b8d42]
+** File read function is optimized. https://lab.ozguryazilim.com.tr/raf/raf/commit/705398decaecf1b9859363c41fd50292c6fc0b7a[705398decaecf1b]
+** RAF OCR Text extraction module is included. https://lab.ozguryazilim.com.tr/raf/raf/commit/27036a5da1b7a354f68d7e5acd719984b1761efe[27036a5da1b7a35]
+** fixed Chrome multiple content-disposition header error while downloading a file that has a comma. https://lab.ozguryazilim.com.tr/raf/raf/commit/1c766d95ca4db40446c0c7529ca65f9df95d9269[1c766d95ca4db40]
+** Tag support. https://lab.ozguryazilim.com.tr/raf/raf/commit/ecf07682f58ec8248f4869fec0bbe6cabb6d2e47[ecf07682f58ec82]
+** E-mail importer komutuna jexl desteği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/2d7c4a583e1ce0ff38b856c68f0a7ea94baad14d[2d7c4a583e1ce0f]
+** Önizleme oluşturma zamanlanmış komutu geliştirildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/69c8cfe00d4125a4e6aede7e4576be8a4b6d2fc5[69c8cfe00d4125a]
+** Önizleme yeniden oluşturma düğmesi kaldırıldı. https://lab.ozguryazilim.com.tr/raf/raf/commit/fb0c3e1744d60e44ca2453ceb153b28566f7ce05[fb0c3e1744d60e4]
+** yeni klasör oluşturma yetkisi ayarları telve properties dosyasına taşındı. https://lab.ozguryazilim.com.tr/raf/raf/commit/2d59f1503e4a0bbac710dca0f241c3fa777da7d2[2d59f1503e4a0bb]
+** Search panel registry özelliği eklendi ve yeni arama panelleri geliştirme desteği eklendi https://lab.ozguryazilim.com.tr/raf/raf/commit/1efaa912c21fe262f0e8744b4be93523a5d5a3b2[1efaa912c21fe26]
+** Search panel registry özelliği eklendi ve yeni arama panelleri geliştirme desteği eklendi https://lab.ozguryazilim.com.tr/raf/raf/commit/0b6c1b830b41b2d008c8b2e561a84b90a30063bc[0b6c1b830b41b2d]
+** On branch feature/move_entities_to_external_doc_jar https://lab.ozguryazilim.com.tr/raf/raf/commit/4a91ced85d962ed80c644066f4758de04b51de96[4a91ced85d962ed]
+** External document tags, liquibase models and entities moved to raf-externaldoc. https://lab.ozguryazilim.com.tr/raf/raf/commit/71e381483ee787fe8703ffbc1386ef296d2cac23[71e381483ee787f]
+** email import action merged https://lab.ozguryazilim.com.tr/raf/raf/commit/fb0b53d8ba3134495dca8e40fb9fd9e9ab83d5df[fb0b53d8ba31344]
+** processnotificationemail template fixed https://lab.ozguryazilim.com.tr/raf/raf/commit/82311c8de4da31f55238b513a0c523d26d62b5cf[82311c8de4da31f]
+** Raf security provider da zamanlanmış görev kullanıcısı için gerekli https://lab.ozguryazilim.com.tr/raf/raf/commit/1e6219f207c19883a5eeb8b47e9464784765e9fa[1e6219f207c1988]
+** Elastic search json sorgu oluşturma aracı gson kullanacak şekilde https://lab.ozguryazilim.com.tr/raf/raf/commit/30ccf6f2b18e73ea6e6bb3d81bd1ed007b0790e7[30ccf6f2b18e73e]
+** Klasör adında veya dosya adında tek tırnak işareti bulunan path lerde https://lab.ozguryazilim.com.tr/raf/raf/commit/8a590cef04934b7399332f64af25e14618d7a8f8[8a590cef04934b7]
+** Personel seçme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/f7d59a5dc7a5042551eba62d70c342519a7a6089[f7d59a5dc7a5042]
+** Personel seçme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/1100c337816039f0b98f164bb447e2ba5ef2d386[1100c337816039f]
+** Süreç arama özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/39832682b3b100a7b6fbd5fb397627600b1323d0[39832682b3b100a]
+** Süreçlere birden fazla departman seçme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/e583facaa7a7a8e9b3a3f08bd5fc4abb7dcba765[e583facaa7a7a8e]
+** Sadece yönetici rolüne sahip kullanıcılar yeni klasör oluşturabilir. https://lab.ozguryazilim.com.tr/raf/raf/commit/bb698c1b31bf46495d86a2fe1a426e2681d4d483[bb698c1b31bf464]
+** Raf service metadata ve departman bilgilerinin bir sonraki göreve https://lab.ozguryazilim.com.tr/raf/raf/commit/656fa3a5e41425cc7d1f9cd4d10ff492cb1fc40f[656fa3a5e41425c]
+** telve user group callback : departman desteği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/b5068f56e61d2bc0fd4caaa3cacd336c0771d752[b5068f56e61d2bc]
+** doxoft dosya aktarım komutu geliştirildi https://lab.ozguryazilim.com.tr/raf/raf/commit/aba4229ad8c4d105c733a0e9cb3091b0f1ee0aab[aba4229ad8c4d10]
+** Oluşturma tarihi, değiştirme tarihi, değiştiren kullanıcı,oluşturan kullanıcı sıralama tipleri eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/728a4a776a9a50a7855e003931aa524786c4149c[728a4a776a9a50a]
+** Oluşturma tarihi, değiştirme tarihi, değiştiren kullanıcı,oluşturan kullanıcı sıralama tipleri eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/9fd98a713085d73d577b293aef808603814f4a19[9fd98a713085d73]
+** Telve version bumped to 4.0.0-Beta-30 https://lab.ozguryazilim.com.tr/raf/raf/commit/24debb917a9af0b13dde5966d238a27cb05a6baf[24debb917a9af0b]
+** removed extension replacement from raf name encoder. https://lab.ozguryazilim.com.tr/raf/raf/commit/dbbcc39f72767cfc6b4bdd75e0165cfc8b128f94[dbbcc39f72767cf]
+** added new encoder for raf name and replaced all dot characters https://lab.ozguryazilim.com.tr/raf/raf/commit/85d3cdecc9ec9a4760868553f57f92f135959682[85d3cdecc9ec9a4]
+** telve beta-29 https://lab.ozguryazilim.com.tr/raf/raf/commit/e9e9b77d5f87bdfd9eea2deaa5f2ec6f1b54a09e[e9e9b77d5f87bdf]
+** public dashlet desteği https://lab.ozguryazilim.com.tr/raf/raf/commit/f2fc27e7d093084b15e37706d23fd1950a4027f0[f2fc27e7d093084]
+** gallery view error fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/5dab54d19f5a5ca9fcb7d061cc3cf13665019ed1[5dab54d19f5a5ca]
+** Gallery collection view feature is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/e9c1ef987537488cb3a625c21914698ee5573857[e9c1ef987537488]
+** Klasör adında veya dosya adında tek tırnak işareti bulunan path lerde https://lab.ozguryazilim.com.tr/raf/raf/commit/95998cfda574082c4659cf57f51b1acd47e935ce[95998cfda574082]
+** Klasör adında veya dosya adında tek tırnak işareti bulunan path lerde https://lab.ozguryazilim.com.tr/raf/raf/commit/2ccbd9a17e3429c84e973f8e35140edf617ac688[2ccbd9a17e3429c]
+** Raf metadata panels scroll problem is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/148a061c43697d43d84786553ac2b314911e9c2e[148a061c43697d4]
+** Save property error is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/e7651b39cf24abf3265a5e39a6da2a43665d60c7[e7651b39cf24abf]
+** Web servis güncellendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/4e41eed8ec1302718820123d1bbef364852c918e[4e41eed8ec13027]
+** Email fetch command is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/d73273d6c5bdd7a0e2bceb437af19fe1742f8d92[d73273d6c5bdd7a]
+** Required field set to false https://lab.ozguryazilim.com.tr/raf/raf/commit/c472524d5416c5240a6f648a171107ea432cbfd2[c472524d5416c52]
+** Doxoft importer'da düzeltme yapıldı. https://lab.ozguryazilim.com.tr/raf/raf/commit/e9c212d47aad378ba309f9c8d3ccaa1bd93973e4[e9c212d47aad378]
+** Arama kaydetme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/637f3937ef18c8f8b3d1964eb761abc5dffc82b6[637f3937ef18c8f]
+** arama kaydetme özelliği çalışması : NOT : Tamamlanmadı. https://lab.ozguryazilim.com.tr/raf/raf/commit/e08c6bf8ed88baf597e4fab6a140dcd26bc0140e[e08c6bf8ed88baf]
+** Etiket arama özelliği eklendi https://lab.ozguryazilim.com.tr/raf/raf/commit/0b6c26e51494af618a1e9f5577ac5c73366f52dd[0b6c26e51494af6]
+** Collection table shortcut included, messages fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/873a2c78d2616aabc9372b1537a234b17513bcf6[873a2c78d2616aa]
+** Zip extract action is included. https://lab.ozguryazilim.com.tr/raf/raf/commit/582c9d1ae82ded2761cde583f68bfdd4b894e566[582c9d1ae82ded2]
+** Messages file updated. https://lab.ozguryazilim.com.tr/raf/raf/commit/b4b3e1052c79f6e17230ca0c59637598867ba39a[b4b3e1052c79f6e]
+** Multiple file download action is included. https://lab.ozguryazilim.com.tr/raf/raf/commit/f8e4b5bd65d55297f9367c1be163c300ec040292[f8e4b5bd65d5529]
+** File extension bug fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/03c3279583b2b38dcd8b63b208a71872af9a6bfc[03c3279583b2b38]
+** Veri aktarımı için rest api düzenlemeleri https://lab.ozguryazilim.com.tr/raf/raf/commit/cca7a4317bfef758b0793d9157bdd428d613112e[cca7a4317bfef75]
+** Klasörler için hazırlanan ikon görünümünde oluşan hata düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/2d25f85c7f50f0154e19a531640e1e06974d2af2[2d25f85c7f50f01]
+** Süreçlerde dosya yükleme sırasında oluşan dosya uzantısı sorunu düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/5aea44241bd06ee1b15ff35e22786c0693ffa49f[5aea44241bd06ee]
+** test code fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/3371fb78d51295e54e2fce44b877dfdaac6f8cd9[3371fb78d51295e]
+** Süreç dosya yükleme güvenlik kontrolü sorunu düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/92ec33be1984ec5f846505e06e5ddf32e7b87275[92ec33be1984ec5]
+** Süreçlerdeki ek dosyaları silebilme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/5c0e02c1766dca21e75c9eb68ba6762ec2275217[5c0e02c1766dca2]
+** Süreçlerdeki ek dosyaları silebilme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/75638e862841f780d0487d1e184d6e67c2e878ff[75638e862841f78]
+** İndex silme komutu eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/a1a3b65543cbde5e14531b4f7328caa1308195c8[a1a3b65543cbde5]
+** Elastic Search arama servisi ve indexleme özellikleri eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/b443b5c95f9ead39ed9314c9eb7d459ff759f4c2[b443b5c95f9ead3]
+** reindex feature included. https://lab.ozguryazilim.com.tr/raf/raf/commit/cc08847caca0c11d718834ef93070bb8dc4e43a4[cc08847caca0c11]
+** Task controller set value null pointer fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/161e4141df4a0d7b0a6c04933c20b8ca50c7feee[161e4141df4a0d7]
+** Mongo search fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/4caf2c122d1c72d463b3dc24098cc35d2c4886f9[4caf2c122d1c72d]
+** Personel seçme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/c970e13a032d27486108f52794272f3c90652ca9[c970e13a032d274]
+** Süreç arama özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/b611c41ce17704c779775a87494b66a9025f3c3f[b611c41ce17704c]
+** Süreçlere birden fazla departman seçme özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/977316ce75b8ed4abe2d12dc4980b0083312bc07[977316ce75b8ed4]
+** Yeni klasör açma izni sadece ilgili raf veya klasörün yönetici rolüne https://lab.ozguryazilim.com.tr/raf/raf/commit/daa6ced986f0d7d6451f3ddb6ef57ae136a8af39[daa6ced986f0d7d]
+** Mongo search fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/a4322a5796f415ed76cfa5d741ba934df2ba49b3[a4322a5796f415e]
+** raf task handler metadata export. https://lab.ozguryazilim.com.tr/raf/raf/commit/5b6f7c86af6c2250121b0760b117807646f2a722[5b6f7c86af6c225]
+** sorting problems fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/04656cd4c6da63487e233137f211261b702d2983[04656cd4c6da634]
+** mongo search feature included. https://lab.ozguryazilim.com.tr/raf/raf/commit/a7c469ef59f0ef0884c6dce64f92240b70a68404[a7c469ef59f0ef0]
+** email notification template edited. https://lab.ozguryazilim.com.tr/raf/raf/commit/b2289532386a41f65661c92025640c9b9374d6be[b2289532386a41f]
+** Raf folder browser improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/8dc93385148a1f95998e38dc0855389c9e71b28f[8dc93385148a1f9]
+** Pagination last page problem is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/84f9825a5772b297d80c48cac3eb62fc4a9b8858[84f9825a5772b29]
+** RAF sorting features is extended. https://lab.ozguryazilim.com.tr/raf/raf/commit/89c1425230835b421bfd2c64c4a19140465d60c1[89c1425230835b4]
+** RAF sorting features is extended. https://lab.ozguryazilim.com.tr/raf/raf/commit/e46d8388c0b4f4b9c8b8e0bc3f49a0b5a26d5d23[e46d8388c0b4f4b]
+** RAF sorting features is extended. https://lab.ozguryazilim.com.tr/raf/raf/commit/46ae5dbdd10c21c035d023c9cc159ef742f257d2[46ae5dbdd10c21c]
+** RAF record updated. https://lab.ozguryazilim.com.tr/raf/raf/commit/011032f0e97aff3569ac7d18696e5dae4b9dac75[011032f0e97aff3]
+** task console null pointer exception is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/5242f1c50cf8dd3dba5543e2343c8878427edf4e[5242f1c50cf8dd3]
+** Süreç detalyarında, tüm personel iptal işlemi yapabiliyordu. Engellendi! https://lab.ozguryazilim.com.tr/raf/raf/commit/b8051f5bad1051893d4e53eb7e211f853a5ca2fc[b8051f5bad10518]
+** Raf document view dialog is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/32e136a738bbb24b2d2afb2c2b506035cdd203b8[32e136a738bbb24]
+** Person selection field added to the raf forms. https://lab.ozguryazilim.com.tr/raf/raf/commit/45439f049c9358d42b2e89f134373cf97213e078[45439f049c9358d]
+** Collection list sort and group problems fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/d596fb82514b4278fd3d8d7d7e5992a5be473217[d596fb82514b427]
+** Raf record file upload problem is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/fca0a29b178db8370939d2ca78edb80bc2636e73[fca0a29b178db83]
+** Detailed search improved and sort by feature is included to jcr query. https://lab.ozguryazilim.com.tr/raf/raf/commit/3ca41bbde05f205b19d1891b50dd00f04259df1e[3ca41bbde05f205]
+** Pagination included to raf object lookup. https://lab.ozguryazilim.com.tr/raf/raf/commit/1ab26c3f4c04ceee58a4b52a366cc4162ff64610[1ab26c3f4c04cee]
+** Pagination included to collection views. https://lab.ozguryazilim.com.tr/raf/raf/commit/dc59bf33f7efc0c26a31cef162daed38254d30d5[dc59bf33f7efc0c]
+** folder divide by years command prepared. https://lab.ozguryazilim.com.tr/raf/raf/commit/227ff051859a063dc4d1c4179e9356a097166acb[227ff051859a063]
+** Raf record no format changed to year-number. https://lab.ozguryazilim.com.tr/raf/raf/commit/6625aa101213d5b5a7e6a65576b895cc9f0bc749[6625aa101213d5b]
+** doxoft import command fixed : Transactional annotations are removed. https://lab.ozguryazilim.com.tr/raf/raf/commit/6f04245ecc3a4715f67f9bdf5b3ee8bb74f066fe[6f04245ecc3a471]
+** clear search included. https://lab.ozguryazilim.com.tr/raf/raf/commit/667f2d1a926c714c0fd17c23d4c7bac120314912[667f2d1a926c714]
+** doxoft editor improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/ea715cf2401bf397f2b10e8333c12f2d14c995bc[ea715cf2401bf39]
+** search page combobox included. https://lab.ozguryazilim.com.tr/raf/raf/commit/bb9201078f1375a4d72b6835845261b40b5bccdf[bb9201078f1375a]
+** search page edited. https://lab.ozguryazilim.com.tr/raf/raf/commit/204ec7119bafcf12b8355dc4e3c84201e5ca5e29[204ec7119bafcf1]
+** pagination datatable improved for detailed search result https://lab.ozguryazilim.com.tr/raf/raf/commit/0cea6b09d9c5f7d4c96ef4bfd4479e13ad512baa[0cea6b09d9c5f7d]
+** detailed search is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/83f6119b2d2a9570306c4b1a9ea5d88dc7561247[83f6119b2d2a957]
+** first working. https://lab.ozguryazilim.com.tr/raf/raf/commit/e150957142528a60aff54c94ccc07155d33ed9cf[e150957142528a6]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/ef4231519803e851f55ed3a307b4722afaece0d0[ef4231519803e85]
+** Rest ile dosya indirme api si geliştirildi https://lab.ozguryazilim.com.tr/raf/raf/commit/2a61c616b4d9da69475ba6ac2461ff88bc06fec4[2a61c616b4d9da6]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/99fbdaeffe775697db03fdf297eb0ea09724dcd5[99fbdaeffe77569]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/2812ed7457700433f2532371a501bf0a48689bcb[2812ed745770043]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/fd0d6a9020bd1353671479ea8f45b36951350b82[fd0d6a9020bd135]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/3c87f4d9e5d59447ead3f82db91510d5b81f4c9b[3c87f4d9e5d5944]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/d2cf45559c7f27a7cdce7c40f46c7b1c43b2c984[d2cf45559c7f27a]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/d6f371c9e9942355fc5d4fa4a75260c01a9956e9[d6f371c9e994235]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/e3346ec8473de0182b3d22c350e1d29132be3d6b[e3346ec8473de01]
+** Doxoft importer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/06cda12287ddfeec26fd34370c145155d71912d2[06cda12287ddfee]
+** Doxoft importer command is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/c7ea76552280c98419dae59e5fe91d98aa56acdf[c7ea76552280c98]
+** Doxoft importer command is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/16134e041bd1137a5fe0a75640e2f05a6f03b100[16134e041bd1137]
+** Doxoft importer command is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/ad91a735436eda153f1e49d995e3aecfb32f9cff[ad91a735436eda1]
+** Doxoft importer command is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/fed474a0b2a6644f1535166bb06d8a8d804807b5[fed474a0b2a6644]
+** External doc types and doxoft importer command is developed. https://lab.ozguryazilim.com.tr/raf/raf/commit/465e0f73db8f85f5acab79ef56e1a78bf7dd5b79[465e0f73db8f85f]
+** Permalinklerin çalışma sorunu düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/b6fd1a2b6b420b41728786d4fa757b26c161ed3a[b6fd1a2b6b420b4]
+** RafSecurityProvider code cleaning. https://lab.ozguryazilim.com.tr/raf/raf/commit/01bed56db72333622513580e6d1e9a77357c4f01[01bed56db723336]
+** Diyalog pencereleri kapatılırken, Action lardaki rafContext selectedObject içeriği boş geliyor, kontrolü sağlandı. https://lab.ozguryazilim.com.tr/raf/raf/commit/080eb067ad8c274a2089b3d65c9b7e6621e77848[080eb067ad8c274]
+** Dışarıdan dosya aktarma taskı geliştirildi, geliştirme sırasında tespit edilen ImagePreview'deki sorunlar  düzeltildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/2c93f11b2c8288ab4212ece6749b875ea4e5ff9e[2c93f11b2c8288a]
+** 29171 nolu işte talep edilen, dosya ve klasörlere göre üyelik özelliği geliştirildi. https://lab.ozguryazilim.com.tr/raf/raf/commit/2da844df7fd5d5a8d5d043570b4df4215666d7d0[2da844df7fd5d5a]
+** Path member control is included. https://lab.ozguryazilim.com.tr/raf/raf/commit/2ce988b296d8d441c67b177b72ae319e0f9ae7ca[2ce988b296d8d44]
+** Path member control is included. https://lab.ozguryazilim.com.tr/raf/raf/commit/882de836b3f1d9b10c8830492032f62f8cd23e13[882de836b3f1d9b]
+** RAF Member Roles is improved and activated in RAF and WebDav. https://lab.ozguryazilim.com.tr/raf/raf/commit/97aa6a73aa468476cadeca48fc91b5e3f8f5e815[97aa6a73aa46847]
+** 34531 Check-Out/In yapısı ve tarihçe özelliği eklendi. https://lab.ozguryazilim.com.tr/raf/raf/commit/83d8f484065ff0cff5b04ebe1427f0b70aaf3a9b[83d8f484065ff0c]
+** RAF File Lock feature is included and Office Edit action removed. https://lab.ozguryazilim.com.tr/raf/raf/commit/a9d5831ec224fa4acf69f3d51a0ad06d91023cc9[a9d5831ec224fa4]
+** RAF File Lock feature is included and Office Edit action removed. https://lab.ozguryazilim.com.tr/raf/raf/commit/a8c352e031f5c38deaeb74c4d3baea1207414c5e[a8c352e031f5c38]
+** RAF File Lock feature is included and Office Edit action removed. https://lab.ozguryazilim.com.tr/raf/raf/commit/8df44ce6be790e56228da23d73af6ab6a6b312b9[8df44ce6be790e5]
+** RAF absolute path merge problem is fixed. https://lab.ozguryazilim.com.tr/raf/raf/commit/274f2988c34ca6f2a8f6588d278f533c8e55d1f3[274f2988c34ca6f]
+** RAF office edit and checkin checkout feature is completed. https://lab.ozguryazilim.com.tr/raf/raf/commit/7767296ed916da7e26f4bdceebae4ee2b4d70431[7767296ed916da7]
+** Raf checkout - checkin feature is developed. https://lab.ozguryazilim.com.tr/raf/raf/commit/24567f05f07269d69b168e877564726e63ac051c[24567f05f07269d]
+** Personal raf file transfer is improved. https://lab.ozguryazilim.com.tr/raf/raf/commit/88e5b6cdc3cb935e8b863e076a65af9eaf643716[88e5b6cdc3cb935]
+** 1- File Import Commander is generated. https://lab.ozguryazilim.com.tr/raf/raf/commit/91c0aec23363d838d48e0f74b6629e037a008965[91c0aec23363d83]
+** upload sync için API URL Encoding https://lab.ozguryazilim.com.tr/raf/raf/commit/abbc1a6bf68394c06e3d8e2a2e247b499662001f[abbc1a6bf68394c]
+** upload sync için API değişikliği https://lab.ozguryazilim.com.tr/raf/raf/commit/9465c3b565c124ab093d047efd6db65fbf194c11[9465c3b565c124a]
+** telve version up telve-4.0.0-Beta-21 https://lab.ozguryazilim.com.tr/raf/raf/commit/53c87a05b1cd2be931bc00e4b3aab830650e46b7[53c87a05b1cd2be]
+** telve version up 4.0.0-Beta-20 https://lab.ozguryazilim.com.tr/raf/raf/commit/4126414746440c57f4ad70493289944612409dd0[4126414746440c5]
+** telve version up 4.0.0.Beta-18 https://lab.ozguryazilim.com.tr/raf/raf/commit/5b9de8f0e73e98014a6ac348081ef88d7d574fba[5b9de8f0e73e980]
+** License added https://lab.ozguryazilim.com.tr/raf/raf/commit/848e0d50a5ba78f6a8e212b6ed66d83ecfa2351f[848e0d50a5ba78f]
+** help projesi oluşturuldu https://lab.ozguryazilim.com.tr/raf/raf/commit/a5a9fe10aa77700ed0e50d98d497a3571a4fcd6a[a5a9fe10aa77700]
+** Telve version up 4.0.0-Beta-16 https://lab.ozguryazilim.com.tr/raf/raf/commit/7fed37ee223d8c3b538730b9cdf4a4ffe71936a3[7fed37ee223d8c3]
+** Telve 4.0.0-Beta-7 güncellemesi https://lab.ozguryazilim.com.tr/raf/raf/commit/fc2b644dace4cdcc1956fc2a640f558822219741[fc2b644dace4cdc]
+** pomlarda düzenleme yapıldı https://lab.ozguryazilim.com.tr/raf/raf/commit/68c9b5dd234fbfc87f4fa7e89789179997a93c18[68c9b5dd234fbfc]
+** Süreç tanımlama ile ilgili küçük hata düzeltmesi https://lab.ozguryazilim.com.tr/raf/raf/commit/fe7c7b7abd7d02d242e93a77c191829ca5f7cef8[fe7c7b7abd7d02d]
+** JBPM sürüm güncelleme ve ufak tefek ayar değişiklikleri https://lab.ozguryazilim.com.tr/raf/raf/commit/587c9bd5867364db19fc55e3421f1a0c97dae34f[587c9bd5867364d]
+** SNAPSHOI'a dönüş https://lab.ozguryazilim.com.tr/raf/raf/commit/3152006f93ec4420d3db01564a537fba7f182344[3152006f93ec442]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29157[#29157] Belge Sürüm Takibi özelliğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29599[#29599] RAF&#x27;a CMIS servisi yeteneğinin sağlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29606[#29606] WebDAV desteği eklenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/30064[#30064] Belgenin silindiği bilgisi olaylarda gözükmüyor.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/30066[#30066] Silinen belgenin bağlantısına tıkladığımızda açılan sayfada bize uyarı versin  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/30697[#30697] Global arama desteği  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/30748[#30748] Dosya gösterimlerinde Türkçe sıralama hatalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/30767[#30767] Tablo görünümünde sıralama işlemleri yapılamıyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31193[#31193] FineUploader bileşini Uppy ile değiştirilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31576[#31576] TaskController Sayfasında arama yeteneği  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31578[#31578] Süreç yetkilendirme için Organizasyon Ağacı oluşturulmalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/31633[#31633] Java Lisans başlıklarının temizlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31823[#31823] Yeni raf oluşturulduğu zaman anasayfada görüntülenmiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31824[#31824] Yeni oluşturulan Raf&#x27;ın ayarlarına tıklandığında boş sayfaya yönlendiriyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31831[#31831] Dil seçeneği İngilizce seçildiğinde Türkçe kalan kısımlar var  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/31837[#31837] belge ve klasör aynı isimle aynı rafa kopyalanıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32248[#32248] Folder içerikleri görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32276[#32276] Kategori sıralamasında problem var  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32278[#32278] Raf ayarlarda sidebar özellikleri çalışmıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32282[#32282] Belge ismi sildiğinde uyarı gösterilmiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32388[#32388] PDF gösteremediğinde çıkan mesaj İngilizce  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32657[#32657] Departman tanımlarında edit problemi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/32665[#32665] Raf ekleme yetki tanımı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/32684[#32684] Raf isimlendirme validasyonu eklenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/32824[#32824] Raf derlemesi sonucunda Süreç Destekli ve Desteksiz iki sürüm çıkarılabilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/32860[#32860] HelpResolver&#x27;a geliştirme noktaları eklenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/32931[#32931] Olaylar dashlet&#x27;inden belgeye erişilmeye çalışıldığında sayfa render olmuyor  
+
+* ** #33217   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/33331[#33331] Toplu dosya aktarımı için bir araç  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/33519[#33519] Preview üretilirken hata kontrolü  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/33741[#33741] Raf klasör toparlamada yavaşlık  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/34123[#34123] Dosya isimlerinde köşeli parantez hataya neden oluyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/34531[#34531] Check-Out/In yapısı ve tarihçe  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/34584[#34584] Dashletler üzerinde performans iyileştirmeleri  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/34868[#34868] Sürüm takibi yapılan dosyalar silinemiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/34869[#34869] Tablo görünümünde kolon başlığına göre sıralama  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/34870[#34870] Folder sidebar üzerinde bulunulan yerin gösterilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/38010[#38010] Dosya önizlemelerinin temizlenerek tekrar oluşturulabilmesi  
+
+* ** #3809   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/41491[#41491] mysql-connector-java&#x27;nın 8.0.16 ya da üzerine güncellenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/41536[#41536] Raf Event Loglarının Gösteriminde XSS Bulunuyor.  
+
+* ** #42122   
+
+* *Görev* https://islergucler.ozguryazilim.com.tr/issues/43174[#43174] alf2raf test edilecek ve gerekli duzeltmeler ve iyilestirmeler yapilacak  
+
+* ** #44275   
+
+* ** #44278   
+
+* ** #44342   
+
+* ** #44344   
+
+* ** #44348   
+
+* ** #44350   
+
+* ** #44351   
+
+* ** #44357   
+
+* ** #44482   
+
+* ** #44512   
+
+* ** #44940   
+
+* ** #45087   
+
+* ** #45119   
+
+* ** #45280   
+
+* *Görev* https://islergucler.ozguryazilim.com.tr/issues/48419[#48419] Gitlab uzerinde daginik durumda bulunan raf dallari birlestirilecek  
+
+== 1.0.0.Beta2
+* *Diğer Değişiklik*
+** Beta2 sürümü https://lab.ozguryazilim.com.tr/raf/raf/commit/8dbc23885f5e640b21c5911609927c5724b6cd26[8dbc23885f5e640]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29157[#29157] Belge Sürüm Takibi özelliğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29167[#29167] Kullanıcının üyesi olduğu bir çalışma alanındaki etkinlikleden haberdar olması sağlansın ( e-posta, notify )  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29179[#29179] Klasör ve Dosya isimlerinde enconding uygulanması gerekir  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29277[#29277] Koleksiyon tipi sunumlar için sıralama, gruplama yeteneği eklenmesi  
+
+* ** #29494   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29580[#29580] Raf için süreç yönetim desteğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29600[#29600] Klasör ağacının Türkçe sıralama desteğine sahip olması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29601[#29601] Telve Dashbord yapısının Raf&#x27;a kazandırılması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29609[#29609] ContentPanel yapısının refactor edilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29654[#29654] Generik form tanımlama özelliği eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29710[#29710] Evrak / Kayıt Yönetim Desteği  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29875[#29875] Ofis belgeleri için preview  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/29886[#29886] Yeni dizin oluşturulmuyor  
+
+== 1.0.0.beta1
+* *Görev* https://islergucler.ozguryazilim.com.tr/issues/28994[#28994] Proje, modül ve derleme yapısının oluşturulması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29016[#29016] Temel model sınıfların belirlenmesi ve hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29017[#29017] Raf UI yapısının belirlenmesi ve hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29018[#29018] Raf Seçim ve Temel Navigasyon yapısının hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29019[#29019] Klasör ağacının sunulacağı fragmanın hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29020[#29020] Kategori ağacının sunulacağı fragmanın hazırlanması  
+
+* *Görev* https://islergucler.ozguryazilim.com.tr/issues/29021[#29021] Etiket listesi sunum fragmanının hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29022[#29022] Klasör içerik sunum fragmanının hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29023[#29023] Belge detayları sunum fragmanının hazırlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29027[#29027] RAF tanımlama özelliğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29067[#29067] Permalink desteği eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29091[#29091] Metaveri yapısının oluşturulması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29163[#29163] FullText search desteklenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29164[#29164] Dosyalar bir klasörden bir başkasına kopyalanabilmeli, taşınabilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29169[#29169] Birden fazla dosya ve / veya klasör seçilerek toplu işlem yapılabilmeli   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29170[#29170] Temel Yetkilendirme özelliğinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29173[#29173] Bağlam duyarlı komut sistemi hazırlanmalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29174[#29174] Dosya yükleme için daha iyi bir arayüz sağlanmalı  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29180[#29180] Breadcrumb özelliğinin geliştirilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29183[#29183] Beta1 öncesi makyaj ve i18n düzeltmeleri  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29203[#29203] Klasör ve Dosya aranabilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29277[#29277] Koleksiyon tipi sunumlar için sıralama, gruplama yeteneği eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/29318[#29318] BPMN editorü ve sunumu özelliği eklenmesi  
+
+* ** #29494   
+
