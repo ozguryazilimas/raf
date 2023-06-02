@@ -11,7 +11,8 @@
         <jar-file>lib/telve-core-model-${version.telve}.jar</jar-file>
         <jar-file>lib/telve-idm-model-${version.telve}.jar</jar-file>
         <jar-file>lib/raf-model-${project.version}.jar</jar-file>
-        
+        <jar-file>lib/raf-externaldoc-${project.version}.jar</jar-file>
+
         
         <properties>
             <!-- Properties for Hibernate -->
