@@ -41,15 +41,17 @@ public class FavoriteAction extends AbstractAction {
         List<String> paths = getPaths();
 
         boolean isSucceed = true;
-        boolean isPathsAddedToFavorites = getPaths().stream()
-                .allMatch(objectPath -> service.isAddedFavorites(username, objectPath));
 
-        if (isPathsAddedToFavorites) {
+        List<String> nonFavoritedPaths = paths.stream()
+                .filter(path -> !service.isAddedFavorites(username, path))
+                .collect(Collectors.toList());
+
+        if (nonFavoritedPaths.isEmpty()) {
             for (String path : paths) {
                 isSucceed = service.removeFromFavorites(username, path);
             }
         } else {
-            for (String path : paths) {
+            for (String path : nonFavoritedPaths) {
                 isSucceed = service.addFavorites(username, path);
             }
         }
