@@ -37,6 +37,7 @@
             jQuery("#data")
                     .on("activate_node.jstree", function (e, data) {
                         //alert( data.instance.get_node(data.selected[0]).id );
+                        e.preventDefault();
                         selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
                     })
                     .on('loaded.jstree', function () {
