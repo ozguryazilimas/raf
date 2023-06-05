@@ -54,7 +54,7 @@ public class RafExternalDocModule {
 
         MetadataRegistery.register(configD);
 
-        Boolean isExternalDocSearchPanelActive = ConfigResolver.resolve("raf.searchPanel.active.externaldoc")
+        boolean isExternalDocSearchPanelActive = ConfigResolver.resolve("raf.searchPanel.active.externaldoc")
                 .as(Boolean.class)
                 .withDefault(Boolean.FALSE)
                 .withCurrentProjectStage(false)

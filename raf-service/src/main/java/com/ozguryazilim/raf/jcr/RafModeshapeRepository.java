@@ -547,9 +547,6 @@ public class RafModeshapeRepository implements Serializable {
                 }
 
                 String sortQuery;
-                String secondSortColumn = "";
-                String defaultSecondSortColumn = String.format("nodes.[%s]", PROP_NAME);
-
                 switch (sortBy) {
                     case NAME: {
                         sortQuery = String.format("nodes.[%s]", PROP_NAME);
