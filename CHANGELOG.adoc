@@ -1,5 +1,17 @@
 = RAF Sürüm Notları
 
+== 1.3.0-Beta.10
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/64188416834c0af22041b02656876a355374a573[64188416834c0af]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72979[#72979] Favorilere eklenen dosyaların favoriler dashlet&#x27;inde birden fazla görünme sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73973[#73973] Doxoft&#x27;tan içeri aktarılan dökümanları aramak için kullanılan &quot;İçeri Aktarılan Dosya Arama&quot; modülünün görünmeme sorunu (Tspb)  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74095[#74095] İçerisinde çok dosya olan raflarda animasyon görünecek bir işlem yaparken belirli bir süre sonra timeout (504) veriyor, ardından ilgili rafa girilemiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74181[#74181]  1.3.0-Beta.10 sürüm çalışmalarına ait sonar quality gate hatasının giderilmesi.  
+
 == 1.3.0-Beta.9
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73410[#73410] Arama sayfasında Süreç Arama ekranında süreç arama işlemi gerçekleştirilemiyor  
 
