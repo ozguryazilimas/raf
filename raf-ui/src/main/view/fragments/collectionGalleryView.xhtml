@@ -122,6 +122,7 @@
                 </div>
             </div>
         </div>
+        <p:remoteCommand name="selectTreeNode" action="#{rafController.selectNode}" update="raf-view-content" partialSubmit="true" process="@form" />
         <p:remoteCommand name="nextPage" update="raf-view" action="#{viewBean.nextPage()}" oncomplete='scrollToBottom()'/>
         <h:inputHidden id="scrollLeft" value="#{rafController.scrollLeft}" />
     </h:form>
