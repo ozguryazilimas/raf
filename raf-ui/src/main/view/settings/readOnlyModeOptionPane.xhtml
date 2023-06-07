@@ -1,0 +1,33 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                template="/layout/optionPaneBase.xhtml">
+
+    <ui:param name="bean" value="#{readOnlyModeOptionPane}"/>
+
+    <ui:define name="content">
+        <div class="row">
+
+            <t:inputAny label="#{messages[bean.getRafReadOnlyState().getKey().concat('.label')]}">
+
+                <p>#{messages[bean.getRafReadOnlyState().getKey().concat('.explanation')]}</p>
+
+                <p:selectOneMenu value="#{bean.rafReadOnlyCurrentState}">
+                    <f:selectItems value="#{bean.rafReadOnlyStatePosibleValues}"
+                                   var="option"
+                                   itemLabel="#{messages[bean.getRafReadOnlyState().getKey().concat('.option.').concat(option)]}"
+                                   itemValue="#{option}"
+                                   />
+                </p:selectOneMenu>
+
+            </t:inputAny>
+
+
+        </div>
+    </ui:define>
+
+</ui:composition>
