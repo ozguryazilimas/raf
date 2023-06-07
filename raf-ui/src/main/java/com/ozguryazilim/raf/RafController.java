@@ -4,10 +4,11 @@ import com.google.common.base.Strings;
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.action.CopyAction;
+import com.ozguryazilim.raf.collection.scroll.ScrollPosition;
+import com.ozguryazilim.raf.collection.scroll.context.CollectionScrollContext;
+import com.ozguryazilim.raf.collection.scroll.context.ScrollPositionChangedEvent;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
-import com.ozguryazilim.raf.entities.RafMemberType;
-import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.enums.SortType;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.events.RafChangedEvent;
@@ -33,7 +34,6 @@ import com.ozguryazilim.raf.ui.base.ContextMenuRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
 import com.ozguryazilim.telve.auth.Identity;
-import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.messages.Messages;
@@ -58,7 +58,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -104,6 +103,12 @@ public class RafController implements Serializable {
     private RafContext context;
 
     @Inject
+    private CollectionScrollContext scrollContext;
+
+    @Inject
+    private Event<ScrollPositionChangedEvent> scrollPositionChangedEventProvider;
+
+    @Inject
     private Event<RafChangedEvent> rafChangedEvent;
 
     @Inject
@@ -145,8 +150,8 @@ public class RafController implements Serializable {
 
     private String lastRafObjectId;
 
-    private int scrollTop;
-    private int scrollLeft;
+    private long scrollTop;
+    private long scrollLeft;
 
     public Boolean getDescSort() {
         return descSort;
@@ -805,8 +810,6 @@ public class RafController implements Serializable {
         try {
             if (context.getSelectedObject() != null && context.getSelectedObject().getTitle() != null) {
                 if(context.getSelectedObject() instanceof RafFolder){
-                    setScrollTop(0);
-                    setScrollLeft(0);
                     setPage(0);
                     populateFolderCollection(context.getSelectedObject().getId());
                 } else if(context.getSelectedObject() instanceof RafDocument){
@@ -1012,20 +1015,20 @@ public class RafController implements Serializable {
         return "/raf.jsf?id=" + rafCode + "&o=" + rafId;
     }
 
-    public int getScrollTop() {
-        return scrollTop;
+    public long getScrollTop() {
+        return scrollContext.getYScroll();
     }
 
-    public void setScrollTop(int scrollTop) {
-        this.scrollTop = scrollTop;
+    public void setScrollTop(long scrollTop) {
+        scrollPositionChangedEventProvider.fire(new ScrollPositionChangedEvent(new ScrollPosition(scrollTop, null)));
     }
 
-    public int getScrollLeft() {
-        return scrollLeft;
+    public long getScrollLeft() {
+        return scrollContext.getXScroll();
     }
 
-    public void setScrollLeft(int scrollLeft) {
-        this.scrollLeft = scrollLeft;
+    public void setScrollLeft(long scrollLeft) {
+        scrollPositionChangedEventProvider.fire(new ScrollPositionChangedEvent(new ScrollPosition(null, scrollLeft)));
     }
 
     public void setScroll() {

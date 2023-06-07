@@ -43,7 +43,7 @@
 
                     <ui:repeat value="#{folderBreadcrumbController.breadcrumbItems}" var="item">
                         <li>
-                            <p:commandLink action="#{rafController.selectItem(item)}" update="raf-view-content" ajax="true" process="@this">
+                            <p:commandLink onclick="selectTreeNode([{'name': 'nodeId', 'value': '#{item.id}'}])" update="raf-view-content" ajax="true">
                                 #{item.title}
                             </p:commandLink>
                         </li>
