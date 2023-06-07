@@ -58,66 +58,70 @@
             <p:remoteCommand name="setActiveTab" actionListener="#{detailedSearchController.setActiveTab}"/>
             <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
             <p:remoteCommand name="search" actionListener="#{detailedSearchController.search()}" update="searchForm resultDataTable"/>
-            <ui:include src="/layout/messages.xhtml" />
 
-            <div class="box box-primary">
-                
-                <div class="nav-tabs-custom">
-                    <ul class="nav nav-tabs">
-                        <c:forEach items="#{detailedSearchController.searchPanels}" var="searchPanel" >
-                            <li class="#{detailedSearchController.activeSearchPanelController.equals(searchPanel) ? 'active' : ''}">
-                                <a href="##{searchPanel}" data-toggle="tab" onclick="setActiveTab([{name: 'activeSearchPanelController', value: '#{searchPanel}'}])">#{messages['search.tab.'.concat(searchPanel)]}</a>
-                            </li>    
-                        </c:forEach>
-                    </ul>
-                    <div class="tab-content">
-                        <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
-                            <div class="tab-pane #{detailedSearchController.activeSearchPanelController.equals(sp) ? 'active' : ''}" id="#{sp}">
-                                <ui:include src="#{detailedSearchController.getSearchTab(sp)}">
-                                </ui:include>
-                            </div>
-                        </c:forEach>                         
+            <h:panelGroup layout="block" id="searchPanelContainer">
+
+                <ui:include src="/layout/messages.xhtml" />
+
+                <div class="box box-primary">
+
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <c:forEach items="#{detailedSearchController.searchPanels}" var="searchPanel" >
+                                <li class="#{detailedSearchController.activeSearchPanelController.equals(searchPanel) ? 'active' : ''}">
+                                    <a href="##{searchPanel}" data-toggle="tab" onclick="setActiveTab([{name: 'activeSearchPanelController', value: '#{searchPanel}'}])">#{messages['search.tab.'.concat(searchPanel)]}</a>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                        <div class="tab-content">
+                            <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
+                                <div class="tab-pane #{detailedSearchController.activeSearchPanelController.equals(sp) ? 'active' : ''}" id="#{sp}">
+                                    <ui:include src="#{detailedSearchController.getSearchTab(sp)}">
+                                    </ui:include>
+                                </div>
+                            </c:forEach>
+                        </div>
                     </div>
-                </div>     
-                <div class="ui-fluid">
-                    <p:panelGrid columns="2" id="sortPanel" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                        <p:outputLabel value="#{messages['view.action.SortBy']}"/>
-                        <p:selectOneMenu id="searchSortBy" value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
-                            <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                            <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="path" />
-                            <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="title" />
-                            <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="createBy" />
-                            <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="created" />
-                            <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="lastModifiedBy" />
-                            <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="lastModified" />
-                            <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}">
-                            </f:selectItems>
-                            <p:ajax update="sortDirection" event="change"/>
-                        </p:selectOneMenu>
-                        <p:outputLabel value="#{messages['view.action.SortType']}"/>
-                        <p:selectOneMenu id="sortDirection" value="#{detailedSearchController.searchModel.sortOrder}" required="false">
-                            <c:choose>
-                                <c:when test="#{ detailedSearchController.searchModel.sortBy eq 'created' or detailedSearchController.searchModel.sortBy eq 'lastModified' }" >
-                                    <f:selectItem itemLabel="#{messages['collection.table.DateDescending']}" itemValue="DESC" />
-                                    <f:selectItem itemLabel="#{messages['collection.table.DateAscending']}" itemValue="ASC" />
-                                </c:when>
-                                <c:otherwise>
-                                    <f:selectItem itemLabel="A-Z" itemValue="ASC" />
-                                    <f:selectItem itemLabel="Z-A" itemValue="DESC" />
-                                </c:otherwise>
-                            </c:choose>
-                        </p:selectOneMenu>
-                    </p:panelGrid>
+                    <div class="ui-fluid">
+                        <p:panelGrid columns="2" id="sortPanel" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                            <p:outputLabel value="#{messages['view.action.SortBy']}"/>
+                            <p:selectOneMenu id="searchSortBy" value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
+                                <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="path" />
+                                <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="title" />
+                                <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="createBy" />
+                                <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="created" />
+                                <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="lastModifiedBy" />
+                                <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="lastModified" />
+                                <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}">
+                                </f:selectItems>
+                                <p:ajax update="sortDirection" event="change"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="#{messages['view.action.SortType']}"/>
+                            <p:selectOneMenu id="sortDirection" value="#{detailedSearchController.searchModel.sortOrder}" required="false">
+                                <c:choose>
+                                    <c:when test="#{ detailedSearchController.searchModel.sortBy eq 'created' or detailedSearchController.searchModel.sortBy eq 'lastModified' }" >
+                                        <f:selectItem itemLabel="#{messages['collection.table.DateDescending']}" itemValue="DESC" />
+                                        <f:selectItem itemLabel="#{messages['collection.table.DateAscending']}" itemValue="ASC" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <f:selectItem itemLabel="A-Z" itemValue="ASC" />
+                                        <f:selectItem itemLabel="Z-A" itemValue="DESC" />
+                                    </c:otherwise>
+                                </c:choose>
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+                    </div>
+
+
+                    <p:toolbar>
+                        <f:facet name="left">
+                            <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" onclick="checkSubPathSelection()" style="margin-right:20px;" styleClass="btn btn-primary" />
+                            <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchPanelContainer" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="btn" />
+                        </f:facet>
+                    </p:toolbar>
                 </div>
-                
-                
-                <p:toolbar>
-                    <f:facet name="left">
-                        <p:commandButton icon="fa fa-search" value="#{messages['general.label.Search']}" id="search" onclick="checkSubPathSelection()" style="margin-right:20px;" styleClass="btn btn-primary" />
-                        <p:commandButton icon="fa fa-remove" value="#{messages['general.label.Clear']}" id="clear" update="searchForm" action="#{detailedSearchController.clearSearch()}" style="margin-right:20px;" styleClass="btn" />
-                    </f:facet>
-                </p:toolbar>
-            </div>
+            </h:panelGroup>
 
             <div class="box box-primary">
                 <p:dataTable id="resultDataTable" 
