@@ -4,6 +4,7 @@ package com.ozguryazilim.raf.utils;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class RafPathUtils {
 
@@ -22,4 +23,10 @@ public class RafPathUtils {
             return false;
         }
     }
+
+    public static boolean isInSharedRaf(String path) {
+        Objects.requireNonNull(path);
+        return path.startsWith("/SHARED");
+    }
+
 }
