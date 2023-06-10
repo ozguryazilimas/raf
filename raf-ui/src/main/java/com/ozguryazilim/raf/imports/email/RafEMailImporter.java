@@ -204,27 +204,24 @@ public class RafEMailImporter implements Serializable {
         }
     }
 
-    public RafRecord uploadEmailRecord(Message message, EMailImportCommand command, String fileName, String tags) {
-        return uploadEmailRecord(message, command, fileName, tags, false);
+    public RafRecord uploadEmailRecord(EMailMessage message, String tempPath, String path, String fileName, String tags) {
+        return uploadEmailRecord(message, tempPath, path, fileName, tags, false);
     }
 
-    public RafRecord uploadEmailRecord(Message email, EMailImportCommand command, String fileName, String tags, boolean sendFavoriteEmail) {
-        String temporaryFolderPath = command.getTempPath();
-        String rafEmailFolder = command.getRafPath();
-        EMailMessage message = command.getParsedEmail();
+    public RafRecord uploadEmailRecord(EMailMessage message, String tempPath, String path, String fileName, String tags, boolean sendFavoriteEmail) {
         RafRecord record = null;
 
         try {
-            temporaryFolderPath = encodeFilePath(temporaryFolderPath);
-            String emailFilePath = encodeFilePath(temporaryFolderPath.concat("/").concat(fileName.replace("/", "_")));
-            String emailRecordPath = encodeFilePath(rafEmailFolder);
+            tempPath = encodeFilePath(tempPath);
+            String emailFilePath = encodeFilePath(tempPath.concat("/").concat(fileName.replace("/", "_")));
+            String emailRecordPath = encodeFilePath(path);
 
-            if (!rafService.checkRafFolder(temporaryFolderPath)) {
-                LOG.info("Email could not imported. Temporary email path not exists: {}", temporaryFolderPath);
+            if (!rafService.checkRafFolder(tempPath)) {
+                LOG.info("Email could not imported. Temporary email path not exists: {}", tempPath);
             }
 
             if (!rafService.checkRafFolder(emailRecordPath)) {
-                LOG.info("Email could not imported. Email record path not exists: {}", rafEmailFolder);
+                LOG.info("Email could not imported. Email record path not exists: {}", path);
             }
 
             RafDocument emailDoc = uploadEmail(message, emailFilePath, sendFavoriteEmail);
@@ -232,9 +229,9 @@ public class RafEMailImporter implements Serializable {
                 record = moveToRecord(message, emailDoc, emailRecordPath);
                 if (record != null) {
                     addEmailMetadataToRecord(record, message);
-                    uploadAttachmentsToRecord(message, temporaryFolderPath, record);
+                    uploadAttachmentsToRecord(message, tempPath, record);
                     if (tags != null) {
-                        String rafCode = temporaryFolderPath.split("/")[2];
+                        String rafCode = tempPath.split("/")[2];
                         List<String> tagList = Arrays.asList(tags.split(","));
                         for (String tag : tagList) {
                             if (!tagSuggestionService.getSuggestions(rafCode).contains(tag)) {
@@ -246,62 +243,12 @@ public class RafEMailImporter implements Serializable {
                     }
                 }
 
-                if (rafService.isRafObjectAvailable(record.getId())) {
-                    postUploadAction(command, command.getFetchCommand(), email);
-                }
             }
 
-        } catch (RafException | MessagingException ex) {
+        } catch (RafException ex) {
             LOG.error("Raf Exception", ex);
         }
         return record;
-    }
-
-    public void postUploadAction(EMailImportCommand command, EMailFetchCommand fetchCommand, Message message) throws MessagingException {
-        EMailFetchCommandExecutor fetchCommandExecutor = new EMailFetchCommandExecutor();
-
-        String host = fetchCommand.getHost();
-        String user = fetchCommand.getUser();
-        String pass = fetchCommand.getPass();
-        int port = fetchCommand.getPort();
-        Store store = fetchCommandExecutor.getSession(fetchCommand).getStore(fetchCommand.getProtocol() + "s");
-        store.connect(host, port, user, pass);
-
-        switch (command.getPostImportCommand()) {
-            case ARCHIVE:
-                String folder = fetchCommand.getFolder();
-
-                String archiveFolderName = fetchCommand.getArchiveFolder();
-                if ("imap".equals(fetchCommand.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty()) {
-                    Folder archiveFolder = store.getFolder(archiveFolderName);
-                    Folder emailFolder = store.getFolder(folder);
-                    if (archiveFolder.exists() && emailFolder.exists()) {
-                        archiveFolder.open(Folder.READ_WRITE);
-                        emailFolder.open(Folder.READ_WRITE);
-
-                        if (emailFolder.isOpen() && archiveFolder.isOpen()) {
-                            emailFolder.copyMessages(new Message[]{message}, archiveFolder);
-                            message.setFlag(Flags.Flag.DELETED, true);
-
-                            archiveFolder.close(false);
-                            emailFolder.close(true);
-                        }
-                    }
-                }
-                break;
-            case DELETE:
-                Folder emailFolder = store.getFolder(fetchCommand.getFolder());
-                if (emailFolder.exists()) {
-                    emailFolder.open(Folder.READ_WRITE);
-                    if (emailFolder.isOpen()) {
-                        message.setFlag(Flags.Flag.DELETED, true);
-                        emailFolder.close(true);
-                    }
-                }
-                break;
-            default:
-                break;
-        }
     }
 
 }
