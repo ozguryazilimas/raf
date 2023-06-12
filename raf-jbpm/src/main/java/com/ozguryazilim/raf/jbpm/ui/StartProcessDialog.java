@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.jbpm.ui;
 
 import com.ozguryazilim.raf.RafContext;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
@@ -52,6 +53,9 @@ public class StartProcessDialog implements Serializable, FormController, Documen
 
     @Inject
     private FormManager formManager;
+
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
 
     private String deploymentId;
     private String processId;
@@ -154,6 +158,10 @@ public class StartProcessDialog implements Serializable, FormController, Documen
         }
 
         data.put("document", rafOIDs);
+    }
+
+    public boolean isDisabled() {
+        return !readOnlyModeService.isEnabled();
     }
 
     @Override
