@@ -192,8 +192,13 @@
                                         <ui:fragment rendered="#{taskController.selectedTask.taskData.status ne 'Completed'}">
                                             <p:repeat value="#{taskController.taskActions}" var="act">
                                                 <ui:remove>id="a#{act.action}" </ui:remove>
-                                                <p:commandButton value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" 
-                                                                 validateClient="true" styleClass="#{act.style}" update="taskConsole"/>
+                                                <p:commandButton value="#{messages[act.title]}"
+                                                                 icon="fa #{act.icon}"
+                                                                 action="#{taskController.closeAs(act.action)}"
+                                                                 disabled="#{readOnlyModeService.isEnabled()}"
+                                                                 validateClient="true"
+                                                                 styleClass="#{act.style}"
+                                                                 update="taskConsole"/>
                                             </p:repeat>
                                         </ui:fragment>
                                     </h:panelGroup>

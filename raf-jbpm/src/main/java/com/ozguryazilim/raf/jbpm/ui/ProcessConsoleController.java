@@ -3,6 +3,7 @@ package com.ozguryazilim.raf.jbpm.ui;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
@@ -65,7 +66,10 @@ public class ProcessConsoleController implements Serializable, FormController, D
     
     @Inject
     private transient TaskService taskService;
-    
+
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
+
     //URL ile geldiğinde setlenir ve ardından init kısmında kullanılır.
     private String processIntanceId = "";
     
@@ -227,6 +231,10 @@ public class ProcessConsoleController implements Serializable, FormController, D
      * Seçili olan process'i iptal eder.
      */
     public void abortProcess(){
+        if (!isProcessManipulationEnabled()) {
+            return;
+        }
+
         processService.abortProcessInstance(selectedProcessIntanceId);
         resetSelectedProcessInstance();
     }
@@ -251,8 +259,6 @@ public class ProcessConsoleController implements Serializable, FormController, D
     public List<BAMTaskSummaryImpl> getBamSummary() {
         return bamSummary;
     }
-    
-    
 
     @Override
     public List<RafObject> getRafObjects() {
@@ -267,7 +273,9 @@ public class ProcessConsoleController implements Serializable, FormController, D
     public String getProcessId() {
         return processId;
     }
-    
-    
-    
+
+    public boolean isProcessManipulationEnabled() {
+        return !readOnlyModeService.isEnabled();
+    }
+
 }

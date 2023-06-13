@@ -213,8 +213,12 @@
                                 <div class="box-footer">
                                     <h:panelGroup styleClass="actionButtons" layout="block" >
                                         <ui:fragment rendered="#{identity.isPermitted('allTasks:update')}">
-                                            <p:commandButton id="aabort" value="#{messages['process.button.Abort']}" 
-                                                             icon="fa fa-trash" action="#{processConsoleController.abortProcess()}" styleClass="btn btn-danger"
+                                            <p:commandButton id="aabort"
+                                                             value="#{messages['process.button.Abort']}"
+                                                             icon="fa fa-trash"
+                                                             action="#{processConsoleController.abortProcess()}"
+                                                             styleClass="btn btn-danger"
+                                                             disabled="#{!(processConsoleController.isProcessManipulationEnabled())}"
                                                              update="processConsole"
                                                              rendered="#{processConsoleController.selectedProcessInstance.state eq 1}"
                                             >

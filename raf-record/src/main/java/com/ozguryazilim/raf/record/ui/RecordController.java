@@ -4,6 +4,7 @@ import com.ozguryazilim.raf.jbpm.config.BpmPages;
 import com.ozguryazilim.raf.record.RecordTypeManager;
 import com.ozguryazilim.raf.record.model.RafRecordType;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +46,9 @@ public class RecordController implements Serializable {
     @Inject
     private Identity identity;
 
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
+
     /**
      * Geriye Kullanılabilir kayıt tipleirni döndürür.
      *
@@ -79,6 +83,10 @@ public class RecordController implements Serializable {
     }
 
     public void startRecord(RafRecordType recordType) {
+        if (!isRecordManipulationAvailable()) {
+            return;
+        }
+
         LOG.debug("New Record will be started for : {}", recordType);
         startRecordDialog.openDialog(recordType);
     }
@@ -98,4 +106,7 @@ public class RecordController implements Serializable {
         }
     }
 
+    public boolean isRecordManipulationAvailable() {
+        return !readOnlyModeService.isEnabled();
+    }
 }
