@@ -393,6 +393,10 @@
     padding: 0;
 }
 
+.input-group .ui-selectonemenu[role="combobox"] {
+    max-width: 125px;
+}
+
 .ui-selectonemenu[role="combobox"] .ui-selectonemenu-label {
     max-width: calc(100% - 2em - 5px) !important;
     text-overflow: ellipsis;

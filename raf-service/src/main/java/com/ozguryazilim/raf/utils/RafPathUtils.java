@@ -55,5 +55,11 @@ public class RafPathUtils {
         }
     }
 
+    public static boolean isInSharedRaf(String path) {
+        if (StringUtils.isBlank(path))  {
+            return false;
+        }
+        return path.startsWith("/SHARED");
+    }
 
 }

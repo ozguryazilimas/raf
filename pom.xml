@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.ozguryazilim.telve</groupId>
         <artifactId>telve-app-parent</artifactId>
-        <version>4.2.10-Final</version>
+        <version>4.2.11-Final</version>
     </parent>
 
     <groupId>com.ozguryazilim.raf</groupId>
@@ -125,7 +125,7 @@
         <repository>
             <id>ozguryazilim</id>
             <name>Özgür Yazılım A.Ş. Nexus Reporsitory</name>
-            <url>http://nexus.ozguryazilim.com.tr/repository/maven-public</url>
+            <url>https://ambar.ozguryazilim.com.tr/repository/maven-public</url>
         </repository>
     </repositories>
     
@@ -133,12 +133,12 @@
         <repository>
             <id>nexus</id>
             <name>Özgür Yazılım A.Ş. Nexus Reporsiyory</name>
-            <url>http://nexus.ozguryazilim.com.tr/content/repositories/releases/</url>
+            <url>https://ambar.ozguryazilim.com.tr/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
             <name>Özgür Yazılım A.Ş. Nexus Snapshots Reporsiyory</name>
-            <url>http://nexus.ozguryazilim.com.tr/content/repositories/snapshots/</url>
+            <url>https://ambar.ozguryazilim.com.tr/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

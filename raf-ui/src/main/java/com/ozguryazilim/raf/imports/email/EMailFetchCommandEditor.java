@@ -43,9 +43,9 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
 
     @Override
     public EMailFetchCommand createNewCommand() {
-        String defaultCode = ""
-                + "var emailExtension = \"text/html\".equals(mail.getMimeType()) ? \".html\" : \".txt\";\n"
-                + "var fileName = mail.getSubject().concat(emailExtension);\n"
+        String defaultCode = "" +
+                "var emailExtension = \"text/html\".equals(message.getMimeType()) ? \".html\" : \".txt\";\n"
+                + "var fileName = message.getSubject().concat(emailExtension);\n"
                 + "var tags = \"Email,Imported Email\";\n"
                 + "\n"
                 + "/*\n"
@@ -54,7 +54,7 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
                 + " method with 'sendFavoriteEmail' parameter instead.\n"
                 + "*/\n"
                 + "\n"
-                + "importer.uploadEmailRecord(message, command, fileName, tags);";
+                + "importer.uploadEmailRecord(message, path, tempPath, fileName, tags);";
 
         return new EMailFetchCommand(
                 "imap",

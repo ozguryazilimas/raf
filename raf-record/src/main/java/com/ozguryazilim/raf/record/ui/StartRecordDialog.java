@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.record.ui;
 
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.department.RafDepartmentService;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.forms.FormManager;
 import com.ozguryazilim.raf.forms.model.Field;
 import com.ozguryazilim.raf.forms.model.Form;
@@ -62,6 +63,9 @@ public class StartRecordDialog implements Serializable, FormController, Document
 
     @Inject
     private RafDepartmentService departmentService;
+
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
 
     private RafRecordType recordType;
     private Form form;
@@ -205,6 +209,10 @@ public class StartRecordDialog implements Serializable, FormController, Document
     @Override
     public Boolean getCanAdd() {
         return true;
+    }
+
+    public boolean isDisabled() {
+        return !readOnlyModeService.isEnabled();
     }
 
     @Override

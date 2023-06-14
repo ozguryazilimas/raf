@@ -41,7 +41,13 @@
 
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block" >
-                    <p:commandButton id="save" value="#{messages['general.button.Start']}" icon="fa fa-check" action="#{startRecordDialog.closeDialog()}" styleClass="btn-primary" update="startRecordDialogMessages"/>
+                    <p:commandButton id="save"
+                                     value="#{messages['general.button.Start']}"
+                                     icon="fa fa-check"
+                                     action="#{startRecordDialog.closeDialog()}"
+                                     disabled="#{!(startRecordDialog.isDisabled())}"
+                                     styleClass="btn-primary"
+                                     update="startRecordDialogMessages"/>
                     <p:commandButton id="close" value="#{messages['general.button.Cancel']}" icon="ui-icon-close" action="#{startRecordDialog.cancelDialog()}" process="@this"/>
                 </h:panelGroup>
             </div>

@@ -18,6 +18,7 @@ import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.share.RafShareService;
 import com.ozguryazilim.raf.ui.base.metadatapanels.ShareMetadataPanel;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -119,7 +120,9 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         if (getObject() != null) {
             try {
                 boolean permission = false;
-                if (getObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
+                if (RafPathUtils.isInSharedRaf(getObject().getPath())) {
+                    permission = memberService.hasWriteRole(identity.getLoginName(), rafDefinitionService.getSharedRaf()) && memberService.hasCheckoutRole(identity.getLoginName(), rafDefinitionService.getSharedRaf());
+                } else if (getObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
                     permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getObject().getPath());
                 } else {
                     permission = getRafFromObject() != null && memberService.hasWriteRole(identity.getLoginName(), getRafFromObject());
@@ -137,7 +140,10 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         if (getObject() != null) {
             try {
                 boolean permission = false;
-                if (getObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
+
+                if (RafPathUtils.isInSharedRaf(getObject().getPath())) {
+                    permission = memberService.hasCheckoutRole(identity.getLoginName(), rafDefinitionService.getSharedRaf());
+                } else if (!Strings.isNullOrEmpty(getObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getObject().getPath())) {
                     permission = rafPathMemberService.hasCheckoutRole(identity.getLoginName(), getObject().getPath());
                 } else {
                     permission = getRafFromObject() != null && memberService.hasCheckoutRole(identity.getLoginName(), getRafFromObject());
