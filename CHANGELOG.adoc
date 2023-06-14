@@ -1,9 +1,35 @@
 = RAF Sürüm Notları
 
+== 1.3.1-Beta.2
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/8bd45ae326f25929d79a3933cf9d97280b8c07b9[8bd45ae326f2592]
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/64188416834c0af22041b02656876a355374a573[64188416834c0af]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/53169[#53169] Raf E-Posta import sırasında okunmuş e-postalara ne yapılacak parametre yapısı gelmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72864[#72864] Raf görüntüleme sayfasında dosyaların yanında bulunan ikonların çevirilerinin eksik olması sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73101[#73101] Gruplar, Kategori Tanımları ve Departmanlar sayfalarındaki &quot;Yeni&quot; ve &quot;Yeni Kök&quot; buton textlerinin anlaşılır hale getirilmesi   
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73102[#73102] Raf içerisinde kategori başlığının EN çevirisinin eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73386[#73386] Yeni bir süreç başlatırken belgenin nasıl ekleneceği ile ilgili bilgi yazısı eklenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73410[#73410] Arama sayfasında Süreç Arama ekranında süreç arama işlemi gerçekleştirilemiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73656[#73656] Süreç akışlarında bazı inputlarda yazı uzun olduğunda inputların üst üste gelme sorunu  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74076[#74076] Kullanıcı farketmeksizin &quot;Kişisel&quot; rafta üstte bulunan klasör ağacından &quot;PRIVATE&quot;a tıklanınca diğer kullanıcıların kişisel rafları görüntüleniyor.  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74254[#74254] Ortak Raf&#x27;ta sürümlendirme yapılabilmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74302[#74302] Rafın repository url inin güncellenmesi; http://nexus &#x3D;&gt; https://ambar   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74418[#74418] Telve versiyonunun 4.2.11-Final e yükseltilmesi  
+
 == 1.3.1-Beta.1
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/88d69f24bd2757edcc33ca366507e952b1878a98[88d69f24bd2757e]
-** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/64188416834c0af22041b02656876a355374a573[64188416834c0af]
 
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71828[#71828] (Mobil) Rafın içerisindeyken kategoriler seçeneği tıklandığında dosya ve klasörleri görüntülemek için kısıtlı bir alan kalıyor  
 
