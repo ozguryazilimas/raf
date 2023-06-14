@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.utils;
 
 
+import org.jodconverter.core.util.StringUtils;
+
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,4 +24,12 @@ public class RafPathUtils {
             return false;
         }
     }
+
+    public static boolean isInSharedRaf(String path) {
+        if (StringUtils.isBlank(path))  {
+            return false;
+        }
+        return path.startsWith("/SHARED");
+    }
+
 }
