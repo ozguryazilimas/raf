@@ -14,7 +14,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.ozguryazilim.raf.utils.RafObjectUtils;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 
 /**
@@ -78,7 +78,7 @@ public class FolderBreadcrumbController implements Serializable {
                     p = p + "/" + s;
 
                     try {
-                        if (RafObjectUtils.isRootPath(p)) {
+                        if (RafPathUtils.isRafRootPath(p) || RafPathUtils.isPrivateRafRootPath(p)) {
                             continue;
                         }
                     } catch (RafException e) {
