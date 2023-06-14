@@ -1,10 +1,11 @@
 package com.ozguryazilim.raf.utils;
 
 
+import org.jodconverter.core.util.StringUtils;
+
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 public class RafPathUtils {
 
@@ -25,7 +26,9 @@ public class RafPathUtils {
     }
 
     public static boolean isInSharedRaf(String path) {
-        Objects.requireNonNull(path);
+        if (StringUtils.isBlank(path))  {
+            return false;
+        }
         return path.startsWith("/SHARED");
     }
 
