@@ -26,23 +26,34 @@ public class RafEventLogService {
         logRepository.saveAndFlush(event);
     }
 
-    public List<RafEventLog> getEventLogByUser( String username){
+    public List<RafEventLog> getEventLogByUser( String username, String rafFilter, String typeFilter){
         List<RafDefinition> defs = rafDefinitionService.getRafsForUser(username);
         List<String> paths = new ArrayList<>();
 
-        for( RafDefinition def : defs ){
-            paths.add("/RAF/" + def.getCode() + "/%");
+        if (rafFilter == null || "*".equals(rafFilter)) {
+            for( RafDefinition def : defs ){
+                paths.add("/RAF/" + def.getCode() + "/%");
+            }
+
+            //Ortak alana konanlar herkese listelensin.
+            //TODO: Bunu kullanıcı seçimine versek mi?
+            paths.add("/SHARED/%" );
+            //Repository'den şu anda max 10 adet dönüyor
+        } else {
+            paths.add(rafFilter + "%");
         }
 
-        //Ortak alana konanlar herkese listelensin.
-        //TODO: Bunu kullanıcı seçimine versek mi?
-        paths.add("/SHARED/%" );
-        //Repository'den şu anda max 10 adet dönüyor
-        return logRepository.findByPaths(username, paths);
+        return !"*".equals(typeFilter) ?
+                logRepository.findByPathsAndType(username, paths, typeFilter) :
+                logRepository.findByPaths(username, paths);
     }
 
     public List<RafEventLog> getRecentlyEventsByUser(String username){
         //Repository'den şu anda max 10 adet dönüyor
         return logRepository.findRecentlyEventsByUsername(username);
+    }
+
+    public List<String> getEventLogTypes() {
+        return logRepository.findCurrentEventTypes();
     }
 }
