@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.ui.sidepanels;
 
+import com.google.gson.JsonObject;
 import com.ozguryazilim.raf.RafContext;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;

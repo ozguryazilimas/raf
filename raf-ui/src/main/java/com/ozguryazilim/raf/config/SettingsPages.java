@@ -36,6 +36,9 @@ public interface SettingsPages extends Pages{
     class DefaultSearchOptionPane implements Admin {};
 
     @SecuredPage @View
+    class CollectionOptionPane implements Admin {};
+
+    @SecuredPage @View
     class ReadOnlyModeOptionPane implements Admin {};
 
 }

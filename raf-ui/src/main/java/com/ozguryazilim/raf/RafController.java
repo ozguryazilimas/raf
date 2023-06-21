@@ -57,12 +57,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -120,6 +115,9 @@ public class RafController implements Serializable {
     @Inject
     private CommandSender commandSender;
 
+    @Inject
+    private CollectionDefaultOptionsService collectionDefaultOptionsService;
+
     private AbstractSidePanel selectedSidePanel;
 
     private ContentViewPanel selectedContentPanel;
@@ -145,15 +143,15 @@ public class RafController implements Serializable {
 
     private boolean pagingLimit = Boolean.FALSE;
 
-    private SortType sortBy = SortType.DATE_DESC;
-    private Boolean descSort = Boolean.FALSE;
+    private SortType sortBy;
+    private boolean descSort;
 
     private String lastRafObjectId;
 
     private long scrollTop;
     private long scrollLeft;
 
-    public Boolean getDescSort() {
+    public boolean getDescSort() {
         return descSort;
     }
 
@@ -187,8 +185,8 @@ public class RafController implements Serializable {
         //selectedCollectionContentPanel = collectionCompactViewPanel;
         setPage(0);
         setPagingLimit(false);
-        setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
-        setDescSort(kahve.get("raf.descSort", Boolean.FALSE).getAsBoolean());
+        setSortBy(collectionDefaultOptionsService.getDefaultSortType());
+        setDescSort(!collectionDefaultOptionsService.getDefaultDescSort());
     }
 
     public void nextPage() {
@@ -233,6 +231,9 @@ public class RafController implements Serializable {
      */
     public void init() {
         setPage(0);
+
+        setSortBy(collectionDefaultOptionsService.getDefaultSortType());
+        setDescSort(!collectionDefaultOptionsService.getDefaultDescSort());
 
         //Eğer url parametrelerinde object id verilmemişse en son değer sabit kalıyordu, temizlendi.
         Map rpMap = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
@@ -767,13 +768,15 @@ public class RafController implements Serializable {
     }
 
     public void setSortByAndType(SortType sortBy, Boolean descSort) {
-        boolean changing = !this.sortBy.equals(sortBy) || this.descSort != descSort;
+        boolean changing = !Objects.equals(this.sortBy, sortBy) || this.descSort != descSort;
         if (changing) {
             setPage(0);
             this.sortBy = sortBy;
             this.descSort = descSort;
             kahve.put("raf.sortBy", sortBy.name());
             kahve.put("raf.descSort", descSort);
+            collectionDefaultOptionsService.setDefaultSortType(sortBy);
+            collectionDefaultOptionsService.setDefaultDescSort(!descSort);
             try {
                 if (context.getSelectedObject() != null) {
                     populateFolderCollection(context.getSelectedObject().getId());
