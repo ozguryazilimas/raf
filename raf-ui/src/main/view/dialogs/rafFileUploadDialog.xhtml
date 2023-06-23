@@ -7,13 +7,27 @@
 
     <ui:param name="title" value="#{messages['fileUploadDialog.caption']}"/>
     <ui:define name="form">
-        <h:form id="fileUpload">
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+
+        <h:form id="fileUploadHeader">
+            <p:remoteCommand name="closeDialog" action="#{rafFileUploadDialog.closeDialog()}"/>
+            <p:confirmDialog id="closeConfirmation"
+                             width="450"
+                             header="#{messages['general.caption.Confirm']}"
+                             message="#{messages['fileUploadDialog.close.confirmation.message']}"
+                             widgetVar="closeConfirmation"
+                             showEffect="fade">
+                <p:commandButton value="#{messages['general.button.No']}" onclick="PF('closeConfirmation').hide();" type="button" styleClass="ui-confirmdialog-no pull-right" icon="ui-icon-close" />
+                <p:commandButton value="#{messages['general.button.Yes']}" onclick="closeDialog()" type="button" styleClass="ui-confirmdialog-yes pull-right" icon="ui-icon-check" />
+            </p:confirmDialog>
+
             <input type="hidden" id="already-added-text" value="#{messages['file.already.added']}"/>
             <p:remoteCommand name="sendFileUploadEvent" action="#{rafFileUploadDialog.fileUploaded}"
                              onstart="window.parent.PF('statusDialog').show()"
                              oncomplete="window.parent.PF('statusDialog').hide()"/>
             <p:remoteCommand name="isAlreadyUploaded" action="#{fileUploadAction.isAlreadyUploaded}"
                              oncomplete="getAlreadyUploadedResult(xhr, status, args);"/>
+
             <ui:fragment rendered="#{fileUploadAction.rafCode eq 'CHECKIN'}">
                 <div class="row">
                     <p:outputLabel value="#{messages['fileUploadDialog.label.versionComment']}"/>
@@ -101,6 +115,33 @@
                             ALREADY_ADDED_FILE_LIST.push(args.value)
                         }
                     }
+
+                    parent.window.uppy = uppy;
+
+                    const closeWithUploadCheck = () => {
+                        if (Object.keys(uppy.getState().currentUploads).length > 0) {
+                            PF('closeConfirmation').show();
+                        } else {
+                            closeDialog();
+                        }
+                    }
+
+                    setTimeout(() => {
+                        const closeButtonEl = $(this.wd[0]).find(".ui-dialog-titlebar-close");
+                        if (closeButtonEl !== undefined) {
+                            closeButtonEl.replaceWith(closeButtonEl.clone());
+
+                            const el = $(this.wd[0]).find(".ui-dialog-titlebar-close");
+                            el.on('click', function(event) {
+                                event.stopImmediatePropagation();
+                                event.stopPropagation();
+                                event.preventDefault();
+                                closeWithUploadCheck();
+                            })
+                        }
+
+                    }, 1000);
+
                 </script>
             </div>
             <h:panelGroup styleClass="row actionButtons" layout="block">
@@ -116,7 +157,7 @@
                 <p:commandButton id="close"
                                  value="#{messages['general.button.Close']}"
                                  icon="ui-icon-close"
-                                 action="#{rafFileUploadDialog.closeDialog()}"
+                                 onclick="closeWithUploadCheck()"
                                  partialSubmit="true"
                                  styleClass="btn-primary"
                                  process="@this"/>
