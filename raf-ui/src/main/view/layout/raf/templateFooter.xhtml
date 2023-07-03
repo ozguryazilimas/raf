@@ -1,0 +1,20 @@
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+    <footer class="main-footer">
+
+        <div class="pull-right hidden-xs">
+            #{telveConfigResolver.getProperty('app.version')}
+        </div>
+
+        <strong>#{telveConfigResolver.getProperty('app.footer')}</strong>
+        #{telveConfigResolver.getProperty('brand.company.footer')}
+
+        <ui:fragment rendered="#{readOnlyModeService.isEnabled() eq true}">
+            <strong style="color: #ab1e00; padding: 0 5px;">[#{messages['raf.read-only-mode.label']}]</strong>
+        </ui:fragment>
+
+    </footer>
+
+</ui:composition>

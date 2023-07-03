@@ -104,6 +104,11 @@
 .middle {order:2; flex-basis:100%; flex: 3;  min-width: 200px;}
 .right {order:3; flex-basis:100%; flex: 2;  min-width: 200px;}
 
+@media (max-width: 425px) {
+    .raf-side-panel-wrapper {
+        max-height: 120px;
+    }
+}
 
 .raf-item-list{
     list-style: none;
@@ -386,6 +391,10 @@
 .ui-selectonemenu[role="combobox"] {
     overflow: hidden;
     padding: 0;
+}
+
+.input-group .ui-selectonemenu[role="combobox"] {
+    max-width: 125px;
 }
 
 .ui-selectonemenu[role="combobox"] .ui-selectonemenu-label {

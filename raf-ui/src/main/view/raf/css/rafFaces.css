@@ -1,0 +1,13 @@
+.raf-ui-dialog-documentView {
+    top: unset !important;;
+    position: fixed !important;;
+    display: block !important;;
+    height: 100% !important;
+}
+
+.raf-ui-dialog-documentView .ui-dialog-content {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: scroll !important;
+    overscroll-behavior: contain !important;
+}

@@ -116,17 +116,19 @@
     </ui:define>
 
     <ui:define name="detailBar">
-        <ui:param name="rafDetailsMap" value="#{rafDefinitionBrowse.getDetailsForSelectedRaf()}" />
-        <ui:fragment rendered="#{rafDetailsMap ne null and rafDetailsMap.size() > 0}">
-            <t:outputText label="#{messages['raf.definition.label.totalFolderCount']}" value="#{rafDetailsMap.get('totalFolderCount')}"
-                          columnClass="col-xs-12"/>
-            <t:outputText label="#{messages['raf.definition.label.totalFileCount']}" value="#{rafDetailsMap.get('totalFileCount')}"
-                          columnClass="col-xs-12"/>
-            <t:outputText label="#{messages['raf.definition.label.totalFileSize']}" value="#{rafDetailsMap.get('totalFileSize')}"
-                          columnClass="col-xs-12"/>
-            <t:outputText label="#{messages['raf.definition.label.totalMemberCount']}" value="#{rafDetailsMap.get('totalMember')}"
-                          columnClass="col-xs-12"/>
-        </ui:fragment>
+        <p:outputPanel id="detailBarContent" widgetvar="detailBarContent" deferred="true">
+            <ui:param name="rafDetailsMap" value="#{rafDefinitionBrowse.getDetailsForSelectedRaf()}" />
+            <ui:fragment rendered="#{rafDetailsMap ne null and rafDetailsMap.size() > 0}">
+                <t:outputText label="#{messages['raf.definition.label.totalFolderCount']}" value="#{rafDetailsMap.get('totalFolderCount')}"
+                              columnClass="col-xs-12"/>
+                <t:outputText label="#{messages['raf.definition.label.totalFileCount']}" value="#{rafDetailsMap.get('totalFileCount')}"
+                              columnClass="col-xs-12"/>
+                <t:outputText label="#{messages['raf.definition.label.totalFileSize']}" value="#{rafDetailsMap.get('totalFileSize')}"
+                              columnClass="col-xs-12"/>
+                <t:outputText label="#{messages['raf.definition.label.totalMemberCount']}" value="#{rafDetailsMap.get('totalMember')}"
+                              columnClass="col-xs-12"/>
+            </ui:fragment>
+        </p:outputPanel>
     </ui:define>
 
 </ui:composition>

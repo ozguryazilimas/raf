@@ -58,8 +58,9 @@ public class FolderSidePanelDataRest implements Serializable{
             
             sb.append("\"id\":\"").append(f.getId()).append("\",");
             sb.append("\"parent\":\"").append(f.getParentId()).append("\",");
+            sb.append(String.format("\"a_attr\": { \"href\": \"raf.jsf?id=%s&o=%s\" }", raf, f.getId())).append(",");
             sb.append("\"text\":\"").append(f.getTitle()).append("\"");
-            
+
             if( !"#".equals(f.getParentId())){
                 sb.append(",\"children\": true" );
             }

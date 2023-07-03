@@ -194,7 +194,9 @@
 
                                     <p:repeat value="#{recordController.recordTypes}" var="rt" >
                                         <li >
-                                            <p:commandLink action="#{recordController.startRecord(rt)}" process="@this">
+                                            <p:commandLink action="#{recordController.startRecord(rt)}"
+                                                           disabled="#{!(recordController.isRecordManipulationAvailable())}"
+                                                           process="@this">
                                                 <i class="fa fa-folder-open-o" /> #{rt.title}
                                                 <p:ajax event="dialogReturn" listener="#{recordController.onRecordStarted}" />
                                             </p:commandLink>

@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.member;
 
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
@@ -65,6 +66,9 @@ public class RafMemberService implements Serializable {
 
    @Inject
     private UserLookup userLookup;
+
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
 
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
         String role = getMemberRole(identity.getLoginName(), raf);
@@ -209,6 +213,10 @@ public class RafMemberService implements Serializable {
     }
 
     public boolean hasWriteRole(String username, RafDefinition raf) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         if (username == null || raf == null) {
             return false;
         }
@@ -216,6 +224,10 @@ public class RafMemberService implements Serializable {
     }
 
     public boolean hasCheckoutRole(String username, RafDefinition raf) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         if (username == null || raf == null) {
             return false;
         }
@@ -223,6 +235,10 @@ public class RafMemberService implements Serializable {
     }
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         if (username == null || raf == null) {
             return false;
         }

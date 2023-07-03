@@ -82,7 +82,7 @@
                                         <p:inputText value="#{taskController.filter.keyword}"/>
                                     </t:inputAny>
                                     <t:inputAny label="taskFilter.label.processId">
-                                        <p:inputText value="#{taskController.filter.processId}"/>
+                                        <p:inputNumber value="#{taskController.filter.processId}" decimalPlaces="0" decimalSeparator="" thousandSeparator="" inputStyle="text-align: left" />
                                     </t:inputAny>
                                     <t:inputAny label="taskFilter.label.taskType">
                                         <p:selectOneMenu value="#{taskController.filter.taskType}">
@@ -192,8 +192,13 @@
                                         <ui:fragment rendered="#{taskController.selectedTask.taskData.status ne 'Completed'}">
                                             <p:repeat value="#{taskController.taskActions}" var="act">
                                                 <ui:remove>id="a#{act.action}" </ui:remove>
-                                                <p:commandButton value="#{messages[act.title]}" icon="fa #{act.icon}" action="#{taskController.closeAs(act.action)}" 
-                                                                 validateClient="true" styleClass="#{act.style}" update="taskConsole"/>
+                                                <p:commandButton value="#{messages[act.title]}"
+                                                                 icon="fa #{act.icon}"
+                                                                 action="#{taskController.closeAs(act.action)}"
+                                                                 disabled="#{readOnlyModeService.isEnabled()}"
+                                                                 validateClient="true"
+                                                                 styleClass="#{act.style}"
+                                                                 update="taskConsole"/>
                                             </p:repeat>
                                         </ui:fragment>
                                     </h:panelGroup>

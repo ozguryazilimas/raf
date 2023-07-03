@@ -556,9 +556,6 @@ public class RafModeshapeRepository implements Serializable {
                 }
 
                 String sortQuery;
-                String secondSortColumn = "";
-                String defaultSecondSortColumn = String.format("nodes.[%s]", PROP_NAME);
-
                 switch (sortBy) {
                     case NAME: {
                         sortQuery = String.format("nodes.[%s]", PROP_NAME);
@@ -567,23 +564,19 @@ public class RafModeshapeRepository implements Serializable {
                     case DATE_ASC: {
                         descSort = false;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
-                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     case DATE_DESC: {
                         descSort = true;
                         sortQuery = String.format("nodes.[%s]", PROP_CREATED_DATE);
-                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     case TITLE: {
                         sortQuery = String.format("nodes.[%s]", PROP_TITLE);
-                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     case CATEGORY: {
                         sortQuery = String.format("nodes.[%s]", PROP_CATEGORY);
-                        secondSortColumn = defaultSecondSortColumn;
                         break;
                     }
                     // Bu veriler ilgili sorgudan elde edilecek jcr:folder ve jcr:file da bulunmuyor.
@@ -599,8 +592,7 @@ public class RafModeshapeRepository implements Serializable {
                     }
                 }
 
-                String secondSortExpression = StringUtils.isNotBlank(secondSortColumn) ? String.format(", %s", secondSortColumn) : "";
-                expression += String.format(" ORDER BY %s %s%s", sortQuery, descSort ? "DESC" : "ASC", secondSortExpression);
+                expression += String.format(" ORDER BY %s %s", sortQuery, descSort ? "DESC" : "ASC");
 
                 Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
                 query.setLimit(pageSize);

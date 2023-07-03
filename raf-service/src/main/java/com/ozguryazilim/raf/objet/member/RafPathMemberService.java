@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.objet.member;
 
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
@@ -71,6 +72,9 @@ public class RafPathMemberService implements Serializable {
 
     @Inject
     private UserLookup userLookup;
+
+    @Inject
+    private ReadOnlyModeService readOnlyModeService;
 
     public List<RafPathMember> getMembers(String path) throws RafException {
         //FIXME: Yetki kontrolü. Bu sorguyu çekenin bunu yapmaya yetkisi var mı?
@@ -207,14 +211,26 @@ public class RafPathMemberService implements Serializable {
     }
 
     public boolean hasWriteRole(String username, String path) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         return hasMemberRole(username, "CONTRIBUTER", path) || hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path) || hasMemberRole(username, "SUPPORTER", path);
     }
 
     public boolean hasDeleteRole(String username, String path) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         return hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path);
     }
 
     public boolean hasCheckoutRole(String username, String path) throws RafException {
+        if (readOnlyModeService.isEnabled()) {
+            return false;
+        }
+
         return hasMemberRole(username, "CONTRIBUTER", path) || hasMemberRole(username, "EDITOR", path) || hasMemberRole(username, "MANAGER", path);
     }
 

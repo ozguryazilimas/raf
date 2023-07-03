@@ -6,6 +6,8 @@ import com.ozguryazilim.raf.MetadataRegistery;
 import com.ozguryazilim.raf.externaldoc.search.ExternalSearchPanelController;
 import com.ozguryazilim.raf.search.SearchRegistery;
 import com.ozguryazilim.telve.api.module.TelveModule;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+
 import javax.annotation.PostConstruct;
 
 /**
@@ -52,6 +54,15 @@ public class RafExternalDocModule {
 
         MetadataRegistery.register(configD);
 
-        SearchRegistery.register(ExternalSearchPanelController.class);
+        boolean isExternalDocSearchPanelActive = ConfigResolver.resolve("raf.searchPanel.active.externaldoc")
+                .as(Boolean.class)
+                .withDefault(Boolean.FALSE)
+                .withCurrentProjectStage(false)
+                .getValue();
+
+        if (isExternalDocSearchPanelActive) {
+            SearchRegistery.register(ExternalSearchPanelController.class);
+        }
+
     }
 }
