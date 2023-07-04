@@ -1143,12 +1143,6 @@ public class RafModeshapeRepository implements Serializable {
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
-
-        return null;
-    }
-
-    private void consumeQueryResultAndFillRafCollection(QueryResult queryResult, RafCollection rafCollection) {
-
     }
 
     /**
