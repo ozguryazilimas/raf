@@ -53,9 +53,13 @@
             }
 
         </script>
+
+        <h:form>
+            <p:remoteCommand name="setActiveTab" actionListener="#{detailedSearchController.setActiveTab}" update=":searchForm"/>
+        </h:form>
+
         <h:form id="searchForm">
             <p:defaultCommand target="search"/>
-            <p:remoteCommand name="setActiveTab" actionListener="#{detailedSearchController.setActiveTab}"/>
             <p:remoteCommand name="clearFunc" actionListener="#{detailedSearchController.clearSearch()}" />
             <p:remoteCommand name="search" actionListener="#{detailedSearchController.search()}" update="searchForm resultDataTable"/>
 
@@ -76,8 +80,9 @@
                         <div class="tab-content">
                             <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
                                 <div class="tab-pane #{detailedSearchController.activeSearchPanelController.equals(sp) ? 'active' : ''}" id="#{sp}">
-                                    <ui:include src="#{detailedSearchController.getSearchTab(sp)}">
-                                    </ui:include>
+                                    <c:if test="#{detailedSearchController.activeSearchPanelController.equals(sp)}">
+                                        <ui:include src="#{detailedSearchController.getSearchTab(sp)}" />
+                                    </c:if>
                                 </div>
                             </c:forEach>
                         </div>
