@@ -43,6 +43,7 @@ public class DownloadService {
             //FIXME: RafObject içine en azından RafDocument içine boyut ve hash bilgisi yazmak lazım.
             response.setContentType(doc.getMimeType());
             response.setHeader("Content-disposition", String.format("attachment;filename=\"%s\"", doc.getName()));
+            response.setContentLengthLong(doc.getLength());
 
             rafService.getDocumentContent(doc.getId(), out);
             out.flush();

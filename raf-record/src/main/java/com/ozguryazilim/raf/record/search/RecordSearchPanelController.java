@@ -26,6 +26,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
+import org.modeshape.jcr.ExecutionContext;
+import org.modeshape.jcr.query.JcrTypeSystem;
+import org.modeshape.jcr.query.QueryBuilder;
+import org.modeshape.jcr.query.model.QueryCommand;
 
 /**
  *
@@ -54,6 +58,8 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
     private static final String PROP_RECORD_NO = "raf:recordNo";
     private static final String PROP_TITLE = "jcr:title";
     private static final String PROP_DESCRIPTON = "jcr:description";
+
+    private static final String RECORD_TABLE_ALIAS = "record";
 
     @PostConstruct
     public void init() {
@@ -147,6 +153,77 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
         metaDataFields = new ArrayList();
     }
 
+    public void saveRecordPathQueryCommand(DetailedSearchModel searchModel) {
+
+        QueryBuilder builder = new QueryBuilder(new ExecutionContext().getValueFactories().getTypeSystem());
+
+        boolean recordTypePresent           = !Strings.isNullOrEmpty(searchModel.getRecordType());
+        boolean recordDocumentTypePresent   = !Strings.isNullOrEmpty(searchModel.getRecordDocumentType());
+        boolean recordNoPresent             = !Strings.isNullOrEmpty(searchModel.getRecordNo());
+        boolean recordTitlePresent          = !Strings.isNullOrEmpty(searchModel.getTitle());
+        boolean recordWfValuePresent        = searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty();
+
+        builder.select("jcr:path")
+                .from("raf:record as record");
+
+        if (recordWfValuePresent) {
+            String childTable = searchModel.getRecordMetaDataName();
+            builder
+                    .join(childTable)
+                    .onChildNode(RECORD_TABLE_ALIAS, childTable);
+        }
+
+        QueryBuilder.ConstraintBuilder recordConstraintBuilder = builder.where();
+        if (recordTypePresent) {
+            recordConstraintBuilder
+                    .propertyValue(RECORD_TABLE_ALIAS, PROP_RECORD_TYPE)
+                    .isEqualTo(searchModel.getRecordType());
+        }
+
+        if (recordDocumentTypePresent) {
+            recordConstraintBuilder
+                    .propertyValue(RECORD_TABLE_ALIAS, PROP_DOCUMENT_TYPE)
+                    .isEqualTo(searchModel.getRecordDocumentType());
+        }
+
+        if (recordNoPresent) {
+            recordConstraintBuilder
+                    .propertyValue(RECORD_TABLE_ALIAS, PROP_RECORD_NO)
+                    .isEqualTo(searchModel.getRecordNo());
+        }
+
+        if (recordTitlePresent) {
+            recordConstraintBuilder
+                    .propertyValue(RECORD_TABLE_ALIAS, PROP_TITLE)
+                    .isEqualTo(searchModel.getTitle());
+        }
+
+        if (recordWfValuePresent) {
+            String childTable = searchModel.getRecordMetaDataName();
+
+            for (Map.Entry<String, Object> entry : searchModel.getMapWFAttValue().entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (isWfValueValid(value)) {
+                    if (value instanceof String) {
+                        recordConstraintBuilder.propertyValue(childTable, key).isLike().cast("%" + value.toString() + "%").asString();
+                    } else if (value instanceof Date) {
+                        recordConstraintBuilder.propertyValue(childTable, key).isEqualTo().cast(getJCRDate((Date) value)).asString();
+                    }
+                }
+            }
+        }
+
+        builder = recordConstraintBuilder.end();
+
+        searchModel.setRecordSubQuery(builder.query());
+    }
+
+    private boolean isWfValueValid(Object value) {
+        return value != null && !value.toString().trim().isEmpty();
+    }
+
     @Override
     public List getSearchQuery(List<RafDefinition> rafs, String queryLanguage, DetailedSearchModel searchModel) {
 
@@ -184,6 +261,8 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
                     }
                 }
             }
+
+            saveRecordPathQueryCommand(searchModel);
             return whereExpressions;
         } else if ("elasticSearch".equals(queryLanguage)) {
             List mustQueryList = new ArrayList();

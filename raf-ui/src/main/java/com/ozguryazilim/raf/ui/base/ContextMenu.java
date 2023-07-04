@@ -53,4 +53,6 @@ public @interface ContextMenu {
      */
     boolean supportAjax() default true;
 
+    boolean isGlobal() default false;
+
 }

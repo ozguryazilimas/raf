@@ -6,15 +6,19 @@ import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.events.RafDataChangedEvent;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.config.LocaleSelector;
 import com.ozguryazilim.telve.dashboard.AbstractDashlet;
 import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
+import com.ozguryazilim.telve.messages.Messages;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.primefaces.model.LazyDataModel;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.text.Collator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -61,14 +65,25 @@ public class MyRafsDashlet extends AbstractDashlet {
         if (oldSize != pageSize) {
             kahve.put(RAFS_DASHLET_PAGINATION_LIMIT, pageSize);
         }
+
+        Collator collator = Collator.getInstance(LocaleSelector.instance().getLocale());
         return rafs.stream()
                 .sorted((r1, r2)
-                        -> sortAsc ? r1.getName().compareTo(r2.getName()) : r1.getName().compareTo(r2.getName()) * -1
+                        -> sortAsc ? collator.compare(getRafName(r1).toLowerCase(LocaleSelector.instance().getLocale()), getRafName(r2).toLowerCase(LocaleSelector.instance().getLocale())) :
+                                     collator.compare(getRafName(r1).toLowerCase(LocaleSelector.instance().getLocale()), getRafName(r2).toLowerCase(LocaleSelector.instance().getLocale())) * -1
                 )
                 .filter(r -> Strings.isNullOrEmpty(filter) || r.getName().toLowerCase(searchLocale).contains(filter.toLowerCase(searchLocale)))
                 .skip(first)
                 .limit(pageSize)
                 .collect(Collectors.toList());
+    }
+
+    private String getRafName(RafDefinition rafDefinition) {
+        if (rafDefinition.getCode().equals(RafPathUtils.PRIVATE_PATH_NAME) || rafDefinition.getCode().equals(RafPathUtils.SHARED_PATH_NAME)) {
+            return Messages.getMessage(rafDefinition.getName());
+        } else {
+            return rafDefinition.getName();
+        }
     }
 
     public Integer getTotalRowCount() {

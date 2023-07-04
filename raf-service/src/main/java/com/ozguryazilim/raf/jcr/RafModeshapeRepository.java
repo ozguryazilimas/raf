@@ -30,8 +30,13 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.util.StringUtils;
+import org.modeshape.jcr.ExecutionContext;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.api.index.IndexDefinition;
+import org.modeshape.jcr.query.QueryBuilder;
+import org.modeshape.jcr.query.model.TypeSystem;
+import org.modeshape.jcr.query.parse.BasicSqlQueryParser;
+import org.modeshape.jcr.query.parse.JcrSql2QueryParser;
 import org.modeshape.jcr.sequencer.InvalidSequencerPathExpression;
 import org.modeshape.jcr.sequencer.SequencerPathExpression;
 import org.modeshape.jcr.value.BinaryValue;
@@ -41,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
 import javax.jcr.ItemNotFoundException;
@@ -155,6 +161,9 @@ public class RafModeshapeRepository implements Serializable {
     private Boolean debugMode = Boolean.FALSE;
 
     JcrTools jcrTools = new JcrTools();
+
+    @Inject
+    private RafPathMemberService rafPathMemberService;
 
     @PostConstruct
     public void init() {
@@ -1048,6 +1057,89 @@ public class RafModeshapeRepository implements Serializable {
         }
 
         return result;
+    }
+
+
+    public RafCollection getRecordSearchCollection(
+            DetailedSearchModel searchModel,
+            String searcherUserName,
+            int limit,
+            int offset,
+            Locale searchLocale) throws RafException {
+
+        RafCollection result = new RafCollection();
+        result.setId("SEARCH");
+        result.setMimeType("raf/search");
+        result.setTitle("Detay Arama");
+        result.setPath("SEARCH");
+        result.setName("Detay Arama");
+
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            org.modeshape.jcr.api.query.QueryManager queryManager = (org.modeshape.jcr.api.query.QueryManager) session.getWorkspace().getQueryManager();
+
+            TypeSystem typeSystem = new ExecutionContext().getValueFactories().getTypeSystem();
+            QueryBuilder builder = new QueryBuilder(typeSystem);
+
+            BasicSqlQueryParser parser = new JcrSql2QueryParser();
+            builder.selectStar()
+                    .from("raf:record as nodes")
+                    .where()
+                    .path("nodes").isLike("/PROCESS/%")
+                    .and()
+                    .path("nodes").isInSubquery(searchModel.getRecordSubQuery())
+                    .end()
+                    .limit(limit)
+                    .offset(offset);
+
+            String expression = builder.query().toString();
+            LOG.debug("JCR-SQL2 Query will be executed  {}", expression);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2, searchLocale);
+            QueryResult queryResult = query.execute();
+            org.modeshape.jcr.api.query.QueryResult resultt = (org.modeshape.jcr.api.query.QueryResult) query.execute();
+            String plan = resultt.getPlan();
+
+            LOG.info("Query plan : {}", plan);
+
+            NodeIterator it = queryResult.getNodes();
+            while (it.hasNext()) {
+                LOG.debug("Search result next.");
+                Node n = it.nextNode();
+                Node sn = session.getNode(n.getPath());
+
+                if (n.isNodeType("nt:resource")) {
+                    sn = n.getParent();
+                } else if (n.getName().endsWith(":metadata")) {
+                    sn = n.getParent();
+                }
+
+                //node yetki kontrolü : eğer pathmember üyeliği yoksa raf yetkisi geçerlidir, eğer path üyeliği varsa okuma yetkisine bakılır.
+                if (!sn.isNodeType(MIXIN_RAF) && !rafPathMemberService.hasMemberInPath(searcherUserName, sn.getPath()) || rafPathMemberService.hasReadRole(searcherUserName, sn.getPath())) {
+                    //Node tipine göre doğru conversion.
+                    if (sn.isNodeType(NODE_FOLDER)) {
+                        if (sn.isNodeType(MIXIN_RECORD)) {
+                            result.getItems().add(nodeToRafRecord(sn));
+                        }
+                    } else if (sn.isNodeType(NODE_FILE)) {
+                        RafDocument doc = nodeToRafDocument(sn);
+                        if(doc != null) result.getItems().add(doc);
+                    }
+
+                }
+
+            }
+
+            return result;
+
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private void consumeQueryResultAndFillRafCollection(QueryResult queryResult, RafCollection rafCollection) {
+
     }
 
     /**

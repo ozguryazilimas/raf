@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class RafPathUtils {
     public static String RAF_ROOT_PATH_NAME = "RAF";
     public static String PRIVATE_PATH_NAME = "PRIVATE";
+    public static String SHARED_PATH_NAME = "SHARED";
 
     private RafPathUtils() {
         throw new IllegalStateException("Util Class");
