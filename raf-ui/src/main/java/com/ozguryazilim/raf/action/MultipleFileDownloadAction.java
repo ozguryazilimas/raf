@@ -13,6 +13,8 @@ import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -131,16 +134,26 @@ public class MultipleFileDownloadAction extends AbstractAction {
 
     void downloadZipFile() throws IOException, RafException {
         HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+
         response.setContentType("application/zip");
         String zipFileName = String.format("prepared_zip_file_%s.zip", new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()));
         response.setHeader("Content-disposition", "attachment;filename=" + zipFileName);
-        OutputStream out = response.getOutputStream();
-        zipOS = new ZipOutputStream(out);
+
+        ServletOutputStream out = response.getOutputStream();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        zipOS = new ZipOutputStream(byteArrayOutputStream);
         for (RafObject file : getContext().getSeletedItems()) {
             rafService.zipFile(file, file.getName(), zipOS);
         }
         zipOS.close();
+
+        response.setContentLength(byteArrayOutputStream.size());
+        byteArrayOutputStream.writeTo(out);
+
+        byteArrayOutputStream.close();
         out.close();
+
         facesContext.responseComplete();
     }
 

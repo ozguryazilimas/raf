@@ -19,6 +19,11 @@
             .ui-picklist-list {
                 height: auto;
             }
+
+            .genericEmailPanel {
+                width: 95% !important;
+            }
+
         </style>
         <h:form id="ff">
             <div class="row">
@@ -33,6 +38,7 @@
                 <t:inputAny label="shareDocument.emails.label">
                     <p:autoComplete id="emails" multiple="true" value="#{multipleShareAction.emails}"
                                     style="height: auto"
+                                    panelStyleClass="genericEmailPanel"
                                     completeMethod="#{multipleShareAction.suggestIsEmail}"
                                     var="email" itemLabel="#{email}" itemValue="#{email}" forceSelection="true"
                                     converter="emailConverter">

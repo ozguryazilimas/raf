@@ -16,6 +16,7 @@ import com.ozguryazilim.telve.messages.FacesMessages;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.modeshape.jcr.JcrRepository.QueryLanguage;
+import org.modeshape.jcr.query.model.QueryCommand;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 import org.slf4j.LoggerFactory;
@@ -88,18 +89,32 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
     }
 
     private void fillSortQueries(List<String> searchPanels, List extendedQuery, List extendedSortQuery) {
+        DetailedSearchController dsc = BeanProvider.getContextualReference("detailedSearchController", false, DetailedSearchController.class);
 
         for (String searchPanel : searchPanels) {
-            SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
-            extendedQuery.addAll(spc.getSearchQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
-            extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+            if (searchPanel.equals(dsc.getActiveSearchPanelController())) {
+                SearchPanelController spc = BeanProvider.getContextualReference(searchPanel, false, SearchPanelController.class);
+                extendedQuery.addAll(spc.getSearchQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+                extendedSortQuery.addAll(spc.getSearchSortQuery(rafs, elasticSearch ? "elasticSearch" : QueryLanguage.JCR_SQL2, searchModel));
+            }
         }
 
     }
 
     private void fillSearchModelForModeshapeStrategy(int pageSize, int first, String sortField, SortOrder sortOrder, List extendedQuery, List extendedSortQuery) throws RafException {
-        datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
-        this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+        DetailedSearchController dsc = BeanProvider.getContextualReference("detailedSearchController", false, DetailedSearchController.class);
+
+        switch (dsc.getActiveSearchPanelController()) {
+            case "recordSearchPanelController":
+                datasource = searchService.detailedRecordSearch(searchModel, pageSize, first).getItems();
+                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+                break;
+            case "genericSearchPanelController":
+            default:
+                datasource = searchService.detailedSearch(searchModel, rafs, pageSize, first, sortField, sortOrder, extendedQuery, extendedSortQuery).getItems();
+                this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
+                break;
+        }
     }
 
 }
