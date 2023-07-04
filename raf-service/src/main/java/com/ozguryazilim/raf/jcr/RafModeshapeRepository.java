@@ -1131,8 +1131,8 @@ public class RafModeshapeRepository implements Serializable {
 
             return result;
 
-        } catch (RepositoryException e) {
-            e.printStackTrace();
+        } catch (RepositoryException ex) {
+            throw new RafException("[RAF-0007] Raf Query Error", ex);
         }
 
         return null;
