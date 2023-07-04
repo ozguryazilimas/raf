@@ -401,3 +401,11 @@
     max-width: calc(100% - 2em - 5px) !important;
     text-overflow: ellipsis;
 }
+
+div[id$="closeConfirmation"] {
+    z-index: 6000 !important;
+}
+
+div[id$="closeConfirmation_modal"] {
+    z-index: 5000 !important;
+}
