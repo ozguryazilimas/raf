@@ -197,6 +197,10 @@
             </ui:fragment>
         </div>
 
+        <h:form>
+            <p:remoteCommand name="selectTreeNode" action="#{rafController.selectNode}" update="raf-view-content" partialSubmit="true" process="@form" />
+        </h:form>
+
 
     </div>
 </ui:composition>

@@ -31,24 +31,18 @@
 
     <script type="text/javascript">
 
+        var init = true;
+        const urlParams = new URLSearchParams(window.location.search);
+        var staticLinkId = urlParams.get("o");
+
         function buildTree() {
-            // inline data 
+            // inline data
+
             jQuery("#data")
                     .on("activate_node.jstree", function (e, data) {
                         //alert( data.instance.get_node(data.selected[0]).id );
                         e.preventDefault();
                         selectTreeNode([{'name': 'nodeId', 'value': data.node.id}]);
-                    })
-                    .on('loaded.jstree', function () {
-                        //jQuery('#data').jstree('open_all');
-                        //setNodeSelections();
-
-                        jstree = jQuery('#data').jstree();
-                        root_node = jstree.get_node('#').children[0];
-                        jstree.select_node(root_node);
-                        jstree.open_node(root_node);
-
-
                     })
                     .jstree({
                         "plugins": ["wholerow", "types", "sort"],
@@ -64,7 +58,9 @@
                                 'data' : function(node) {
                                     return {
                                         'id' : node.id,
-                                        'raf' : '#{rafController.rafCode}'
+                                        'raf' : '#{rafController.rafCode}',
+                                        'init': init,
+                                        'findUntilId': staticLinkId
                                     };
                                 }
                             }
@@ -79,7 +75,8 @@
         }
         
         buildTree();
-        
+        init = false;
+
         function setNodeSelections() {
             if (jQuery('#data').length > 0) {
                 jQuery('#data').jstree().select_node(selectedNode);
