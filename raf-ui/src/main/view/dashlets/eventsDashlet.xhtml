@@ -9,6 +9,28 @@
     <ui:param name="name" value="eventsDashlet" />
     <ui:param name="bean" value="#{eventsDashlet}" />
 
+    <ui:define name="edit">
+        <p:outputPanel layout="block" styleClass="col-xs-12">
+
+            <p:outputPanel styleClass="col-xs-6">
+                <p:outputLabel value="#{messages['eventsDashlet.rafFilter.caption']}" />
+                <p:selectOneMenu value="#{eventsDashlet.rafFilter}" >
+                    <f:selectItem itemValue="*" itemLabel="#{messages['filter.operand.type.All']}" />
+                    <f:selectItem itemValue="/SHARED/" itemLabel="#{messages['raf.label.Shared']}" />
+                    <f:selectItems value="#{eventsDashlet.rafs}" var="item" itemLabel="#{messages[item]}" itemValue="#{'/RAF/'.concat(item).concat('/')}" />
+                </p:selectOneMenu>
+            </p:outputPanel>
+
+            <p:outputPanel styleClass="col-xs-6">
+                <p:outputLabel value="#{messages['eventsDashlet.eventFilter.caption']}" />
+                <p:selectOneMenu value="#{eventsDashlet.eventFilter}" >
+                    <f:selectItem itemValue="*" itemLabel="#{messages['filter.operand.type.All']}" />
+                    <f:selectItems value="#{eventsDashlet.eventTypes}" var="item" itemLabel="#{messages['event.title.'.concat(item)]}" itemValue="#{item}" />
+                </p:selectOneMenu>
+            </p:outputPanel>
+        </p:outputPanel>
+    </ui:define>
+
     <ui:define name="view">
         <p:outputPanel deferred="true">
             <div class="box-body no-padding">
