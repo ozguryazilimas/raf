@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/layout/optionPaneBase.xhtml">
+
+    <ui:param name="bean" value="#{collectionOptionPane}"/>
+    <ui:define name="content">
+        <div class="row">
+
+            <t:inputAny label="#{messages['optionPane.caption.CollectionOptionPane']}">
+                <p>#{messages['collectionOptionPane.defaultSortOrderOption.explanation']}</p>
+                <p:selectOneMenu value="#{bean.defaultSortType}">
+                    <f:selectItems var="type"
+                                   value="#{bean.sortTypes}"
+                                   itemLabel="#{messages['sortBy.label.'.concat(type.name())]}"
+                                   itemValue="#{type}"
+                    />
+                </p:selectOneMenu>
+                <p:selectBooleanCheckbox value="#{bean.defaultAscSort}" itemLabel="#{messages['sortBy.label.AscSort']}"/>
+            </t:inputAny>
+
+        </div>
+    </ui:define>
+
+</ui:composition>
