@@ -42,6 +42,10 @@ public abstract class AbstractContextMenuItem implements Serializable {
         return getAnnotation().supportAjax();
     }
 
+    public boolean isGlobal() {
+        return getAnnotation().isGlobal();
+    }
+
     /**
      * Annotation'a bakar eğer orada tanılı olan bir şey yoksa "contextMenu.label." +
      * SınıfAdı şeklinde i18n'den almaya çalışır.

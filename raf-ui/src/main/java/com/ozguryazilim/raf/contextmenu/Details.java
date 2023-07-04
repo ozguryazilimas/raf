@@ -8,7 +8,7 @@ import com.ozguryazilim.raf.util.RafContextUtils;
 
 import javax.inject.Inject;
 
-@ContextMenu(order = 10)
+@ContextMenu(order = 10, isGlobal = true)
 public class Details extends AbstractContextMenuItem {
 
     @Inject

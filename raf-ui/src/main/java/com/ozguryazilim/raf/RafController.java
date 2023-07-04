@@ -738,6 +738,7 @@ public class RafController implements Serializable {
                         menuItem.setUpdate("raf-view-content");
                         menuItem.setAjax(item.supportAjax());
                         menuItem.setProcess("@this");
+                        menuItem.setGlobal(item.isGlobal());
                     }
                     model.addElement(menuItem);
                 });
