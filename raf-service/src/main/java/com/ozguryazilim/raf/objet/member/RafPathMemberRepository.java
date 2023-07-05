@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.objet.member;
 
+import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
 import com.ozguryazilim.raf.entities.RafPathMember;
 import com.ozguryazilim.telve.data.RepositoryBase;
@@ -15,6 +16,8 @@ import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 @Repository
 @Dependent
 public abstract class RafPathMemberRepository extends RepositoryBase<RafPathMember, RafPathMember> implements CriteriaSupport<RafPathMember> {
+
+    public abstract List<RafPathMember> findByMemberName(String memberName);
 
     public abstract List<RafPathMember> findByPath(String path);
 

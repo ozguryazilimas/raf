@@ -1,0 +1,52 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                template="/layout/optionPaneBase.xhtml">
+
+    <ui:param name="bean" value="#{rafUserRolesOptionPane}"/>
+    <ui:param name="saveButtonActive" value="false" />
+
+    <ui:define name="content">
+
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+                <p>#{messages['optionPane.explanation.RafUserRolesOptionPane']}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+                <table class="table">
+                    <p:repeat value="#{bean.getRafUserRoles()}" var="rafUserRoleDetail">
+
+                        <tr>
+                            <td>
+                                <i class="fa fa-archive"/> #{rafUserRoleDetail.getRafName()}
+                            </td>
+                            <td style="text-align: right">
+                                #{messages['member.role.'.concat(rafUserRoleDetail.getRole())]}
+                            </td>
+                        </tr>
+
+                        <ui:fragment rendered="#{rafUserRoleDetail.rafPathUserRoleDetailsList ne null}">
+                            <p:repeat value="#{rafUserRoleDetail.rafPathUserRoleDetailsList}" var="rafPathUserRoleDetail" >
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-folder" style="margin-left: 16px;"/> #{rafPathUserRoleDetail.getRafPath()}
+                                    </td>
+                                    <td style="text-align: right">
+                                        #{messages['member.role.'.concat(rafPathUserRoleDetail.getRole())]}
+                                    </td>
+                                </tr>
+                            </p:repeat>
+                        </ui:fragment>
+
+                    </p:repeat>
+                </table>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

@@ -92,6 +92,12 @@
                     <i class="fa #{rafController.selectedContentPanel.icon}"/>
                     #{rafController.selectedContentPanel.title}
 
+                    <ui:fragment rendered="#{rafController.isCurrentPathInGeneralRaf()}">
+                        <span class="ui-widget ui-state-disabled">
+                            (#{messages['member.role.'.concat(rafController.getRoleInCurrentPath())]})
+                        </span>
+                    </ui:fragment>
+
                     <div class="pull-right">
 
                         <div style="margin-left: 10px;display: inline-block;">
