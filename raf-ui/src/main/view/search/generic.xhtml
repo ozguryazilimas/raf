@@ -10,6 +10,15 @@
 
     <div class="ui-fluid">
         <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+            <p:outputLabel value="#{messages['general.label.Search']}"/>
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:inputText id="searchText" value="#{detailedSearchController.searchModel.searchText}" required="true">
+                    <f:validateLength minimum="2"/>
+                    <p:ajax update="msgSearchText" event="blur"/>
+                </p:inputText>
+                <p:message for="searchText" id="msgSearchText"/>
+            </p:panelGrid>
+
             <p:outputLabel value="#{messages['generic.search.saved.search']}"/>
             <p:panelGrid id="savedSearch" columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:selectOneMenu value="#{genericSearchPanelController.savedSearch}" required="false" filter="true" filterMatchMode="startsWith">
@@ -45,15 +54,6 @@
                     <p:ajax event="dateSelect" update="search-date-selection"/>
                 </p:calendar>
             </p:panelGrid>           
-
-            <p:outputLabel value="#{messages['general.label.Search']}"/>
-            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                <p:inputText id="searchText" value="#{detailedSearchController.searchModel.searchText}" required="true">
-                    <f:validateLength minimum="2"/>
-                    <p:ajax update="msgSearchText" event="blur"/>
-                </p:inputText>
-                <p:message for="searchText" id="msgSearchText"/>
-            </p:panelGrid>
 
             <c:if test="#{caseSensitiveSearchService.caseSensitiveSearchOptionEnabled}">
                 <p:outputLabel value="#{messages['general.label.CaseSensitive']}" style="margin-top: 6px"/>
