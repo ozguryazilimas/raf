@@ -1,5 +1,29 @@
 = RAF Sürüm Notları
 
+== 1.3.1-Beta.3
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/67936450554d084f00da39518b172f306f6fcef9[67936450554d084]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71749[#71749] &quot;Belgeyi Paylaş (Döküman Paylaşımı)&quot; modalında E-Posta inputunun içerisininde yeterli alan olmasına rağmen kısıtlı bir alan kullanılabiliyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71816[#71816] Dosya yükleme ekranında dosya yüklenirken; Kapat, X veya başka bir butona tıklandığında yükleme işleminin iptal olacağına dair uyarı gösterilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72795[#72795] Anasayfadaki &quot;Raflarım&quot; dashboard&#x27;ındaki A-Z sıralama işlevinin hatalı çalışması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73173[#73173] &quot;Detayları Göster&quot; butonuna tıkladıktan sonra animasyon gösterilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73204[#73204] Anasayfada olaylar dashboardunda olayların raf özelinde listelenebilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73410[#73410] Arama sayfasında Süreç Arama ekranında süreç arama işlemi gerçekleştirilemiyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73437[#73437] Dosya indirirken tarayıcıda indirilecek dosya boyutunun görünmesinin sağlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73454[#73454] Raf içerisindeki default sıralamanın değiştirilebilir olması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74353[#74353] Bir dosyanın bağlantısına gidildiğinde, klasör panelinde doğru klasör seçilmeli  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74682[#74682] 1.3.1-Beta.3 Sürüm öncesi sonar uyarılarının giderilmesi  
+
 == 1.3.1-Beta.2
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/8bd45ae326f25929d79a3933cf9d97280b8c07b9[8bd45ae326f2592]
@@ -37,7 +61,7 @@
 
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72870[#72870] Etiket ekleme butonu hover yazısının çevirisinin eklenmesi  
 
-* ** #73025   
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73025[#73025] IDM - User endpoint&#x27;ine kaynakların özetlerini listelemek için istek atıldığında 400 dönmesi   
 
 * *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73063[#73063] Raf&#x27;a &quot;salt-okunur&quot; modu eklenmesi  
 
@@ -203,7 +227,7 @@
 
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72970[#72970] Adında jcr-illegal karakterler içeren dosyaların yükleme sorunlarının giderilmesi - jcr-name alanlarında kullanılacak JCR-illegal karakterlerin encode edilmesi.  
 
-* ** #72993   
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72993[#72993] Telve Boot tarafındaki derleme hatalarının giderilmesi  
 
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73013[#73013] Süreç diyagramları uygulama içerisinde görülmüyor.  
 
