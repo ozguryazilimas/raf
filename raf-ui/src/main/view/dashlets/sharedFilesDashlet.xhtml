@@ -35,7 +35,7 @@
                             </div>
                             <div class="product-info" style="margin-left: 36px;">
                                 <span>
-                                    <b><h:outputText value="#{sharedFilesDashlet.getSharedFileName(shareObj)}" escape="false" /></b>
+                                    <b><h:outputText value="#{sharedFilesDashlet.getSharedFileName(shareObj)}" /></b>
                                     <h:link outcome="/raf.xhtml" rendered="#{shareObj.nodeId ne null}">
                                         <i class="fa fa-external-link"/>
                                         <f:param name="id" value="#{''}" />
