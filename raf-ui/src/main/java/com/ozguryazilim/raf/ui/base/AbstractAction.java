@@ -311,6 +311,10 @@ public class AbstractAction implements Serializable {
         return hasCapability(ActionCapability.Confirmation);
     }
 
+    public String customConfirmationMessage() {
+        return null;
+    }
+
     public boolean hasCapability(ActionCapability cap) {
         return Arrays.asList(getAnnotation().capabilities()).contains(cap);
     }
