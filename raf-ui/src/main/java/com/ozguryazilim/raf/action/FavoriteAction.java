@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.action;
 
 import com.ozguryazilim.raf.RafController;
+import com.ozguryazilim.raf.events.FavoritesChangedEvent;
 import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.ui.base.AbstractAction;
@@ -14,6 +15,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,9 @@ public class FavoriteAction extends AbstractAction {
 
     @Inject
     private RafController rafController;
+
+    @Inject
+    private Event<FavoritesChangedEvent> favoritesChangedEventEvent;
 
     @Override
     protected boolean finalizeAction() {
@@ -62,6 +67,7 @@ public class FavoriteAction extends AbstractAction {
             FacesMessages.error("[RAF-0047] An unexpected error occurred while adding/removing to favourites.");
         }
 
+        favoritesChangedEventEvent.fire(new FavoritesChangedEvent());
         return super.finalizeAction();
     }
 
