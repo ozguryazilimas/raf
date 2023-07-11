@@ -25,6 +25,9 @@
             }
 
         </style>
+
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+
         <h:form id="ff">
             <div class="row">
                 <div class="col-xs-12">
@@ -38,6 +41,7 @@
                 <t:inputAny label="shareDocument.emails.label">
                     <p:autoComplete id="emails" multiple="true" value="#{multipleShareAction.emails}"
                                     style="height: auto"
+                                    disabled="#{shareAction.shareWithMail ne true}"
                                     panelStyleClass="genericEmailPanel"
                                     completeMethod="#{multipleShareAction.suggestIsEmail}"
                                     var="email" itemLabel="#{email}" itemValue="#{email}" forceSelection="true"
@@ -56,6 +60,14 @@
                                        itemValue="#{val.name()}"/>
                     </p:selectOneMenu>
                 </t:inputAny>
+            </div>
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12" layout="block" style="height: 30px">
+                    <p:selectBooleanCheckbox itemLabel="#{messages['shareAction.itemLabel.shareWithMail']}"
+                                             value="#{shareAction.shareWithMail}">
+                        <p:ajax event="change" update=":ff"/>
+                    </p:selectBooleanCheckbox>
+                </h:panelGroup>
             </div>
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block"
