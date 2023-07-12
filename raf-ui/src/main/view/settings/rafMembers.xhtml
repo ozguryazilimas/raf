@@ -142,19 +142,39 @@
                 </ui:remove>
                 
                 <h:form id="member_search">
-                <div class="col-md-3 col-xs-12 pull-right">
-                            <span class="value">
-                                <div class="input-group">
-                                    <p:inputText id="filter" value="#{rafMemberController.filter}" 
-                                                 placeholder="#{messages['general.info.SearchText']}" />
-                                    <p:defaultCommand target="memberSearch" />
-                                    <div class="input-group-btn">
-                                        <p:commandButton id="memberSearch" action="#{rafMemberController.search()}" process="@form" icon="fa fa-search" styleClass="ui-icon-only btn btn-default" update="members" />
-                                    </div>
+                    <div class="col-md-3 col-xs-12 pull-right">
+                        <span class="value">
+                            <div class="input-group">
+                                <p:inputText id="filter" value="#{rafMemberController.filter}"
+                                             placeholder="#{messages['general.info.SearchText']}" />
+                                <p:defaultCommand target="memberSearch" />
+                                <div class="input-group-btn">
+                                    <p:commandButton id="memberSearch" action="#{rafMemberController.search()}" process="@form" icon="fa fa-search" styleClass="ui-icon-only btn btn-default" update="members" />
                                 </div>
-                            </span>
-                        </div>
-                    </h:form>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="col-md-3 col-xs-12 pull-right">
+                        <span class="value">
+                            <p:selectOneMenu id="roleFilter" value="#{rafMemberController.roleFilter}" >
+                                <f:selectItem itemLabel="#{messages['member.role.label.ALL']}" itemValue="*" />
+                                <f:selectItem itemLabel="#{messages['member.role.CONSUMER']}" itemValue="CONSUMER" />
+                                <f:selectItem itemLabel="#{messages['member.role.SUPPORTER']}" itemValue="SUPPORTER" />
+                                <f:selectItem itemLabel="#{messages['member.role.CONTRIBUTER']}" itemValue="CONTRIBUTER" />
+                                <f:selectItem itemLabel="#{messages['member.role.EDITOR']}" itemValue="EDITOR" />
+                                <f:selectItem itemLabel="#{messages['member.role.MANAGER']}" itemValue="MANAGER" />
+
+                                <p:ajax update="members" listener="${rafMemberController.search}" event="change"/>
+                            </p:selectOneMenu>
+                        </span>
+                    </div>
+
+                    <div class="col-md-6 col-xs-12" style="padding: 0 8px;">
+                        <span class="value">
+                            ${messages['raf.label.MemberCount']}: ${rafMemberController.memberCount}
+                        </span>
+                    </div>
+                </h:form>
                 
                 <table class="table">
                     <p:repeat value="#{rafMemberController.members}" var="member" >
