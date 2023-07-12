@@ -1,6 +1,5 @@
 package com.ozguryazilim.raf.user;
 
-import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.config.SettingsPages;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -47,12 +46,7 @@ public class UserRafListSubView extends SubViewPageBase {
     }
 
     public String getMemberRole(RafDefinition raf) {
-        try {
-            return rafMemberService.getMemberRole(userHome.getEntity().getLoginName(), raf);
-        } catch (RafException ex) {
-            LOG.debug("ERROR", ex);
-        }
-        return "";
+        return rafMemberService.getMemberRole(userHome.getEntity().getLoginName(), raf);
     }
 
 }

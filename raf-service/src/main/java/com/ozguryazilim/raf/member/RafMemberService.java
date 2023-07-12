@@ -2,6 +2,7 @@ package com.ozguryazilim.raf.member;
 
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.ReadOnlyModeService;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafMember;
 import com.ozguryazilim.raf.entities.RafMemberType;
@@ -69,6 +70,9 @@ public class RafMemberService implements Serializable {
 
     @Inject
     private ReadOnlyModeService readOnlyModeService;
+
+    @Inject
+    private RafDefinitionService rafDefinitionService;
 
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
         String role = getMemberRole(identity.getLoginName(), raf);
@@ -291,7 +295,7 @@ public class RafMemberService implements Serializable {
         return "";
     }
 
-    public String getMemberRole(String username, RafDefinition raf) throws RafException {
+    public String getMemberRole(String username, RafDefinition raf) {
         //Kullanıcı ya da grup fark etmez üye mi diye bakıyoruz.
         List<RafMember> b = getMembersImpl(raf).stream()
                 .filter(m -> m.getMemberName().equals(username))
@@ -316,7 +320,7 @@ public class RafMemberService implements Serializable {
      * @return
      * @throws RafException
      */
-    protected List<RafMember> getMembersImpl(RafDefinition raf) throws RafException {
+    protected List<RafMember> getMembersImpl(RafDefinition raf) {
 
         List<RafMember> r = memberMap.get(raf);
 

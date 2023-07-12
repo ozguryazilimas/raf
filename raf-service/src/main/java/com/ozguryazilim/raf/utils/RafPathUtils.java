@@ -63,6 +63,13 @@ public class RafPathUtils {
         return path.startsWith("/SHARED");
     }
 
+    public static boolean isInGeneralRaf(String path) {
+        if (StringUtils.isBlank(path))  {
+            return false;
+        }
+        return path.startsWith("/RAF/");
+    }
+
     public static boolean isInPrivateRaf(String path) {
         if (StringUtils.isBlank(path))  {
             return false;
