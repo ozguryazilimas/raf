@@ -44,4 +44,7 @@ public interface SettingsPages extends Pages{
     @SecuredPage @View
     class ReadOnlyModeOptionPane implements Admin {};
 
+    @SecuredPage @View
+    class ConfigurationPropertiesOptionPane implements Admin {};
+
 }
