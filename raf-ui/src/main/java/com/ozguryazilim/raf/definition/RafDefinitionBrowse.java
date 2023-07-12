@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
     
     @Inject
     private Event<RafDataChangedEvent> rafDataChangedEvent;
-    
+
     @Inject
     private RafService rafService;
 
@@ -135,6 +137,10 @@ public class RafDefinitionBrowse extends BrowseBase<RafDefinition, RafDefinition
             LOGGER.warn("An error occurred while calculating RAF details. Your user may not be a member of this RAF:  {}", selectedItem.getCode());
             return new HashMap<>();
         }
+    }
+
+    public void rafCreatedEventListener(@Observes(notifyObserver = Reception.ALWAYS) RafCreatedEvent rafCreatedEvent) {
+        search();
     }
     
 }
