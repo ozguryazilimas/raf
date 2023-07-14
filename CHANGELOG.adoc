@@ -1,5 +1,33 @@
 = RAF Sürüm Notları
 
+== 1.3.1-Beta.4
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/829844bbecdec0781bae8515045d17025f528aae[829844bbecdec07]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/58665[#58665] Raf yönetimi bölümünde raf oluşturduğumda raf listesi otomatik güncellenmeli  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/65982[#65982] Herhangi bir belge favoriye eklendikten sonra anasayfaya gidince favoriler dashboard&#x27;unu yenilemeden ilgili belge dashboard&#x27;da görünmüyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71709[#71709] (Mobil) Ayarlar--&gt; Bildirim Tercihleri--&gt; &quot;E-Posta Bildirim Tercihi&quot; dropdown içeriği ekranın dışına taşıyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72729[#72729] File cannot downloaded hata mesajının Türkçe olarak düzeltilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/72912[#72912] Departman ve Kategori sayfalarında yeni oluşturulan bölümlerde 30 karakter sonrası oluşturulmama sorunu  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73061[#73061] Yönetim bölümüne bir değişken liste sayfası eklenmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73062[#73062] Kullanıcının ayar sayfasına üye olduğu Raf&#x27;ların ve rollerin bir listesini ekleyelim  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73210[#73210] Rafa kullanıcı ekleme sayfasında rafta kayıtlı kullanıcı sayısının gösterilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73391[#73391] Arama sayfasında arama inputunun alanın en üstüne alınması  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74513[#74513] Arama sayfasındaki &quot;Tüm Raflarda Arama Onay&quot; yazısının &quot;Tüm Raflarda Ara&quot; şeklinde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74514[#74514] Arama sayfasındaki bazı inputların/checkboxların sıralamasının değiştirilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74546[#74546] Arama sayfasında tüm raflarda arama seçildiğinde raf dosya yolu&#x27;nun gösterilmemesi veya pasif gösterilmesi  
+
 == 1.3.1-Beta.3
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/67936450554d084f00da39518b172f306f6fcef9[67936450554d084]
