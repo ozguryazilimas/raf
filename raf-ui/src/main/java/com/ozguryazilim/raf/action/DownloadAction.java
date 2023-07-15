@@ -118,7 +118,7 @@ public class DownloadAction extends AbstractAction {
         } catch (RafException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);
-            FacesMessages.error("File cannot downloaded");
+            FacesMessages.error("error.download.failed");
         }
     }
 

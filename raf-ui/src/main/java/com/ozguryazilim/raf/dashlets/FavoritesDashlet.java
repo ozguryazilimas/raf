@@ -5,6 +5,7 @@ import com.ozguryazilim.mutfak.kahve.annotations.UserAware;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.UserFavorite;
+import com.ozguryazilim.raf.events.FavoritesChangedEvent;
 import com.ozguryazilim.raf.favorite.UserFavoriteService;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafObject;
@@ -14,6 +15,8 @@ import com.ozguryazilim.telve.dashboard.Dashlet;
 import com.ozguryazilim.telve.dashboard.DashletCapability;
 import org.primefaces.model.LazyDataModel;
 
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
@@ -118,6 +121,10 @@ public class FavoritesDashlet extends AbstractDashlet {
 
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    public void favoritesChangedEventListener(@Observes(notifyObserver = Reception.ALWAYS) FavoritesChangedEvent favoritesChangedEvent) {
+        refresh();
     }
 
 }

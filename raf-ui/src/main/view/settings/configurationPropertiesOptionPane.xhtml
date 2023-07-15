@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                template="/layout/optionPaneBase.xhtml">
+
+    <ui:param name="bean" value="#{configurationPropertiesOptionPane}"/>
+    <ui:param name="saveButtonActive" value="false" />
+
+    <ui:define name="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <p:dataTable var="configProperty" value="#{bean.configurationProperties}" widgetVar="configPropertyTable">
+
+                    <p:column headerText="Key" sortBy="#{configProperty.key}" filterBy="#{configProperty.key}" filterMatchMode="contains">
+                        <h:outputText value="#{configProperty.key}" />
+                    </p:column>
+
+                    <p:column headerText="Value" sortBy="#{configProperty.value}" filterBy="#{configProperty.value}" filterMatchMode="contains">
+                        <h:outputText value="#{configProperty.value}" />
+                    </p:column>
+
+                </p:dataTable>
+            </div>
+
+        </div>
+    </ui:define>
+
+</ui:composition>

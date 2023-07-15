@@ -16,8 +16,9 @@ import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 @Repository
 @Dependent
 public abstract class RafMemberRepository extends RepositoryBase<RafMember, RafMember> implements CriteriaSupport<RafMember>{
-    
-    
+
+    public abstract List<RafMember> findByMemberName(String memberName);
+
     public abstract List<RafMember> findByRaf( RafDefinition rd );
     
     public abstract List<RafMember> findByRafAndMemberNameAndMemberType( RafDefinition rd, String memberName, RafMemberType memberType );

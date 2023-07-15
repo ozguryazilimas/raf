@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
@@ -46,6 +47,9 @@ public class RafDefinitionService implements Serializable {
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private Event<RafCreatedEvent> rafDataChangedEvent;
 
     private List<RafDefinition> rafs = new ArrayList<>();
 
@@ -79,6 +83,8 @@ public class RafDefinitionService implements Serializable {
         addDefaultManagerMembers(rd);
 
         refresh();
+
+        rafDataChangedEvent.fire(new RafCreatedEvent());
     }
 
     public RafDefinition getRafDefinitionByCode(String code) throws RafException {
