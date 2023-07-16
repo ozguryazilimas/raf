@@ -1,0 +1,165 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:t="http://java.sun.com/jsf/composite/telveComponents"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                template="#{themeManager.layoutTemplate}">
+
+    <ui:param name="dontShowContentHeader" value="true" />
+    <ui:param name="showContextMenu" value="false" />
+    <ui:param name="pageTitle" value="#{rafMemberController.rafDefinition.name}" />
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{rafShareController.rafCode}" />
+            <f:viewAction action="#{rafShareController.init()}"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="extraHead">
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+    </ui:define>
+
+    <ui:define name="customHeader">
+        <div class="raf-header-container">
+            <section class="raf-header">
+                <div class="raf-header-logo">
+                    <i class="fa fa-3x  fa-archive" style="line-height: 1 !important;"/>
+                </div>
+                <div class="raf-header-texts">
+                    <div class="raf-header-text text-muted text-sm">
+                        #{messages['raf.label.Raf']}
+                    </div>
+                    <div class="raf-header-info text-bold text-big">
+                        #{messages[rafShareController.rafDefinition.name]}
+                    </div>
+                </div>
+            </section>
+            <section class="raf-header-tools">
+                <div class="raf-header-tool-pack">
+                    <div class="raf-header-btns">
+                        <h:link outcome="/raf.xhtml" title="#{messages['raf.label.Raf']}">
+                            <i class="fa fa-archive" />
+                            <f:param name="id" value="#{rafShareController.rafDefinition.code}" />
+                        </h:link>
+
+                        <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
+                            <i class="fa fa-users" />
+                            <f:param name="id" value="#{rafShareController.rafDefinition.code}" />
+                        </h:link>
+
+                        <h:link outcome="/settings/rafSettings.xhtml" title="#{messages['action.title.Settings']}">
+                            <i class="fa fa-cogs" />
+                            <f:param name="id" value="#{rafShareController.rafDefinition.code}" />
+                        </h:link>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </ui:define>
+
+    <ui:define name="body">
+        <h:form>
+            <ui:include src="/layout/messages.xhtml" />
+
+            <ui:param name="shares"
+                      value="#{rafShareController.isIdentityPermittedToGetAllShares() ? rafShareController.sharesByCurrentRaf : rafShareController.sharesOfCurrentUserByCurrentRaf}" />
+
+            <div class="box">
+                <p:dataTable var="rafShare" value="#{shares}" sortBy="#{rafShare.sharedBy}">
+
+                    <p:headerRow field="rafShare.sharedBy"
+                                 expandableRowGroups="true">
+                        <p:column colspan="8">
+                            <b><h:outputText value="#{messages['general.label.User']}: #{userService.getUserName(rafShare.sharedBy)} (#{rafShare.sharedBy})" /></b>
+                        </p:column>
+                    </p:headerRow>
+
+                    <p:column headerText="#{messages['raf.shares.shareGroup']}" groupRow="true">
+                        <h:outputText value="#{rafShare.shareGroup}" />
+                    </p:column>
+
+                    <p:column headerText="#{messages['raf.shares.path']}">
+                        <h:outputText value="#{rafShareController.getSharedObject(rafShare).path}" />
+                    </p:column>
+
+                    <p:column headerText="#{messages['raf.shares.sharedFile']}">
+                        <span style="height: 100%; display: flex; justify-content: start; align-items: center;">
+                            <span class="product-img">
+                                <svg class="icon" style="height: 28px; width: 28px; vertical-align: text-top;">
+                                    <use xlink:href="#{resource['icons:mimetypes.svg']}##{rafShareController.getSharedFileMimeIcons(rafShare)}" />
+                                </svg>
+                            </span>
+                            <h:link outcome="/raf.xhtml" rendered="#{rafShare.nodeId ne null}">
+                                <b style="margin: 0 5px;"><h:outputText value="#{rafShareController.getSharedFileName(rafShare)}" escape="false" /></b>
+                                <f:param name="id" value="#{''}" />
+                                <f:param name="o" value="#{rafShare.nodeId}" />
+                            </h:link>
+                        </span>
+                    </p:column>
+
+                    <p:column headerText="#{messages['file.sharing.started.date']} - #{messages['file.sharing.end.date']}">
+                        <h:outputText value="#{sharedFilesDashlet.getSharedFileStartEndDatesText(rafShare)}" />
+                    </p:column>
+
+                    <p:column headerText="#{messages['file.sharing.emails']}">
+                        <ui:fragment rendered="#{rafShare.getEmails().isEmpty() ne true}">
+                            <div class="value">
+                                <p:repeat value="#{rafShare.emails}" var="item">
+                                    <h:outputText style="display: list-item; list-style: inside;" value="#{item}" />
+                                </p:repeat>
+                            </div>
+                        </ui:fragment>
+                    </p:column>
+
+                    <p:column headerText="#{messages['file.sharing.password']}">
+                        <h:outputText style="display: flex; justify-content: center; align-items: center;" value="#{rafShare.password}" />
+                    </p:column>
+
+                    <p:column headerText="#{messages['file.sharing.total.downloads']}">
+                        <h:outputText style="display: flex; justify-content: center; align-items: center;" value="#{rafShare.visit}" />
+                    </p:column>
+
+                    <p:column headerText="">
+
+                        <span class="product-img">
+                            <a href="#{rafShareController.getDocumentShareUrl(rafShare)}"
+                               target="_blank"
+                               class="text-sm" >
+                                <i class="fa fa-link" title="permalink" style="color: #3c8dbc"/>
+                            </a>
+
+                            <p:commandLink action="#{shareMetadataPanel.removeSharing(rafShare)}"
+                                           update="@form"
+                                           ajax="true"
+                                           process="@this"
+                                           styleClass="btn btn-box-tool">
+                                <i class="fa fa-trash" style="color: #3c8dbc" title="#{messages['file.sharing.clear.label']}"/>
+                                <p:confirm header="#{messages['raf.label.confirm']}" title="#{messages['file.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+
+                            <ui:fragment rendered="#{rafShare.shareGroup ne null}">
+                                <p:commandLink action="#{rafShareController.removeShareGroupByShareAndShareList(rafShare, shares)}"
+                                               update="@form"
+                                               ajax="true"
+                                               process="@this"
+                                               styleClass="btn btn-box-tool">
+                                    <i class="fa fa-remove" style="color: #3c8dbc" title="#{messages['file.multiple.sharing.clear.label']}"/>
+                                    <p:confirm header="#{messages['raf.label.confirm']}" message="#{messages['file.multiple.sharing.clear.confirm']}" icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </ui:fragment>
+
+                        </span>
+
+                    </p:column>
+                </p:dataTable>
+
+            </div>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
