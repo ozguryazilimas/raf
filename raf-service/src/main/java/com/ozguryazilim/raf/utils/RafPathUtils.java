@@ -33,6 +33,18 @@ public class RafPathUtils {
         }
     }
 
+    public static String getRafCodeByPath(String path) {
+        if (isInSharedRaf(path)) {
+            return "SHARED";
+        } else if (isInPrivateRaf(path)) {
+            return "PRIVATE";
+        } else if (isInGeneralRaf(path)) {
+            return path.split("/")[2];
+        } else {
+            return null;
+        }
+    }
+
     public static boolean isRafRootPath(String fullPath) throws RafException {
         return isRootPath(fullPath, RAF_ROOT_PATH_NAME);
     }

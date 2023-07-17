@@ -1,7 +1,13 @@
 package com.ozguryazilim.raf.document.comment;
 
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.entities.RafDocumentComment;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.utils.RafPathUtils;
+import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +27,15 @@ public class RafDocumentCommentService {
     @Inject
     private RafDocumentCommentRepository repository;
 
+    @Inject
+    private CommandSender commandSender;
+
+    @Inject
+    private RafService rafService;
+
+    @Inject
+    private Identity identity;
+
     @PostConstruct
     private void init() {
         loadComments();
@@ -37,6 +52,20 @@ public class RafDocumentCommentService {
     @Transactional
     public void saveComment(RafDocumentComment comment) {
         repository.save(comment);
+
+        try {
+            RafObject commentedDocument = rafService.getRafObject(comment.getNodeId());
+            commandSender.sendCommand(
+                EventLogCommandBuilder.forRaf(RafPathUtils.getRafCodeByPath(commentedDocument.getPath()))
+                .eventType("DocumentComment.add")
+                .forRafObject(commentedDocument)
+                .message("event.DocumentComment.add$%&" + identity.getUserName() + "$%&" + commentedDocument.getTitle())
+                .user(identity.getLoginName())
+                .build()
+            );
+        } catch (RafException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Transactional
