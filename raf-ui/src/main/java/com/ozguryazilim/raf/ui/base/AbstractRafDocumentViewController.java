@@ -355,7 +355,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         } catch (RafException | IOException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);
-            FacesMessages.error("File cannot downloaded");
+            FacesMessages.error("error.download.failed");
         }
 
     }
@@ -428,7 +428,7 @@ public class AbstractRafDocumentViewController extends AbstractRafObjectViewCont
         } catch (RafException | IOException ex) {
             //FIXME: i18n
             LOG.error("File cannot downloded", ex);
-            FacesMessages.error("File cannot downloaded");
+            FacesMessages.error("error.download.failed");
         }
     }
 

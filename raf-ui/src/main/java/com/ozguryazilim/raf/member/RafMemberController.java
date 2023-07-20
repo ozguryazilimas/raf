@@ -12,18 +12,24 @@ import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.auth.UserInfo;
 import com.ozguryazilim.telve.auth.UserLookup;
 import com.ozguryazilim.telve.auth.UserService;
+import com.ozguryazilim.telve.config.LocaleSelector;
 import com.ozguryazilim.telve.idm.entities.Group;
 import com.ozguryazilim.telve.messages.FacesMessages;
 import com.ozguryazilim.telve.view.Pages;
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
@@ -74,9 +80,10 @@ public class RafMemberController implements Serializable {
     private Group userGroup;
 
     private String filter = "";
+    private String roleFilter = "*";
     private List<RafMember> filteredMembers;
     private RafMember selectedMember;
-    
+
     private boolean caseSensitiveSearch = "true".equals(ConfigResolver.getPropertyValue("caseSensitiveSearch", "false"));
 
     private Locale searchLocale = Locale.forLanguageTag(ConfigResolver.getPropertyValue("searchLocale", "tr-TR"));
@@ -133,21 +140,25 @@ public class RafMemberController implements Serializable {
     public void setRafDefinition(RafDefinition rafDefinition) {
         this.rafDefinition = rafDefinition;
     }
-    
+
     private boolean isTextContains(String text, String search){
         return caseSensitiveSearch ? text.contains(search) : text.toLowerCase(searchLocale).contains(search.toLowerCase(searchLocale));
     }
 
     public List<RafMember> getMembers() {
+        Collator collator = Collator.getInstance(LocaleSelector.instance().getLocale());
+        collator.setStrength(Collator.PRIMARY);
 
         if (filteredMembers == null) {
             try {
                 filteredMembers = memberService.getMembers(rafDefinition).stream()
-                        .filter(m
-                                -> m.getMemberType().equals(RafMemberType.USER)
-                        ? isTextContains(userLookup.getUserName(m.getMemberName()), filter)
-                        : isTextContains(m.getMemberName(),filter) || getGroupUserNames(m.getMemberName()).stream().filter(gm -> isTextContains(gm,filter)).findAny().isPresent()
+                        .filter(m ->
+                        m.getMemberType().equals(RafMemberType.USER) ?
+                            isTextContains(userLookup.getUserName(m.getMemberName()), filter) :
+                            isTextContains(m.getMemberName(),filter) || getGroupUserNames(m.getMemberName()).stream().anyMatch(gm -> isTextContains(gm,filter))
                         )
+                        .filter(m -> StringUtils.isNoneBlank(roleFilter) && !"*".equals(roleFilter) ? roleFilter.equals(m.getRole()) : true)
+                        .sorted(Comparator.comparing(RafMember::getMemberName, collator))
                         .collect(Collectors.toList());
 
                 return filteredMembers;
@@ -239,8 +250,18 @@ public class RafMemberController implements Serializable {
 
     }
 
+    /**
+     * Returns sorted list of group users
+     * @param userGroupName
+     * @return
+     */
     public List<String> getGroupUsers(String userGroupName) {
-        return memberService.getGroupUsers(userGroupName);
+        Collator collator = Collator.getInstance(LocaleSelector.instance().getLocale());
+        collator.setStrength(Collator.PRIMARY);
+
+        return memberService.getGroupUsers(userGroupName).stream()
+                .sorted(Comparator.comparing(Function.identity(), collator))
+                .collect(Collectors.toList());
     }
 
     public List<String> getGroupUserNames(String userGroupName) {
@@ -337,5 +358,19 @@ public class RafMemberController implements Serializable {
         return userService.getLoginNames().stream()
                 .map(userService::getUserInfo)
                 .collect(Collectors.toList());
+    }
+
+    public long getMemberCount() {
+        return getMembers().stream()
+                .map(member -> RafMemberType.GROUP.equals(member.getMemberType()) ? getGroupUsers(member.getMemberName()).size() : 1)
+                .reduce(0, Integer::sum);
+    }
+
+    public String getRoleFilter() {
+        return roleFilter;
+    }
+
+    public void setRoleFilter(String roleFilter) {
+        this.roleFilter = roleFilter;
     }
 }

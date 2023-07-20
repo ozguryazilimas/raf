@@ -33,6 +33,7 @@ import com.ozguryazilim.raf.ui.base.ContentViewPanel;
 import com.ozguryazilim.raf.ui.base.ContextMenuRegistery;
 import com.ozguryazilim.raf.ui.base.ObjectContentViewPanel;
 import com.ozguryazilim.raf.ui.base.SidePanelRegistery;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
@@ -43,6 +44,7 @@ import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandl
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.jodconverter.core.util.StringUtils;
 import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.MenuModel;
@@ -365,6 +367,42 @@ public class RafController implements Serializable {
         }
 
         rafChangedEvent.fire(new RafChangedEvent());
+    }
+
+    public String getRoleInCurrentPath() {
+        return getRoleInPath(context.getCollection().getPath());
+    }
+
+    public String getRoleInPath(String path) {
+
+        if (RafPathUtils.isInGeneralRaf(path)) {
+            String pathRole = rafObjectMemberService.getMemberRole(identity.getLoginName(), path);
+
+            if (StringUtils.isBlank(pathRole)) {
+                String parentPath = path.substring(0, path.lastIndexOf("/"));
+
+                try {
+                    if (RafPathUtils.isRafRootPath(parentPath)) {
+                        return memberService.getMemberRole(identity.getLoginName(), context.getSelectedRaf());
+                    } else {
+                        return getRoleInPath(parentPath);
+                    }
+                } catch (RafException e) {
+                    LOG.error(String.format("Error while getting user role. Path: %s", path));
+                    return "";
+                }
+
+            } else {
+                return pathRole;
+            }
+        } else {
+            LOG.error(String.format("Error while getting user role. Path is not belonging to /RAF/. Path: %s", path));
+            return "";
+        }
+    }
+
+    public boolean isCurrentPathInGeneralRaf() {
+        return RafPathUtils.isInGeneralRaf(context.getCollection().getPath());
     }
 
     public String getRafCode() {

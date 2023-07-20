@@ -315,6 +315,24 @@ public class RafPathMemberService implements Serializable {
         return b;
     }
 
+    public String getMemberRole(String username, String path) {
+        //Kullanıcı ya da grup fark etmez üye mi diye bakıyoruz.
+        List<RafPathMember> b = getMembersImpl(path).stream()
+                .filter(m -> m.getMemberName().equals(username))
+                .collect(Collectors.toList());
+
+        if (b == null || b.isEmpty()) {
+            //Burada üye gruplar üzerinden bir kontrol yapalım.
+            //Önce Grup tipi memberlar alınıp bunlardan üye listesi toplanıyor
+            //Ardından o liste içinde istenilen kullanıcı var mı diye bakılıyor.
+            b = getMembersImpl(path).stream()
+                    .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
+                    .filter(m -> getGroupUsers(m.getMemberName()).contains(username))
+                    .collect(Collectors.toList());
+        }
+        return b != null && !b.isEmpty() ? b.get(0).getRole() : "";
+    }
+
 
     /**
      * Asıl implementasyon. Cache'e bakar. Yoksa veri tabanından toparlar.
@@ -323,7 +341,7 @@ public class RafPathMemberService implements Serializable {
      * @return
      * @throws RafException
      */
-    protected List<RafPathMember> getMembersImpl(String path) throws RafException {
+    protected List<RafPathMember> getMembersImpl(String path) {
 
         List<RafPathMember> r = memberMap.get(path);
 

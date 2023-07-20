@@ -33,6 +33,9 @@ public interface SettingsPages extends Pages{
     class NotificationOptionPane implements Admin {};
 
     @SecuredPage @View
+    class RafUserRolesOptionPane implements Admin {};
+
+    @SecuredPage @View
     class DefaultSearchOptionPane implements Admin {};
 
     @SecuredPage @View
@@ -40,5 +43,8 @@ public interface SettingsPages extends Pages{
 
     @SecuredPage @View
     class ReadOnlyModeOptionPane implements Admin {};
+
+    @SecuredPage @View
+    class ConfigurationPropertiesOptionPane implements Admin {};
 
 }
