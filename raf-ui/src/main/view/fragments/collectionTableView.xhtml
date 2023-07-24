@@ -121,10 +121,10 @@
                     <p:repeat value="#{viewBean.collection.items}" var="item" varStatus="status">
                         <ui:param name="hasWriteRole" value="#{rafController.hasWriteRole(item)}" />
                         <ui:param name="hasDeleteRole" value="#{rafController.hasDeleteRole(item)}" />
-                        <tr>
+                        <tr class="raf-object-row">
                             <td style="width: 16px; text-align: center; ">
                                 <p:commandLink action="#{rafSelectionController.toggle(item)}" update="@this :actf" ajax="true" process="@form" styleClass="btn btn-box-tool" style="margin-right: 4px;">
-                                    <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square' : 'fa-square-o'}" />
+                                    <i class="fa #{rafSelectionController.isSelected(item) ? 'fa-check-square selected-raf-item' : 'fa-square-o'}" />
                                 </p:commandLink>
                             </td>
                             <td style="width: 16px; text-align: center;">

@@ -409,3 +409,7 @@ div[id$="closeConfirmation"] {
 div[id$="closeConfirmation_modal"] {
     z-index: 5000 !important;
 }
+
+.raf-object-row:has(.selected-raf-item) {
+    background: #e4eff5 !important;
+}
