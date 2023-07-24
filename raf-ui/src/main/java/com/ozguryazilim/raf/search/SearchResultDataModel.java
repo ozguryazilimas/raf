@@ -106,7 +106,7 @@ public class SearchResultDataModel extends LazyDataModel<RafObject> {
 
         switch (dsc.getActiveSearchPanelController()) {
             case "recordSearchPanelController":
-                datasource = searchService.detailedRecordSearch(searchModel, pageSize, first).getItems();
+                datasource = searchService.detailedRecordSearch(searchModel, rafs, extendedQuery, extendedSortQuery, pageSize, first).getItems();
                 this.setRowCount((int) searchService.detailedSearchCount(searchModel, rafs, extendedQuery));//FIXME Count sorgusu çekip bildirmek gerekebilir.
                 break;
             case "genericSearchPanelController":

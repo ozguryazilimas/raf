@@ -61,7 +61,7 @@ public class RafUserRoleService implements Serializable {
         return r;
     }
 
-    private String getRafMemberRoleByLoginName(String loginName) {
+    private String getRafMemberRoleByLoginName(String loginName, String rafCode) {
         //Kullanıcı ya da grup fark etmez üye mi diye bakıyoruz.
         List<RafMember> b = new ArrayList<>(getRafMembersByLoginName(loginName));
 
@@ -74,14 +74,19 @@ public class RafUserRoleService implements Serializable {
                     .filter(m -> rafMemberService.getGroupUsers(m.getMemberName()).contains(loginName))
                     .collect(Collectors.toList());
         }
-        return b != null && !b.isEmpty() ? b.get(0).getRole() : "";
+
+        return b.stream()
+                .filter(rafMember -> rafMember.getRaf().getCode().equals(rafCode))
+                .map(RafMember::getRole)
+                .findAny()
+                .orElse("");
     }
 
     public Map<String, String> getRafRolesOfCurrentUser() {
         return getRafMembersByLoginName(identity.getLoginName()).stream()
                 .collect(Collectors.toMap(
                         (RafMember rafMember) -> rafMember.getRaf().getCode(),
-                        (RafMember rafMember) -> getRafMemberRoleByLoginName(identity.getLoginName())
+                        (RafMember rafMember) -> getRafMemberRoleByLoginName(identity.getLoginName(), rafMember.getRaf().getCode())
                 ));
     }
 

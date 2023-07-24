@@ -1,3 +1,10 @@
+@media (max-width: 767px) {
+    .fixed .content-wrapper, .fixed .right-side {
+        padding-top: 50px !important;
+
+    }
+}
+
 .raf-ui-dialog-documentView {
     top: unset !important;;
     position: fixed !important;;

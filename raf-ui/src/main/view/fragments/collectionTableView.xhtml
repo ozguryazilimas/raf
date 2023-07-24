@@ -167,8 +167,29 @@
                             <td style="text-align: right; vertical-align: middle">
                                 <ui:fragment rendered="#{item.mimeType ne 'raf/folder'}">
                                     <!--                                            <h:form id="colTViewDownloadFileForm" style="display: inline;">-->
-                                    <p:commandLink action="#{downloadAction.downloadFile(item)}" update="raf-view" ajax="false" process="@this" styleClass="btn btn-box-tool">
+
+                                    <ui:remove>Not: ConfirmationDialog un koşullu render edilmesi için bu implementasyon yapıldı.</ui:remove>
+
+                                    <p:commandLink action="#{downloadAction.downloadFile(item)}"
+                                                   rendered="${!downloadAction.isSupportConfirmation(item)}"
+                                                   update="raf-view"
+                                                   ajax="false"
+                                                   process="@this"
+                                                   styleClass="btn btn-box-tool">
                                         <i class="fa fa-download" />
+                                    </p:commandLink>
+
+                                    <p:commandLink action="#{downloadAction.downloadFile(item)}"
+                                                   rendered="${downloadAction.isSupportConfirmation(item)}"
+                                                   update="raf-view"
+                                                   ajax="false"
+                                                   process="@this"
+                                                   styleClass="btn btn-box-tool">
+                                        <i class="fa fa-download" />
+                                        <p:confirm header="#{messages['confirmation.header.'.concat(downloadAction.name)]}"
+                                                   message="#{downloadAction.getDownloadConfirmationMessage(item)}"
+                                                   icon="fa fa-alert" />
+
                                     </p:commandLink>
                                     <!--</h:form>-->
                                     <p:commandLink rendered="#{hasWriteRole}" action="#{rafController.selectItem(item)}" update="raf-view" ajax="true" process="@form" styleClass="btn btn-box-tool">

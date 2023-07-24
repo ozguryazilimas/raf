@@ -19,7 +19,14 @@
             .ui-picklist-list {
                 height: auto;
             }
+
+            .genericEmailPanel {
+                width: 95% !important;
+            }
         </style>
+
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+
         <h:form id="ff">
             <div class="row">
                 <div class="col-xs-12">
@@ -32,7 +39,9 @@
             <div class="row">
                 <t:inputAny label="shareDocument.emails.label">
                     <p:autoComplete id="emails" multiple="true" value="#{shareAction.rafShare.emails}"
+                                    panelStyleClass="genericEmailPanel"
                                     style="height: auto"
+                                    disabled="#{shareAction.shareWithMail ne true}"
                                     completeMethod="#{shareAction.suggestIsEmail}"
                                     var="email" itemLabel="#{email}" itemValue="#{email}" forceSelection="true"
                                     converter="emailConverter">
@@ -51,6 +60,16 @@
                     </p:selectOneMenu>
                 </t:inputAny>
             </div>
+
+            <div class="row">
+                <h:panelGroup styleClass="col-xs-12" layout="block" style="height: 30px">
+                    <p:selectBooleanCheckbox itemLabel="#{messages['shareAction.itemLabel.shareWithMail']}"
+                                             value="#{shareAction.shareWithMail}">
+                        <p:ajax event="change" update=":ff"/>
+                    </p:selectBooleanCheckbox>
+                </h:panelGroup>
+            </div>
+
             <div class="row">
                 <h:panelGroup styleClass="col-xs-12 actionButtons" layout="block"
                               style="/*position: fixed; bottom: 0; display: block;*/">
