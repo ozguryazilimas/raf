@@ -19,6 +19,10 @@
             .ui-picklist-list {
                 height: auto;
             }
+
+            .genericEmailPanel {
+                width: 95% !important;
+            }
         </style>
 
         <h:outputStylesheet library="raf" name="css/raf.css" />
@@ -35,6 +39,7 @@
             <div class="row">
                 <t:inputAny label="shareDocument.emails.label">
                     <p:autoComplete id="emails" multiple="true" value="#{shareAction.rafShare.emails}"
+                                    panelStyleClass="genericEmailPanel"
                                     style="height: auto"
                                     disabled="#{shareAction.shareWithMail ne true}"
                                     completeMethod="#{shareAction.suggestIsEmail}"
