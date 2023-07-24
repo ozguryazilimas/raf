@@ -17,6 +17,10 @@ import com.ozguryazilim.telve.messages.FacesMessages;
 import javax.faces.context.FacesContextWrapper;
 import javax.inject.Inject;
 
+import com.ozguryazilim.telve.messages.Messages;
+import org.apache.commons.io.FileUtils;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +56,42 @@ public class DownloadAction extends AbstractAction {
         }
 
         return super.isEnabled();
+    }
+
+    @Override
+    public boolean isSupportConfirmation() {
+        return isSupportConfirmation(getContext().getSelectedObject());
+    }
+
+    public boolean isSupportConfirmation(RafObject obj) {
+        if (obj == null || obj.getLength() == null) {
+            return false;
+        }
+
+        long minDocLength = getMinimumObjectSizeForConfirmation();
+
+        if (minDocLength < 0) {
+            return false;
+        }
+
+        return obj.getLength() > minDocLength;
+    }
+
+    public long getMinimumObjectSizeForConfirmation() {
+        return ConfigResolver.resolve("downloadAction.confirmation.minimumSize")
+                .as(Long.class)
+                .withDefault(-1L)
+                .withCurrentProjectStage(false)
+                .getValue();
+    }
+
+    @Override
+    public String customConfirmationMessage() {
+        return getDownloadConfirmationMessage(getContext().getSelectedObject());
+    }
+
+    public String getDownloadConfirmationMessage(RafObject object) {
+        return Messages.getMessage("DownloadAction.confirmation.size", FileUtils.byteCountToDisplaySize(object.getLength()));
     }
 
     @Override

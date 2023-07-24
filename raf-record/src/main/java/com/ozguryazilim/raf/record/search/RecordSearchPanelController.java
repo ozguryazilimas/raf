@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.modeshape.jcr.ExecutionContext;
 import org.modeshape.jcr.query.JcrTypeSystem;
@@ -153,6 +155,14 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
         metaDataFields = new ArrayList();
     }
 
+    private boolean isRecordWFValuePresent(DetailedSearchModel searchModel) {
+        return searchModel.getMapWFAttValue() != null &&
+                !searchModel.getMapWFAttValue().isEmpty() &&
+                searchModel.getMapWFAttValue().values()
+                        .stream()
+                        .anyMatch(obj -> obj instanceof String ? StringUtils.isNotBlank((String) obj) : obj != null);
+    }
+
     public void saveRecordPathQueryCommand(DetailedSearchModel searchModel) {
 
         QueryBuilder builder = new QueryBuilder(new ExecutionContext().getValueFactories().getTypeSystem());
@@ -161,7 +171,7 @@ public class RecordSearchPanelController implements SearchPanelController, Seria
         boolean recordDocumentTypePresent   = !Strings.isNullOrEmpty(searchModel.getRecordDocumentType());
         boolean recordNoPresent             = !Strings.isNullOrEmpty(searchModel.getRecordNo());
         boolean recordTitlePresent          = !Strings.isNullOrEmpty(searchModel.getTitle());
-        boolean recordWfValuePresent        = searchModel.getMapWFAttValue() != null && !searchModel.getMapWFAttValue().isEmpty();
+        boolean recordWfValuePresent        = isRecordWFValuePresent(searchModel);
 
         builder.select("jcr:path")
                 .from("raf:record as record");
