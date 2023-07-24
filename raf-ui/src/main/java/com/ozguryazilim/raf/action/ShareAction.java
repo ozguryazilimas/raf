@@ -52,6 +52,8 @@ public class ShareAction extends AbstractAction {
 
     private ShareTime shareTime = ShareTime.SHARE_LIMITLESS;
 
+    private Boolean shareWithMail = Boolean.TRUE;
+
     public RafShare getRafShare() {
         return rafShare;
     }
@@ -66,6 +68,14 @@ public class ShareAction extends AbstractAction {
 
     public void setShareTime(ShareTime shareTime) {
         this.shareTime = shareTime;
+    }
+
+    public Boolean getShareWithMail() {
+        return shareWithMail;
+    }
+
+    public void setShareWithMail(Boolean shareWithMail) {
+        this.shareWithMail = shareWithMail;
     }
 
     @Override
@@ -96,7 +106,11 @@ public class ShareAction extends AbstractAction {
             String filename = getContext().getSelectedObject().getName();
             String link = UrlUtils.getDocumentShareURL(result.getToken());
             String password = result.getPassword();
-            emailNotificationService.sendEmailToSharedContacts(result, filename);
+
+            if (shareWithMail) {
+                emailNotificationService.sendEmailToSharedContacts(result, filename);
+            }
+
             LOG.info("Document {} has been successfully shared." +
                     "Link: {}, Password: {}", filename, link, password);
             commandSender.sendCommand(EventLogCommandBuilder.forRaf("RAF")
