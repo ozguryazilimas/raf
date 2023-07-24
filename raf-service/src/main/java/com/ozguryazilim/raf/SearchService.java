@@ -13,6 +13,7 @@ import java.util.Locale;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.modeshape.jcr.query.model.QueryCommand;
 import org.modeshape.jcr.value.IoException;
 import org.primefaces.model.SortOrder;
@@ -77,14 +78,19 @@ public class SearchService implements Serializable {
         }
     }
 
-    public RafCollection detailedRecordSearch(DetailedSearchModel searchModel, int limit, int offset) throws RafException, FileBinaryNotFoundException {
+    public RafCollection detailedRecordSearch(DetailedSearchModel searchModel, List<RafDefinition> rafs, List<String> extendedQuery, List<String> extendedSortQuery, int limit, int offset) throws RafException, FileBinaryNotFoundException {
         //FIXME: yetki kontrolleri yapılmalı.
         Locale searchLocale = Locale.US;
         if (!searchModel.getSearchInDocumentName()) {
             searchLocale = caseSensitiveSearchService.getSearchLocale();
         }
         try {
-            return modeshapeRepository.getRecordSearchCollection(searchModel, identity.getLoginName(), limit, offset, searchLocale);
+            String searchProvider = ConfigResolver.getPropertyValue("rafSearch.provider", "modeshape");
+            if ("elasticsearch".equals(searchProvider)) {
+                return modeshapeRepository.getDetailedSearchCollection(searchModel, rafs, rafPathMemberService, identity.getLoginName(), limit, offset, extendedQuery, extendedSortQuery, searchLocale);
+            } else {
+                return modeshapeRepository.getRecordSearchCollection(searchModel, identity.getLoginName(), limit, offset, searchLocale);
+            }
         } catch (IoException ex) {
             throw new FileBinaryNotFoundException("[RAF-0048] Could not found one or more nodes binary data.", ex);
         }
