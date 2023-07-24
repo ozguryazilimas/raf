@@ -14,6 +14,7 @@ import com.ozguryazilim.raf.saved_search.SavedSearchService;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.lookup.LookupSelectTuple;
 import com.ozguryazilim.telve.messages.FacesMessages;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.view.navigation.NavigationParameterContext;
 import org.apache.deltaspike.core.api.config.view.navigation.ViewNavigationHandler;
@@ -94,10 +95,10 @@ public class GenericSearchPanelController implements SearchPanelController, Seri
                 detailedSearchController.getSearchModel().setSearchSubPath(context.getSelectedRaf().getNode().getPath());
             }
         }
-        if (searchText != null) {
+        if (StringUtils.isNotBlank(searchText)) {
             detailedSearchController.getSearchModel().setSearchText(searchText);
+            navigationParameterContext.addPageParameter("folderSearch", true);
         }
-        navigationParameterContext.addPageParameter("folderSearch", true);
         viewNavigationHandler.navigateTo(SearchPages.SearchPage.class);
     }
 
