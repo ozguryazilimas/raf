@@ -10,7 +10,7 @@
 
     <div class="ui-fluid">
         <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-            <p:outputLabel value="#{messages['general.label.Search']}"/>
+            <p:outputLabel value="#{messages['general.label.Search']}*"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:inputText id="searchText" value="#{detailedSearchController.searchModel.searchText}" required="true">
                     <f:validateLength minimum="2"/>

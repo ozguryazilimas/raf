@@ -64,6 +64,8 @@ public class MultipleShareAction extends AbstractAction {
 
     private String sharePassword;
 
+    private Boolean shareWithMail = Boolean.TRUE;
+
     public ShareTime getShareTime() {
         return shareTime;
     }
@@ -78,6 +80,14 @@ public class MultipleShareAction extends AbstractAction {
 
     public void setEmails(List<String> emails) {
         this.emails = emails;
+    }
+
+    public Boolean getShareWithMail() {
+        return shareWithMail;
+    }
+
+    public void setShareWithMail(Boolean shareWithMail) {
+        this.shareWithMail = shareWithMail;
     }
 
     @Override
@@ -124,10 +134,13 @@ public class MultipleShareAction extends AbstractAction {
             List<String> links = results.stream().map(item -> UrlUtils.getDocumentShareURL(item.getToken())).collect(Collectors.toList());
             String password = sharePassword;
 
-            if (results.size() > 1) {
-                emailNotificationService.sendEmailToSharedContacts(results, filenames);
-            } else {
-                emailNotificationService.sendEmailToSharedContacts(results.get(0), filenames.get(0));
+
+            if (shareWithMail) {
+                if (results.size() > 1) {
+                    emailNotificationService.sendEmailToSharedContacts(results, filenames);
+                } else {
+                    emailNotificationService.sendEmailToSharedContacts(results.get(0), filenames.get(0));
+                }
             }
 
             IntStream.range(0, filenames.size())

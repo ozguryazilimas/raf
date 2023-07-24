@@ -12,6 +12,9 @@
     <ui:param name="dashletEditActionIcon" value="ui-icon-search" />
 
     <ui:define name="edit">
+
+        <h:outputStylesheet library="raf" name="css/raf.css" />
+
         <t:inputText label="general.label.Filter" value="#{myRafsDashlet.filter}" columnClass="col-xs-12"/>
         <t:inputCheckbox label="general.label.SortOrder" itemLabel="general.sort.Asc" value="#{myRafsDashlet.sortAsc}" columnClass="col-xs-6"/>
     </ui:define>
