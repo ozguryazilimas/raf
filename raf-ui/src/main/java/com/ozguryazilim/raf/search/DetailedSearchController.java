@@ -16,6 +16,7 @@ import com.ozguryazilim.raf.models.RafMetadata;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.telve.auth.Identity;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.WindowScoped;
 import org.slf4j.Logger;
@@ -28,11 +29,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -78,6 +83,8 @@ public class DetailedSearchController implements Serializable {
     private List<RafDefinition> rafList;
 
     private Map<String, String> extendedColumnMap = new HashMap();
+    private Map<String, String> searchSortColumnMap = new HashMap<>();
+    Set<String> ignoredSearchSortColumns = new HashSet<>();
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -101,6 +108,32 @@ public class DetailedSearchController implements Serializable {
         searchModel = new DetailedSearchModel();
         searchResult = null;
         searchModel.setSearchSubPath(loadDefaultSearchSubPath());
+
+        initSearchSortColumns();
+    }
+
+    private void initSearchSortColumns() {
+        this.searchSortColumnMap.put("path", "sortBy.Path");
+        this.searchSortColumnMap.put("title", "sortBy.Name");
+        this.searchSortColumnMap.put("createBy", "collection.table.User");
+        this.searchSortColumnMap.put("created", "collection.table.Date");
+        this.searchSortColumnMap.put("lastModifiedBy", "collection.table.UpdateUser");
+        this.searchSortColumnMap.put("lastModified", "collection.table.UpdateDate");
+
+        ignoredSearchSortColumns.addAll(
+                ConfigResolver.resolve("raf.search.ignoredSearchSortColumns")
+                    .asList()
+                    .withCurrentProjectStage(false)
+                    .withDefault(Collections.emptyList())
+                    .getValue()
+            );
+
+        if (!ignoredSearchSortColumns.isEmpty()) {
+            searchSortColumnMap = searchSortColumnMap.entrySet().stream()
+                    .filter(entry -> !ignoredSearchSortColumns.contains(entry.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+
     }
 
     public void clearSearch() {
@@ -267,6 +300,10 @@ public class DetailedSearchController implements Serializable {
             return path;
         }
         return null;
+    }
+
+    public Map<String, String> getSearchSortColumnMap() {
+        return searchSortColumnMap;
     }
 
     public void listener(@Observes DefaultSearchSubPathChangeEvent event) {
