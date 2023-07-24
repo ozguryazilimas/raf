@@ -1,8 +1,11 @@
 package com.ozguryazilim.raf.email;
 
 import com.ozguryazilim.mutfak.kahve.Kahve;
+import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.encoder.RafEncoder;
 import com.ozguryazilim.raf.encoder.RafEncoderFactory;
+import com.ozguryazilim.raf.entities.RafDocumentComment;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.entities.UserFavorite;
 import com.ozguryazilim.raf.enums.EmailNotificationActionType;
@@ -25,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +41,9 @@ import java.util.stream.IntStream;
 public class EmailNotificationService implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationService.class);
+
+    @Inject
+    private RafService rafService;
 
     @Inject
     private EmailChannel emailChannel;
@@ -139,6 +146,37 @@ public class EmailNotificationService implements Serializable {
                 emailChannel.sendMessage(consumerEmail, subject, "", headers);
             }
         }
+    }
+
+    public void sendNewDocumentCommentEmailToUsers(RafDocumentComment rafDocumentComment, List<UserInfo> users) throws RafException {
+        RafObject document = rafService.getRafObject(rafDocumentComment.getNodeId());
+        String commentOwnerUserName = userService.getUserName(rafDocumentComment.getCommentOwner());
+        String link = appLinkDomain + "raf.jsf" + "?id=" + "&o=" + document.getId();
+
+        Map<String, Object> headers = new HashMap<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+
+        headers.put("messageClass", "NEW_DOCUMENT_COMMENT");
+
+        headers.put("commentedDocument", document);
+        headers.put("commentOwner", commentOwnerUserName);
+        headers.put("commentDate", dateFormat.format(rafDocumentComment.getDate()));
+        headers.put("comment", rafDocumentComment.getComment());
+        headers.put("documentLink", link);
+
+        headers.put("footerAppName", ConfigResolver.getPropertyValue("email.footer.app.name", "RAF"));
+        headers.put("footerAppLink", ConfigResolver.getPropertyValue("app.link", ""));
+
+        String subject = String.format(
+                "%s - %s isimli dosyaya %s tarafından yeni yorum eklendi.",
+                ConfigResolver.getPropertyValue("app.title"),
+                document.getTitle(),
+                userService.getUserName(commentOwnerUserName)
+        );
+
+        users.forEach(user ->
+                emailChannel.sendMessage(user.getEmail(), subject, "", headers)
+        );
     }
 
     /**
