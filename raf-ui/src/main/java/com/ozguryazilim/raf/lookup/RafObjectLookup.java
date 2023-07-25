@@ -109,7 +109,6 @@ public class RafObjectLookup extends AbstractRafCollectionCompactViewController 
         bannedSelections = new ArrayList<>();
         bannedSelections.add("");
         bannedSelections.add("/RAF");
-        bannedSelections.add("/");
 
         setSortBy(SortType.defaultSortType(kahve.get("raf.sortBy", "DATE_DESC").getAsString()));
     }

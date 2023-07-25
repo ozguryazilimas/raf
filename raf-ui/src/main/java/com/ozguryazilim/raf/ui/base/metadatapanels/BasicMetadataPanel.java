@@ -7,12 +7,15 @@ import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.category.RafCategoryService;
 import com.ozguryazilim.raf.config.MetadataPanelPages;
 import com.ozguryazilim.raf.entities.RafCategory;
+import com.ozguryazilim.raf.events.EventLogCommand;
+import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.ui.base.AbstractMetadataPanel;
 import com.ozguryazilim.raf.ui.base.MetadataPanel;
 import com.ozguryazilim.telve.auth.Identity;
+import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
 
 import javax.faces.context.FacesContext;
@@ -53,6 +56,9 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     @Inject
     private RafPathMemberService rafPathMemberService;
 
+    @Inject
+    private CommandSender commandSender;
+
     private RafCategory category;
 
     private RafObject object;
@@ -77,6 +83,20 @@ public class BasicMetadataPanel extends AbstractMetadataPanel{
     @Override
     protected void save() {
         try {
+            //Check if title changed
+            String oldTitle = rafService.getRafObject(getObject().getId()).getTitle();
+            if (!getObject().getTitle().equals(oldTitle)) {
+                //Send event command
+                EventLogCommand command = EventLogCommandBuilder.forRaf(getContext().getSelectedRaf().getCode())
+                        .eventType("MetadataChangeEvent.Title")
+                        .forRafObject(object)
+                        .message("event." + "MetadataChangeEvent.Title" + "$%&" + (identity != null ? identity.getUserName() : "Sistem") + "$%&" + oldTitle + "$%&" + getObject().getTitle())
+                        .user(identity != null ? identity.getLoginName() : "SYSTEM")
+                        .build();
+
+                commandSender.sendCommand(command);
+            }
+
             LOG.info("Selected Category : {}", category);
             if( category != null ){
                 getObject().setCategory(category.getName());

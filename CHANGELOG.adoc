@@ -1,5 +1,27 @@
 = RAF Sürüm Notları
 
+== 1.3.1-Beta.5
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/b4902d2cc7f3f00332e5b033ea9f0af1a628cb6d[b4902d2cc7f3f00]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71683[#71683] Büyük boyutlu bir dosyayı indirmeden önce &quot;XX MB/GB boyutlu dosya indirilsin mi?&quot; tarzı bir uyarı modalının gösterilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/71746[#71746] Belgeler E-Posta adresi girilmeden de paylaşıma açılabiliyor, E-Posta girmeden paylaşım yapılamamalı veya paylaşım yapılabildiğini kullanıcının anlayabileceği şekilde düzenleme yapılmalı  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/71749[#71749] &quot;Belgeyi Paylaş (Döküman Paylaşımı)&quot; modalında E-Posta inputunun içerisininde yeterli alan olmasına rağmen kısıtlı bir alan kullanılabiliyor  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/73062[#73062] Kullanıcının ayar sayfasına üye olduğu Raf&#x27;ların ve rollerin bir listesini ekleyelim  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73410[#73410] Arama sayfasında Süreç Arama ekranında süreç arama işlemi gerçekleştirilemiyor  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/73709[#73709] Mobilde RAF genelinde sayfa üzerindeki boşluk  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74483[#74483] Detaylı arama sayfasına ilerlendiğinde arama inputunun arama butonuna basıldıktan sonra uyarı verecek şekilde düzenlenmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74858[#74858] Herhangi bir Rafın içerisinde arama butonuna tıklandığında 504 Gateway Time-out hatası  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/75005[#75005] Raf Telve4 versiyonunun 4.2.12-Final e yükseltilmesi  
+
 == 1.3.1-Beta.4
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/829844bbecdec0781bae8515045d17025f528aae[829844bbecdec07]
