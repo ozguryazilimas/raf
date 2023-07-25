@@ -171,10 +171,7 @@ public class RafUserRoleService implements Serializable {
 
 
         return uniqueMemberNames.stream()
-                .filter(memberName -> {
-                    String role = getRoleInPath(memberName, path);
-                    return roleList.stream().anyMatch(requiredRole -> requiredRole.equals(role));
-                })
+                .filter(memberName -> roleList.contains(getRoleInPath(memberName, path)))
                 .map(memberName -> userService.getUserInfo(memberName))
                 .collect(Collectors.toList());
     }
