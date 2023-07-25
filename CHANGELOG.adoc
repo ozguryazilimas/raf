@@ -1,5 +1,17 @@
 = RAF Sürüm Notları
 
+== 1.3.1-Beta.6
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/ef7375b26737e5a644b682150eec4081205f0bdc[ef7375b26737e5a]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72611[#72611] Herhangi bir dosyada isim değişikliği yapıldığında Olaylar dashboard&#x27;unda görünmesinin sağlanması  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/72987[#72987] Paylaşıma açılan dosyaların tümünün listelenebileceği bir sayfa oluşturulması ve paylaşımların toplu olarak durdurulabilmesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/74511[#74511] Arama sayfasında raf dosya yolu yerine rafın gösterilmesi, Raf Dosya Yolu yazısının &quot;Arama Yapılacak Raf&quot; şeklinde değiştirilmesi  
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74557[#74557] Arama sayfasında &quot;Sıralama&quot; dropdown&#x27;ında &quot;Oluşturan Kullanıcı&quot; ve &quot;Değiştiren Kullanıcı&quot; seçeneklerine göre sıralamanın kapatılması  
+
 == 1.3.1-Beta.5
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/b4902d2cc7f3f00332e5b033ea9f0af1a628cb6d[b4902d2cc7f3f00]
