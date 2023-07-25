@@ -3,8 +3,11 @@ package com.ozguryazilim.raf.share;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.definition.RafDefinitionService;
+import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.entities.RafShare;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
@@ -18,6 +21,7 @@ import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -34,6 +38,10 @@ public class RafShareService {
 
     @Inject
     private CommandSender commandSender;
+
+    @Inject
+    private RafDefinitionService rafDefinitionService;
+
 
     public RafObject getDocument(String token, String password) throws RafException {
 
@@ -74,6 +82,35 @@ public class RafShareService {
 
     public List<RafShare> getAll() {
         return repository.findAll();
+    }
+
+    public List<RafShare> getByRafCode(String rafCode) throws RafException {
+        List<RafShare> shares = getAll();
+
+        RafDefinition rafDefinition;
+
+        if (rafCode.equals(RafPathUtils.PRIVATE_PATH_NAME)) {
+            rafDefinition = rafDefinitionService.getPrivateRaf(identity.getLoginName());
+        } else if (rafCode.equals(RafPathUtils.SHARED_PATH_NAME)) {
+            rafDefinition = rafDefinitionService.getSharedRaf();
+        } else {
+            rafDefinition = rafDefinitionService.getRafs().stream()
+                    .filter(raf -> rafCode.equals(raf.getCode()))
+                    .findAny()
+                    .orElseThrow(() -> new RafException(String.format("Could not found RAF with code %s", rafCode)));
+        }
+
+        String rafDefinitionPath = rafService.getRafObject(rafDefinition.getNodeId()).getPath();
+
+        return shares.stream()
+                .filter(share -> {
+                    try {
+                        return rafService.getRafObject(share.getNodeId()).getPath().startsWith(rafDefinitionPath);
+                    } catch (RafException | NullPointerException e) {
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     public List<RafShare> findByLoginName(String loginName) {
@@ -146,6 +183,17 @@ public class RafShareService {
                 sb.toString());
 
         commandSender.sendCommand(command);
+    }
+
+    @Transactional
+    public void removeGroupSharingByShareAndShareList(RafShare rafShare, List<RafShare> shareList) {
+        if(rafShare != null && rafShare.getShareGroup() != null){
+            clearShareGroup(rafShare.getShareGroup());
+
+            shareList.stream()
+                .filter(share -> Objects.equals(share.getShareGroup(), rafShare.getShareGroup()))
+                .forEach(this::rafShareEndAuditLog);
+        }
     }
 
 }
