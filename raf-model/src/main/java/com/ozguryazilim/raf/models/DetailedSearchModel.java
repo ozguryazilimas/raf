@@ -1,5 +1,6 @@
 package com.ozguryazilim.raf.models;
 
+import org.apache.commons.lang3.StringUtils;
 import org.modeshape.jcr.query.model.QueryCommand;
 
 import java.util.Date;
@@ -96,7 +97,11 @@ public class DetailedSearchModel {
     }
 
     public void setSearchSubPath(String searchSubPath) {
-        this.searchSubPath = searchSubPath;
+        if (StringUtils.isBlank(searchSubPath) || "/".equals(searchSubPath)) {
+            setSearchInAllRafs(true);
+        } else {
+            this.searchSubPath = searchSubPath;
+        }
     }
 
     public void setSearchText(String searchText) {
