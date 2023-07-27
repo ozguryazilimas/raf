@@ -92,14 +92,8 @@
                             <p:outputLabel value="#{messages['view.action.SortBy']}"/>
                             <p:selectOneMenu id="searchSortBy" value="#{detailedSearchController.searchModel.sortBy}" required="false" filter="true" filterMatchMode="startsWith">
                                 <f:selectItem itemLabel="#{messages['general.select']}" itemValue="#{null}" noSelectionOption="true" />
-                                <f:selectItem itemLabel="#{messages['sortBy.Path']}" itemValue="path" />
-                                <f:selectItem itemLabel="#{messages['sortBy.Name']}" itemValue="title" />
-                                <f:selectItem itemLabel="#{messages['collection.table.User']}" itemValue="createBy" />
-                                <f:selectItem itemLabel="#{messages['collection.table.Date']}" itemValue="created" />
-                                <f:selectItem itemLabel="#{messages['collection.table.UpdateUser']}" itemValue="lastModifiedBy" />
-                                <f:selectItem itemLabel="#{messages['collection.table.UpdateDate']}" itemValue="lastModified" />
-                                <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}">
-                                </f:selectItems>
+                                <f:selectItems value="#{detailedSearchController.searchSortColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}" />
+                                <f:selectItems value="#{detailedSearchController.extendedColumnMap.entrySet().toArray()}" var="_entryset" itemLabel="#{messages[_entryset.value]}" itemValue="#{_entryset.key}" />
                                 <p:ajax update="sortDirection" event="change"/>
                             </p:selectOneMenu>
                             <p:outputLabel value="#{messages['view.action.SortType']}"/>
@@ -193,9 +187,8 @@
         </h:form>
 
         <c:forEach items="#{detailedSearchController.searchPanels}" var="sp">
-            <c:if test="#{detailedSearchController.getSearchTabExternalComponents(sp) ne null}">
-                <ui:include src="#{detailedSearchController.getSearchTabExternalComponents(sp)}">
-                </ui:include>
+            <c:if test="#{detailedSearchController.activeSearchPanelController.equals(sp) and detailedSearchController.getSearchTabExternalComponents(sp) ne null}">
+                <ui:include src="#{detailedSearchController.getSearchTabExternalComponents(sp)}" />
             </c:if>
         </c:forEach>
     </ui:define>

@@ -41,9 +41,14 @@
                 </div>
             </section>
             <section class="raf-header-tools">
-                <ui:fragment rendered="#{rafController.showManagerTools()}">
-                    <div class="raf-header-tool-pack">
-                        <div class="raf-header-btns">
+                <div class="raf-header-tool-pack">
+                    <div class="raf-header-btns">
+                        <h:link outcome="/settings/rafShares.xhtml" title="#{messages['action.title.Shares']}">
+                            <i class="fa fa-share-alt" />
+                            <f:param name="id" value="#{rafContext.selectedRaf.code}" />
+                        </h:link>
+
+                        <ui:fragment rendered="#{rafController.showManagerTools()}">
                             <h:link outcome="/settings/rafMembers.xhtml" title="#{messages['action.title.Members']}">
                                 <i class="fa fa-users" />
                                 <f:param name="id" value="#{rafContext.selectedRaf.code}" />
@@ -53,9 +58,9 @@
                                 <i class="fa fa-cogs" />
                                 <f:param name="id" value="#{rafContext.selectedRaf.code}" />
                             </h:link>
-                        </div>
+                        </ui:fragment>
                     </div>
-                </ui:fragment>               
+                </div>
             </section>
         </div>
 
@@ -111,7 +116,9 @@
                                                 <p:commandLink action="#{act.execute()}" process="@this" ajax="#{act.supportAjax}" update="raf-view-content" title="#{messages[act.title]}"
                                                                disabled="#{not act.isEnabled()}">
                                                     <i class="fa #{act.icon}" />
-                                                    <p:confirm header="#{messages['confirmation.header.'.concat(act.name)]}" message="#{messages['confirmation.message.'.concat(act.name)]}" icon="fa fa-alert" />
+                                                    <p:confirm header="#{messages['confirmation.header.'.concat(act.name)]}"
+                                                               message="#{act.customConfirmationMessage() ne null ? act.customConfirmationMessage() : messages['confirmation.message.'.concat(act.name)]}"
+                                                               icon="fa fa-alert" />
                                                     <p:ajax event="dialogReturn" update="raf-view-content" />
                                                 </p:commandLink>
                                             </ui:fragment>

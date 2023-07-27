@@ -10,7 +10,7 @@
 
     <div class="ui-fluid">
         <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-            <p:outputLabel value="#{messages['general.label.Search']}"/>
+            <p:outputLabel value="#{messages['general.label.Search']}*"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:inputText id="searchText" value="#{detailedSearchController.searchModel.searchText}" required="true">
                     <f:validateLength minimum="2"/>
@@ -21,17 +21,17 @@
 
             <p:outputLabel value="#{messages['general.label.SearchInAllRafs']}" style="margin-top: 6px"/>
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                <p:selectBooleanCheckbox widgetVar="searchInAllRafsCheckbox" value="#{detailedSearchController.searchModel.searchInAllRafs}" update="searchForm">
+                <p:selectBooleanCheckbox id="searchInAllRafsCheckbox" widgetVar="searchInAllRafsCheckbox" value="#{detailedSearchController.searchModel.searchInAllRafs}" update="searchForm">
                     <p:ajax event="change" update="searchForm"/>
                 </p:selectBooleanCheckbox>
             </p:panelGrid>
 
-            <p:outputLabel value="#{messages['fileImporterCommand.label.RafPath']}"/>
+            <p:outputLabel value="#{messages['general.label.SearchRaf']}"/>
             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-10,ui-g-12 ui-md-2" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:inputText id="searchSubFolder" value="#{detailedSearchController.searchModel.searchSubPath}" readonly="true" required="false" disabled="#{detailedSearchController.searchModel.searchInAllRafs}" />
                 <p:commandButton id="searchSubFolderLookupButton" style="width: 50px; height: 30px;" action="#{rafObjectLookup.openDialog( 'selectionType:Folder', '', detailedSearchController.searchModel.searchSubPath, true, true )}"
                                  partialSubmit="true" process="@this" icon="fa fa-search" styleClass="btn btn-default" disabled="#{detailedSearchController.searchModel.searchInAllRafs}">
-                    <p:ajax event="dialogReturn" listener="#{genericSearchPanelController.selectFolder}"  update="searchSubFolder" partialSubmit="true" process="@this" />
+                    <p:ajax event="dialogReturn" listener="#{genericSearchPanelController.selectFolder}"  update="searchSubFolder searchInAllRafsCheckbox" partialSubmit="true" process="@this" />
                 </p:commandButton>
             </p:panelGrid>
 
