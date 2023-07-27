@@ -130,12 +130,26 @@
                              rowsPerPageTemplate="5,10,20,50,100,200,500" lazy="true" scrollable="true" scrollWidth="100%">
 
                     <p:column headerText="Dosya Yolu" width="200">>
-                        <h:outputText value="#{rafObject.path}" />
-                        <h:link outcome="/raf.xhtml" title="#{messages['collection.goto.file']}">
-                            <i class="fa fa-external-link"/>
-                            <f:param name="id" value="#{''}" />
-                            <f:param name="o" value="#{rafObject.id}" />
-                        </h:link>
+                        <h:panelGroup layout="block">
+                            <h:outputText style="word-break: break-all" value="~#{rafPathHelper.getRelativeRafPath(rafObject.path)}" />
+                            <h:link outcome="/raf.xhtml" title="#{messages['collection.goto.file']}">
+                                <i class="fa fa-external-link"/>
+                                <f:param name="id" value="#{''}" />
+                                <f:param name="o" value="#{rafObject.id}" />
+                            </h:link>
+                        </h:panelGroup>
+
+                        <ui:param name="rafDefinition" value="#{rafPathHelper.getRafDefinitionFromFullPath(rafObject.path)}" />
+                        <ui:fragment rendered="#{rafDefinition ne null}">
+                            <h:panelGroup layout="block" style="padding-top: 10px">
+                                <h:link  outcome="/raf.xhtml" title="#{rafDefinition.code}">
+                                    <i class="fa fa-archive"></i>
+                                    <f:param name="id" value="#{rafDefinition.code}" />
+                                    #{messages[rafDefinition.name]}
+                                </h:link>
+                            </h:panelGroup>
+                        </ui:fragment>
+
                     </p:column>
 
                     <p:column headerText="#{messages['collection.table.File']}" width="200">
