@@ -8,25 +8,19 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.telve.auth.Identity;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.jcr.Credentials;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.web.util.WebUtils;
 import org.modeshape.jcr.ExecutionContext;
-import org.modeshape.jcr.api.ServletCredentials;
 import org.modeshape.jcr.security.AuthenticationProvider;
 import org.modeshape.jcr.security.AuthorizationProvider;
 import org.modeshape.jcr.security.SecurityContext;
 import org.modeshape.jcr.value.Path;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.Credentials;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -40,12 +34,6 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
     private String CREATE = "add_node";
     private String DELETE = "remove";
     private String DELETE_CHILD = "remove_child_nodes";
-
-    @Inject
-    private ServletCredentials servletCredentials;
-
-    @Inject
-    private ReadOnlyModeService readOnlyModeService;
 
     @Override
     public ExecutionContext authenticate(Credentials credentials, String repositoryName, String workspaceName, ExecutionContext repositoryContext, Map<String, Object> sessionAttributes) {
@@ -67,14 +55,8 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                         if (actionList.contains(READ)) {
                             rafPermission = getRafMemberService().hasReadRole(getIdentity().getLoginName(), rafDef);
                         } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
-                            if (readOnlyModeService.isEnabled()) {
-                                return false;
-                            }
                             rafPermission = getRafMemberService().hasWriteRole(getIdentity().getLoginName(), rafDef);
                         } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
-                            if (readOnlyModeService.isEnabled()) {
-                                return false;
-                            }
                             rafPermission = getRafMemberService().hasDeleteRole(getIdentity().getLoginName(), rafDef);
                         }
                     }
@@ -96,14 +78,8 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                 if (actionList.contains(READ)) {
                     permission = getRafPathMemberService().hasReadRole(getIdentity().getLoginName(), docPath);
                 } else if (actionList.contains(WRITE) || actionList.contains(CREATE)) {
-                    if (readOnlyModeService.isEnabled()) {
-                        return false;
-                    }
                     permission = getRafPathMemberService().hasWriteRole(getIdentity().getLoginName(), docPath);
                 } else if (actionList.contains(DELETE) || actionList.contains(DELETE_CHILD)) {
-                    if (readOnlyModeService.isEnabled()) {
-                        return false;
-                    }
                     permission = getRafPathMemberService().hasDeleteRole(getIdentity().getLoginName(), docPath);
                 }
 
@@ -131,7 +107,14 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
             try {
                 if (absPath.isAbsolute()) {
 //                    LOG.debug("Actions : {}", actions);
+
                     List<String> actionList = Arrays.asList(actions);
+                    ReadOnlyModeService readOnlyModeService = getReadOnlyModeService();
+                    if (getReadOnlyModeService().isEnabled() &&
+                            actionList.stream().anyMatch(action -> readOnlyModeService.getModeshapeWriteActionPermissions().contains(action))) {
+                        return false;
+                    }
+
                     String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
                     if (getIdentity() != null) {
                         if ("SYSTEM".equals(getIdentity().getLoginName()) || "SUPERADMIN".equals(getIdentity().getUserInfo().getUserType())) {
@@ -198,6 +181,10 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
     protected RafPathMemberService getRafPathMemberService() {
         return BeanProvider.getContextualReference(RafPathMemberService.class, true);
+    }
+
+    protected ReadOnlyModeService getReadOnlyModeService(){
+        return BeanProvider.getContextualReference(ReadOnlyModeService.class, true);
     }
 
     protected HttpServletRequest getHttpServletRequest(){
