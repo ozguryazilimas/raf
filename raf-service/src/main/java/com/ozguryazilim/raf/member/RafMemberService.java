@@ -292,7 +292,7 @@ public class RafMemberService implements Serializable {
     }
 
     public String getMemberRole(String username, String rafCode) throws RafException {
-        return "";
+        return getMemberRole(username, rafDefinitionService.getRafDefinitionByCode(rafCode));
     }
 
     public String getMemberRole(String username, RafDefinition raf) {
