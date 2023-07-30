@@ -3,18 +3,18 @@ package com.ozguryazilim.raf;
 import com.ozguryazilim.mutfak.kahve.Kahve;
 import com.ozguryazilim.mutfak.kahve.KahveKey;
 import org.apache.commons.lang3.StringUtils;
+import org.modeshape.jcr.ModeShapePermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +30,7 @@ public class ReadOnlyModeService {
     private Kahve kahve;
 
     private Map<ReadOnlyState, String> stateValues;
+    private Set<String> modeshapeWriteActionPermissions;
 
     @PostConstruct
     public void init() {
@@ -37,6 +38,18 @@ public class ReadOnlyModeService {
             stateValues = ReadOnlyState.getStateKeysMap().values().stream()
                     .collect(Collectors.toMap(Function.identity(), state -> kahve.get(state).getAsString()));
         }
+
+        if (modeshapeWriteActionPermissions == null) {
+            modeshapeWriteActionPermissions = new HashSet<>();
+            modeshapeWriteActionPermissions.add(ModeShapePermissions.SET_PROPERTY);
+            modeshapeWriteActionPermissions.add(ModeShapePermissions.ADD_NODE);
+            modeshapeWriteActionPermissions.add(ModeShapePermissions.REMOVE);
+            modeshapeWriteActionPermissions.add(ModeShapePermissions.REMOVE_CHILD_NODES);
+        }
+    }
+
+    public Set<String> getModeshapeWriteActionPermissions() {
+        return modeshapeWriteActionPermissions;
     }
 
     public List<ReadOnlyState> getStateKeyList() {
@@ -53,7 +66,6 @@ public class ReadOnlyModeService {
             throw new IllegalArgumentException(String.format("Target value is not belonging to possible values. Possible values for %s are: %s", state.name(), Arrays.toString(state.values)));
         } else if (stateValues.get(state).equals(value)) {
             LOG.info("Target value is same as the states current value");
-            return;
         } else {
             kahve.put(state, value);
             stateValues.put(state, value);
@@ -72,7 +84,7 @@ public class ReadOnlyModeService {
         return this.stateValues.get(state);
     }
 
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return "ENABLED".equals(this.stateValues.get(ReadOnlyState.RAF_READ_ONLY));
     }
 
