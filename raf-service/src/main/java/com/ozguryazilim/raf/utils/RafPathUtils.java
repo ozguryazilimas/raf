@@ -68,6 +68,23 @@ public class RafPathUtils {
         }
     }
 
+    public static String getRafPath(String fullPath) {
+        if (isInSharedRaf(fullPath)) {
+            return "/" + SHARED_PATH_NAME;
+        } else if (isInPrivateRaf(fullPath)) {
+            return "/" + PRIVATE_PATH_NAME + "/" + fullPath.split("/")[2];
+        } else if (isInGeneralRaf(fullPath)) {
+            return "/" + RAF_ROOT_PATH_NAME + "/" + fullPath.split("/")[2];
+        } else {
+            return "/" + fullPath.split("/")[1];
+        }
+    }
+
+    public static String getRelativeRafObjectPath(String fullPath) {
+        String rafPath = getRafPath(fullPath);
+        return fullPath.substring(rafPath.length());
+    }
+
     public static boolean isInSharedRaf(String path) {
         if (StringUtils.isBlank(path))  {
             return false;
