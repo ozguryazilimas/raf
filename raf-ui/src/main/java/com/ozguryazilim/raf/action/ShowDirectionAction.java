@@ -57,7 +57,7 @@ public class ShowDirectionAction extends AbstractAction {
                 index++;
             } while (flag);
         } catch (RafException e) {
-            e.printStackTrace();
+            LOG.error("Error while finalizing action.", e);
         }
         Collections.reverse(parents);
         String script = "openSelectedNodes('"+String.join("','",parents)+"');";
