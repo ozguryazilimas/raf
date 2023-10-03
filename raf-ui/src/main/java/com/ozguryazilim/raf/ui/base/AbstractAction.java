@@ -291,7 +291,7 @@ public class AbstractAction implements Serializable {
         }
 
         try {
-            if (getContext().getSelectedRaf() != null && ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf())) {
+            if (getContext().getSelectedRaf() != null && ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode())) {
                 return true;
             } else if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
                 return rafPathMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedObject().getPath());

@@ -27,7 +27,7 @@ public class ReindexManagerCommandExecutor extends AbstractCommandExecuter<Reind
         try {
             rafService.reindex(command.getPath(), command.isAsync());
         } catch (RafException ex) {
-            ex.printStackTrace();
+            LOG.error("Error while reindexing.", ex);
         }
     }
 }

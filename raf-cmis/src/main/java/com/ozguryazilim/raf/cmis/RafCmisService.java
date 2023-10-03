@@ -201,14 +201,14 @@ public class RafCmisService extends AbstractCmisService implements CallContextAw
     @Override
     public Properties getProperties(String repositoryId, String objectId,
                                     String filter, ExtensionsData extension) {
-        ObjectData object = null;
         try {
-            object = getRepository().getObject(getCallContext(),
-                    objectId, null, filter, false, false, this);
+            return getRepository().getObject(getCallContext(),
+                    objectId, null, filter, false, false, this)
+                    .getProperties();
         } catch (RafException e) {
             LOG.warn("Belge içeriği alınırken hata oluştu!");
+            return null;
         }
-        return object.getProperties();
     }
 
     @Override
