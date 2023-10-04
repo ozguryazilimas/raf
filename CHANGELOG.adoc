@@ -1,5 +1,14 @@
 = RAF Sürüm Notları
 
+== 1.3.3-Beta.1
+* *Diğer Değişiklik*
+** minor change test https://lab.ozguryazilim.com.tr/raf/raf/commit/aae2576a84d226c11c3200c28380a1cef49986f0[aae2576a84d226c]
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/81aeaaf7b2f8c12e8970bfa8c85fdb9a3a542dce[81aeaaf7b2f8c12]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/76070[#76070] Telve4 versiyonunun 4.2.14-Final e yükseltimesi  
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/76117[#76117] Sonar buglarının giderilmesi.  
+
 == 1.3.2-Final
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/1354afcdae2619346d08e9f66d9f43ed3d85158d[1354afcdae26193]
@@ -436,7 +445,7 @@
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/67459[#67459] jcr:data verisinin ayrı index ile indexlenmesi  
 
 == 1.2.4-Beta.3
-* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/67089[#67089] Emergency Exit Seat Warning&#x27;te hatalı yazı gelmesi  
+* ** #67089   
 
 == 1.2.4-Beta.2
 * *Sorun* https://islergucler.ozguryazilim.com.tr/issues/66728[#66728] Herhangi bir rafta search işlemi sonrası anasayfaya ilerleyip ardından search butonuna basınca beyaz ekranda kalma sorunu  
