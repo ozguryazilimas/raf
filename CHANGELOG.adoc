@@ -1,5 +1,11 @@
 = RAF Sürüm Notları
 
+== 1.3.3-Beta.4
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/17ffc7a9b4c2083f33dc6a246717a3d7c6fc6147[17ffc7a9b4c2083]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/76543[#76543] Raf telve4 sürümünün 4.2.17-Final versiyonuna güncellenmesi  
+
 == 1.3.3-Beta.3
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/ac51a3fc3b1991b12f18a45ab9fa876a5c994463[ac51a3fc3b1991b]
