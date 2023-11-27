@@ -123,7 +123,9 @@ public class RafEMailImporter implements Serializable {
     }
 
     public RafDocument uploadEmail(EMailMessage message, String filePath, boolean sendFavoriteEmail) {
-        LOG.debug("Email is importing to raf : ".concat(message.getMessageId()));
+        String messageId = message.getMessageId();
+        String messageSubject = message.getSubject();
+        LOG.info("Email is importing to raf : ".concat(messageSubject));
         filePath = encodeFilePath(filePath);
         InputStream targetStream = new ByteArrayInputStream(message.getContent().getBytes(Charsets.UTF_8));
         RafDocument doc = null;
@@ -131,18 +133,25 @@ public class RafEMailImporter implements Serializable {
             doc = rafService.uploadDocument(filePath, targetStream, sendFavoriteEmail);
             targetStream.close();
         } catch (RafException | IOException ex) {
-            debug("Error", ex);
+            LOG.error("Error while uploading email: {}", messageId, ex);
         }
         return doc;
     }
 
     public RafRecord moveToRecord(EMailMessage eMailMessage, RafDocument doc, String recordFolderPath) {
-        recordFolderPath = encodeFilePath(recordFolderPath);
+        String encodedRecordPath = encodeFilePath(recordFolderPath);
+
+        String recordName = doc.getName();
+        String[] targetPath = rafService.getTargetPath(doc, encodedRecordPath);
+        if (targetPath != null) {
+            recordName = targetPath[1];
+        }
+
         RafRecord record = new RafRecord();
-        record.setName(doc.getName());
+        record.setName(recordName);
         record.setTitle(eMailMessage.getSubject());
         record.setInfo("İçeri aktarılan E-Posta.");
-        record.setPath(recordFolderPath);
+        record.setPath(encodedRecordPath);
         record.setMainDocument(doc.getName());
         record.setProcessIntanceId(0L);
         record.setRecordType("emailDoc");
@@ -152,7 +161,7 @@ public class RafEMailImporter implements Serializable {
             record = rafService.createRecord(record);
             rafService.moveObject(doc, record);
         } catch (RafException ex) {
-            debug("error", ex);
+            LOG.error("Error while moving email to record. Doc: {}", doc.getName(), ex);
             record = null;
         }
         return record;
@@ -173,12 +182,18 @@ public class RafEMailImporter implements Serializable {
         m.getAttributes().put("emailDoc:relatedReferenceId", message.getRelatedReferenceId());
         metaDatas.add(m);
         try {
-            rafService.saveMetadatas(record.getId(), metaDatas);
+            rafService.saveMetadatas(record.getId(), metaDatas, false);
         } catch (RafException ex) {
-            debug("error", ex);
+            LOG.error("Error while adding email metadata o email record: {}", record.getName(), ex);
         }
     }
 
+    /**
+     *
+     * @param message
+     * @param rafAttachmentFolder
+     * @param record
+     */
     public void uploadAttachmentsToRecord(EMailMessage message, String rafAttachmentFolder, RafRecord record) {
         try {
             rafAttachmentFolder = encodeFilePath(rafAttachmentFolder);
@@ -224,12 +239,19 @@ public class RafEMailImporter implements Serializable {
                 LOG.info("Email could not imported. Email record path not exists: {}", path);
             }
 
+            //Upload email to temp file path
             RafDocument emailDoc = uploadEmail(message, emailFilePath, sendFavoriteEmail);
+
             if (emailDoc != null) {
+
+                //Move uploaded email from temp to record path
                 record = moveToRecord(message, emailDoc, emailRecordPath);
+
                 if (record != null) {
                     addEmailMetadataToRecord(record, message);
                     uploadAttachmentsToRecord(message, tempPath, record);
+
+                    //Append tags
                     if (tags != null) {
                         String rafCode = tempPath.split("/")[2];
                         List<String> tagList = Arrays.asList(tags.split(","));
@@ -241,6 +263,7 @@ public class RafEMailImporter implements Serializable {
                         record.setTags(tagList);
                         rafService.saveProperties(record);
                     }
+
                 }
 
             }

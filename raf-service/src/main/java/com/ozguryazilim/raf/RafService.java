@@ -22,6 +22,7 @@ import com.ozguryazilim.raf.utils.UrlUtils;
 import com.ozguryazilim.telve.audit.AuditLogCommand;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
+import javax.jcr.Session;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -405,8 +406,14 @@ public class RafService implements Serializable {
     }
 
     public void saveMetadatas(String id, List<RafMetadata> datas) throws RafException {
+        saveMetadatas(id, datas, true);
+    }
+
+    public void saveMetadatas(String id, List<RafMetadata> datas, boolean sendAuditLog) throws RafException {
         //FIXME: Yetki kontrolü + event
-        sendAuditLog(id, "SAVE_METADATAS", "");
+        if (sendAuditLog) {
+            sendAuditLog(id, "SAVE_METADATAS", "");
+        }
         rafRepository.saveMetadatas(id, datas);
     }
 
@@ -700,6 +707,10 @@ public class RafService implements Serializable {
 
     public boolean isContentPresent(RafObject rafObject) {
         return rafRepository.isContentPresent(rafObject.getId());
+    }
+
+    public String[] getTargetPath(RafObject o, String targetBase) {
+        return rafRepository.getTargetPath(o, targetBase);
     }
 
 }
