@@ -23,6 +23,13 @@ import com.ozguryazilim.raf.models.RafRecord;
 import com.ozguryazilim.raf.models.RafVersion;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
 import com.ozguryazilim.raf.utils.RafPathUtils;
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
+import javax.jcr.ReferentialIntegrityException;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.version.VersionException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -3435,6 +3442,16 @@ public class RafModeshapeRepository implements Serializable {
             return true;
         } catch (RepositoryException ex) {
             return false;
+        }
+    }
+
+    public String[] getTargetPath(RafObject o, String targetPath) {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            return targetPath(session, o, targetPath);
+        } catch (RepositoryException | RafException e) {
+            LOG.error("Error while getting target path of: {}", targetPath, e);
+            return null;
         }
     }
 

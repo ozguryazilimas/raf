@@ -54,7 +54,7 @@ public class EMailFetchCommandEditor extends CommandEditorBase<EMailFetchCommand
                 + " method with 'sendFavoriteEmail' parameter instead.\n"
                 + "*/\n"
                 + "\n"
-                + "importer.uploadEmailRecord(message, path, tempPath, fileName, tags);";
+                + "importer.uploadEmailRecord(message, tempPath, path, fileName, tags);";
 
         return new EMailFetchCommand(
                 "imap",
