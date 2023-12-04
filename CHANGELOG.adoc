@@ -1,5 +1,11 @@
 = RAF Sürüm Notları
 
+== 1.3.3-Beta.5
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/81b1bc3a04bd98ddf45e93afaff8b5265b5b33bd[81b1bc3a04bd98d]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/76816[#76816] E-Posta aktarımı zamanlanmış görevinin güncel durumunun incelenmesi, eksikliklerin tespit edilmesi.  
+
 == 1.3.3-Beta.4
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/17ffc7a9b4c2083f33dc6a246717a3d7c6fc6147[17ffc7a9b4c2083]
