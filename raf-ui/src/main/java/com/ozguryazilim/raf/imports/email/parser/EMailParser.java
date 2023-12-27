@@ -75,7 +75,7 @@ public class EMailParser {
 
         result.setMessageId(message.getMessageID());
         result.setSubject(message.getSubject());
-        result.setDate(message.getReceivedDate());
+        result.setDate(message.getSentDate());
 
         parseRelatedReferenceId(message);
         parseRefrences(message);

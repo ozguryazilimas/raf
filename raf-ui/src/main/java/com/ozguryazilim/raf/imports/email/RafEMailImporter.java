@@ -232,11 +232,11 @@ public class RafEMailImporter implements Serializable {
             String emailRecordPath = encodeFilePath(path);
 
             if (!rafService.checkRafFolder(tempPath)) {
-                LOG.info("Email could not imported. Temporary email path not exists: {}", tempPath);
+                LOG.error("Email could not imported. Temporary email path not exists: {}", tempPath);
             }
 
             if (!rafService.checkRafFolder(emailRecordPath)) {
-                LOG.info("Email could not imported. Email record path not exists: {}", path);
+                rafService.createFolder(emailRecordPath);
             }
 
             //Upload email to temp file path

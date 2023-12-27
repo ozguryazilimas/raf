@@ -104,20 +104,23 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                     LOG.debug("E-mail importer jexl result. {}", o);
                     LOG.info("E-mail importer jexl command executed.");
 
-                    switch (command.getPostImportCommand()) {
-                        case ARCHIVE:
-                            if ("imap".equals(command.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty() && emailFolder.isOpen() && archiveFolder.isOpen()) {
-                                emailFolder.copyMessages(new Message[]{message}, archiveFolder);
-                                message.setFlag(Flags.Flag.DELETED, true);
-                            }
-                            break;
-                        case DELETE:
-                            if (emailFolder.exists() && emailFolder.isOpen()) {
-                                message.setFlag(Flags.Flag.DELETED, true);
-                            }
-                            break;
-                        default:
-                            break;
+                    // Email is imported if record is not null
+                    if (o != null) {
+                        switch (command.getPostImportCommand()) {
+                            case ARCHIVE:
+                                if ("imap".equals(command.getProtocol()) && archiveFolderName != null && !archiveFolderName.isEmpty() && emailFolder.isOpen() && archiveFolder.isOpen()) {
+                                    emailFolder.copyMessages(new Message[]{message}, archiveFolder);
+                                    message.setFlag(Flags.Flag.DELETED, true);
+                                }
+                                break;
+                            case DELETE:
+                                if (emailFolder.exists() && emailFolder.isOpen()) {
+                                    message.setFlag(Flags.Flag.DELETED, true);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
