@@ -1,5 +1,12 @@
 = RAF Sürüm Notları
 
+== 1.3.4-Beta.1
+* *Diğer Değişiklik*
+** pom.xml minornumber increased https://lab.ozguryazilim.com.tr/raf/raf/commit/bff225daf37cfe0d7cbd02afc488550e5980026b[bff225daf37cfe0]
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/0a2b58448d6d4c2386fa45dbb2a5bbf4630e26de[0a2b58448d6d4c2]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/77237[#77237] E-posta Rafa aktarım mail başlığında spesifik bir isimli mailleri aktarsın   
+
 == 1.3.3-Final
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/c1506f9b6ef95a0ef62a68ce32fc7fc33fbe9773[c1506f9b6ef95a0]
