@@ -2312,6 +2312,10 @@ public class RafModeshapeRepository implements Serializable {
     }
 
     protected String[] targetPath(Session session, RafObject o, String targetBase) throws RepositoryException, RafException {
+        return targetPath(session, o.getName(), targetBase);
+    }
+
+    protected String[] targetPath(Session session, String docName, String targetBase) throws RepositoryException, RafException {
         //jcrTools.findOrCreateNode(session, PROP_TAG)
         //Önce folder var mı bakalım yoksa yoksa zaten exception ile çıkacağız.
         Node folderNode = session.getNode(targetBase);
@@ -2322,17 +2326,17 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0027] Raf Node type not folder");
         }
 
-        String result = targetBase + "/" + o.getName();
+        String result = targetBase + "/" + docName;
 
         if (!session.itemExists(result)) {
-            return new String[]{result, o.getName()};
+            return new String[]{result, docName};
         }
 
-        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.    
-        String pathName = o.getName() + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")";
-        String fileName = FilenameUtils.removeExtension(o.getName());
-        String fileExtension = FilenameUtils.getExtension(o.getName());
-        result = targetBase + "/" + fileName + "(" + folderNode.getNodes(o.getName() + "*").getSize() + ")" + "." + fileExtension;
+        //Demekki hedef var. Dolayısı ile ismini değiştirmek lazım.
+        String pathName = docName + "(" + folderNode.getNodes(docName + "*").getSize() + ")";
+        String fileName = FilenameUtils.removeExtension(docName);
+        String fileExtension = FilenameUtils.getExtension(docName);
+        result = targetBase + "/" + fileName + "(" + folderNode.getNodes(docName + "*").getSize() + ")" + "." + fileExtension;
 
         return new String[]{result, pathName};
     }
@@ -3449,6 +3453,16 @@ public class RafModeshapeRepository implements Serializable {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
             return targetPath(session, o, targetPath);
+        } catch (RepositoryException | RafException e) {
+            LOG.error("Error while getting target path of: {}", targetPath, e);
+            return null;
+        }
+    }
+
+    public String[] getTargetPath(String docName, String targetPath) {
+        try {
+            Session session = ModeShapeRepositoryFactory.getSession();
+            return targetPath(session, docName, targetPath);
         } catch (RepositoryException | RafException e) {
             LOG.error("Error while getting target path of: {}", targetPath, e);
             return null;

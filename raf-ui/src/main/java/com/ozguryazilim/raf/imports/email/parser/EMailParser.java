@@ -4,15 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.ozguryazilim.raf.models.email.EMailAttacment;
 import com.ozguryazilim.raf.models.email.EMailMessage;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Header;
@@ -24,12 +15,20 @@ import javax.mail.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Parametre olarak alınan e-postayı parse eder.

@@ -713,4 +713,8 @@ public class RafService implements Serializable {
         return rafRepository.getTargetPath(o, targetBase);
     }
 
+    public String[] getTargetPath(String o, String targetBase) {
+        return rafRepository.getTargetPath(o, targetBase);
+    }
+
 }

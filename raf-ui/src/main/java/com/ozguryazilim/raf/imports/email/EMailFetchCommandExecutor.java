@@ -22,6 +22,8 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
+
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -94,6 +96,7 @@ public class EMailFetchCommandExecutor extends AbstractCommandExecuter<EMailFetc
                     JexlEngine jexl = new JexlBuilder().create();
                     JexlScript e = jexl.createScript(command.getJexlExp());
                     JexlContext jc = new MapContext();
+                    jc.set("JEXLUtils", new JEXLUtils());
                     jc.set("rafService", rafService);
                     jc.set("message", RafEMailImporter.parseEmail(message));
                     jc.set("importer", new RafEMailImporter(rafService, rafCategoryService, tagSuggestionService));
