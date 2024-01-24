@@ -1,5 +1,12 @@
 = RAF Sürüm Notları
 
+== 1.3.5-Beta.1
+* *Diğer Değişiklik*
+** changed minornumber to 5 https://lab.ozguryazilim.com.tr/raf/raf/commit/e66a076544f021e126c5d8bdb20908f55d54930c[e66a076544f021e]
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/f0ae8c4c08bba830d60ebfc143ee14252aabf388[f0ae8c4c08bba83]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/77557[#77557] E-posta içeri alma komutunda maillerin kimden geldiğinin eklenmesi ve ayların adının tam halinin görünmesi   
+
 == 1.3.4-Final
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/3cd7b39538d74bfa1b45caa6fc6633e4b6998e24[3cd7b39538d74bf]
