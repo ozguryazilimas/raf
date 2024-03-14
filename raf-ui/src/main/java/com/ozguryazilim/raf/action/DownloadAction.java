@@ -2,7 +2,6 @@ package com.ozguryazilim.raf.action;
 
 import com.ozguryazilim.raf.DownloadService;
 import com.ozguryazilim.raf.RafException;
-import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.EventLogCommandBuilder;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.models.RafRecord;
@@ -13,14 +12,11 @@ import com.ozguryazilim.raf.utils.RafObjectUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messagebus.command.CommandSender;
 import com.ozguryazilim.telve.messages.FacesMessages;
-
+import com.ozguryazilim.telve.messages.Messages;
 import javax.faces.context.FacesContextWrapper;
 import javax.inject.Inject;
-
-import com.ozguryazilim.telve.messages.Messages;
 import org.apache.commons.io.FileUtils;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

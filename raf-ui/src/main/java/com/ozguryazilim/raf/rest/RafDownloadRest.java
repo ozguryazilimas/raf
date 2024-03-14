@@ -3,8 +3,12 @@ package com.ozguryazilim.raf.rest;
 import com.google.gson.Gson;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
+import com.ozguryazilim.raf.RafUserRoleService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.raf.utils.RafPathUtils;
+import com.ozguryazilim.telve.auth.Identity;
+import javax.jcr.AccessDeniedException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.http.HttpStatus;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -30,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -41,26 +47,58 @@ import java.util.zip.ZipOutputStream;
  * @author Taha GÜR
  */
 
-@RequiresPermissions("admin")
 @Path("/api/download")
 public class RafDownloadRest implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RafDownloadRest.class);
 
+    /**
+     * FIXME: readRoles ve writeRoles setlerinin buralarda olmaları doğru değil
+     *        Rol kontrolleri üzerindeki mevcut karmaşıklığın çözülmesi gerekli.
+     *        RafMemberService ve RafPathMemberService incelenebilir
+     */
+    private static final Set<String> readRoles = new HashSet<String>() {{
+        add("CONSUMER");
+        add("CONTRIBUTER");
+        add("EDITOR");
+        add("SUPPORTER");
+        add("MANAGER");
+    }};
+    private static final Set<String> writeRoles = new HashSet<String>() {{
+        add("CONTRIBUTER");
+        add("EDITOR");
+        add("SUPPORTER");
+        add("MANAGER");
+    }};
+
     @Inject
     private RafService rafService;
+
+    @Inject
+    private RafUserRoleService rafUserRoleService;
+
+    @Inject
+    private Identity identity;
 
     @POST
     @Path("/file")
     public Response downloadFileByPath(@FormParam("raf") String raf, @FormParam("path") String path) {
         try {
             RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
+            String role = rafUserRoleService.getRoleInPath(identity.getLoginName(), "/RAF/" + raf + path);
+            if (!readRoles.contains(role)) {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+
             LOG.info(String.format("%s is downloaded.", ro.getPath()));
             return getRafFileResponse(ro);
         } catch (IOException ex) {
             LOG.error("Error while downloading file", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
         } catch (RafException ex) {
+            if (ex.getCause() instanceof AccessDeniedException) {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
             return Response.status(Response.Status.NOT_FOUND).entity("Content not found").build();
         }
     }
@@ -70,12 +108,40 @@ public class RafDownloadRest implements Serializable {
     public Response downloadFile(@PathParam("id") String docID) {
         try {
             RafObject ro = rafService.getRafObject(docID);
+
+            //FIXME: Refactor
+            if (!RafPathUtils.isInGeneralRaf(ro.getPath())) {
+                //If private raf
+                if (RafPathUtils.isInPrivateRaf(ro.getPath())) {
+                    if (!ro.getPath().split("/")[2].equals(identity.getLoginName())) {
+                        return Response.status(Response.Status.UNAUTHORIZED).build();
+                    }
+                } else if (RafPathUtils.isInSharedRaf(ro.getPath())) {
+                    boolean sharedRafEnabled = ConfigResolver.resolve("raf.shared.enabled")
+                            .as(Boolean.class)
+                            .withDefault(Boolean.TRUE)
+                            .getValue();
+
+                    if (!sharedRafEnabled || !identity.hasPermission("sharedRaf", "select")) {
+                        return Response.status(Response.Status.UNAUTHORIZED).build();
+                    }
+                }
+            } else {
+                String role = rafUserRoleService.getRoleInPath(identity.getLoginName(), ro.getPath());
+                if (!readRoles.contains(role)) {
+                    return Response.status(Response.Status.UNAUTHORIZED).build();
+                }
+            }
+
             LOG.info(String.format("%s is downloaded.", ro.getPath()));
             return getRafFileResponse(ro);
         } catch (IOException ex) {
             LOG.error("Error while downloading file", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error while downloading file").build();
         } catch (RafException ex) {
+            if (ex.getCause() instanceof AccessDeniedException) {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
             return Response.status(Response.Status.NOT_FOUND).entity("Content not found").build();
         }
     }
@@ -90,12 +156,40 @@ public class RafDownloadRest implements Serializable {
 
         try {
             ro = rafService.getRafObjectByPath(filePath);
+
+            //FIXME: Refactor
+            if (!RafPathUtils.isInGeneralRaf(ro.getPath())) {
+                //If private raf
+                if (RafPathUtils.isInPrivateRaf(ro.getPath())) {
+                    if (!ro.getPath().split("/")[2].equals(identity.getLoginName())) {
+                        return Response.status(Response.Status.UNAUTHORIZED).build();
+                    }
+                } else if (RafPathUtils.isInSharedRaf(ro.getPath())) {
+                    boolean sharedRafEnabled = ConfigResolver.resolve("raf.shared.enabled")
+                            .as(Boolean.class)
+                            .withDefault(Boolean.TRUE)
+                            .getValue();
+
+                    if (!sharedRafEnabled || !identity.hasPermission("sharedRaf", "select")) {
+                        return Response.status(Response.Status.UNAUTHORIZED).build();
+                    }
+                }
+            } else {
+                String role = rafUserRoleService.getRoleInPath(identity.getLoginName(), ro.getPath());
+                if (!readRoles.contains(role)) {
+                    return Response.status(Response.Status.UNAUTHORIZED).build();
+                }
+            }
+
             LOG.debug("Okunan Raf Object : {}", ro.getId());
 
             Gson gson = new Gson();
             String json = gson.toJson(ro.getId());
             return Response.ok().type("application/json").entity(json).build();
         } catch (RafException ex) {
+            if (ex.getCause() instanceof AccessDeniedException) {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
             LOG.error("Could not found raf object with path.", ex);
             return Response.status(HttpStatus.SC_NOT_FOUND).build();
         }
