@@ -1,5 +1,11 @@
 = RAF Sürüm Notları
 
+== 1.3.5-1.3.5-Beta.2
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/1684eebba186d9a7080af1e861c9b26cc3ad45af[1684eebba186d9a]
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/74759[#74759] API servisine kullanıcı yetkilendirme desteğinin eklenmesi  
+
 == 1.3.5-Beta.1
 * *Diğer Değişiklik*
 ** changed minornumber to 5 https://lab.ozguryazilim.com.tr/raf/raf/commit/e66a076544f021e126c5d8bdb20908f55d54930c[e66a076544f021e]
