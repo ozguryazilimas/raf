@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +54,14 @@ public class RafUserRoleService implements Serializable {
     @Inject
     private UserService userService;
 
+
     private Map<String, List<RafMember>> rafRoleMap = new HashMap<>();
     private Map<String, List<RafPathMember>> rafPathRoleMap = new HashMap<>();
+
+    /**
+     * Compares the roles with the highest priority
+     */
+    public static Comparator<String> roleComparator = Comparator.comparingInt(RafRoleDefinition::getPriorityByName);
 
     private List<RafMember> getRafMembersByLoginName(String loginName) {
         List<RafMember> r = rafRoleMap.get(loginName);
@@ -94,7 +101,7 @@ public class RafUserRoleService implements Serializable {
         return b.stream()
                 .filter(rafMember -> rafMember.getRaf().getCode().equals(rafCode))
                 .map(RafMember::getRole)
-                .findAny()
+                .max(roleComparator)
                 .orElse("");
     }
 
@@ -174,6 +181,36 @@ public class RafUserRoleService implements Serializable {
                 .filter(memberName -> roleList.contains(getRoleInPath(memberName, path)))
                 .map(memberName -> userService.getUserInfo(memberName))
                 .collect(Collectors.toList());
+    }
+
+    private enum RafRoleDefinition {
+
+        MANAGER(5),
+        EDITOR(4),
+        CONTRIBUTER(3),
+        SUPPORTER(2),
+        CONSUMER(1),
+        UNAUTHORIZED(0);
+
+
+        private final int priority;
+
+        RafRoleDefinition(int priority) {
+            this.priority = priority;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+
+        public static int getPriorityByName(String roleName) {
+            RafRoleDefinition role = getByName(roleName);
+            return role != null ? role.getPriority() : -1;
+        }
+
+        public static RafRoleDefinition getByName(String roleName) {
+            return RafRoleDefinition.valueOf(roleName);
+        }
     }
 
 }
