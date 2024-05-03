@@ -1,6 +1,7 @@
 package com.ozguryazilim.raf.member;
 
 import com.ozguryazilim.raf.RafException;
+import com.ozguryazilim.raf.RafUserRoleService;
 import com.ozguryazilim.raf.ReadOnlyModeService;
 import com.ozguryazilim.raf.definition.RafDefinitionService;
 import com.ozguryazilim.raf.entities.RafDefinition;
@@ -32,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.enterprise.event.Observes;
 
 /**
@@ -75,8 +78,7 @@ public class RafMemberService implements Serializable {
     private RafDefinitionService rafDefinitionService;
 
     public List<RafMember> getMembers(RafDefinition raf) throws RafException {
-        String role = getMemberRole(identity.getLoginName(), raf);
-        if (role.equals(RAF_ROLE_MANAGER)) {
+        if (hasManagerRole(identity.getLoginName(), raf)) {
             return getMembersImpl(raf);
         }
         sendAuditLog(raf.getNodeId(), "UNAUTHORIZED_QUERY", String.format("Raf Name: %s, Member: %s", raf.getCode(), identity.getLoginName()));
@@ -258,29 +260,13 @@ public class RafMemberService implements Serializable {
             return !"MANAGER".equals(role);
         }
 
-        boolean b = getMembersImpl(raf).stream()
-                .anyMatch(m -> m.getMemberName().equals(username) && m.getRole().equals(role));
+        Stream<RafMember> rafMemberStream = getMembersImpl(raf).stream()
+                .filter(m -> m.getMemberType().equals(RafMemberType.USER) && m.getMemberName().equals(username));
+        Stream<RafMember> rafGroupStream = getMembersImpl(raf).stream()
+                .filter(m -> m.getMemberType().equals(RafMemberType.GROUP) && getGroupUsers(m.getMemberName()).contains(username));
 
-        //Kullanıcı olarak tanımlı olmayıp, grup üzerinden rolü olabilir.
-        if (!b) {
-            //Önce kullanıcının dahil olduğu grubu bulalım
-            List<RafMember> grps = getMembersImpl(raf).stream()
-                    .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
-                    .collect(Collectors.toList());
-
-            //Şimdi her grup içine bakalım kullanıcı var mı?
-            for (RafMember m : grps) {
-                if (getGroupUsers(m.getMemberName()).stream().anyMatch(s -> s.equals(username))) {
-                    //Varsa role doğru mu?
-                    if (m.getRole().equals(role)) {
-                        return true;
-                    }
-                }
-
-            }
-        }
-
-        return b;
+        return Stream.concat(rafMemberStream, rafGroupStream)
+                .anyMatch(m -> m.getRole().equals(role));
     }
 
     public boolean hasMemberAnyRole(String username, Set<String> roles, RafDefinition raf) throws RafException {
@@ -296,21 +282,15 @@ public class RafMemberService implements Serializable {
     }
 
     public String getMemberRole(String username, RafDefinition raf) {
-        //Kullanıcı ya da grup fark etmez üye mi diye bakıyoruz.
-        List<RafMember> b = getMembersImpl(raf).stream()
-                .filter(m -> m.getMemberName().equals(username))
-                .collect(Collectors.toList());
+        Stream<RafMember> rafMemberStream = getMembersImpl(raf).stream()
+                .filter(m -> m.getMemberType().equals(RafMemberType.USER) && m.getMemberName().equals(username));
+        Stream<RafMember> rafGroupStream = getMembersImpl(raf).stream()
+                .filter(m -> m.getMemberType().equals(RafMemberType.GROUP) && getGroupUsers(m.getMemberName()).contains(username));
 
-        if (b == null || b.isEmpty()) {
-            //Burada üye gruplar üzerinden bir kontrol yapalım.
-            //Önce Grup tipi memberlar alınıp bunlardan üye listesi toplanıyor
-            //Ardından o liste içinde istenilen kullanıcı var mı diye bakılıyor.
-            b = getMembersImpl(raf).stream()
-                    .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
-                    .filter(m -> getGroupUsers(m.getMemberName()).contains(username))
-                    .collect(Collectors.toList());
-        }
-        return b != null && !b.isEmpty() ? b.get(0).getRole() : "";
+        return Stream.concat(rafMemberStream, rafGroupStream)
+                .map(RafMember::getRole)
+                .max(RafUserRoleService.roleComparator)
+                .orElse("");
     }
 
     /**
