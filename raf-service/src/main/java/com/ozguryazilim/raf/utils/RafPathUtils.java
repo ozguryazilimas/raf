@@ -53,6 +53,25 @@ public class RafPathUtils {
         return isRootPath(fullPath, PRIVATE_PATH_NAME);
     }
 
+    public static boolean isPrivateRafPath(String fullPath) throws RafException {
+        if (!isInPrivateRaf(fullPath)) {
+            return false;
+        }
+
+        if (StringUtils.isNotBlank(fullPath)) {
+            List<String> pathNames = Arrays.stream(fullPath.split("/"))
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toList());
+
+            return pathNames.size() == 2;
+        }
+        return false;
+    }
+
+    public static boolean isSharedRafRootPath(String fullPath) throws RafException {
+        return isRootPath(fullPath, SHARED_PATH_NAME);
+    }
+
     private static boolean isRootPath(String fullPath, String rootPath) throws RafException {
         if (StringUtils.isNotBlank(fullPath)) {
             List<String> pathNames = Arrays.stream(fullPath.split("/"))
