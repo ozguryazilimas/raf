@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.definition.RafDefinitionRepository;
 import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
+import com.ozguryazilim.raf.utils.RafPathUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.modeshape.jcr.ExecutionContext;
@@ -110,12 +111,18 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
 
                     List<String> actionList = Arrays.asList(actions);
                     ReadOnlyModeService readOnlyModeService = getReadOnlyModeService();
-                    if (getReadOnlyModeService().isEnabled() &&
-                            actionList.stream().anyMatch(action -> readOnlyModeService.getModeshapeWriteActionPermissions().contains(action))) {
+                    String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
+
+                    boolean isCreateOrWrite = actionList.stream().allMatch(elem -> elem.equals(WRITE) || elem.equals(CREATE));
+                    boolean isMutateOperation = actionList.stream().anyMatch(action -> readOnlyModeService.getModeshapeWriteActionPermissions().contains(action));
+                    if ((RafPathUtils.isSharedRafRootPath(docPath) || RafPathUtils.isPrivateRafPath(docPath)) && isCreateOrWrite) {
+                        return true;
+                    }
+
+                    if (getReadOnlyModeService().isEnabled() && isMutateOperation) {
                         return false;
                     }
 
-                    String docPath = absPath.getString().replaceAll("\\{\\}", "").replaceAll("%", "_").replaceAll("\\+", "_");
                     if (getIdentity() != null) {
                         if ("SYSTEM".equals(getIdentity().getLoginName()) || "SUPERADMIN".equals(getIdentity().getUserInfo().getUserType())) {
                             //SYSTEM kullanıcısı zamanlanmış görevlerin çalıştırıldığı kullanıcıdır..
