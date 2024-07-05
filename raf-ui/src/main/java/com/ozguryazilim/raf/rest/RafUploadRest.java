@@ -7,6 +7,7 @@ import com.ozguryazilim.raf.entities.RafDefinition;
 import com.ozguryazilim.raf.models.RafDocument;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.auth.Identity;
 import javax.inject.Inject;
 import javax.jcr.AccessDeniedException;
 import javax.ws.rs.FormParam;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,8 @@ public class RafUploadRest implements Serializable{
     @Inject
     private RafRestPermissionService rafRestPermissionService;
 
+    @Inject
+    private Identity identity;
 
     @POST
     @Path("/createFolder")
@@ -66,7 +70,7 @@ public class RafUploadRest implements Serializable{
                 nodePath = rafDefinition.getNode().getPath();
             }
 
-            if (!rafRestPermissionService.hasCreatePermission(nodePath)) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasCreatePermission(nodePath))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
             
@@ -108,7 +112,7 @@ public class RafUploadRest implements Serializable{
             
             RafObject o = rafService.getRafObject(folderId);
 
-            if (!rafRestPermissionService.hasCreatePermission(o.getPath())) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasCreatePermission(o.getPath()))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
             
@@ -170,7 +174,7 @@ public class RafUploadRest implements Serializable{
                 nodePath = rafDefinition.getNode().getPath();
             }
 
-            if (!rafRestPermissionService.hasReadPermission(nodePath)) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasReadPermission(nodePath))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
@@ -189,5 +193,15 @@ public class RafUploadRest implements Serializable{
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-    
+
+
+    private boolean isPermittedBySuperadminType() {
+        boolean isPermittedBySuperadminType = ConfigResolver.resolve("raf.rest.documentOperation.permission.permitSuperadmin")
+                .as(Boolean.class)
+                .withCurrentProjectStage(false)
+                .withDefault(Boolean.FALSE)
+                .getValue();
+
+        return isPermittedBySuperadminType && identity.getUserInfo().getUserType() == "SUPERADMIN";
+    }
 }
