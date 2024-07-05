@@ -5,6 +5,7 @@ import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.models.RafFolder;
 import com.ozguryazilim.raf.models.RafObject;
+import com.ozguryazilim.telve.auth.Identity;
 import javax.inject.Inject;
 import javax.jcr.AccessDeniedException;
 import javax.ws.rs.Consumes;
@@ -46,12 +47,15 @@ public class RafDownloadRest implements Serializable {
     @Inject
     private RafRestPermissionService rafRestPermissionService;
 
+    @Inject
+    private Identity identity;
+
     @POST
     @Path("/file")
     public Response downloadFileByPath(@FormParam("raf") String raf, @FormParam("path") String path) {
         try {
             RafObject ro = rafService.getRafObjectByPath("/RAF/" + raf + path);
-            if (!rafRestPermissionService.hasReadPermission(ro.getPath())) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasReadPermission(ro.getPath()))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
@@ -74,7 +78,7 @@ public class RafDownloadRest implements Serializable {
         try {
             RafObject ro = rafService.getRafObject(docID);
 
-            if (!rafRestPermissionService.hasReadPermission(ro.getPath())) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasReadPermission(ro.getPath()))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
@@ -102,7 +106,7 @@ public class RafDownloadRest implements Serializable {
         try {
             ro = rafService.getRafObjectByPath(filePath);
 
-            if (!rafRestPermissionService.hasReadPermission(ro.getPath())) {
+            if (!(isPermittedBySuperadminType() || rafRestPermissionService.hasReadPermission(ro.getPath()))) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
@@ -155,5 +159,15 @@ public class RafDownloadRest implements Serializable {
                     .build();
 
         }
+    }
+
+    private boolean isPermittedBySuperadminType() {
+        boolean isPermittedBySuperadminType = ConfigResolver.resolve("raf.rest.documentOperation.permission.permitSuperadmin")
+                .as(Boolean.class)
+                .withCurrentProjectStage(false)
+                .withDefault(Boolean.FALSE)
+                .getValue();
+
+        return isPermittedBySuperadminType && "SUPERADMIN".equals(identity.getUserInfo().getUserType());
     }
 }
