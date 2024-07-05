@@ -194,7 +194,6 @@ public class RafUploadRest implements Serializable{
         }
     }
 
-
     private boolean isPermittedBySuperadminType() {
         boolean isPermittedBySuperadminType = ConfigResolver.resolve("raf.rest.documentOperation.permission.permitSuperadmin")
                 .as(Boolean.class)
@@ -202,6 +201,6 @@ public class RafUploadRest implements Serializable{
                 .withDefault(Boolean.FALSE)
                 .getValue();
 
-        return isPermittedBySuperadminType && identity.getUserInfo().getUserType() == "SUPERADMIN";
+        return isPermittedBySuperadminType && "SUPERADMIN".equals(identity.getUserInfo().getUserType());
     }
 }
