@@ -1,5 +1,9 @@
 = RAF Sürüm Notları
 
+== 1.3.6-Final
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/bc98fddfbd04be567f2239fe6b3c001ff4745fc2[bc98fddfbd04be5]
+
 == 1.3.6-Beta.2
 * *Diğer Değişiklik*
 ** changed minor 6 again https://lab.ozguryazilim.com.tr/raf/raf/commit/bfa5fa22083b141f69c0fa41ba85ba153d2e3814[bfa5fa22083b141]
