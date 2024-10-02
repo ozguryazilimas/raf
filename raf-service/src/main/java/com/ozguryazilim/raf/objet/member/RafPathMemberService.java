@@ -236,12 +236,15 @@ public class RafPathMemberService implements Serializable {
 
     private boolean hasMemberRole(String username, String role, String path) throws RafException {
         if (isMemberOf(username, path)) {
+            LOG.debug("User: {} Role: {} Path: {} Checking member role...", username, role, path);
             return hasMemberRole_(username, role, path);
         } else {
             String parentPath = path.substring(0, path.lastIndexOf("/"));
             if (Strings.isNullOrEmpty(parentPath)) {
+                LOG.debug("User: {} Role: {} Path: {} Parent path is empty. Return permission: false", username, role, path);
                 return false;
             } else {
+                LOG.debug("User: {} Role: {} Path: {} Trying to check member role recursively from parent path.", username, role, parentPath);
                 return hasMemberRole(username, role, parentPath);
             }
         }
@@ -249,21 +252,27 @@ public class RafPathMemberService implements Serializable {
 
     public boolean hasMemberAnyRole(String username, Set<String> roles, String path) throws RafException {
         if (isMemberOf(username, path)) {
+            LOG.debug("User: {} Roles: {} Path: {} Trying to check member roles...", username, roles, path);
             boolean hasUserRole = getMembersImpl(path).stream()
                     .anyMatch(m -> m.getMemberName().equals(username) && roles.contains(m.getRole()));
 
             if (!hasUserRole) {
+                LOG.debug("User: {} Roles: {} Path: {} Haven't user role. Trying to check group member roles", username, roles, path);
                 //Dahil olduğu gruptan (varsa) ilgili rolü alıp almadığını kontrol edelim
-                return getMembersImpl(path).stream()
+                Boolean result =  getMembersImpl(path).stream()
                         .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
                         .filter(m -> getGroupUsers(m.getMemberName()).stream().anyMatch(username::equals))
                         .anyMatch(m -> roles.contains(m.getRole()));
+                LOG.debug("User: {} Roles: {} Path: {} Group member roles checked completed. Return permission: {}", username, roles, path, result);
+                return result;
             }
-
+            LOG.debug("User: {} Roles: {} Path: {} Member roles checked completed. Return permission: {}", username, roles, path, hasUserRole);
             return hasUserRole;
         } else {
+            LOG.debug("User: {} Roles: {} Path: {} Cannot found membership to the path. Trying to parent path recursively.", username, roles, path);
             String parentPath = path.substring(0, path.lastIndexOf("/"));
             if (Strings.isNullOrEmpty(parentPath)) {
+                LOG.debug("User: {} Roles: {} Path: {} Parent path is empty. Return permission: false", username, roles, path);
                 return false;
             } else {
                 return hasMemberAnyRole(username, roles, parentPath);
@@ -273,17 +282,22 @@ public class RafPathMemberService implements Serializable {
 
     public boolean hasMemberInPath(String username, String path) {
         try {
+            LOG.debug("User: {} Path: {} Trying to check only memberships...", username, path);
             if (isMemberOf(username, path)) {
+                LOG.debug("User: {} Path: {} User is the member of path. Return permission: true", username, path);
                 return true;
             } else {
+                LOG.debug("User: {} Path: {} Cannot found membership to the path. Trying to parent path recursively.", username, path);
                 String parentPath = path.substring(0, path.lastIndexOf("/"));
                 if (Strings.isNullOrEmpty(parentPath)) {
+                    LOG.debug("User: {} Path: {} Parent path is empty. Return permission: false", username, path);
                     return false;
                 } else {
                     return hasMemberInPath(username, parentPath);
                 }
             }
         } catch (RafException ex) {
+            LOG.error("HasMemberInPath method throw an exception: {}", ex);
             return false;
         }
     }
@@ -292,6 +306,7 @@ public class RafPathMemberService implements Serializable {
 
         boolean b = getMembersImpl(path).stream()
                 .anyMatch(m -> m.getMemberName().equals(username) && m.getRole().equals(role));
+        LOG.debug("User: {} Role: {} Path: {} Member role: {}", username, role, path, b);
 
         //Kullanıcı olarak tanımlı olmayıp, grup üzerinden rolü olabilir.
         if (!b) {
@@ -299,19 +314,21 @@ public class RafPathMemberService implements Serializable {
             List<RafPathMember> grps = getMembersImpl(path).stream()
                     .filter(m -> m.getMemberType().equals(RafMemberType.GROUP))
                     .collect(Collectors.toList());
+            LOG.debug("User: {} Role: {} Path: {} Groups: {}", username, role, path, grps);
 
             //Şimdi her grup içine bakalım kullanıcı var mı?
             for (RafPathMember m : grps) {
                 if (getGroupUsers(m.getMemberName()).stream().anyMatch(s -> s.equals(username))) {
                     //Varsa role doğru mu?
                     if (m.getRole().equals(role)) {
+                        LOG.debug("User: {} Role: {} Path: {} Group role is matched. Return permission: true", username, role, path);
                         return true;
                     }
                 }
 
             }
         }
-
+        LOG.debug("User: {} Role: {} Path: {} Return permission : {}", username, role, path, b);
         return b;
     }
 

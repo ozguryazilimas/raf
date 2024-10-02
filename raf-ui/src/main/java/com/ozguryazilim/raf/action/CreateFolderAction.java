@@ -16,11 +16,13 @@ import com.ozguryazilim.raf.ui.base.Action;
 import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Seçili klasör içine yeni bir kalsör ekler.
@@ -60,17 +62,27 @@ public class CreateFolderAction extends AbstractAction {
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission = false;
-            String createFolderPermission = ConfigResolver.getPropertyValue("createFolder.permission", "hasWrite");
 
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = "hasWrite".equals(createFolderPermission) ? rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath()) : rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
-            } else {
-                permission = getContext().getSelectedRaf().getId() > 0 && "hasWrite".equals(createFolderPermission) ? memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf()) : memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            if(getContext().getSelectedObject() != null) {
+                return cache.get(getContext().getSelectedObject().getId() + identity.getLoginName(), () -> {
+                    boolean permission;
+                    String createFolderPermission = ConfigResolver.getPropertyValue("createFolder.permission", "hasWrite");
+                    if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                        permission = "hasWrite".equals(createFolderPermission) ? rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath()) : rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                    } else {
+                        permission = getContext().getSelectedRaf().getId() > 0 && "hasWrite".equals(createFolderPermission) ? memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf()) : memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    }
+                    return permission && super.applicable(forCollection);
+                });
+            } else if(getContext().getSelectedRaf() != null) {
+                return cache.get(getContext().getSelectedRaf().getId() + identity.getLoginName(), () -> {
+                    String createFolderPermission = ConfigResolver.getPropertyValue("createFolder.permission", "hasWrite");
+                    boolean permission = getContext().getSelectedRaf().getId() > 0 && "hasWrite".equals(createFolderPermission) ? memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf()) : memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    return permission && super.applicable(forCollection);
+                });
             }
-
-            return permission && super.applicable(forCollection);
-        } catch (RafException ex) {
+            return false;
+        } catch (ExecutionException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);
         }

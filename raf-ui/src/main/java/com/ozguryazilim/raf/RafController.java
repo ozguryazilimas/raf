@@ -382,7 +382,10 @@ public class RafController implements Serializable {
     }
 
     public boolean isCurrentPathInGeneralRaf() {
-        return RafPathUtils.isInGeneralRaf(context.getCollection().getPath());
+        if(context != null && context.getCollection() != null) {
+            return RafPathUtils.isInGeneralRaf(context.getCollection().getPath());
+        }
+        return false;
     }
 
     public String getRafCode() {
@@ -771,6 +774,9 @@ public class RafController implements Serializable {
      * @param event
      */
     public void deleteListener(@Observes RafObjectDeleteEvent event) {
+        if(event.getPayload() != null) {
+            LOG.info("RafObjectDeleteEvent : {}", event.getPayload().getPath());
+        }
         LOG.debug("RafObjectDeleteEvent");
         //Ne olursa olsun. Bişi silinmiş ise selectedObject kalmamıştır
         context.setSelectedObject(null);
@@ -854,7 +860,7 @@ public class RafController implements Serializable {
      * @param event
      */
     public void folderDataListener(@Observes RafFolderDataChangeEvent event) {
-        LOG.info("RafFolderCreateEvent");
+        LOG.info("RafFolderDataChangeEvent");
         try {
             if (context.getSelectedObject() != null) {
                 populateFolderCollection(context.getSelectedObject().getId());

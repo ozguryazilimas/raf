@@ -19,13 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,15 +50,21 @@ public class AddTagAction extends AbstractAction {
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission;
-            Optional<String> selectedObjectPath = Optional.ofNullable(getContext().getSelectedObject()).map(RafObject::getPath);
-            if (selectedObjectPath.isPresent() && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
-                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
-            } else {
-                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            if(getContext().getSelectedObject() != null) {
+                return cache.get(getContext().getSelectedObject().getId() + identity.getLoginName(), () -> {
+                    Optional<String> selectedObjectPath = Optional.ofNullable(getContext().getSelectedObject()).map(RafObject::getPath);
+                    if (selectedObjectPath.isPresent() && !Strings.isNullOrEmpty(identity.getLoginName()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), selectedObjectPath.get())) {
+                       return rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                    } else {
+                        return memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    }
+                });
+            } else if(getContext().getSelectedRaf() != null) {
+                return cache.get(getContext().getSelectedRaf().getId() + identity.getLoginName(),
+                        () -> memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf()));
             }
-            return permission;
-        } catch (RafException ex) {
+            return false;
+        } catch (ExecutionException ex) {
             LOG.error("Error", ex);
             return false;
         }

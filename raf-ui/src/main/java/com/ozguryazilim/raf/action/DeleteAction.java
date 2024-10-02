@@ -1,6 +1,8 @@
 package com.ozguryazilim.raf.action;
 
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.RafService;
 import com.ozguryazilim.raf.events.RafFolderDataChangeEvent;
@@ -15,10 +17,16 @@ import com.ozguryazilim.raf.ui.base.ActionCapability;
 import com.ozguryazilim.raf.utils.RafObjectUtils;
 import com.ozguryazilim.telve.auth.Identity;
 import com.ozguryazilim.telve.messages.FacesMessages;
+
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -53,16 +61,31 @@ public class DeleteAction extends AbstractAction {
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission = false;
-
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
-            } else {
-                permission = memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            if (getContext().getSelectedObject() != null) {
+                return cache.get(getContext().getSelectedObject().getId() + identity.getLoginName(), () -> {
+                    LOG.debug("User: {}, Path: {} ID: {} . Checking delete action applicable for selected object.",
+                            identity.getLoginName(),
+                            getContext().getSelectedObject().getPath(),
+                            getContext().getSelectedObject().getId());
+                    boolean permission;
+                    if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                        permission = rafPathMemberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                    } else {
+                        permission = memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    }
+                    return permission && super.applicable(forCollection);
+                });
+            } else if (getContext().getSelectedRaf() != null) {
+                return cache.get(getContext().getSelectedRaf().getId() + identity.getLoginName(), () -> {
+                    LOG.debug("User: {}, Raf Code: {} . Checking delete action applicable for raf.}",
+                            identity.getLoginName(),
+                            getContext().getSelectedRaf().getCode());
+                    Boolean permission = memberService.hasDeleteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    return permission && super.applicable(forCollection);
+                });
             }
-
-            return permission && super.applicable(forCollection);
-        } catch (RafException ex) {
+            return false;
+        } catch (ExecutionException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);
         }
@@ -89,11 +112,13 @@ public class DeleteAction extends AbstractAction {
 
     public void deleteObject(RafObject o) {
         try {
+            LOG.info("Raf object trying to be deleted. user: {} name : {} path: {} id: {}", identity.getLoginName(), o.getName(), o.getPath(), o.getId());
             rafService.deleteObject(o);
             deleteEvent.fire(new RafObjectDeleteEvent(o));
 
             //Eğer silinen şey folder ise FolderChangeEvent'ide fırlatalım ki folder ağaçları da düzenlensin
             if (o instanceof RafFolder) {
+                LOG.info("Raf Folder deleted. user: {} name: {} path: {}", identity.getLoginName(), o.getName(), o.getPath());
                 folderChangeEvent.fire(new RafFolderDataChangeEvent());
             }
         } catch (RafException ex) {

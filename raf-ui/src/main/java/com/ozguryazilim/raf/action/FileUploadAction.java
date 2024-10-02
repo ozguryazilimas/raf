@@ -35,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -85,16 +86,24 @@ public class FileUploadAction extends AbstractAction implements RafFileUploadHan
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission = false;
-
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
-            } else {
-                permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            if (getContext().getSelectedObject() != null) {
+                return cache.get(getContext().getSelectedObject().getId() + identity.getLoginName(), () -> {
+                    boolean permission;
+                    if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                        permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                    } else {
+                        permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    }
+                    return permission && super.applicable(forCollection);
+                });
+            } else if (getContext().getSelectedRaf() != null) {
+                return cache.get(getContext().getSelectedRaf().getId() + identity.getLoginName(), () -> {
+                    boolean permission = memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    return permission && super.applicable(forCollection);
+                });
             }
-            
-            return permission && super.applicable(forCollection);
-        } catch (RafException ex) {
+            return false;
+        } catch (ExecutionException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);
         }

@@ -88,7 +88,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                 LOG.error("RafException", ex);
             }
         }
-//        LOG.debug("Raf Permission : {}", permission);
+        LOG.debug("User: {} Path: {} Permission: {}", getIdentity().getLoginName(), docPath, permission);
         return permission;
     }
 
@@ -116,15 +116,18 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                     boolean isCreateOrWrite = actionList.stream().allMatch(elem -> elem.equals(WRITE) || elem.equals(CREATE));
                     boolean isMutateOperation = actionList.stream().anyMatch(action -> readOnlyModeService.getModeshapeWriteActionPermissions().contains(action));
                     if ((RafPathUtils.isSharedRafRootPath(docPath) || RafPathUtils.isPrivateRafPath(docPath)) && isCreateOrWrite) {
+                        LOG.debug("User: {} Path: {} It's shared or private raf path. Return permission: true", getIdentity().getLoginName(), docPath);
                         return true;
                     }
 
                     if (getReadOnlyModeService().isEnabled() && isMutateOperation) {
+                        LOG.debug("User: {} Path: {} It's readonly mode. Cannot permit mutate operations! Return permission: false", getIdentity().getLoginName(), docPath);
                         return false;
                     }
 
                     if (getIdentity() != null) {
                         if ("SYSTEM".equals(getIdentity().getLoginName()) || "SUPERADMIN".equals(getIdentity().getUserInfo().getUserType())) {
+                            LOG.debug("User: {} Path: {} It's SUPERADMIN OR SYSTEM user. Return permission: true", getIdentity().getLoginName(), docPath);
                             //SYSTEM kullanıcısı zamanlanmış görevlerin çalıştırıldığı kullanıcıdır..
                             permission = true;
                         } else {
@@ -137,6 +140,7 @@ public class RafSecurityProvider implements AuthenticationProvider, Authorizatio
                         }
                     } else {
                         //identity bulunamadı attack olabilir. false döndürelim.
+                        LOG.debug("Identity cannot found. Return permission: false");
                         return false;
                     }
                 } else {

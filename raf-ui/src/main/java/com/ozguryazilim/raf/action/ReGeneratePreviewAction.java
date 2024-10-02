@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.concurrent.ExecutionException;
 
 @Action(icon = "fa-refresh",
         permissions = {"MANAGER"},
@@ -44,15 +45,19 @@ public class ReGeneratePreviewAction extends AbstractAction {
     @Override
     public boolean applicable(boolean forCollection) {
         try {
-            boolean permission = false;
-
-            if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
-                permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
-            } else {
-                permission = getContext().getSelectedRaf() != null && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+            if (getContext().getSelectedObject() != null) {
+                return cache.get(getContext().getSelectedObject().getId() + identity.getLoginName(), () -> {
+                    boolean permission;
+                    if (!Strings.isNullOrEmpty(identity.getLoginName()) && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(identity.getLoginName(), getContext().getSelectedObject().getPath())) {
+                        permission = rafPathMemberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedObject().getPath());
+                    } else {
+                        permission = getContext().getSelectedRaf() != null && memberService.hasWriteRole(identity.getLoginName(), getContext().getSelectedRaf());
+                    }
+                    return permission && super.applicable(forCollection);
+                });
             }
-            return permission && getContext().getSelectedObject() != null && super.applicable(forCollection);
-        } catch (RafException ex) {
+            return false;
+        } catch (ExecutionException ex) {
             LOG.error("Error", ex);
             return super.applicable(forCollection);
         }
