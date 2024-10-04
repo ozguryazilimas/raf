@@ -2104,8 +2104,8 @@ public class RafModeshapeRepository implements Serializable {
     public void deleteObject(String id) throws RafException {
         try {
             Session session = ModeShapeRepositoryFactory.getSession();
-
             Node node = session.getNodeByIdentifier(id);
+            LOG.info("Trying to be deleted object id: {} path: {}", id, node.getPath());
 
             try {
                 //Burada tarihçe silmek gerek. Aksi halde bütün dosyalar sistem de kalacak
@@ -2126,6 +2126,8 @@ public class RafModeshapeRepository implements Serializable {
             throw new RafException("[RAF-0046] Item not found. It may be already deleted.", ex);
         } catch (RepositoryException ex) {
             throw new RafException("[RAF-0025] Raf Node cannot delete", ex);
+        } catch (Exception ex) {
+            LOG.error("Unknown Exception:", ex);
         }
 
     }
@@ -2151,6 +2153,7 @@ public class RafModeshapeRepository implements Serializable {
      */
     private void deleteVersionHistory(Node node) throws RepositoryException {
         if (node.isNodeType(MIXIN_VERSIONABLE)) {
+            LOG.info("Trying to be deleted version history with mix:versionable id: {} path: {}", node.getIdentifier(), node.getPath());
             org.modeshape.jcr.api.version.VersionManager vm = (org.modeshape.jcr.api.version.VersionManager) node.getSession().getWorkspace().getVersionManager();
             //İlginç bir şekilde modeshape version listesini temizlemiyor. Bizim temizlememizi bekliyor.
             VersionHistory versionHistory = vm.getVersionHistory(node.getPath());
@@ -2161,10 +2164,11 @@ public class RafModeshapeRepository implements Serializable {
             }
             vm.remove(node.getPath());
         } else {
+            LOG.debug("Trying to be deleted object without mix:versionable id: {} path: {}", node.getIdentifier(), node.getPath());
             NodeIterator it = node.getNodes();
             while (it.hasNext()) {
                 Node n = it.nextNode();
-
+                LOG.info("Trying to be deleted version history without mix:versionable recursively. id: {} path: {}", node.getIdentifier(), node.getPath());
                 deleteVersionHistory(n);
             }
         }

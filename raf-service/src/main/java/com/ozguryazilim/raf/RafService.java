@@ -431,6 +431,7 @@ public class RafService implements Serializable {
 
     public void deleteObject(RafObject data) throws RafException {
         //FIXME: Yetki kontrolü
+        LOG.info("Trying to be deleted object: {}, name : {}, path: {}", data.getId(), data.getName(), data.getPath());
         deleteObject(data.getId());
     }
 
@@ -442,7 +443,7 @@ public class RafService implements Serializable {
             sendEventLog("DeleteObject", obj);
             sendAuditLog(id, "DELETE_OBJECT", obj.getPath());
         } catch (RafException ex){
-            LOG.warn("[RAF-0044] Failed to create raf object. For this reason, event and audit logs will not be produced. item id: {}",id);
+            LOG.warn("[RAF-0044] Failed to delete raf object. For this reason, event and audit logs will not be produced. item id: {}",id);
         }
         rafRepository.deleteObject(id);
     }

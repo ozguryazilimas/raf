@@ -1,9 +1,10 @@
 package com.ozguryazilim.raf.ui.base;
 
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ozguryazilim.raf.ApplicationContstants;
 import com.ozguryazilim.raf.RafContext;
-import com.ozguryazilim.raf.RafException;
 import com.ozguryazilim.raf.member.RafMemberService;
 import com.ozguryazilim.raf.models.RafObject;
 import com.ozguryazilim.raf.objet.member.RafPathMemberService;
@@ -14,7 +15,10 @@ import org.apache.deltaspike.core.api.config.view.ViewConfig;
 import org.apache.deltaspike.core.api.config.view.metadata.ViewConfigResolver;
 import org.apache.deltaspike.core.util.ProxyUtils;
 import org.primefaces.context.RequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -23,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +36,8 @@ import java.util.stream.Collectors;
  * @author oyas
  */
 public class AbstractAction implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAction.class);
 
     @Inject
     private ViewConfigResolver viewConfigResolver;
@@ -45,6 +53,15 @@ public class AbstractAction implements Serializable {
 
     @Inject
     private Identity identity;
+
+    protected Cache<String, Boolean> cache;
+
+    @PostConstruct
+    public void init() {
+        cache = CacheBuilder.newBuilder()
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .build();
+    }
 
     /**
      * Varsayılan hali ile sınıf adını döner.
@@ -202,38 +219,51 @@ public class AbstractAction implements Serializable {
      * @return
      */
     public boolean applicable(boolean forCollection) {
-        String im = getAnnotation().includedMimeType();
-        String em = getAnnotation().excludeMimeType();
 
-        boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
-                .as(Boolean.class)
-                .withDefault(Boolean.TRUE)
-                .getValue();
+        StringBuilder cacheKeyBuilder = new StringBuilder();
+        cacheKeyBuilder.append(forCollection);
+        cacheKeyBuilder.append(getContext().getCollection() != null ? getContext().getCollection().getId() : null);
+        cacheKeyBuilder.append(getContext().getSelectedObject() != null ? getContext().getSelectedObject().getId() : null);
+        cacheKeyBuilder.append(getContext().getSelectedRaf() != null ? getContext().getSelectedRaf().getId() : null);
+        try {
+            return cache.get(cacheKeyBuilder.toString(), () -> {
+                String im = getAnnotation().includedMimeType();
+                String em = getAnnotation().excludeMimeType();
 
-        if (sharedRafActionPermissionsEnabled) {
-            String actionPermission = getAnnotation().actionPermission();
-            boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
+                boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
+                        .as(Boolean.class)
+                        .withDefault(Boolean.TRUE)
+                        .getValue();
+                LOG.debug("Shared Raf action permissions enabled: {}", sharedRafActionPermissionsEnabled);
+                if (sharedRafActionPermissionsEnabled) {
+                    String actionPermission = getAnnotation().actionPermission();
+                    boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
 
-            if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
+                    if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
+                        return false;
+                    }
+                }
+
+                //Eğer Collection için isteniyor ise
+                if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
+                    String mm = getContext().getCollection().getMimeType();
+                    return isApplicableMimeType(mm);
+
+                } else if (!forCollection && hasCapability(ActionCapability.DetailViews) && getContext().getSelectedObject() != null) {
+                    RafObject object = getContext().getSelectedObject();
+                    if (object == null) {
+                        return false;
+                    }
+
+                    return isApplicableMimeType(object.getMimeType());
+                }
+
                 return false;
-            }
+            });
+        } catch (ExecutionException ex) {
+            LOG.error("Error", ex);
+            return false;
         }
-
-        //Eğer Collection için isteniyor ise
-        if (forCollection && hasCapability(ActionCapability.CollectionViews) && getContext().getCollection() != null) {
-            String mm = getContext().getCollection().getMimeType();
-            return isApplicableMimeType(mm);
-
-        } else if (!forCollection && hasCapability(ActionCapability.DetailViews) && getContext().getSelectedObject() != null) {
-            RafObject object = getContext().getSelectedObject();
-            if (object == null) {
-                return false;
-            }
-
-            return isApplicableMimeType(object.getMimeType());
-        }
-
-        return false;
     }
 
     public boolean isApplicableMimeType(String mimeType) {
@@ -272,33 +302,41 @@ public class AbstractAction implements Serializable {
     }
 
     public boolean permitted(String loginName) {
-        if (StringUtils.isBlank(loginName)) {
-            return false;
-        }
-
-        boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
-                .as(Boolean.class)
-                .withDefault(Boolean.TRUE)
-                .getValue();
-
-        if (sharedRafActionPermissionsEnabled) {
-            String actionPermission = getAnnotation().actionPermission();
-            boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
-
-            if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
-                return false;
-            }
-        }
-
+        StringBuilder cacheKeyBuilder = new StringBuilder();
+        cacheKeyBuilder.append(loginName);
+        cacheKeyBuilder.append(getContext().getSelectedRaf() != null ? getContext().getSelectedRaf().getId() : null);
+        cacheKeyBuilder.append(getContext().getSelectedObject() != null ? getContext().getSelectedObject().getId() : null);
+        cacheKeyBuilder.append(getAnnotation().actionPermission());
         try {
-            if (getContext().getSelectedRaf() != null && ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode())) {
-                return true;
-            } else if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
-                return rafPathMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedObject().getPath());
-            } else {
-                return getContext().getSelectedRaf() != null && rafMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedRaf());
-            }
-        } catch (RafException e) {
+            return cache.get(cacheKeyBuilder.toString(), () -> {
+                if (StringUtils.isBlank(loginName)) {
+                    return false;
+                }
+
+                boolean sharedRafActionPermissionsEnabled = ConfigResolver.resolve("raf.shared.enable.action.permission")
+                        .as(Boolean.class)
+                        .withDefault(Boolean.TRUE)
+                        .getValue();
+
+                if (sharedRafActionPermissionsEnabled) {
+                    String actionPermission = getAnnotation().actionPermission();
+                    boolean hasPermissionOnSharedRaf = !actionPermission.isEmpty() ? identity.hasPermission("sharedRaf", actionPermission) : true;
+
+                    if (ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode()) && !hasPermissionOnSharedRaf) {
+                        return false;
+                    }
+                }
+
+                if (getContext().getSelectedRaf() != null && ApplicationContstants.SHARED_RAF.equals(getContext().getSelectedRaf().getCode())) {
+                    return true;
+                } else if (getContext().getSelectedObject() != null && !Strings.isNullOrEmpty(getContext().getSelectedObject().getPath()) && rafPathMemberService.hasMemberInPath(loginName, getContext().getSelectedObject().getPath())) {
+                    return rafPathMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedObject().getPath());
+                } else {
+                    return getContext().getSelectedRaf() != null && rafMemberService.hasMemberAnyRole(loginName, getPermissions(), getContext().getSelectedRaf());
+                }
+            });
+        } catch (ExecutionException ex) {
+            LOG.error("Raf Exception", ex);
             return false;
         }
     }

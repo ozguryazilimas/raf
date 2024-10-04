@@ -242,10 +242,16 @@ public class RafMemberService implements Serializable {
 
     public boolean hasDeleteRole(String username, RafDefinition raf) throws RafException {
         if (readOnlyModeService.isEnabled()) {
+            LOG.debug("User: {} Raf: {}. Read-only mode is active. Return delete role permission: false", username, raf.getCode());
             return false;
         }
 
-        if (username == null || raf == null) {
+        if(username == null) {
+            LOG.debug("User is null. Return delete role permission: false");
+            return false;
+        }
+        if(raf == null) {
+            LOG.debug("User : {}. Raf is null. Return delete role permission: false", username);
             return false;
         }
         return hasMemberRole(username, "EDITOR", raf) || hasMemberRole(username, "MANAGER", raf);
@@ -257,7 +263,8 @@ public class RafMemberService implements Serializable {
         }
         //PRIVATE ve SHARED repolarda manager yok ama geri kalan bütün kullanıcılar tam yetkili.
         if (raf.getCode().equals("PRIVATE") || raf.getCode().equals("SHARED")) {
-            return !"MANAGER".equals(role);
+            Boolean permission = !"MANAGER".equals(role);
+            return permission;
         }
 
         Stream<RafMember> rafMemberStream = getMembersImpl(raf).stream()
@@ -265,8 +272,10 @@ public class RafMemberService implements Serializable {
         Stream<RafMember> rafGroupStream = getMembersImpl(raf).stream()
                 .filter(m -> m.getMemberType().equals(RafMemberType.GROUP) && getGroupUsers(m.getMemberName()).contains(username));
 
-        return Stream.concat(rafMemberStream, rafGroupStream)
+        Boolean permission =  Stream.concat(rafMemberStream, rafGroupStream)
                 .anyMatch(m -> m.getRole().equals(role));
+        LOG.debug("User: {}, Role: {}. Checked raf members and group members. Return permission: {}", username, role, permission);
+        return permission;
     }
 
     public boolean hasMemberAnyRole(String username, Set<String> roles, RafDefinition raf) throws RafException {
