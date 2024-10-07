@@ -1,5 +1,15 @@
 = RAF Sürüm Notları
 
+== 1.3.7-Beta.1
+* *Diğer Değişiklik*
+** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/d244109e7679c37da27f2a45f4df2b9fbea508aa[d244109e7679c37]
+
+* *Sorun* https://islergucler.ozguryazilim.com.tr/issues/78721[#78721] Dosya içinde &quot;Sürümler&quot; listesinde sürüm notunun görünmemesi  
+
+* ** #81870   
+
+* *Özellik* https://islergucler.ozguryazilim.com.tr/issues/81892[#81892] Klasör silme sorunu  
+
 == 1.3.6-Final
 * *Diğer Değişiklik*
 ** [aliferit] update changelog https://lab.ozguryazilim.com.tr/raf/raf/commit/bc98fddfbd04be567f2239fe6b3c001ff4745fc2[bc98fddfbd04be5]
